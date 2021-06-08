@@ -17,6 +17,8 @@ func initApiRouter() {
 	v1.POST("/machine", postMachine)
 	v1.PUT("/machine", putMachine)
 	v1.DELETE("/machine", deleteMachine)
+
+	v1.POST("/publish", publish)
 }
 
 func getJobs(c *gin.Context) {
@@ -84,4 +86,8 @@ func deleteMachine(c *gin.Context) {
 	}
 	bf := models.DeleteMachine(int(mID))
 	resComm(c, bf, nil)
+}
+
+func publish(c *gin.Context) {
+
 }
