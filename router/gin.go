@@ -30,6 +30,7 @@ func init() {
 	// GinDefault.Use(cors.Default())
 	v1 = GinDefault.Group("/v1")
 	initCommonRouter()
+	initApiRouter()
 }
 
 // ListenAndServer ListenAndServer
