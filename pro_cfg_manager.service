@@ -1,0 +1,14 @@
+[Unit]
+Description=CDN Client Service
+After=network.target
+ 
+[Service]
+Type=simple
+User=nobody
+Restart=on-failure
+RestartSec=5s
+WorkingDirectory=/usr/local/cdn
+ExecStart=/usr/local/cdn/cdn
+ 
+[Install]
+WantedBy=multi-user.target
