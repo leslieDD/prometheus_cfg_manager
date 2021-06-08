@@ -4,7 +4,6 @@ After=network.target
  
 [Service]
 Type=simple
-User=nobody
 Restart=on-failure
 RestartSec=5s
 WorkingDirectory=/usr/local/prometheus_cfg_manager
