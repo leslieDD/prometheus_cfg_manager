@@ -1,5 +1,5 @@
 [Unit]
-Description=CDN Client Service
+Description=Prometheus Config Manager Service
 After=network.target
  
 [Service]
@@ -7,8 +7,8 @@ Type=simple
 User=nobody
 Restart=on-failure
 RestartSec=5s
-WorkingDirectory=/usr/local/cdn
-ExecStart=/usr/local/cdn/cdn
+WorkingDirectory=/usr/local/prometheus_cfg_manager
+ExecStart=/usr/local/prometheus_cfg_manager/pro_cfg_manager
  
 [Install]
 WantedBy=multi-user.target
