@@ -7,8 +7,9 @@ import (
 
 // SplitPage SplitPage分页
 type SplitPage struct {
-	PageNo   int `form:"pageNo"`
-	PageSize int `form:"pageSize"`
+	PageNo   int    `form:"pageNo"`
+	PageSize int    `form:"pageSize"`
+	Search   string `form:"search"`
 }
 
 // ResSplitPage 返回的分页信息

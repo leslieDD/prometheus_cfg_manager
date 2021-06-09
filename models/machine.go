@@ -1,12 +1,14 @@
 package models
 
 import (
+	"fmt"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/utils"
 	"strings"
 
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 type Machine struct {
@@ -43,13 +45,31 @@ func GetMachines(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	var count int64
-	tx := db.Table("machines").Count(&count)
+	var tx *gorm.DB
+	if sp.Search != "" {
+		tx = db.Table("machines").
+			Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%")).
+			Count(&count)
+	} else {
+		tx = db.Table("machines").Count(&count)
+	}
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrCount
 	}
 	machines := []Machine{}
-	tx = db.Table("machines").Offset((sp.PageNo - 1) * sp.PageSize).Limit(sp.PageSize).Find(&machines)
+	if sp.Search != "" {
+		tx = db.Table("machines").
+			Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%")).
+			Offset((sp.PageNo - 1) * sp.PageSize).
+			Limit(sp.PageSize).Find(&machines)
+	} else {
+		tx = db.Table("machines").
+			Offset((sp.PageNo - 1) * sp.PageSize).
+			Limit(sp.PageSize).
+			Find(&machines)
+	}
+
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
