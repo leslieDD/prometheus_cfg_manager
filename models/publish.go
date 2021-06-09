@@ -98,7 +98,11 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 		if j.IsCommon {
 			thisIPs := []string{}
 			for _, i := range allIPs {
-				thisIPs = append(thisIPs, fmt.Sprintf("%s:%d", i, j.Port))
+				if j.Port == 0 {
+					thisIPs = append(thisIPs, i)
+				} else {
+					thisIPs = append(thisIPs, fmt.Sprintf("%s:%d", i, j.Port))
+				}
 			}
 			targetList := TargetList{
 				Targets: thisIPs,
