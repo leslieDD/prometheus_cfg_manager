@@ -143,7 +143,7 @@
 			let state = '';
 			let submitType = '';
 			let data = '';
-		    $('input[name="checkbox"]').each(function(){
+		    $('input[name="radio"]').each(function(){
 		        state = $(this).prop('checked');
 		        if(state){
 		          	arr.push(parseInt($(this).val()));
@@ -230,7 +230,7 @@
                 		let str = '';
                 		$('.group').children().remove();
                 		$.each(res.data, function(i,result){
-                			str += "<span><input value='"+result.id+"' type='checkbox' name='checkbox'>"+result.name+"&nbsp;&nbsp;&nbsp;</span>";
+                			str += "<span><input value='"+result.id+"' type='radio' name='radio'>"+result.name+"&nbsp;&nbsp;&nbsp;</span>";
                 		})
                 		$('.group').append(str);
                 	}
@@ -246,7 +246,7 @@
     		$('.group').children().remove();
     		jobList = JSON.parse(localStorage.getItem('jobList'));
     		$.each(jobList, function(i,result){
-    			str += "<span><input value='"+result.id+"' type='checkbox' name='checkbox'>"+result.name+"&nbsp;&nbsp;&nbsp;</span>";
+    			str += "<span><input value='"+result.id+"' type='radio' name='radio'>"+result.name+"&nbsp;&nbsp;&nbsp;</span>";
     		})
     		$('.group').append(str);
 		}
@@ -391,7 +391,7 @@
 			jobList = JSON.parse(localStorage.getItem('jobList'));
 			$.each(jobList, function(i, result){
 				if(group.toString().indexOf(result.id) != -1){
-					$('input[name="checkbox"]:eq('+i+')').attr('checked','checked');
+					$('input[name="radio"]:eq('+i+')').attr('checked','checked');
 				}
 			})
 			show_modal();
