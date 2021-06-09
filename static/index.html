@@ -5,9 +5,9 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge" /> 
   <meta name="viewport" content="width=device-width, initial-scale=1" /> 
   <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ --> 
-  <title>ip管理</title> 
+  <title>IP管理</title> 
   <!-- Bootstrap --> 
-  <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" />
+  <link href="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/css/bootstrap.min.css" rel="stylesheet" /> 
   <style type="text/css">
   	.modal-body div{
   		margin-bottom: 10px;
@@ -27,7 +27,7 @@
   	.modal-body .group input{
   		cursor: pointer;
   	}
-  </style>
+  </style> 
   <style>
 	
 	</style> 
@@ -35,98 +35,90 @@
  <body> 
   <div class="container"> 
    <div style="text-align:center"> 
-    <h2>ip管理</h2> 
+    <h2>IP管理</h2> 
    </div> 
    <div class="panel panel-primary"> 
     <div class="panel-heading"> 
-     <h3 class="panel-title">ip列表</h3> 
+     <h3 class="panel-title">IP列表</h3> 
     </div> 
     <div class="panel-body"> 
      <form class="form-inline"> 
       <div class="row"> 
        <div class="col-sm-3"> 
         <button type="button" class="btn btn-primary" onclick="add()">新增</button> 
+        <button type="button" class="btn btn-primary" onclick="pushDo()">发布</button> 
        </div> 
       </div> 
      </form> 
      <table class="table table-hover" style="margin-top:2px;"> 
       <thead> 
-       <tr>
+       <tr> 
         <th>序号</th> 
-        <th>ip</th> 
-        <th>分组</th>
+        <th>IP</th> 
+        <th>分组</th> 
         <th>操作</th> 
        </tr> 
       </thead> 
       <tbody> 
-
       </tbody> 
      </table> 
     </div> 
    </div> 
    <div style="margin:0px;text-align:center;margin-top:0px;"> 
-    <ul class="pagination" style="height:100px;">
+    <ul class="pagination" style="height:100px;"> 
     </ul> 
    </div> 
-  </div>
+  </div> 
   <!-- jQuery文件。务必在bootstrap.min.js 之前引入 --> 
   <script src="https://cdn.staticfile.org/jquery/2.1.1/jquery.min.js"></script> 
   <!-- 最新的 Bootstrap 核心 JavaScript 文件 --> 
-  <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-
-	<!-- 模态框（Modal） -->
-	<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-		<div class="modal-dialog">
-			<div class="modal-content">
-				<div class="modal-header">
-					<button type="button" class="close" data-dismiss="modal" aria-hidden="true">
-						&times;
-					</button>
-					<h4 class="modal-title" id="myModalLabel">
-						ip记录
-					</h4>
-				</div>
-				<div class="modal-body">
-					<div>
-						<span class="log_title">ip:</span>
-						<input value="" id="ip">
-					</div>
-					<div>
-						<span class="log_title">分组:</span>
-						<span class="group">
-						</span>
-					</div>
-					<input type="hidden" id='id' value="">
-				</div>
-				<div class="modal-footer">
-					<button type="button" class="btn btn-default" data-dismiss="modal">关闭
-					</button>
-					<button type="button" class="btn btn-primary" onclick="addIp()">
-						提交
-					</button>
-				</div>
-			</div><!-- /.modal-content -->
-		</div><!-- /.modal -->
-	</div>
-
-	<div class="modal fade" id="myInfo">
-		<div class="modal-dialog">
-			<div class="modal-content">
-					<div class="modal-header">
-	  					<h3>操作提示</h3>
-	  				</div>
-	  				<div class="modal-body">
-	  					<p class="infoChange">提示信息</p>
-	  				</div>
-	  				<div class="modal-footer">
-	  					<button class="btn btn-info" data-dismiss="modal">关闭</button>
-	  				</div>
-			</div>
-		</div>
-	</div>
-	<script type="text/javascript">
-		var url = 'http://27.151.29.204:8200';
+  <script src="https://cdn.staticfile.org/twitter-bootstrap/3.3.7/js/bootstrap.min.js"></script> 
+  <!-- 模态框（Modal） --> 
+  <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true"> 
+   <div class="modal-dialog"> 
+    <div class="modal-content"> 
+     <div class="modal-header"> 
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true"> &times; </button> 
+      <h4 class="modal-title" id="myModalLabel"> IP记录 </h4> 
+     </div> 
+     <div class="modal-body"> 
+      <div> 
+       <span class="log_title">IP:</span> 
+       <input value="" id="ip" /> 
+      </div> 
+      <div> 
+       <span class="log_title">分组:</span> 
+       <span class="group"> </span> 
+      </div> 
+      <input type="hidden" id="id" value="" /> 
+     </div> 
+     <div class="modal-footer"> 
+      <button type="button" class="btn btn-default" data-dismiss="modal">关闭 </button> 
+      <button type="button" class="btn btn-primary" onclick="addIp()"> 提交 </button> 
+     </div> 
+    </div>
+    <!-- /.modal-content --> 
+   </div>
+   <!-- /.modal --> 
+  </div> 
+  <div class="modal fade" id="myInfo"> 
+   <div class="modal-dialog"> 
+    <div class="modal-content"> 
+     <div class="modal-header"> 
+      <h3>操作提示</h3> 
+     </div> 
+     <div class="modal-body"> 
+      <p class="infoChange">提示信息</p> 
+     </div> 
+     <div class="modal-footer"> 
+      <button class="btn btn-info" data-dismiss="modal">关闭</button> 
+     </div> 
+    </div> 
+   </div> 
+  </div> 
+  <script type="text/javascript">
+		// var url = window.location.host;
+		//var url = 'http://27.151.29.204:8200';
 		var page = 1;
 		var limit = 15;
 		var left = 0;
@@ -149,7 +141,7 @@
 		    	return false;
 		    }
 		    if(/^((\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d|[1-9]\d|1\d\d|2[0-4]\d|25[0-5])$/.test(ip) == false ){
-		    	infoView('ip地址格式有误');
+		    	infoView('IP地址格式有误');
 		    	return false;
 		    }
 		    if(id){
@@ -161,7 +153,7 @@
 		    }
 			
 			$.ajax({
-                url : url + '/v1/machine',
+                url : '/v1/machine',
                 type : submitType,
                 data: JSON.stringify(data),
                 datatype: 'json',
@@ -173,7 +165,7 @@
                 			$('#myModal').modal('hide');
                 		}else{
                 			infoView(res.msg);
-	                		location.reload();
+                      setTimeout("location.reload()", 2000);
                 		}
                 	}else{
                 		infoView(res.msg);
@@ -212,7 +204,7 @@
 				return false;
 			}
 			$.ajax({
-                url : url + '/v1/jobs',
+                url : '/v1/jobs',
                 type : 'get',
                 datatype: 'json',
                 success: function(res){
@@ -246,7 +238,7 @@
 			left = 0;
 			right = 0;
 			$.ajax({
-                url : url + '/v1/machines?pageNo='+page+'&pageSize='+limit,
+                url : '/v1/machines?pageNo='+page+'&pageSize='+limit,
                 type : 'get',
                 datatype: 'json',
                 success: function(res){
@@ -355,6 +347,25 @@
 			get_list();
 		}
 
+		function pushDo(){
+			$.ajax({
+				url : '/v1/publish',
+				type : 'post',
+				datatype: 'json',
+				success: function(res){
+					if(res.code == 200000){
+						infoView(res.msg);
+						get_list();
+					}else{
+						infoView(res.msg);
+					}
+				},
+				error: function(err){
+
+				}
+			})
+		}
+
 		function edit(id,ip,group){
 			update_group();
 			$('#ip').val(ip);
@@ -370,7 +381,7 @@
 
 		function deleteDo(id){
 			$.ajax({
-                url : url + '/v1/machine?id='+id,
+                url : '/v1/machine?id='+id,
                 type : 'delete',
                 datatype: 'json',
                 success: function(res){
@@ -386,6 +397,6 @@
                 }
             })
 		}
-	</script>
+	</script>  
  </body>
 </html>
