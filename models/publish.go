@@ -55,12 +55,12 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
-
 	mapJobs := map[int]Jobs{}
 	for _, j := range jobs {
 		mapJobs[j.ID] = j
 	}
 	// 目前只支持一个组
+	// 如果是多个组，可以新增加一张labels表，再从machine表中关联labels表
 	mGrp := map[string]*TargetList{} // machine group
 	for _, m := range machines {
 		v, err := m.JobId.MarshalJSON()
@@ -87,6 +87,11 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 	for name, obj := range mGrp {
 		mGrpSyncPro[name] = []*TargetList{}
 		mGrpSyncPro[name] = append(mGrpSyncPro[name], obj)
+	}
+	for _, j := range jobs {
+		if _, ok := mGrpSyncPro[j.Name]; !ok {
+			mGrpSyncPro[j.Name] = []*TargetList{}
+		}
 	}
 	// r, _ := json.MarshalIndent(mGrpSyncPro, "", "    ")
 	// fmt.Printf("%v\n", string(r))
