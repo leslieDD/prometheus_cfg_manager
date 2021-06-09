@@ -20,7 +20,7 @@ func GetJobs() (*[]Jobs, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	jobs := []Jobs{}
-	tx := db.Table("jobs").Find(&jobs)
+	tx := db.Table("jobs").Where("is_common=0").Find(&jobs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
