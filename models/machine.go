@@ -3,6 +3,7 @@ package models
 import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
+	"pro_cfg_manager/utils"
 	"strings"
 
 	"gorm.io/datatypes"
@@ -57,6 +58,9 @@ func GetMachines(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 }
 
 func PostMachine(m *Machine) *BriefMessage {
+	if utils.CheckIPAddr(m.IpAddr) {
+		return ErrIPAddr
+	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -74,6 +78,9 @@ func PostMachine(m *Machine) *BriefMessage {
 }
 
 func PutMachine(m *Machine) *BriefMessage {
+	if utils.CheckIPAddr(m.IpAddr) {
+		return ErrIPAddr
+	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
