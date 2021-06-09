@@ -99,7 +99,7 @@ func (p *PublishResolve) syncToPrometheus(data map[string][]*TargetList) *BriefM
 		return ErrDataIsNil
 	}
 	for name, objData := range data {
-		pathName := filepath.Join(config.Cfg.PrometheusCfg.Dir, fmt.Sprintf("%s.conf", name))
+		pathName := filepath.Join(config.Cfg.PrometheusCfg.Dir, fmt.Sprintf("%s.json", name))
 		writeData, err := json.MarshalIndent(&objData, "", "    ")
 		if err != nil {
 			config.Log.Error(err)
