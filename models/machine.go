@@ -61,6 +61,13 @@ func PostMachine(m *Machine) *BriefMessage {
 	if utils.CheckIPAddr(m.IpAddr) {
 		return ErrIPAddr
 	}
+	idList, bf := JsonToIntSlice(m)
+	if bf != Success {
+		return bf
+	}
+	if len(idList) == 0 {
+		return ErrJobTypeEmpty
+	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -80,6 +87,13 @@ func PostMachine(m *Machine) *BriefMessage {
 func PutMachine(m *Machine) *BriefMessage {
 	if utils.CheckIPAddr(m.IpAddr) {
 		return ErrIPAddr
+	}
+	idList, bf := JsonToIntSlice(m)
+	if bf != Success {
+		return bf
+	}
+	if len(idList) == 0 {
+		return ErrJobTypeEmpty
 	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {

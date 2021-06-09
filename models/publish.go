@@ -63,15 +63,9 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 	// 如果是多个组，可以新增加一张labels表，再从machine表中关联labels表
 	mGrp := map[string]*TargetList{} // machine group
 	for _, m := range machines {
-		v, err := m.JobId.MarshalJSON()
-		if err != nil {
-			config.Log.Error(err)
-			return nil, ErrJobDataFormat
-		}
-		idList := []int{}
-		if err := json.Unmarshal(v, &idList); err != nil {
-			config.Log.Error(err)
-			return nil, ErrJobDataFormat
+		idList, bf := JsonToIntSlice(&m)
+		if bf != Success {
+			return nil, bf
 		}
 		for _, jID := range idList {
 			if _, ok := mGrp[mapJobs[jID].Name]; !ok {

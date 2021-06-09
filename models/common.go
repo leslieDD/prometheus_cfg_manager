@@ -1,5 +1,10 @@
 package models
 
+import (
+	"encoding/json"
+	"pro_cfg_manager/config"
+)
+
 // SplitPage SplitPage分页
 type SplitPage struct {
 	PageNo   int `form:"pageNo"`
@@ -33,4 +38,18 @@ func CalSplitPage(sp *SplitPage, total int64, data interface{}) *ResSplitPage {
 	}
 	rsp.Data = data
 	return &rsp
+}
+
+func JsonToIntSlice(m *Machine) ([]int, *BriefMessage) {
+	v, err := m.JobId.MarshalJSON()
+	if err != nil {
+		config.Log.Error(err)
+		return nil, ErrJobDataFormat
+	}
+	idList := []int{}
+	if err := json.Unmarshal(v, &idList); err != nil {
+		config.Log.Error(err)
+		return nil, ErrJobDataFormat
+	}
+	return idList, Success
 }

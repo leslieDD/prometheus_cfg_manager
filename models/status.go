@@ -138,6 +138,7 @@ var ErrChgPassword = &BriefMessage{400000, "提交的密码信息有误"}
 
 //
 var ErrIPAddr = &BriefMessage{400000, "不是正确的IP地址"}
+var ErrJobTypeEmpty = &BriefMessage{400000, "IP的分组类型不允许为空"}
 
 // --------------------------------------------------------------
 // ---------------- 300xxx 链接错误 ------------------------------
