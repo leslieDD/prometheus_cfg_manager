@@ -35,7 +35,7 @@ type Config struct {
 var Cfg *Config
 
 // Version 软件版本
-var Version = "0.0.5"
+var Version = "0.0.6"
 
 //
 var configFileName = "pro_cfg_manager.yml"

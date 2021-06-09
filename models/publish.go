@@ -158,9 +158,10 @@ func (p *PublishResolve) Do() *BriefMessage {
 	if bf != Success {
 		return bf
 	}
-	bf = p.syncToPrometheus(data)
-	if bf != Success {
-		return bf
-	}
-	return p.ReloadPrometheus()
+	return p.syncToPrometheus(data)
+	// bf = p.syncToPrometheus(data)
+	// if bf != Success {
+	// 	return bf
+	// }
+	// return p.ReloadPrometheus()
 }
