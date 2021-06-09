@@ -6,10 +6,11 @@ import (
 )
 
 type Jobs struct {
-	ID      int    `json:"id" gorm:"column:id"`
-	Name    string `json:"name" gorm:"column:name"`
-	Port    int    `json:"port" gorm:"column:port"`
-	CfgName string `json:"cfg_name" gorm:"column:cfg_name"`
+	ID       int    `json:"id" gorm:"column:id"`
+	Name     string `json:"name" gorm:"column:name"`
+	Port     int    `json:"port" gorm:"column:port"`
+	CfgName  string `json:"cfg_name" gorm:"column:cfg_name"`
+	IsCommon bool   `json:"is_common" gorm:"column:is_common"`
 }
 
 func GetJobs() (*[]Jobs, *BriefMessage) {

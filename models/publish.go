@@ -35,9 +35,6 @@ type TargetList struct {
 }
 
 func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) {
-	p.lock.Lock()
-	defer p.lock.Unlock()
-
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -59,6 +56,7 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 	for _, j := range jobs {
 		mapJobs[j.ID] = j
 	}
+	allIPsMap := map[string]struct{}{}
 	// 目前只支持一个组
 	// 如果是多个组，可以新增加一张labels表，再从machine表中关联labels表
 	mGrp := map[string]*TargetList{} // machine group
@@ -74,7 +72,14 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 					Lables:  map[string]string{},
 				}
 			}
-			mGrp[mapJobs[jID].Name].Targets = append(mGrp[mapJobs[jID].Name].Targets, fmt.Sprintf("%s:%d", m.IpAddr, mapJobs[jID].Port))
+			var ipAndPort string
+			if mapJobs[jID].Port == 0 {
+				ipAndPort = m.IpAddr
+			} else {
+				ipAndPort = fmt.Sprintf("%s:%d", m.IpAddr, mapJobs[jID].Port)
+			}
+			mGrp[mapJobs[jID].Name].Targets = append(mGrp[mapJobs[jID].Name].Targets, ipAndPort)
+			allIPsMap[ipAndPort] = struct{}{}
 		}
 	}
 	mGrpSyncPro := map[string][]*TargetList{} // machine group
@@ -82,9 +87,20 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 		mGrpSyncPro[name] = []*TargetList{}
 		mGrpSyncPro[name] = append(mGrpSyncPro[name], obj)
 	}
+	allIPs := []string{}
+	for key := range allIPsMap {
+		allIPs = append(allIPs, key)
+	}
 	for _, j := range jobs {
 		if _, ok := mGrpSyncPro[j.Name]; !ok {
 			mGrpSyncPro[j.Name] = []*TargetList{}
+		}
+		if j.IsCommon {
+			targetList := TargetList{
+				Targets: allIPs,
+				Lables:  map[string]string{},
+			}
+			mGrpSyncPro[j.Name] = append(mGrpSyncPro[j.Name], &targetList)
 		}
 	}
 	// r, _ := json.MarshalIndent(mGrpSyncPro, "", "    ")
@@ -113,10 +129,30 @@ func (p *PublishResolve) syncToPrometheus(data map[string][]*TargetList) *BriefM
 	return Success
 }
 
+func (p *PublishResolve) ReloadPrometheus() *BriefMessage {
+	code, output, err := utils.ExecCmd("systemctl", "reload", "prometheus")
+	if err != nil {
+		config.Log.Errorf("err: %v: output: %v", err, output)
+		return ErrReloadPrometheus
+	}
+	if code != 0 {
+		config.Log.Errorf("code: %d, output: %v", code, output)
+		return ErrReloadPrometheus
+	}
+	return Success
+}
+
 func (p *PublishResolve) Do() *BriefMessage {
+	p.lock.Lock()
+	defer p.lock.Unlock()
+
 	data, bf := p.formatData()
 	if bf != Success {
 		return bf
 	}
-	return p.syncToPrometheus(data)
+	bf = p.syncToPrometheus(data)
+	if bf != Success {
+		return bf
+	}
+	return p.ReloadPrometheus()
 }
