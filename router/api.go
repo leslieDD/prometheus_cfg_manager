@@ -89,5 +89,6 @@ func deleteMachine(c *gin.Context) {
 }
 
 func publish(c *gin.Context) {
-
+	bf := models.Publish()
+	resComm(c, bf, nil)
 }

@@ -20,6 +20,7 @@ func resOK(c *gin.Context, data interface{}) {
 		Msg:  models.Success.Message,
 		Data: data,
 	}
+	c.Header("Content-Type", "application/json") //?
 	c.JSON(http.StatusOK, r)
 }
 
@@ -30,6 +31,7 @@ func resComm(c *gin.Context, bf *models.BriefMessage, data interface{}) {
 		Msg:  bf.Message,
 		Data: data,
 	}
+	c.Header("Content-Type", "application/json") //?
 	if bf.Code == 401000 {
 		c.JSON(http.StatusUnauthorized, r)
 	} else {

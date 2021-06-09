@@ -57,6 +57,18 @@ var ErrEnableDomain = &BriefMessage{500000, "设置域名状态为可用失败"}
 // ErrCnameExist ErrCnameExist
 var ErrCnameExist = &BriefMessage{500000, "cname已经存在"}
 
+//
+var ErrJobDataFormat = &BriefMessage{500000, "解析任务列表数据出错"}
+
+// 数据是空的
+var ErrDataIsNil = &BriefMessage{500000, "数据是nil，不能使用"}
+
+// 数据是空的
+var ErrDataMarshal = &BriefMessage{500000, "序列化数据失败"}
+
+// 写入数据失败
+var ErrDataWriteDisk = &BriefMessage{500000, "写入数据到磁盘失败"}
+
 // --------------------------------------------------------------
 // ---------------- 400xxx 客户端错误 ----------------------------
 // --------------------------------------------------------------
