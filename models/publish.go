@@ -72,6 +72,7 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 					Lables:  map[string]string{},
 				}
 			}
+			allIPsMap[m.IpAddr] = struct{}{}
 			var ipAndPort string
 			if mapJobs[jID].Port == 0 {
 				ipAndPort = m.IpAddr
@@ -79,7 +80,6 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 				ipAndPort = fmt.Sprintf("%s:%d", m.IpAddr, mapJobs[jID].Port)
 			}
 			mGrp[mapJobs[jID].Name].Targets = append(mGrp[mapJobs[jID].Name].Targets, ipAndPort)
-			allIPsMap[ipAndPort] = struct{}{}
 		}
 	}
 	mGrpSyncPro := map[string][]*TargetList{} // machine group
@@ -96,8 +96,12 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 			mGrpSyncPro[j.Name] = []*TargetList{}
 		}
 		if j.IsCommon {
+			thisIPs := []string{}
+			for _, i := range allIPs {
+				thisIPs = append(thisIPs, fmt.Sprintf("%s:%d", i, j.Port))
+			}
 			targetList := TargetList{
-				Targets: allIPs,
+				Targets: thisIPs,
 				Lables:  map[string]string{},
 			}
 			mGrpSyncPro[j.Name] = append(mGrpSyncPro[j.Name], &targetList)
