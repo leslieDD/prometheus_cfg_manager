@@ -27,6 +27,7 @@ func init() {
 	GinDefault.StaticFS("/static", http.Dir("static/"))
 	GinDefault.StaticFile("/avatar2.jpg", "static/avatar2.jpg")
 	GinDefault.StaticFile("/logo.png", "static/logo.png")
+	GinDefault.StaticFile("/favicon.ico", "static/favicon.ico")
 	// GinDefault.Use(cors.Default())
 	v1 = GinDefault.Group("/v1")
 	initCommonRouter()
