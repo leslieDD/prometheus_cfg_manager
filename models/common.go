@@ -5,11 +5,19 @@ import (
 	"pro_cfg_manager/config"
 )
 
+type OptionType int
+
+const (
+	isIPAddr OptionType = 1
+	isGroup  OptionType = 2
+)
+
 // SplitPage SplitPage分页
 type SplitPage struct {
-	PageNo   int    `form:"pageNo"`
-	PageSize int    `form:"pageSize"`
-	Search   string `form:"search"`
+	PageNo   int        `form:"pageNo"`
+	PageSize int        `form:"pageSize"`
+	Search   string     `form:"search"`
+	Option   OptionType `form:"option"`
 }
 
 // ResSplitPage 返回的分页信息

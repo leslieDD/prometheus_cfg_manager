@@ -5,6 +5,7 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/utils"
+	"strconv"
 	"strings"
 
 	"gorm.io/datatypes"
@@ -44,34 +45,48 @@ func GetMachines(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return nil, ErrDataBase
 	}
+	machines := []Machine{}
+	var jsonStr string
 	var count int64
 	var tx *gorm.DB
+	tx = db.Table("machines")
 	if sp.Search != "" {
-		tx = db.Table("machines").
-			Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%")).
-			Count(&count)
-	} else {
-		tx = db.Table("machines").Count(&count)
+		if sp.Option == isGroup {
+			list, bf := getJobId(sp.Search)
+			if bf != Success {
+				return nil, ErrSearchDBData
+			}
+			if len(list) == 0 {
+				return CalSplitPage(sp, count, machines), Success
+			}
+			listStr := []string{}
+			for _, v := range list {
+				listStr = append(listStr, strconv.Itoa(v.ID))
+			}
+			jsonStr = "JSON_CONTAINS(job_id, JSON_ARRAY(" + strings.Join(listStr, ",") + "))"
+			tx = tx.Where(jsonStr)
+		} else {
+			tx = tx.Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%"))
+		}
 	}
+	tx = tx.Count(&count)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrCount
 	}
-	machines := []Machine{}
+	tx2 := db.Table("machines")
 	if sp.Search != "" {
-		tx = db.Table("machines").
-			Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%")).
-			Offset((sp.PageNo - 1) * sp.PageSize).
-			Limit(sp.PageSize).Find(&machines)
-	} else {
-		tx = db.Table("machines").
-			Offset((sp.PageNo - 1) * sp.PageSize).
-			Limit(sp.PageSize).
-			Find(&machines)
+		if sp.Option == isGroup {
+			tx2 = tx2.Where(jsonStr)
+		} else {
+			tx2 = tx2.Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%"))
+		}
 	}
-
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
+	tx2 = tx2.Offset((sp.PageNo - 1) * sp.PageSize).
+		Limit(sp.PageSize).
+		Find(&machines)
+	if tx2.Error != nil {
+		config.Log.Error(tx2.Error)
 		return nil, ErrSearchDBData
 	}
 	return CalSplitPage(sp, count, machines), Success

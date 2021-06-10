@@ -8,10 +8,11 @@ export function getMechine (machineId) {
   })
 }
 
-export function getMachines () {
+export function getMachines (info) {
   return request({
     url: '/v1/machines',
-    method: 'get'
+    method: 'get',
+    params: info
   })
 }
 

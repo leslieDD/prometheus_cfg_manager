@@ -55,7 +55,7 @@ func getMachines(c *gin.Context) {
 func postMachine(c *gin.Context) {
 	mInfo := &models.Machine{}
 	if err := c.BindJSON(mInfo); err != nil {
-		resComm(c, models.ErrSplitParma, nil)
+		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostMachine(mInfo)
@@ -65,7 +65,7 @@ func postMachine(c *gin.Context) {
 func putMachine(c *gin.Context) {
 	mInfo := &models.Machine{}
 	if err := c.BindJSON(mInfo); err != nil {
-		resComm(c, models.ErrSplitParma, nil)
+		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutMachine(mInfo)
