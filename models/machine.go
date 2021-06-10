@@ -7,15 +7,17 @@ import (
 	"pro_cfg_manager/utils"
 	"strconv"
 	"strings"
+	"time"
 
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
 type Machine struct {
-	ID     int            `json:"id" gorm:"column:id"`
-	IpAddr string         `json:"ipaddr" gorm:"column:ipaddr"`
-	JobId  datatypes.JSON `json:"job_id" gorm:"column:job_id"`
+	ID       int            `json:"id" gorm:"column:id"`
+	IpAddr   string         `json:"ipaddr" gorm:"column:ipaddr"`
+	JobId    datatypes.JSON `json:"job_id" gorm:"column:job_id"`
+	UpdateAt time.Time      `json:"update_at" gorm:"column:update_at"`
 }
 
 func GetMachine(machineID int) (*Machine, *BriefMessage) {

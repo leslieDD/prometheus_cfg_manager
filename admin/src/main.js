@@ -6,8 +6,14 @@ import router from './router'
 import Element from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 
+import * as filters from './filters'
+
+Object.keys(filters).forEach(key => {
+  Vue.filter(key, filters[key])
+})
+
 Vue.config.productionTip = false
-Vue.use(Element)
+Vue.use(Element) // global filters
 
 /* eslint-disable no-new */
 new Vue({

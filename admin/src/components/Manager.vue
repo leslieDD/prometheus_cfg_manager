@@ -39,6 +39,11 @@
               </el-select>
             </template>
           </el-table-column>
+          <el-table-column label="最后更新时间" prop="update_at">
+            <template slot-scope="{row}">
+              <span>{{ parseTimeSelf(row.update_at) }}</span>
+            </template>
+          </el-table-column>
           <el-table-column label="操作" align="center">
             <template slot-scope="scope">
               <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
@@ -308,6 +313,10 @@ export default {
           console.log(e)
         }
       )
+    },
+    parseTimeSelf (t) {
+      var time = new Date(Date.parse(t))
+      return time.toLocaleString()
     }
   }
 }
