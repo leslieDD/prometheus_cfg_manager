@@ -18,7 +18,7 @@
             </el-input>
           </div>
         </div>
-        <el-table size="mini" highlight-current-row border stripe :data="machines">
+        <el-table size="mini" highlight-current-row border stripe :data="machines" :row-style="{height: '0'}" :cell-style="{padding: '0'}">
           <el-table-column label="序号" width="50px">
             <template slot-scope="scope">
                 {{scope.$index+1}}
@@ -46,7 +46,14 @@
           </el-table-column>
           <el-table-column label="操作" align="center">
             <template slot-scope="scope">
-              <el-button size="mini" type="danger" @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+              <el-popover trigger="click" :ref="`popover-${scope.$index}`" placement="top" width="160">
+                <p>确定删除吗？</p>
+                <div style="text-align: right; margin: 0">
+                  <el-button size="mini" type="text" @click="doNo(scope)">取消</el-button>
+                  <el-button type="primary" size="mini" @click="doYes(scope)">确定</el-button>
+                </div>
+                <el-button size="mini" slot="reference" type="danger">删除</el-button>
+              </el-popover>
             </template>
           </el-table-column>
         </el-table>
@@ -158,18 +165,20 @@ export default {
         }
       )
     },
-    doGetMechines () {
+    doGetMechines (getInfo) {
       getJobs().then(
         r => {
           this.jobs = r.data
           r.data.forEach(e => {
             this.jobsMap[e.id] = e.name
           })
-          let getInfo = {
-            'pageNo': this.currentPage,
-            'pageSize': this.pageSize,
-            'search': this.searchContent,
-            'option': this.selectOption
+          if (!getInfo) {
+            getInfo = {
+              'pageNo': this.currentPage,
+              'pageSize': this.pageSize,
+              'search': this.searchContent,
+              'option': this.selectOption
+            }
           }
           getMachines(getInfo).then(
             r => {
@@ -193,28 +202,11 @@ export default {
         }
       )
     },
-    handleDelete (index, row) {
-      console.log(index, row)
-      deleteMachine(row.id).then(
-        r => {
-          this.$message({
-            showClose: true,
-            message: '删除成功！',
-            type: 'success'
-          })
-          this.doGetMechines()
-        }
-      ).catch(
-        e => {
-          console.log(e)
-        }
-      )
-    },
     handleSelect (index, row) {
       var updateData = {}
       updateData['id'] = row.id
       updateData['ipaddr'] = row.ipaddr
-      updateData['job_id'] = [row.id]
+      updateData['job_id'] = [this.selectTypeValue[row.id]]
       putMachine(updateData).then(
         r => {
           this.$message({
@@ -231,10 +223,22 @@ export default {
       )
     },
     handleSizeChange (val) {
-      this.doGetMechines()
+      let getInfo = {
+        'pageNo': this.currentPage,
+        'pageSize': val,
+        'search': this.searchContent,
+        'option': this.selectOption
+      }
+      this.doGetMechines(getInfo)
     },
     handleCurrentChange (val) {
-      this.doGetMechines()
+      let getInfo = {
+        'pageNo': val,
+        'pageSize': this.pageSize,
+        'search': this.searchContent,
+        'option': this.selectOption
+      }
+      this.doGetMechines(getInfo)
     },
     handleClose (done) {
       this.dialogVisible = false
@@ -317,6 +321,26 @@ export default {
     parseTimeSelf (t) {
       var time = new Date(Date.parse(t))
       return time.toLocaleString()
+    },
+    doYes (scope) {
+      deleteMachine(scope.row.id).then(
+        r => {
+          this.$message({
+            showClose: true,
+            message: '删除成功！',
+            type: 'success'
+          })
+          this.doGetMechines()
+        }
+      ).catch(
+        e => {
+          console.log(e)
+        }
+      )
+      scope._self.$refs[`popover-${scope.$index}`].doClose()
+    },
+    doNo (scope) {
+      scope._self.$refs[`popover-${scope.$index}`].doClose()
     }
   }
 }

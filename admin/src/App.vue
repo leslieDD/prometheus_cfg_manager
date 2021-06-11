@@ -20,4 +20,9 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+.el-message {
+    left: auto !important;
+    right: -180px !important;
+    z-index: 99999 !important;
+}
 </style>
