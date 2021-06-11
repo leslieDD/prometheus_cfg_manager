@@ -84,7 +84,7 @@ func GetMachines(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 			tx2 = tx2.Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%"))
 		}
 	}
-	tx2 = tx2.Offset((sp.PageNo - 1) * sp.PageSize).
+	tx2 = tx2.Order("update_at desc").Offset((sp.PageNo - 1) * sp.PageSize).
 		Limit(sp.PageSize).
 		Find(&machines)
 	if tx2.Error != nil {
@@ -110,6 +110,7 @@ func PostMachine(m *Machine) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
+	m.UpdateAt = time.Now()
 	tx := db.Table("machines").Create(m)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -140,7 +141,8 @@ func PutMachine(m *Machine) *BriefMessage {
 	tx := db.Table("machines").
 		Where("id = ?", m.ID).
 		Update("ipaddr", m.IpAddr).
-		Update("job_id", m.JobId)
+		Update("job_id", m.JobId).
+		Update("update_at", time.Now())
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
