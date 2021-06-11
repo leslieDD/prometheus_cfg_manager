@@ -65,7 +65,7 @@ func GetMachines(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 			for _, v := range list {
 				listStr = append(listStr, strconv.Itoa(v.ID))
 			}
-			jsonStr = "JSON_CONTAINS(JSON_ARRAY(" + strings.Join(listStr, ",") + ", job_id))"
+			jsonStr = "JSON_CONTAINS(JSON_ARRAY(" + strings.Join(listStr, ",") + "), job_id)"
 			tx = tx.Where(jsonStr)
 		} else {
 			tx = tx.Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%"))

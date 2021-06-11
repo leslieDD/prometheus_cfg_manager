@@ -58,7 +58,7 @@ func (cf *Config) verification() error {
 		}
 	}
 	if runtime.GOOS != "windows" {
-		if exist, _ := utils.PathExists(cf.PrometheusCfg.Dir); exist == false {
+		if exist, _ := utils.PathExists(cf.PrometheusCfg.Dir); !exist {
 			if mkErr := os.Mkdir(cf.PrometheusCfg.Dir, 0644); mkErr != nil {
 				return mkErr
 			}
