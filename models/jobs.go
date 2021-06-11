@@ -40,7 +40,7 @@ func getJobId(name string) ([]OnlyID, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	jobIdList := []OnlyID{}
-	tx := db.Table("jobs").Where("name like ?", fmt.Sprint("%", name, "%")).Find(&jobIdList)
+	tx := db.Table("jobs").Where("name like ? and is_common=0", fmt.Sprint("%", name, "%")).Find(&jobIdList)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
