@@ -17,6 +17,7 @@ func initApiRouter() {
 	v1.PUT("/job", putJob)
 	v1.DELETE("/job", deleteJob)
 	v1.PUT("/job/swap", swapJob)
+	v1.POST("/jobs/publish", publishJobs)
 
 	v1.GET("/machine", getMachine)
 	v1.GET("/machines", getMachines)
@@ -101,6 +102,11 @@ func swapJob(c *gin.Context) {
 		return
 	}
 	bf := models.DoSwap(sInfo)
+	resComm(c, bf, nil)
+}
+
+func publishJobs(c *gin.Context) {
+	bf := models.DoPublishJobs()
 	resComm(c, bf, nil)
 }
 

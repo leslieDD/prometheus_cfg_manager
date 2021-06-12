@@ -266,6 +266,10 @@ func downSwap(sInfo *SwapInfo) *BriefMessage {
 	return Success
 }
 
+func DoPublishJobs() *BriefMessage {
+	return Success
+}
+
 func getJobId(name string) ([]OnlyID, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {

@@ -55,3 +55,10 @@ export function swapJob (swapInfo) {
     data: swapInfo
   })
 }
+
+export function publishJobs () {
+  return request({
+    url: '/v1/job/publish',
+    method: 'post'
+  })
+}

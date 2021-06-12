@@ -2,7 +2,8 @@
   <dir class="main-board">
     <div class="do_action">
         <div style="padding-right: 15px;">
-        <el-button size="small" type="success" plain @click="doAdd()">添加</el-button>
+          <el-button size="small" type="primary" @click="onPublish()">发布</el-button>
+          <el-button size="small" type="success" plain @click="doAdd()">添加</el-button>
         </div>
         <div>
         <el-input size="small" @keyup.enter.native="onSearch()" placeholder="请输入内容" v-model="searchContent" class="input-with-select">
@@ -94,7 +95,7 @@
 </template>
 
 <script>
-import { getJobsWithSplitPage, postJob, putJob, deleteJob, swapJob } from '@/api/jobs'
+import { getJobsWithSplitPage, postJob, putJob, deleteJob, swapJob, publishJobs } from '@/api/jobs'
 
 export default {
   name: 'Jobs',
@@ -366,6 +367,20 @@ export default {
           console.log(e)
         }
       )
+    },
+    onPublish () {
+      publishJobs()
+        .then(
+          r => {
+            this.$message({
+              showClose: true,
+              message: '发布成功！',
+              type: 'success'
+            })
+          }
+        ).catch(
+          e => { console.log(e) }
+        )
     }
   }
 }
