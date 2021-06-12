@@ -4,8 +4,8 @@
     <el-tab-pane label="IP管理">
       <div class="do_action">
         <div style="padding-right: 15px;">
-          <el-button size="small" type="warning" @click="onPublish()">发布</el-button>
-          <el-button size="small" type="success" @click="doAdd()">添加</el-button>
+          <el-button size="small" type="primary" @click="onPublish()">发 布</el-button>
+          <el-button size="small" type="success" plain @click="doAdd()">添加</el-button>
         </div>
         <div>
           <el-input size="small" @keyup.enter.native="onSearch()" placeholder="请输入内容" v-model="searchContent" class="input-with-select">
@@ -17,7 +17,7 @@
           </el-input>
         </div>
       </div>
-      <el-table size="mini" highlight-current-row border :data="machines" :row-style="rowStyle" :cell-style="cellStyle">
+      <el-table size="mini" highlight-current-row border :data="machines" stripe :row-style="rowStyle" :cell-style="cellStyle">
         <el-table-column label="序号" width="50px">
           <template slot-scope="scope">
               {{scope.$index+1}}
@@ -32,7 +32,7 @@
               <el-option
                 v-for="item in jobs"
                 :key="item.id"
-                :label="item.name"
+                :label="item.display_order + ' ' + item.name"
                 :value="item.id">
               </el-option>
             </el-select>
@@ -51,7 +51,7 @@
                 <el-button size="mini" type="text" @click="doNo(scope)">取消</el-button>
                 <el-button type="primary" size="mini" @click="doYes(scope)">确定</el-button>
               </div>
-              <el-button size="mini" slot="reference" type="danger">删除</el-button>
+              <el-button size="mini" slot="reference" type="danger" plain>删除</el-button>
             </el-popover>
           </template>
         </el-table-column>
@@ -61,9 +61,8 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[10, 15, 30, 50]"
+          :page-sizes="[15, 50, 100, 200]"
           :page-size="pageSize"
-          :pager-count=5
           layout="total, sizes, prev, pager, next, jumper"
           :total="pageTotal">
         </el-pagination>
@@ -83,7 +82,7 @@
           </el-form-item>
           <el-form-item label="分组名：" prop="jobId">
             <el-select style="width: 230px" v-model="addMechineInfo.jobId" placeholder="请选择">
-              <el-option v-for="(item,index) in jobs" :key="index" :label="item.name" :value="item.id"></el-option>
+              <el-option v-for="(item,index) in jobs" :key="index" :label="item.display_order + ' ' + item.name" :value="item.id"></el-option>
             </el-select>
           </el-form-item>
           <el-form-item size="small">
@@ -319,7 +318,8 @@ export default {
     },
     parseTimeSelf (t) {
       var time = new Date(Date.parse(t))
-      return time.toLocaleString()
+      // return time.toLocaleString()
+      return time.toLocaleDateString() + ' ' + time.toTimeString().split(' ')[0]
     },
     doYes (scope) {
       deleteMachine(scope.row.id).then(
@@ -345,9 +345,9 @@ export default {
       let rs = {
         'padding': '0'
       }
-      if (row.rowIndex % 2 === 0) {
-        rs['background'] = '#f2eada'
-      }
+      // if (row.rowIndex % 2 === 0) {
+      //   rs['background'] = '#f2eada'
+      // }
       return rs
     },
     cellStyle (column) {
