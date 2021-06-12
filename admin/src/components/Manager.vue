@@ -1,76 +1,75 @@
 <template>
   <dir class="main-board">
-    <template>
-      <el-tabs type="border-card">
-      <el-tab-pane label="IP管理">
-        <div class="do_action">
-          <div style="padding-right: 15px;">
-            <el-button size="small" type="warning" @click="onPublish()">发布</el-button>
-            <el-button size="small" type="success" @click="doAdd()">添加</el-button>
-          </div>
-          <div>
-            <el-input size="small" @keyup.enter.native="onSearch()" placeholder="请输入内容" v-model="searchContent" class="input-with-select">
-              <el-select class="searchSelect" v-model="selectOption" slot="prepend" placeholder="请选择">
-                  <el-option label="IP地址" value="1"></el-option>
-                  <el-option label="分组" value="2"></el-option>
-              </el-select>
-              <el-button slot="append" icon="el-icon-search" @click="onSearch()"></el-button>
-            </el-input>
-          </div>
+    <el-tabs type="border-card">
+    <el-tab-pane label="IP管理">
+      <div class="do_action">
+        <div style="padding-right: 15px;">
+          <el-button size="small" type="warning" @click="onPublish()">发布</el-button>
+          <el-button size="small" type="success" @click="doAdd()">添加</el-button>
         </div>
-        <el-table size="mini" highlight-current-row border stripe :data="machines" :row-style="{height: '0'}" :cell-style="{padding: '0'}">
-          <el-table-column label="序号" width="50px">
-            <template slot-scope="scope">
-                {{scope.$index+1}}
-            </template>
-          </el-table-column>
-          <el-table-column label="IP地址" prop="ipaddr">
-          </el-table-column>
-          <el-table-column label="分组选项" prop="job_id">
-            <template slot-scope="scope">
-              <el-select v-model="selectTypeValue[scope.row.id]"
-                @change="handleSelect(scope.$index,scope.row)" size="small" placeholder="请选择">
-                <el-option
-                  v-for="item in jobs"
-                  :key="item.id"
-                  :label="item.name"
-                  :value="item.id">
-                </el-option>
-              </el-select>
-            </template>
-          </el-table-column>
-          <el-table-column label="最后更新时间" prop="update_at">
-            <template slot-scope="{row}">
-              <span>{{ parseTimeSelf(row.update_at) }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" align="center">
-            <template slot-scope="scope">
-              <el-popover trigger="click" :ref="`popover-${scope.$index}`" placement="top" width="160">
-                <p>确定删除吗？</p>
-                <div style="text-align: right; margin: 0">
-                  <el-button size="mini" type="text" @click="doNo(scope)">取消</el-button>
-                  <el-button type="primary" size="mini" @click="doYes(scope)">确定</el-button>
-                </div>
-                <el-button size="mini" slot="reference" type="danger">删除</el-button>
-              </el-popover>
-            </template>
-          </el-table-column>
-        </el-table>
-        <div class="block">
-          <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-sizes="[10, 15, 30, 50]"
-            :page-size="pageSize"
-            :pager-count=5
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="pageTotal">
-          </el-pagination>
+        <div>
+          <el-input size="small" @keyup.enter.native="onSearch()" placeholder="请输入内容" v-model="searchContent" class="input-with-select">
+            <el-select class="searchSelect" v-model="selectOption" slot="prepend" placeholder="请选择">
+                <el-option label="IP地址" value="1"></el-option>
+                <el-option label="分组" value="2"></el-option>
+            </el-select>
+            <el-button slot="append" icon="el-icon-search" @click="onSearch()"></el-button>
+          </el-input>
         </div>
-      </el-tab-pane>
-    </el-tabs></template>
+      </div>
+      <el-table size="mini" highlight-current-row border :data="machines" :row-style="rowStyle" :cell-style="cellStyle">
+        <el-table-column label="序号" width="50px">
+          <template slot-scope="scope">
+              {{scope.$index+1}}
+          </template>
+        </el-table-column>
+        <el-table-column label="IP地址" prop="ipaddr">
+        </el-table-column>
+        <el-table-column label="分组选项" prop="job_id">
+          <template slot-scope="scope">
+            <el-select v-model="selectTypeValue[scope.row.id]" class="borderNone" popper-class="pppselect"
+              @change="handleSelect(scope.$index,scope.row)" size="small" placeholder="请选择">
+              <el-option
+                v-for="item in jobs"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id">
+              </el-option>
+            </el-select>
+          </template>
+        </el-table-column>
+        <el-table-column label="最后更新时间" prop="update_at">
+          <template slot-scope="{row}">
+            <span>{{ parseTimeSelf(row.update_at) }}</span>
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" align="center">
+          <template slot-scope="scope">
+            <el-popover trigger="click" :ref="`popover-${scope.$index}`" placement="top" width="160">
+              <p>确定删除吗？</p>
+              <div style="text-align: right; margin: 0">
+                <el-button size="mini" type="text" @click="doNo(scope)">取消</el-button>
+                <el-button type="primary" size="mini" @click="doYes(scope)">确定</el-button>
+              </div>
+              <el-button size="mini" slot="reference" type="danger">删除</el-button>
+            </el-popover>
+          </template>
+        </el-table-column>
+      </el-table>
+      <div class="block">
+        <el-pagination
+          @size-change="handleSizeChange"
+          @current-change="handleCurrentChange"
+          :current-page="currentPage"
+          :page-sizes="[10, 15, 30, 50]"
+          :page-size="pageSize"
+          :pager-count=5
+          layout="total, sizes, prev, pager, next, jumper"
+          :total="pageTotal">
+        </el-pagination>
+      </div>
+    </el-tab-pane>
+    </el-tabs>
     <el-dialog
       title="新增IP地址"
       :visible.sync="dialogVisible"
@@ -341,6 +340,21 @@ export default {
     },
     doNo (scope) {
       scope._self.$refs[`popover-${scope.$index}`].doClose()
+    },
+    rowStyle (row) {
+      let rs = {
+        'padding': '0'
+      }
+      if (row.rowIndex % 2 === 0) {
+        rs['background'] = '#f2eada'
+      }
+      return rs
+    },
+    cellStyle (column) {
+      let cs = {
+        'padding': '0'
+      }
+      return cs
     }
   }
 }
@@ -380,5 +394,9 @@ el-tabs {
 }
 .el-form:last-child {
   text-align: left;
+}
+.borderNone >>> .el-input__inner {
+    border: none;
+    background: transparent;
 }
 </style>
