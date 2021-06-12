@@ -142,6 +142,8 @@ var ErrChgPassword = &BriefMessage{400000, "提交的密码信息有误"}
 //
 var ErrIPAddr = &BriefMessage{400000, "不是正确的IP地址"}
 var ErrJobTypeEmpty = &BriefMessage{400000, "IP的分组类型不允许为空"}
+var ErrOrderIDExist = &BriefMessage{400000, "排序号已经存在"}
+var ErrUnSupport = &BriefMessage{400000, "不支持的操作类型"}
 
 // --------------------------------------------------------------
 // ---------------- 300xxx 链接错误 ------------------------------
