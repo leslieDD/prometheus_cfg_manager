@@ -1,7 +1,7 @@
 <template>
   <dir class="main-board">
-    <el-tabs type="border-card">
-      <el-tab-pane label="IP管理">
+    <el-tabs type="border-card" v-model="activeTabName" @tab-click="handleTabClick">
+      <el-tab-pane label="IP管理" name="ipManager">
         <div class="do_action">
           <div style="padding-right: 15px;">
             <el-button size="small" type="primary" @click="onPublish()">发 布</el-button>
@@ -68,8 +68,8 @@
           </el-pagination>
         </div>
       </el-tab-pane>
-      <el-tab-pane label="分组管理">
-        <componentJob>Hello</componentJob>
+      <el-tab-pane label="分组管理" name="groupManager">
+        <componentJob ref="groupManager"></componentJob>
       </el-tab-pane>
     </el-tabs>
     <el-dialog
@@ -135,6 +135,7 @@ export default {
       selectOption: '1',
       searchContent: '',
       dialogVisible: false,
+      activeTabName: 'ipManager',
       addMechineInfo: {
         ipAddr: '',
         jobId: ''
@@ -362,6 +363,13 @@ export default {
         'padding': '0'
       }
       return cs
+    },
+    handleTabClick (tab, event) {
+      if (tab.name === 'ipManager') {
+        this.doGetMechines()
+      } else if (tab.name === 'groupManager') {
+        this.$refs.groupManager.doGetJobs()
+      }
     }
   }
 }
