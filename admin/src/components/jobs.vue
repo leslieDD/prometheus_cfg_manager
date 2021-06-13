@@ -2,7 +2,7 @@
   <dir class="main-board">
     <div class="do_action">
         <div style="padding-right: 15px;">
-          <el-button size="small" type="primary" @click="onPublish()">发布</el-button>
+          <el-button size="small" type="primary" @click="publishJobsfunc()">发布</el-button>
           <el-button size="small" type="success" plain @click="doAdd()">添加</el-button>
         </div>
         <div>
@@ -368,19 +368,19 @@ export default {
         }
       )
     },
-    onPublish () {
-      publishJobs()
-        .then(
-          r => {
-            this.$message({
-              showClose: true,
-              message: '发布成功！',
-              type: 'success'
-            })
-          }
-        ).catch(
-          e => { console.log(e) }
-        )
+    publishJobsfunc () {
+      console.log('publish jobs')
+      publishJobs().then(
+        r => {
+          this.$message({
+            showClose: true,
+            message: '发布成功！',
+            type: 'success'
+          })
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
     }
   }
 }

@@ -15,7 +15,9 @@ type mysql struct {
 }
 
 type prometheusCfg struct {
-	Dir string `json:"dir" yaml:"dir"`
+	RootDir  string `json:"dir" yaml:"dir"`
+	MainConf string `json:"main_conf" yaml:"-"`
+	Conf     string `json:"conf" yaml:"-"`
 }
 
 type runtimeParam struct {
@@ -36,6 +38,12 @@ var Cfg *Config
 
 // Version 软件版本
 var Version = "0.0.8"
+
+// SubDir for config
+var SubDir = "conf.d"
+
+//
+var PrometheusConfigName = "prometheus.yml"
 
 //
 var configFileName = "pro_cfg_manager.yml"

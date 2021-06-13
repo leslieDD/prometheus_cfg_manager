@@ -58,11 +58,20 @@ func (cf *Config) verification() error {
 		}
 	}
 	if runtime.GOOS != "windows" {
-		if exist, _ := utils.PathExists(cf.PrometheusCfg.Dir); !exist {
-			if mkErr := os.Mkdir(cf.PrometheusCfg.Dir, 0644); mkErr != nil {
+		if exist, _ := utils.PathExists(cf.PrometheusCfg.RootDir); !exist {
+			if mkErr := os.Mkdir(cf.PrometheusCfg.RootDir, 0644); mkErr != nil {
 				return mkErr
 			}
 		}
 	}
+	cf.PrometheusCfg.Conf = filepath.Join(cf.PrometheusCfg.RootDir, SubDir)
+	if runtime.GOOS != "windows" {
+		if exist, _ := utils.PathExists(cf.PrometheusCfg.Conf); !exist {
+			if mkErr := os.Mkdir(cf.PrometheusCfg.Conf, 0644); mkErr != nil {
+				return mkErr
+			}
+		}
+	}
+	cf.PrometheusCfg.MainConf = filepath.Join(cf.PrometheusCfg.RootDir, PrometheusConfigName)
 	return nil
 }

@@ -4,7 +4,7 @@
       <el-tab-pane label="IP管理" name="ipManager">
         <div class="do_action">
           <div style="padding-right: 15px;">
-            <el-button size="small" type="primary" @click="onPublish()">发 布</el-button>
+            <el-button size="small" type="primary" @click="onPublish()">发布</el-button>
             <el-button size="small" type="success" plain @click="doAdd()">添加</el-button>
           </div>
           <div>
@@ -71,6 +71,9 @@
       <el-tab-pane label="分组管理" name="groupManager">
         <componentJob ref="groupManager"></componentJob>
       </el-tab-pane>
+      <el-tab-pane label="配置预览" name="preview">
+        <previewer ref="preview"></previewer>
+      </el-tab-pane>
     </el-tabs>
     <el-dialog
       title="新增IP地址"
@@ -101,6 +104,7 @@
 
 <script>
 import componentJob from '@/components/jobs'
+import previewer from '@/components/preview'
 import { getJobs } from '@/api/jobs'
 import { getMachines, postMachine, deleteMachine, putMachine } from '@/api/machines'
 import { publish } from '@/api/publish'
@@ -108,7 +112,8 @@ import { publish } from '@/api/publish'
 export default {
   name: 'Manager',
   components: {
-    componentJob: componentJob
+    componentJob: componentJob,
+    previewer: previewer
   },
   data () {
     function validateIP (rule, value, callback) {
@@ -369,6 +374,8 @@ export default {
         this.doGetMechines()
       } else if (tab.name === 'groupManager') {
         this.$refs.groupManager.doGetJobs()
+      } else if (tab.name === 'preview') {
+        this.$refs.preview.loadYaml()
       }
     }
   }

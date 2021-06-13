@@ -126,7 +126,7 @@ func (p *PublishResolve) syncToPrometheus(data map[string][]*TargetList) *BriefM
 		return ErrDataIsNil
 	}
 	for name, objData := range data {
-		pathName := filepath.Join(config.Cfg.PrometheusCfg.Dir, fmt.Sprintf("%s%s", name, MYExt))
+		pathName := filepath.Join(config.Cfg.PrometheusCfg.Conf, fmt.Sprintf("%s%s", name, MYExt))
 		writeData, err := json.MarshalIndent(&objData, "", "    ")
 		if err != nil {
 			config.Log.Error(err)
@@ -139,7 +139,7 @@ func (p *PublishResolve) syncToPrometheus(data map[string][]*TargetList) *BriefM
 		}
 	}
 	// 删除无用的文件
-	if err := filepath.Walk(config.Cfg.PrometheusCfg.Dir, func(path string, fi os.FileInfo, err error) error {
+	if err := filepath.Walk(config.Cfg.PrometheusCfg.Conf, func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			config.Log.Error(err)
 			return nil
@@ -190,4 +190,13 @@ func (p *PublishResolve) Do() *BriefMessage {
 	// 	return bf
 	// }
 	// return p.ReloadPrometheus()
+}
+
+func Preview() (string, *BriefMessage) {
+	content, err := utils.RIoutil(config.Cfg.PrometheusCfg.MainConf)
+	if err != nil {
+		config.Log.Error(err)
+		return "", ErrReadFile
+	}
+	return string(content), Success
 }

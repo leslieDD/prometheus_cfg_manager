@@ -58,7 +58,7 @@ export function swapJob (swapInfo) {
 
 export function publishJobs () {
   return request({
-    url: '/v1/job/publish',
+    url: '/v1/jobs/publish',
     method: 'post'
   })
 }
