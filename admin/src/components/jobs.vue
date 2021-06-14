@@ -2,6 +2,7 @@
   <dir class="main-board">
     <div class="do_action">
         <div style="padding-right: 15px;">
+          <el-button size="small" type="primary" @click="restartServer()">重启服务</el-button>
           <el-button size="small" type="primary" @click="publishJobsfunc()">发布</el-button>
           <el-button size="small" type="success" plain @click="doAdd()">添加</el-button>
         </div>
@@ -96,6 +97,7 @@
 
 <script>
 import { getJobsWithSplitPage, postJob, putJob, deleteJob, swapJob, publishJobs } from '@/api/jobs'
+import { restartSrv } from '@/api/srv'
 
 export default {
   name: 'Jobs',
@@ -369,12 +371,24 @@ export default {
       )
     },
     publishJobsfunc () {
-      console.log('publish jobs')
       publishJobs().then(
         r => {
           this.$message({
             showClose: true,
             message: '发布成功！',
+            type: 'success'
+          })
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
+    },
+    restartServer () {
+      restartSrv().then(
+        r => {
+          this.$message({
+            showClose: true,
+            message: '重启成功！',
             type: 'success'
           })
         }

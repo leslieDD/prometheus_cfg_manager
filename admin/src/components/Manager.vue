@@ -74,6 +74,9 @@
       <el-tab-pane label="配置预览" name="preview">
         <previewer ref="preview"></previewer>
       </el-tab-pane>
+      <el-tab-pane label="分组预览" name="gpreview">
+        <gboard ref="gpreview"></gboard>
+      </el-tab-pane>
     </el-tabs>
     <el-dialog
       title="新增IP地址"
@@ -105,6 +108,7 @@
 <script>
 import componentJob from '@/components/jobs'
 import previewer from '@/components/preview'
+import gboard from '@/components/gboard'
 import { getJobs } from '@/api/jobs'
 import { getMachines, postMachine, deleteMachine, putMachine } from '@/api/machines'
 import { publish } from '@/api/publish'
@@ -113,7 +117,8 @@ export default {
   name: 'Manager',
   components: {
     componentJob: componentJob,
-    previewer: previewer
+    previewer: previewer,
+    gboard: gboard
   },
   data () {
     function validateIP (rule, value, callback) {

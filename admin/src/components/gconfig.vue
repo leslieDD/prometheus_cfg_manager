@@ -17,7 +17,7 @@ import { preview } from '@/api/preview'
 window.jsyaml = require('js-yaml') // 引入js-yaml为codemirror提高语法检查核心支持
 
 export default {
-  name: 'YamlEditor',
+  name: 'JsonEditor',
   // eslint-disable-next-line vue/require-prop-types
   //   props: ['value'],
   data () {
@@ -61,11 +61,11 @@ export default {
         r => {
           this.value = r.data
           this.yamlEditor.setValue(r.data)
-          // this.$message({
-          //   showClose: true,
-          //   message: '配置加载成功！',
-          //   type: 'success'
-          // })
+          this.$message({
+            showClose: true,
+            message: '配置加载成功！',
+            type: 'success'
+          })
         }
       ).catch(
         e => { console.log(e) }
