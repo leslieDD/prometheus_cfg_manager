@@ -152,6 +152,7 @@
             <el-input
               style="width: 230px"
               v-model="addMechineInfo.ipAddr"
+              @keyup.enter="onSubmitAndContinue('addMechineInfo')"
             ></el-input>
           </el-form-item>
           <el-form-item label="分组名：" prop="jobId">
@@ -367,7 +368,7 @@ export default {
                 type: 'success'
               })
               this.doGetMechines()
-              this.$refs[formName].resetFields()
+              //   this.$refs[formName].resetFields()
             }
           ).catch(
             e => {
@@ -449,18 +450,12 @@ export default {
         }
       )
       this.deleteVisible[scope.$index] = false
-      // scope._self.$refs[`popover-${scope.$index}`].doClose()
-      // this.deleteVisible = false
     },
     doNo (scope) {
       this.deleteVisible[scope.$index] = false
-      // scope._self.$refs[`popover-${scope.$index}`].doClose()
-      // this.deleteVisible = false
     },
     doDelete (scope) {
       this.deleteVisible[scope.$index] = true
-      //   console.log(scope)
-      // this.deleteVisible = true
     },
     rowStyle (row) {
       let rs = {
