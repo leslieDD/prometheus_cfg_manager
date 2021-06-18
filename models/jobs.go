@@ -22,7 +22,6 @@ type Jobs struct {
 type OnlyID struct {
 	ID int `json:"id" gorm:"column:id"`
 }
-
 type SwapInfo struct {
 	ID           int    `json:"id" gorm:"column:id"`
 	DisplayOrder int    `json:"display_order" gorm:"display_order"`
@@ -267,7 +266,11 @@ func downSwap(sInfo *SwapInfo) *BriefMessage {
 }
 
 func DoPublishJobs() *BriefMessage {
-	return Success
+	b, bf := TmplObj.doTmpl()
+	if bf != Success {
+		return bf
+	}
+	return TmplObj.doWrite(b)
 }
 
 func getJobId(name string) ([]OnlyID, *BriefMessage) {

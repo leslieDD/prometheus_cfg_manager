@@ -15,9 +15,11 @@ type mysql struct {
 }
 
 type prometheusCfg struct {
-	RootDir  string `json:"dir" yaml:"dir"`
-	MainConf string `json:"main_conf" yaml:"-"`
-	Conf     string `json:"conf" yaml:"-"`
+	RootDir     string `json:"dir" yaml:"dir"`
+	TmplFile    string `json:"tmpl" yaml:"tmpl"`
+	TmplContext string `json:"tmpl_context" yaml:"tmpl_context"`
+	MainConf    string `json:"main_conf" yaml:"-"`
+	Conf        string `json:"conf" yaml:"-"`
 }
 
 type runtimeParam struct {

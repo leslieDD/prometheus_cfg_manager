@@ -75,12 +75,12 @@ var ErrReloadPrometheus = &BriefMessage{500000, "重新加载监控服务失败"
 //
 var ErrReadFile = &BriefMessage{500000, "读取文件失败"}
 
+// ErrGenUUID ErrGenUUID
+var ErrGenUUID = &BriefMessage{500000, "uuid生成失败"}
+
 // --------------------------------------------------------------
 // ---------------- 400xxx 客户端错误 ----------------------------
 // --------------------------------------------------------------
-
-// ErrGenUUID ErrGenUUID
-var ErrGenUUID = &BriefMessage{400000, "uuid生成失败"}
 
 // ErrPwdNotMatch ErrPwdNotMatch
 var ErrPwdNotMatch = &BriefMessage{400000, "输入的用户密码不正确"}
