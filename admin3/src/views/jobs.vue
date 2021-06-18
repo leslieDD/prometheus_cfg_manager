@@ -27,19 +27,6 @@
               ></el-button>
             </template>
           </el-input>
-          <!-- <el-input
-            size="small"
-            placeholder="请输入内容"
-            v-model="searchContent"
-          >
-            <template #append>
-              <button
-                size="mini"
-                @click="onSearch()"
-                icon="el-icon-search"
-              ></button>
-            </template>
-          </el-input> -->
         </div>
       </div>
     </div>
@@ -58,9 +45,11 @@
         </template>
       </el-table-column>
       <el-table-column label="分组名称" prop="name"> </el-table-column>
-      <el-table-column label="端口号" prop="port"> </el-table-column>
-      <el-table-column label="排序号" prop="display_order"> </el-table-column>
-      <el-table-column label="调整排序号">
+      <el-table-column label="端口号" width="90px" prop="port">
+      </el-table-column>
+      <el-table-column label="排序号" width="80px" prop="display_order">
+      </el-table-column>
+      <el-table-column label="调整排序号" width="100px">
         <template v-slot="scope">
           <div class="change_order_button">
             <el-button
