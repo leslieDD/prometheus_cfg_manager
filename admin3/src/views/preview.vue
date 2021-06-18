@@ -78,7 +78,7 @@ export default {
 </script>
 
 <style scoped>
-.yaml-editor{
+.yaml-editor {
   height: 85vh;
   position: relative;
 }
@@ -88,10 +88,10 @@ export default {
   /* height: 100%; */
   min-height: 300px;
 }
-.yaml-editor :deep() .CodeMirror-scroll{
+.yaml-editor :deep() .CodeMirror-scroll {
   min-height: 300px;
 }
 .yaml-editor :deep() .cm-s-rubyblue span.cm-string {
-  color: #F08047;
+  color: #f08047;
 }
 </style>

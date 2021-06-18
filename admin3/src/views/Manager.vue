@@ -23,20 +23,22 @@
               v-model="searchContent"
               class="input-with-select"
             >
-              <el-select
-                class="searchSelect"
-                v-model="selectOption"
-                slot="prepend"
-                placeholder="请选择"
-              >
-                <el-option label="IP地址" value="1"></el-option>
-                <el-option label="分组" value="2"></el-option>
-              </el-select>
-              <el-button
-                slot="append"
-                icon="el-icon-search"
-                @click="onSearch()"
-              ></el-button>
+              <template #prepend>
+                <el-select
+                  class="searchSelect"
+                  v-model="selectOption"
+                  placeholder="请选择"
+                >
+                  <el-option label="IP地址" value="1"></el-option>
+                  <el-option label="分组" value="2"></el-option>
+                </el-select>
+              </template>
+              <template #append>
+                <el-button
+                  icon="el-icon-search"
+                  @click="onSearch()"
+                ></el-button>
+              </template>
             </el-input>
           </div>
         </div>

@@ -1,13 +1,10 @@
 <template>
+  <div>
+    <div></div>
     <div>
-        <div>
-
-        </div>
-        <div>
-          <gconfig></gconfig>
-        </div>
+      <gconfig></gconfig>
     </div>
-
+  </div>
 </template>
 
 <script>
@@ -31,5 +28,4 @@ export default {
 </script>
 
 <style scoped>
-
 </style>
