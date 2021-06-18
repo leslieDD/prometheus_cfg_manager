@@ -1,58 +1,109 @@
 <template>
   <div class="main-board">
-    <el-tabs type="border-card" v-model="activeTabName" @tab-click="handleTabClick">
+    <el-tabs
+      type="border-card"
+      v-model="activeTabName"
+      @tab-click="handleTabClick"
+    >
       <el-tab-pane label="IP管理" name="ipManager">
         <div class="do_action">
-          <div style="padding-right: 15px;">
-            <el-button size="small" type="primary" @click="onPublish()">发布</el-button>
-            <el-button size="small" type="success" plain @click="doAdd()">添加</el-button>
+          <div style="padding-right: 15px">
+            <el-button size="small" type="primary" @click="onPublish()"
+              >发布</el-button
+            >
+            <el-button size="small" type="success" plain @click="doAdd()"
+              >添加</el-button
+            >
           </div>
           <div>
-            <el-input size="small" @keyup.enter.native="onSearch()" placeholder="请输入内容" v-model="searchContent" class="input-with-select">
-              <el-select class="searchSelect" v-model="selectOption" slot="prepend" placeholder="请选择">
-                  <el-option label="IP地址" value="1"></el-option>
-                  <el-option label="分组" value="2"></el-option>
+            <el-input
+              size="small"
+              @keyup.enter.native="onSearch()"
+              placeholder="请输入内容"
+              v-model="searchContent"
+              class="input-with-select"
+            >
+              <el-select
+                class="searchSelect"
+                v-model="selectOption"
+                slot="prepend"
+                placeholder="请选择"
+              >
+                <el-option label="IP地址" value="1"></el-option>
+                <el-option label="分组" value="2"></el-option>
               </el-select>
-              <el-button slot="append" icon="el-icon-search" @click="onSearch()"></el-button>
+              <el-button
+                slot="append"
+                icon="el-icon-search"
+                @click="onSearch()"
+              ></el-button>
             </el-input>
           </div>
         </div>
-        <el-table size="mini" highlight-current-row border :data="machines" stripe :row-style="rowStyle" :cell-style="cellStyle">
+        <el-table
+          size="mini"
+          highlight-current-row
+          border
+          :data="machines"
+          stripe
+          :row-style="rowStyle"
+          :cell-style="cellStyle"
+        >
           <el-table-column label="序号" width="50px">
             <template v-slot="scope">
-                {{scope.$index+1}}
+              {{ scope.$index + 1 }}
             </template>
           </el-table-column>
-          <el-table-column label="IP地址" prop="ipaddr">
-          </el-table-column>
+          <el-table-column label="IP地址" prop="ipaddr"> </el-table-column>
           <el-table-column label="分组选项" prop="job_id">
             <template v-slot="scope">
-              <el-select v-model="selectTypeValue[scope.row.id]" class="borderNone" popper-class="pppselect"
-                @change="handleSelect(scope.$index,scope.row)" size="small" placeholder="请选择">
+              <el-select
+                v-model="selectTypeValue[scope.row.id]"
+                class="borderNone"
+                popper-class="pppselect"
+                @change="handleSelect(scope.$index, scope.row)"
+                size="small"
+                placeholder="请选择"
+              >
                 <el-option
                   v-for="item in jobs"
                   :key="item.id"
                   :label="item.display_order + ' ' + item.name"
-                  :value="item.id">
+                  :value="item.id"
+                >
                 </el-option>
               </el-select>
             </template>
           </el-table-column>
           <el-table-column label="最后更新时间" prop="update_at">
-            <template v-slot="{row}">
+            <template v-slot="{ row }">
               <span>{{ parseTimeSelf(row.update_at) }}</span>
             </template>
           </el-table-column>
           <el-table-column label="操作" align="center">
             <template v-slot="scope">
-              <el-popover :visible="deleteVisible[scope.$index]" placement="top" :width="160">
+              <el-popover
+                :visible="deleteVisible[scope.$index]"
+                placement="top"
+                :width="160"
+              >
                 <p>确定删除吗？</p>
                 <div style="text-align: right; margin: 0">
-                  <el-button size="mini" type="text" @click="doNo(scope)">取消</el-button>
-                  <el-button type="primary" size="mini" @click="doYes(scope)">确定</el-button>
+                  <el-button size="mini" type="text" @click="doNo(scope)"
+                    >取消</el-button
+                  >
+                  <el-button type="primary" size="mini" @click="doYes(scope)"
+                    >确定</el-button
+                  >
                 </div>
                 <template #reference>
-                  <el-button size="mini" type="danger" plain @click="doDelete(scope)">删除</el-button>
+                  <el-button
+                    size="mini"
+                    type="danger"
+                    plain
+                    @click="doDelete(scope)"
+                    >删除</el-button
+                  >
                 </template>
               </el-popover>
             </template>
@@ -66,7 +117,8 @@
             :page-sizes="[15, 50, 100, 200]"
             :page-size="pageSize"
             layout="total, sizes, prev, pager, next, jumper"
-            :total="pageTotal">
+            :total="pageTotal"
+          >
           </el-pagination>
         </div>
       </el-tab-pane>
@@ -80,21 +132,61 @@
         <gboard ref="gpreviewRef"></gboard>
       </el-tab-pane>
     </el-tabs>
-    <el-dialog title="新增IP地址" v-model="dialogVisible" width="400px" modal :before-close="handleClose">
+    <el-dialog
+      title="新增IP地址"
+      v-model="dialogVisible"
+      width="400px"
+      modal
+      :before-close="handleClose"
+    >
       <span>
-        <el-form label-position="right" :rules="rules" ref="addMechineInfo" :model="addMechineInfo" label-width="90px" size="small">
+        <el-form
+          label-position="right"
+          :rules="rules"
+          ref="addMechineInfo"
+          :model="addMechineInfo"
+          label-width="90px"
+          size="small"
+        >
           <el-form-item label="IP地址：" prop="ipAddr">
-            <el-input style="width: 230px" v-model="addMechineInfo.ipAddr"></el-input>
+            <el-input
+              style="width: 230px"
+              v-model="addMechineInfo.ipAddr"
+            ></el-input>
           </el-form-item>
           <el-form-item label="分组名：" prop="jobId">
-            <el-select style="width: 230px" v-model="addMechineInfo.jobId" placeholder="请选择">
-              <el-option v-for="(item,index) in jobs" :key="index" :label="item.display_order + ' ' + item.name" :value="item.id"></el-option>
+            <el-select
+              style="width: 230px"
+              v-model="addMechineInfo.jobId"
+              placeholder="请选择"
+            >
+              <el-option
+                v-for="(item, index) in jobs"
+                :key="index"
+                :label="item.display_order + ' ' + item.name"
+                :value="item.id"
+              ></el-option>
             </el-select>
           </el-form-item>
           <el-form-item size="small">
-            <el-button size="small" type="primary" @click="onSubmitAndContinue('addMechineInfo')">创建并继续</el-button>
-            <el-button size="small" type="primary" @click="onSubmit('addMechineInfo')">创建</el-button>
-            <el-button size="small" type="info" @click="onCancel('addMechineInfo')">取消</el-button>
+            <el-button
+              size="small"
+              type="primary"
+              @click="onSubmitAndContinue('addMechineInfo')"
+              >创建并继续</el-button
+            >
+            <el-button
+              size="small"
+              type="primary"
+              @click="onSubmit('addMechineInfo')"
+              >创建</el-button
+            >
+            <el-button
+              size="small"
+              type="info"
+              @click="onCancel('addMechineInfo')"
+              >取消</el-button
+            >
           </el-form-item>
         </el-form>
       </span>
@@ -205,7 +297,7 @@ export default {
               r.data.data.forEach(element => {
                 this.selectTypeValue[element.id] = this.jobsMap[element.job_id[0]]
                 this.deleteVisible[n] = false
-                n+=1
+                n += 1
               })
             }
           ).catch(
@@ -232,7 +324,7 @@ export default {
             message: '更新成功！',
             type: 'success'
           })
-          this.selectTypeValue = {...this.selectTypeValue}
+          this.selectTypeValue = { ...this.selectTypeValue }
         }
       ).catch(
         e => {
@@ -365,9 +457,9 @@ export default {
       // scope._self.$refs[`popover-${scope.$index}`].doClose()
       // this.deleteVisible = false
     },
-    doDelete(scope){
+    doDelete (scope) {
       this.deleteVisible[scope.$index] = true
-      console.log(scope)
+      //   console.log(scope)
       // this.deleteVisible = true
     },
     rowStyle (row) {
@@ -386,12 +478,14 @@ export default {
       return cs
     },
     handleTabClick (tab, event) {
-      if (tab.name === 'ipManager') {
+      if (tab.instance.props.name === 'ipManager') {
         this.doGetMechines()
-      } else if (tab.name === 'groupManager') {
+      } else if (tab.instance.props.name === 'groupManager') {
         this.$refs.groupManagerRef.doGetJobs()
-      } else if (tab.name === 'preview') {
+      } else if (tab.instance.props.name === 'preview') {
         this.$refs.previewRef.loadYaml()
+      } else if (tab.instance.props.name === 'gpreview') {
+        this.$refs.gpreviewRef.loadYaml()
       }
     }
   }
@@ -413,7 +507,7 @@ el-dialog {
 .main-board {
   padding: 0;
   max-width: 900px;
-  margin:0 auto;
+  margin: 0 auto;
 }
 .searchSelect {
   width: 90px;
@@ -434,7 +528,7 @@ el-tabs {
   text-align: left;
 }
 .borderNone :deep() .el-input__inner {
-    border: none;
-    background: transparent;
+  border: none;
+  background: transparent;
 }
 </style>
