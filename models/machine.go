@@ -20,6 +20,18 @@ type Machine struct {
 	UpdateAt time.Time      `json:"update_at" gorm:"column:update_at"`
 }
 
+type ListMachine struct {
+	Name      string         `json:"name" gorm:"column:name"`
+	Port      int            `json:"port" gorm:"column:port"`
+	CfgName   string         `json:"cfg_name" gorm:"column:cfg_name"`
+	ID        int            `json:"id" gorm:"column:id"`
+	IpAddr    string         `json:"ipaddr" gorm:"column:ipaddr"`
+	JobId     datatypes.JSON `json:"job_id" gorm:"column:job_id"`
+	UpdateAt  time.Time      `json:"update_at" gorm:"column:update_at"`
+	Health    string         `json:"health" gorm:"-"`
+	LastError string         `json:"last_error" gorm:"-"`
+}
+
 func GetMachine(machineID int) (*Machine, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -33,6 +45,54 @@ func GetMachine(machineID int) (*Machine, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	return &machine, Success
+}
+
+func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
+	if sp.PageSize <= 0 {
+		sp.PageSize = 15
+	}
+	if sp.PageNo <= 0 {
+		sp.PageNo = 1
+	}
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	createSql := func(s string) string {
+		sql := fmt.Sprintf(`SELECT %s 
+				FROM machines AS m 
+				LEFT JOIN jobs AS j 
+				ON JSON_CONTAINS(m.job_id, JSON_array(j.id)) 
+				`, s)
+		like := `'%` + sp.Search + `%'`
+		var likeSql string
+		if sp.Search != "" {
+			likeSql = sql + fmt.Sprintf(" WHERE j.is_common=0 AND (m.ipaddr LIKE %s OR j.name LIKE %s ) ORDER BY m.update_at desc", like, like)
+		} else {
+			likeSql = sql + " WHERE j.is_common=0 ORDER BY m.update_at desc "
+		}
+		return likeSql
+	}
+	lists := []*ListMachine{}
+	var count int64
+	tx := db.Table("machines").Raw(createSql(`count(*) as count`)).Count(&count)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrCount
+	}
+	likeSql := fmt.Sprintf("%s LIMIT %d OFFSET %d",
+		createSql(`m.id, m.ipaddr, j.name, j.port, j.cfg_name, m.job_id, m.update_at`),
+		sp.PageSize,
+		(sp.PageNo-1)*sp.PageSize,
+	)
+	tx2 := db.Raw(likeSql).Scan(&lists)
+	if tx2.Error != nil {
+		config.Log.Error(tx2.Error)
+		return nil, ErrCount
+	}
+	mObj.Check(&lists)
+	return CalSplitPage(sp, count, lists), Success
 }
 
 func GetMachines(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
@@ -98,7 +158,7 @@ func PostMachine(m *Machine) *BriefMessage {
 	if utils.CheckIPAddr(m.IpAddr) {
 		return ErrIPAddr
 	}
-	idList, bf := JsonToIntSlice(m)
+	idList, bf := JsonToIntSlice(m.JobId)
 	if bf != Success {
 		return bf
 	}
@@ -126,7 +186,7 @@ func PutMachine(m *Machine) *BriefMessage {
 	if utils.CheckIPAddr(m.IpAddr) {
 		return ErrIPAddr
 	}
-	idList, bf := JsonToIntSlice(m)
+	idList, bf := JsonToIntSlice(m.JobId)
 	if bf != Success {
 		return bf
 	}

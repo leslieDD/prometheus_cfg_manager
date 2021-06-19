@@ -26,7 +26,11 @@ func initApiRouter() {
 	v1.DELETE("/machine", deleteMachine)
 
 	v1.POST("/publish", publish)
+	v1.POST("/reload", reload)
 	v1.GET("/preview", preview)
+
+	v1.GET("/load/all-file-list", allFileList)
+	v1.POST("/load/file-content", FileContent)
 }
 
 func getJobs(c *gin.Context) {
@@ -133,7 +137,8 @@ func getMachines(c *gin.Context) {
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
-	result, bf := models.GetMachines(sp)
+	// result, bf := models.GetMachines(sp)
+	result, bf := models.GetMachinesV2(sp)
 	resComm(c, bf, result)
 }
 
@@ -180,5 +185,25 @@ func publish(c *gin.Context) {
 
 func preview(c *gin.Context) {
 	data, bf := models.Preview()
+	resComm(c, bf, data)
+}
+
+func reload(c *gin.Context) {
+	bf := models.Reload()
+	resComm(c, bf, nil)
+}
+
+func allFileList(c *gin.Context) {
+	data, bf := models.AllFileList()
+	resComm(c, bf, data)
+}
+
+func FileContent(c *gin.Context) {
+	child := models.Child{}
+	if err := c.BindJSON(&child); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.ReadFileContent(&child)
 	resComm(c, bf, data)
 }

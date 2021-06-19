@@ -78,6 +78,21 @@ var ErrReadFile = &BriefMessage{500000, "读取文件失败"}
 // ErrGenUUID ErrGenUUID
 var ErrGenUUID = &BriefMessage{500000, "uuid生成失败"}
 
+// ErrMonitorApi ErrMonitorApi
+var ErrMonitorApi = &BriefMessage{500000, "调用监控服务的API出现错误"}
+
+// ErrMonitorApi ErrMonitorApi
+var ErrFileList = &BriefMessage{500000, "读取文件列表失败"}
+
+// ErrMonitorApi ErrMonitorApi
+var ErrRFileContent = &BriefMessage{500000, "读取文件内容失败"}
+
+// ErrGroupNotEmpty ErrGroupNotEmpty
+var ErrGroupNotEmpty = &BriefMessage{500000, "还有IP属于该组，不允许删除"}
+
+// ErrDataParse ErrDataParse
+var ErrDataParse = &BriefMessage{500000, "解析数据出错"}
+
 // --------------------------------------------------------------
 // ---------------- 400xxx 客户端错误 ----------------------------
 // --------------------------------------------------------------

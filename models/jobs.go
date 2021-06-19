@@ -6,6 +6,7 @@ import (
 	"pro_cfg_manager/dbs"
 	"time"
 
+	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
@@ -16,7 +17,15 @@ type Jobs struct {
 	CfgName      string    `json:"cfg_name" gorm:"column:cfg_name"`
 	IsCommon     bool      `json:"is_common" gorm:"column:is_common"`
 	DisplayOrder int       `json:"display_order" gorm:"display_order"`
+	Count        int64     `json:"count" gorm:"-"`
 	UpdateAt     time.Time `json:"update_at" gorm:"update_at"`
+	Online       string    `json:"online" gorm:"-"`
+	LastError    string    `json:"last_error" gorm:"-"`
+}
+
+type JobCount struct {
+	Count int64          `json:"count" gorm:"count"`
+	JobId datatypes.JSON `json:"job_id" gorm:"column:job_id"`
 }
 
 type OnlyID struct {
@@ -62,7 +71,7 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrCount
 	}
-	jobs := []Jobs{}
+	jobs := []*Jobs{}
 	tx = db.Table("jobs")
 	if sp.Search != "" {
 		tx = tx.Where("name like ? and is_common=0", fmt.Sprint("%", sp.Search, "%"))
@@ -77,7 +86,46 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
+	jcs, bf := getMachineCount()
+	if bf != Success {
+		return nil, bf
+	}
+	idCount := map[int]int64{}
+	for _, j := range jcs {
+		if is, bf := JsonToIntSlice(j.JobId); bf != Success {
+			return nil, ErrDataParse
+		} else {
+			for _, i := range is {
+				if _, ok := idCount[i]; !ok {
+					idCount[i] = j.Count
+				} else {
+					idCount[i] += j.Count
+				}
+			}
+		}
+	}
+	for _, job := range jobs {
+		if c, ok := idCount[job.ID]; ok {
+			job.Count += c
+		}
+	}
 	return CalSplitPage(sp, count, jobs), Success
+}
+
+func getMachineCount() ([]JobCount, *BriefMessage) {
+	jcs := []JobCount{}
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	sql := `SELECT job_id, COUNT(*) AS count FROM machines GROUP BY machines.job_id`
+	tx := db.Table("machines").Raw(sql).Scan(&jcs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return jcs, Success
 }
 
 func GetJob(jID int64) (*Jobs, *BriefMessage) {
@@ -159,7 +207,17 @@ func DeleteJob(jID int64) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("jobs").Where("id=?", jID).Delete(nil)
+	var count int64
+	sql := fmt.Sprintf(`SELECT count(*) as count FROM machines as m WHERE JSON_CONTAINS(m.job_id, JSON_array(%d))`, jID)
+	tx := db.Table("machines").Raw(sql).Count(&count)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	if count != 0 {
+		return ErrGroupNotEmpty
+	}
+	tx = db.Table("jobs").Where("id=?", jID).Delete(nil)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrSearchDBData

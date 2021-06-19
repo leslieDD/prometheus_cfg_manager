@@ -63,11 +63,11 @@ export default {
         r => {
           this.value = r.data
           this.yamlEditor.setValue(r.data)
-          // this.$message({
-          //   showClose: true,
-          //   message: '配置加载成功！',
-          //   type: 'success'
-          // })
+          //   this.$notify({
+          //     title: '成功',
+          //     message: '配置加载成功！',
+          //     type: 'success'
+          //   });
         }
       ).catch(
         e => { console.log(e) }

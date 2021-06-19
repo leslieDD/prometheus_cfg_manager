@@ -2,8 +2,8 @@
   <div class="main-board">
     <div class="do_action">
       <div style="padding-right: 15px">
-        <el-button size="small" type="primary" @click="restartServer()"
-          >重启服务</el-button
+        <el-button size="small" type="warning" @click="restartServer()"
+          >重新加载配置（Reload）</el-button
         >
         <el-button size="small" type="primary" @click="publishJobsfunc()"
           >发布</el-button
@@ -46,6 +46,8 @@
       </el-table-column>
       <el-table-column label="分组名称" prop="name"> </el-table-column>
       <el-table-column label="端口号" width="90px" prop="port">
+      </el-table-column>
+      <el-table-column label="IP数" width="80px" prop="count">
       </el-table-column>
       <el-table-column label="排序号" width="80px" prop="display_order">
       </el-table-column>
@@ -291,11 +293,11 @@ export default {
           if (this.buttonTitle === '创建') {
             postJob(postData).then(
               r => {
-                this.$message({
-                  showClose: true,
+                this.$notify({
+                  title: '成功',
                   message: '创建成功！',
                   type: 'success'
-                })
+                });
                 this.doGetJobs()
                 this.dialogVisible = false
                 this.$refs[formName].resetFields()
@@ -307,11 +309,11 @@ export default {
             postData['id'] = this.addJobInfo.id
             putJob(postData).then(
               r => {
-                this.$message({
-                  showClose: true,
+                this.$notify({
+                  title: '成功',
                   message: '更新成功！',
                   type: 'success'
-                })
+                });
                 this.doGetJobs()
                 this.dialogVisible = false
                 this.$refs[formName].resetFields()
@@ -339,11 +341,11 @@ export default {
     doYes (scope) {
       deleteJob(scope.row.id).then(
         r => {
-          this.$message({
-            showClose: true,
+          this.$notify({
+            title: '成功',
             message: '删除成功！',
             type: 'success'
-          })
+          });
           this.doGetJobs()
         }
       ).catch(
@@ -376,17 +378,17 @@ export default {
     },
     doUp (data) {
       if (this.jobs.length === 0) {
-        this.$message({
-          showClose: true,
-          message: '没有有效的数据',
+        this.$notify({
+          title: '错误',
+          message: '没有有效的数据！',
           type: 'error'
         })
         return false
       }
       if (data.row.display_order === 1) {
-        this.$message({
-          showClose: true,
-          message: '已经是顶层',
+        this.$notify({
+          title: '警告',
+          message: '已经是顶层！',
           type: 'warning'
         })
         return false
@@ -399,26 +401,26 @@ export default {
     },
     doDown (data) {
       if (this.jobs.length === 0) {
-        this.$message({
-          showClose: true,
-          message: '没有有效的数据',
+        this.$notify({
+          title: '错误',
+          message: '没有有效的数据！',
           type: 'error'
         })
         return false
       }
       let lastObj = this.jobs[this.jobs.length - 1]
       if (lastObj.id === data.row.id && this.jobs.length !== this.pageSize) {
-        this.$message({
-          showClose: true,
-          message: '已经是底层',
+        this.$notify({
+          title: '警告',
+          message: '已经是底层！',
           type: 'warning'
         })
         return false
       }
       if (this.currentPage * this.pageSize === this.pageTotal) {
-        this.$message({
-          showClose: true,
-          message: '已经是底层',
+        this.$notify({
+          title: '警告',
+          message: '已经是底层！',
           type: 'warning'
         })
         return false
@@ -433,17 +435,17 @@ export default {
       swapJob(swapInfo).then(
         r => {
           if (swapInfo.action === 'up') {
-            this.$message({
-              showClose: true,
+            this.$notify({
+              title: '成功',
               message: '提升成功！',
               type: 'success'
-            })
+            });
           } else {
-            this.$message({
-              showClose: true,
+            this.$notify({
+              title: '成功',
               message: '下降成功！',
               type: 'success'
-            })
+            });
           }
           this.doGetJobs()
         }
@@ -456,11 +458,11 @@ export default {
     publishJobsfunc () {
       publishJobs().then(
         r => {
-          this.$message({
-            showClose: true,
+          this.$notify({
+            title: '成功',
             message: '发布成功！',
             type: 'success'
-          })
+          });
         }
       ).catch(
         e => { console.log(e) }
@@ -469,11 +471,11 @@ export default {
     restartServer () {
       restartSrv().then(
         r => {
-          this.$message({
-            showClose: true,
-            message: '重启成功！',
+          this.$notify({
+            title: '成功',
+            message: '重新加载成功！',
             type: 'success'
-          })
+          });
         }
       ).catch(
         e => { console.log(e) }

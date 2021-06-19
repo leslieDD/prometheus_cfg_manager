@@ -65,7 +65,7 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 	// 如果是多个组，可以新增加一张labels表，再从machine表中关联labels表
 	mGrp := map[string]*TargetList{} // machine group
 	for _, m := range machines {
-		idList, bf := JsonToIntSlice(&m)
+		idList, bf := JsonToIntSlice(m.JobId)
 		if bf != Success {
 			return nil, bf
 		}

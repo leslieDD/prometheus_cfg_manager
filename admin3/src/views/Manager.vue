@@ -77,6 +77,19 @@
               </el-select>
             </template>
           </el-table-column>
+          <el-table-column label="状态" width="90px" align="center">
+            <template v-slot="{ row }">
+              <el-tooltip :content="row.last_error" placement="top">
+                <el-tag v-if="row.health === 'UP'" type="primary">{{
+                  row.health
+                }}</el-tag>
+                <el-tag v-else-if="row.health === 'DOWN'" type="danger">{{
+                  row.health
+                }}</el-tag>
+                <el-tag v-else type="info">{{ row.health }}</el-tag>
+              </el-tooltip>
+            </template>
+          </el-table-column>
           <el-table-column label="最后更新时间" prop="update_at">
             <template v-slot="{ row }">
               <span>{{ parseTimeSelf(row.update_at) }}</span>
@@ -125,13 +138,13 @@
         </div>
       </el-tab-pane>
       <el-tab-pane label="分组管理" name="groupManager">
-        <componentJob ref="groupManagerRef"></componentJob>
+        <Jobs ref="groupManagerRef"></Jobs>
       </el-tab-pane>
       <el-tab-pane label="配置预览" name="preview">
-        <previewer ref="previewRef"></previewer>
+        <Preview ref="previewRef"></Preview>
       </el-tab-pane>
-      <el-tab-pane label="分组预览" name="gpreview">
-        <gboard ref="gpreviewRef"></gboard>
+      <el-tab-pane label="分组预览" name="ftree">
+        <FTree ref="ftreeRef"></FTree>
       </el-tab-pane>
     </el-tabs>
     <el-dialog
@@ -198,9 +211,9 @@
 </template>
 
 <script>
-import componentJob from '@/views/jobs.vue'
-import previewer from '@/views/preview.vue'
-import gboard from '@/views/gboard.vue'
+import Jobs from '@/views/Jobs.vue'
+import Preview from '@/views/Preview.vue'
+import FTree from '@/views/FTree.vue'
 import { getJobs } from '@/api/jobs'
 import { getMachines, postMachine, deleteMachine, putMachine } from '@/api/machines'
 import { publish } from '@/api/publish'
@@ -208,9 +221,9 @@ import { publish } from '@/api/publish'
 export default {
   name: 'Manager',
   components: {
-    componentJob: componentJob,
-    previewer: previewer,
-    gboard: gboard
+    Jobs: Jobs,
+    Preview: Preview,
+    FTree: FTree
   },
   data () {
     function validateIP (rule, value, callback) {
@@ -322,11 +335,11 @@ export default {
       updateData['job_id'] = [this.selectTypeValue[row.id]]
       putMachine(updateData).then(
         r => {
-          this.$message({
-            showClose: true,
+          this.$notify({
+            title: '成功',
             message: '更新成功！',
             type: 'success'
-          })
+          });
           this.selectTypeValue = { ...this.selectTypeValue }
         }
       ).catch(
@@ -364,11 +377,11 @@ export default {
           postData['job_id'] = [parseInt(this.addMechineInfo.jobId)]
           postMachine(postData).then(
             r => {
-              this.$message({
-                showClose: true,
+              this.$notify({
+                title: '成功',
                 message: '创建成功！',
                 type: 'success'
-              })
+              });
               this.doGetMechines()
               //   this.$refs[formName].resetFields()
             }
@@ -390,11 +403,11 @@ export default {
           postData['job_id'] = [parseInt(this.addMechineInfo.jobId)]
           postMachine(postData).then(
             r => {
-              this.$message({
-                showClose: true,
+              this.$notify({
+                title: '成功',
                 message: '创建成功！',
                 type: 'success'
-              })
+              });
               this.doGetMechines()
               this.dialogVisible = false
               this.$refs[formName].resetFields()
@@ -419,11 +432,11 @@ export default {
     onPublish () {
       publish().then(
         r => {
-          this.$message({
-            showClose: true,
+          this.$notify({
+            title: '成功',
             message: '发布成功！',
             type: 'success'
-          })
+          });
         }
       ).catch(
         e => {
@@ -439,11 +452,11 @@ export default {
     doYes (scope) {
       deleteMachine(scope.row.id).then(
         r => {
-          this.$message({
-            showClose: true,
+          this.$notify({
+            title: '成功',
             message: '删除成功！',
             type: 'success'
-          })
+          });
           this.doGetMechines()
         }
       ).catch(
@@ -481,8 +494,8 @@ export default {
         this.$refs.groupManagerRef.doGetJobs()
       } else if (tab.instance.props.name === 'preview') {
         this.$refs.previewRef.loadYaml()
-      } else if (tab.instance.props.name === 'gpreview') {
-        this.$refs.gpreviewRef.loadYaml()
+      } else if (tab.instance.props.name === 'ftree') {
+        this.$refs.ftreeRef.doLoadAllFiles()
       }
     }
   }

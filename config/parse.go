@@ -6,7 +6,6 @@ import (
 	"os"
 	"path/filepath"
 	"pro_cfg_manager/utils"
-	"runtime"
 
 	"gopkg.in/yaml.v2"
 )
@@ -57,19 +56,15 @@ func (cf *Config) verification() error {
 			return mkErr
 		}
 	}
-	if runtime.GOOS != "windows" {
-		if exist, _ := utils.PathExists(cf.PrometheusCfg.RootDir); !exist {
-			if mkErr := os.Mkdir(cf.PrometheusCfg.RootDir, 0644); mkErr != nil {
-				return mkErr
-			}
+	if exist, _ := utils.PathExists(cf.PrometheusCfg.RootDir); !exist {
+		if mkErr := os.Mkdir(cf.PrometheusCfg.RootDir, 0644); mkErr != nil {
+			return mkErr
 		}
 	}
 	cf.PrometheusCfg.Conf = filepath.Join(cf.PrometheusCfg.RootDir, SubDir)
-	if runtime.GOOS != "windows" {
-		if exist, _ := utils.PathExists(cf.PrometheusCfg.Conf); !exist {
-			if mkErr := os.Mkdir(cf.PrometheusCfg.Conf, 0644); mkErr != nil {
-				return mkErr
-			}
+	if exist, _ := utils.PathExists(cf.PrometheusCfg.Conf); !exist {
+		if mkErr := os.Mkdir(cf.PrometheusCfg.Conf, 0644); mkErr != nil {
+			return mkErr
 		}
 	}
 	cf.PrometheusCfg.MainConf = filepath.Join(cf.PrometheusCfg.RootDir, PrometheusConfigName)

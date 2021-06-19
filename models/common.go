@@ -3,6 +3,8 @@ package models
 import (
 	"encoding/json"
 	"pro_cfg_manager/config"
+
+	"gorm.io/datatypes"
 )
 
 type OptionType int
@@ -49,8 +51,8 @@ func CalSplitPage(sp *SplitPage, total int64, data interface{}) *ResSplitPage {
 	return &rsp
 }
 
-func JsonToIntSlice(m *Machine) ([]int, *BriefMessage) {
-	v, err := m.JobId.MarshalJSON()
+func JsonToIntSlice(jsonData datatypes.JSON) ([]int, *BriefMessage) {
+	v, err := jsonData.MarshalJSON()
 	if err != nil {
 		config.Log.Error(err)
 		return nil, ErrJobDataFormat
