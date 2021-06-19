@@ -50,17 +50,16 @@ func (m *Monitor) Check(list *[]*ListMachine) {
 	defer m.lock.Unlock()
 	if m.info == nil || time.Since(m.syncTime).Minutes() > 5.0 {
 		config.Log.Print("sync prometheus data")
+		if m.info == nil {
+			m.info = map[string]*activeTarget{}
+		}
 		info, err := m.target()
-		if err != nil {
-			return
+		if err == nil {
+			for _, each := range info.Data.ActiveTargets {
+				n := fmt.Sprintf("%s_%s", each.Labels["instance"], each.Labels["job"])
+				m.info[n] = each
+			}
 		}
-		// instance + job
-		newInfo := map[string]*activeTarget{}
-		for _, each := range info.Data.ActiveTargets {
-			n := fmt.Sprintf("%s_%s", each.Labels["instance"], each.Labels["job"])
-			newInfo[n] = each
-		}
-		m.info = newInfo
 	}
 
 	for _, each := range *list {
