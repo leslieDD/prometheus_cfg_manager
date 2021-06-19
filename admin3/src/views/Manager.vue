@@ -80,10 +80,10 @@
           <el-table-column label="状态" width="90px" align="center">
             <template v-slot="{ row }">
               <el-tooltip :content="row.last_error" placement="top">
-                <el-tag v-if="row.health === 'UP'" type="primary">{{
+                <el-tag v-if="row.health === 'up'" type="primary">{{
                   row.health
                 }}</el-tag>
-                <el-tag v-else-if="row.health === 'DOWN'" type="danger">{{
+                <el-tag v-else-if="row.health === 'down'" type="danger">{{
                   row.health
                 }}</el-tag>
                 <el-tag v-else type="info">{{ row.health }}</el-tag>
