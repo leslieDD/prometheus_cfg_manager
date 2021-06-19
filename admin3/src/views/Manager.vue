@@ -79,11 +79,15 @@
           </el-table-column>
           <el-table-column label="状态" width="90px" align="center">
             <template v-slot="{ row }">
-              <el-tooltip :content="row.last_error" placement="top">
-                <el-tag v-if="row.health === 'up'" type="primary">{{
-                  row.health
-                }}</el-tag>
-                <el-tag v-else-if="row.health === 'down'" type="danger">{{
+              <el-tooltip
+                v-if="row.health === 'up'"
+                content="主机正在运行"
+                placement="top"
+              >
+                <el-tag type="primary">{{ row.health }}</el-tag>
+              </el-tooltip>
+              <el-tooltip v-else :content="row.last_error" placement="top">
+                <el-tag v-if="row.health === 'down'" type="danger">{{
                   row.health
                 }}</el-tag>
                 <el-tag v-else type="info">{{ row.health }}</el-tag>
