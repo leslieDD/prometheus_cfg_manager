@@ -129,7 +129,6 @@ func AllFileList() ([]FileList, *BriefMessage) {
 	fl := FileList{
 		Label: "分组文件",
 	}
-	config.Log.Warn(config.Cfg.PrometheusCfg.Conf)
 	if err := filepath.Walk(config.Cfg.PrometheusCfg.Conf, func(path string, fi os.FileInfo, err error) error {
 		if err != nil {
 			config.Log.Error(err)
