@@ -50,14 +50,31 @@
           stripe
           :row-style="rowStyle"
           :cell-style="cellStyle"
+          header-align="center"
         >
-          <el-table-column label="序号" width="50px">
+          <el-table-column
+            label="序号"
+            width="50px"
+            align="center"
+            header-align="center"
+          >
             <template v-slot="scope">
               {{ scope.$index + 1 }}
             </template>
           </el-table-column>
-          <el-table-column label="IP地址" prop="ipaddr"> </el-table-column>
-          <el-table-column label="分组选项" prop="job_id">
+          <el-table-column
+            label="IP地址"
+            prop="ipaddr"
+            align="center"
+            header-align="center"
+          >
+          </el-table-column>
+          <el-table-column
+            label="分组选项"
+            prop="job_id"
+            align="center"
+            header-align="center"
+          >
             <template v-slot="scope">
               <el-select
                 v-model="selectTypeValue[scope.row.id]"
@@ -77,7 +94,17 @@
               </el-select>
             </template>
           </el-table-column>
-          <el-table-column label="状态" width="90px" align="center">
+          <el-table-column
+            label="状态"
+            width="90px"
+            align="center"
+            header-align="center"
+          >
+            <template #header>
+              <el-tooltip content="所有机器状态5分钟更新一次" placement="top">
+                <span type="warning">状态</span>
+              </el-tooltip>
+            </template>
             <template v-slot="{ row }">
               <el-tooltip
                 v-if="row.health === 'up'"
@@ -94,12 +121,17 @@
               </el-tooltip>
             </template>
           </el-table-column>
-          <el-table-column label="最后更新时间" prop="update_at">
+          <el-table-column
+            label="最后更新时间"
+            prop="update_at"
+            align="center"
+            header-align="center"
+          >
             <template v-slot="{ row }">
               <span>{{ parseTimeSelf(row.update_at) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center">
+          <el-table-column label="操作" align="center" header-align="center">
             <template v-slot="scope">
               <el-popover
                 :visible="deleteVisible[scope.$index]"
