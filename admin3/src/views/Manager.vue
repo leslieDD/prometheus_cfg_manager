@@ -111,13 +111,16 @@
                 content="主机正在运行"
                 placement="top"
               >
-                <el-tag type="primary">{{ row.health }}</el-tag>
+                <el-tag type="primary" size="mini">{{ row.health }}</el-tag>
               </el-tooltip>
               <el-tooltip v-else :content="row.last_error" placement="top">
-                <el-tag v-if="row.health === 'down'" type="danger">{{
-                  row.health
-                }}</el-tag>
-                <el-tag v-else type="info">{{ row.health }}</el-tag>
+                <el-tag
+                  v-if="row.health === 'down'"
+                  size="mini"
+                  type="danger"
+                  >{{ row.health }}</el-tag
+                >
+                <el-tag v-else type="info" size="mini">{{ row.health }}</el-tag>
               </el-tooltip>
             </template>
           </el-table-column>
