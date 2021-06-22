@@ -7,12 +7,17 @@
   },
   "dependencies": {
     "axios": "^0.21.1",
+    "codemirror": "^5.62.0",
     "element-plus": "^1.0.2-beta.48",
+    "js-json": "^0.1.4",
     "js-yaml": "^4.1.0",
+    "jsonlint": "^1.6.3",
+    "jsonlint-mod": "^1.7.6",
     "qs": "^6.10.1",
     "requirejs": "^2.3.6",
+    "sass": "^1.35.1",
+    "scss": "^0.2.4",
     "vue": "^3.1.1",
-    "vue-codemirror": "^4.0.6",
     "vue-router": "^4.0.9",
     "vuex": "^4.0.2"
   },

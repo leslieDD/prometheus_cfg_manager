@@ -179,6 +179,9 @@
       <el-tab-pane label="分组管理" name="groupManager">
         <Jobs ref="groupManagerRef"></Jobs>
       </el-tab-pane>
+      <el-tab-pane label="告警管理" name="noticeManager">
+        <Notice ref="noticeManagerRef"></Notice>
+      </el-tab-pane>
       <el-tab-pane label="配置预览" name="preview">
         <Preview ref="previewRef"></Preview>
       </el-tab-pane>
@@ -253,6 +256,7 @@
 import Jobs from '@/views/Jobs.vue'
 import Preview from '@/views/Preview.vue'
 import FTree from '@/views/FTree.vue'
+import Notice from '@/views/Notice.vue'
 import { getJobs } from '@/api/jobs'
 import { getMachines, postMachine, deleteMachine, putMachine } from '@/api/machines'
 import { publish } from '@/api/publish'
@@ -262,7 +266,8 @@ export default {
   components: {
     Jobs: Jobs,
     Preview: Preview,
-    FTree: FTree
+    FTree: FTree,
+    Notice: Notice
   },
   data () {
     function validateIP (rule, value, callback) {

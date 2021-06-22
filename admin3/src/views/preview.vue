@@ -5,13 +5,47 @@
 </template>
 
 <script>
-import CodeMirror from 'codemirror'
-import 'codemirror/addon/lint/lint.css'
-import 'codemirror/lib/codemirror.css'
+import CodeMirror from "codemirror";
+import "codemirror/lib/codemirror.css";
+// JSON代码高亮需要由JavaScript插件支持
+import "codemirror/mode/javascript/javascript.js";
+// 选择IDEA主题样式，还有其他很多主题可选
+import "codemirror/theme/idea.css";
+// 支持使用Sublime快捷键
+import "codemirror/keymap/sublime.js";
+// 搜索功能的依赖
+import "codemirror/addon/dialog/dialog.js";
+import "codemirror/addon/dialog/dialog.css";
+// 支持搜索功能
+import "codemirror/addon/search/search";
+import "codemirror/addon/search/searchcursor.js";
+// 支持各种代码折叠
+import "codemirror/addon/fold/foldgutter.css";
+import "codemirror/addon/fold/foldcode.js";
+import "codemirror/addon/fold/foldgutter.js";
+import "codemirror/addon/fold/brace-fold.js";
+import "codemirror/addon/fold/comment-fold.js";
+// 支持代码区域全屏功能
+import "codemirror/addon/display/fullscreen.css";
+import "codemirror/addon/display/fullscreen.js";
+// 支持括号自动匹配
+import "codemirror/addon/edit/matchbrackets.js";
+import "codemirror/addon/edit/closebrackets.js";
+// 支持代码自动补全
+import "codemirror/addon/hint/show-hint.css";
+import "codemirror/addon/hint/show-hint.js";
+import "codemirror/addon/hint/anyword-hint.js";
+// 行注释
+import "codemirror/addon/comment/comment.js";
+// JSON错误检查
+import "codemirror/addon/lint/lint.css";
+import "codemirror/addon/lint/lint.js";
+import 'codemirror/addon/lint/yaml-lint'
 import 'codemirror/theme/monokai.css'
 import 'codemirror/mode/yaml/yaml'
-import 'codemirror/addon/lint/lint'
-import 'codemirror/addon/lint/yaml-lint'
+
+import { markRaw } from 'vue'
+
 import { preview } from '@/api/preview'
 import * as js_yaml from "js-yaml"
 
@@ -37,22 +71,52 @@ export default {
     }
   },
   mounted () {
-    this.yamlEditor = CodeMirror.fromTextArea(this.$refs.textarea, {
-      lineNumbers: true, // 显示行号
+    this.yamlEditor = markRaw(CodeMirror.fromTextArea(this.$refs.textarea, {
       mode: 'text/x-yaml', // 语法model
-      gutters: ['CodeMirror-lint-markers'], // 语法检查器
-      theme: 'monokai', // 编辑器主题
-      lint: true, // 开启语法检查
-      smartIndent: true,
-      readOnly: true,
+      indentUnit: 2, // 缩进单位，默认2
+      smartIndent: true, // 是否智能缩进
+      // 显示行号
+      styleActiveLine: true,
+      lineNumbers: true,
+      // 设置主题
+      theme: "idea",
+      // 绑定sublime快捷键
+      keyMap: "sublime",
+      // 开启代码折叠
+      lineWrapping: true,
+      foldGutter: true,
+      gutters: [
+        "CodeMirror-linenumbers",
+        "CodeMirror-foldgutter",
+        "CodeMirror-lint-markers",
+      ],
+      // CodeMirror-lint-markers是实现语法报错功能
+      lint: true,
+
+      // 全屏模式
+      fullScreen: false,
+
+      // 括号匹配
+      matchBrackets: true,
+      autoCloseBrackets: true,
+      extraKeys: {
+        F11: (cm) => {
+          cm.setOption("fullScreen", !cm.getOption("fullScreen"));
+        },
+        Esc: (cm) => {
+          if (cm.getOption("fullScreen")) {
+            cm.setOption("fullScreen", false);
+          }
+        },
+      },
       scrollbarStyle: 'native'
-    })
+    }))
 
     this.yamlEditor.setValue(this.value)
-    // this.yamlEditor.on('change', (cm) => {
-    //   this.$emit('changed', cm.getValue())
-    //   this.$emit('input', cm.getValue())
-    // })
+    this.yamlEditor.on('change', (cm) => {
+      this.$emit('changed', cm.getValue())
+      this.$emit('input', cm.getValue())
+    })
   },
   methods: {
     // getValue () {
