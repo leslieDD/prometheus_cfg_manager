@@ -1,76 +1,97 @@
 <template>
-  <div class="tree-container">
-    <el-tree
-      class="tree"
-      :data="data"
-      :indent="0"
-      node-key="id"
-      default-expand-all
-      :expand-on-click-node="false"
-    >
-      <template #default="{ node, data }">
-        <span class="custom-tree-node">
-          <el-tag
-            v-if="data.level === 1"
-            size="small"
-            type="success"
-            effect="dark"
-            >{{ node.label }}</el-tag
-          >
-          <el-tag
-            v-if="data.level === 2"
-            size="small"
-            type="warning"
-            effect="dark"
-            >{{ node.label }}</el-tag
-          >
-          <el-tag
-            v-if="data.level === 3"
-            size="small"
-            type="info"
-            effect="dark"
-            >{{ node.label }}</el-tag
-          >
-          <span v-if="data.level === 1"> </span>
-          <span v-if="data.level === 2">
-            <i
-              class="el-icon-plus icon-action"
-              @click="append(data)"
-              title="增加"
-            ></i>
-            <i
-              class="el-icon-minus icon-action"
-              @click="remove(node, data)"
-              title="删除"
-            ></i>
-            <i
-              class="el-icon-edit icon-action"
-              @click="edit(node, data)"
-              title="删除"
-            ></i>
+  <div class="monitor-board">
+    <div class="tree-container">
+      <el-scrollbar class="card-scrollbar">
+        <el-tree
+          class="tree"
+          :data="data"
+          :indent="0"
+          node-key="id"
+          default-expand-all
+          :expand-on-click-node="false"
+        >
+          <template #default="{ node, data }">
+            <span class="custom-tree-node">
+              <el-tag
+                v-if="data.level === 1"
+                size="small"
+                type="success"
+                effect="dark"
+                >{{ node.label }}</el-tag
+              >
+              <el-tag
+                v-if="data.level === 2"
+                size="small"
+                type="warning"
+                effect="dark"
+                >{{ node.label }}</el-tag
+              >
+              <el-tag
+                v-if="data.level === 3"
+                size="small"
+                type="info"
+                effect="dark"
+                >{{ node.label }}</el-tag
+              >
+              <span v-if="data.level === 1"> </span>
+              <span v-if="data.level === 2">
+                <i
+                  class="el-icon-plus icon-action"
+                  @click="append(data)"
+                  title="增加"
+                ></i>
+                <i
+                  class="el-icon-minus icon-action"
+                  @click="remove(node, data)"
+                  title="删除"
+                ></i>
+                <i
+                  class="el-icon-edit icon-action"
+                  @click="edit(node, data)"
+                  title="删除"
+                ></i>
+              </span>
+              <span v-if="data.level === 3">
+                <i
+                  class="el-icon-minus icon-action"
+                  @click="remove(node, data)"
+                  title="删除"
+                ></i>
+                <i
+                  class="el-icon-edit icon-action"
+                  @click="edit(node, data)"
+                  title="删除"
+                ></i>
+              </span>
+            </span>
+          </template>
+        </el-tree>
+      </el-scrollbar>
+    </div>
+    <div>
+      <!-- <RuleEdit :monitorData="{ a: 1 }"></RuleEdit> -->
+      <div>
+        <Leslie>
+          <span slot="diandian">
+            <span>Hello!, DianDian</span>
           </span>
-          <span v-if="data.level === 3">
-            <i
-              class="el-icon-minus icon-action"
-              @click="remove(node, data)"
-              title="删除"
-            ></i>
-            <i
-              class="el-icon-edit icon-action"
-              @click="edit(node, data)"
-              title="删除"
-            ></i>
-          </span>
-        </span>
-      </template>
-    </el-tree>
+        </Leslie>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
+import RuleEdit from '@/views/RuleEdit.vue'
+import Leslie from '@/views/Leslie.vue'
 let id = 1000;
 
 export default {
+  name: "Notice",
+  components: {
+    RuleEdit: RuleEdit,
+    Leslie: Leslie
+  },
   data () {
     const data = [
       {
@@ -120,7 +141,7 @@ export default {
       },
     ];
     return {
-      data: JSON.parse(JSON.stringify(data)),
+      data: JSON.parse(JSON.stringify(data))
     }
   },
 
@@ -165,6 +186,16 @@ export default {
 
 // 以下为scss，记得去掉scoped，或者使用/deep/
 <style scoped>
+.monitor-board {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  height: 85vh;
+}
+.card-scrollbar {
+  height: 84vh;
+  width: 250px;
+}
 .icon-action {
   font-size: 5px;
   margin-left: 5px;
