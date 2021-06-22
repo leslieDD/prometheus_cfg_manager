@@ -1,6 +1,69 @@
 <template>
   <div class="tree-container">
-    <el-tree class="tree" :data="data" :indent="0"> </el-tree>
+    <el-tree
+      class="tree"
+      :data="data"
+      :indent="0"
+      node-key="id"
+      default-expand-all
+      :expand-on-click-node="false"
+    >
+      <template #default="{ node, data }">
+        <span class="custom-tree-node">
+          <el-tag
+            v-if="data.level === 1"
+            size="small"
+            type="success"
+            effect="dark"
+            >{{ node.label }}</el-tag
+          >
+          <el-tag
+            v-if="data.level === 2"
+            size="small"
+            type="warning"
+            effect="dark"
+            >{{ node.label }}</el-tag
+          >
+          <el-tag
+            v-if="data.level === 3"
+            size="small"
+            type="info"
+            effect="dark"
+            >{{ node.label }}</el-tag
+          >
+          <span v-if="data.level === 1"> </span>
+          <span v-if="data.level === 2">
+            <i
+              class="el-icon-plus icon-action"
+              @click="append(data)"
+              title="增加"
+            ></i>
+            <i
+              class="el-icon-minus icon-action"
+              @click="remove(node, data)"
+              title="删除"
+            ></i>
+            <i
+              class="el-icon-edit icon-action"
+              @click="edit(node, data)"
+              title="删除"
+            ></i>
+          </span>
+          <span v-if="data.level === 3">
+            <i
+              class="el-icon-minus icon-action"
+              @click="remove(node, data)"
+              title="删除"
+            ></i>
+            <i
+              class="el-icon-edit icon-action"
+              @click="edit(node, data)"
+              title="删除"
+            ></i>
+          </span>
+        </span>
+      </template>
+    </el-tree>
   </div>
 </template>
 
@@ -9,51 +72,53 @@ let id = 1000;
 
 export default {
   data () {
-    const data = [{
-      id: 1,
-      label: '一级 1',
-      is_child: false,
-      children: [{
-        id: 4,
-        label: '二级 1-1',
-        is_child: false,
-        children: [{
-          id: 9,
-          label: '三级 1-1-1',
-          is_child: true
-        }, {
-          id: 10,
-          label: '三级 1-1-2',
-          is_child: true
-        }]
-      }]
-    }, {
-      id: 2,
-      label: '一级 2',
-      is_child: false,
-      children: [{
-        id: 5,
-        label: '二级 2-1',
-        is_child: true
-      }, {
-        id: 6,
-        label: '二级 2-2',
-        is_child: true
-      }]
-    }, {
-      id: 3,
-      label: '一级 3',
-      is_child: false,
-      children: [{
-        id: 7,
-        label: '二级 3-1',
-        is_child: true
-      }, {
-        id: 8,
-        label: '二级 3-2',
-        is_child: true
-      }]
-    }];
+    const data = [
+      {
+        id: 1,
+        label: '监控规则列表',
+        level: 1,
+        children: [
+          {
+            id: 2,
+            label: '一级 1',
+            level: 2,
+            children: [{
+              id: 5,
+              label: '二级 1-1',
+              level: 3
+            }]
+          },
+          {
+            id: 3,
+            label: '一级 2',
+            level: 2,
+            children: [{
+              id: 6,
+              label: '二级 2-1',
+              level: 3
+            }, {
+              id: 7,
+              label: '二级 2-2',
+              level: 3
+            }]
+          },
+          {
+            id: 4,
+            label: '一级 3',
+            level: 2,
+            children: [{
+              id: 8,
+              label: '二级 3-1',
+              level: 3
+            }, {
+              id: 9,
+              label: '二级 3-2',
+              level: 3
+            }]
+          }
+        ]
+      },
+    ];
     return {
       data: JSON.parse(JSON.stringify(data)),
     }
@@ -61,7 +126,7 @@ export default {
 
   methods: {
     append (data) {
-      const newChild = { id: id++, label: 'testtest', children: [] };
+      const newChild = { id: id++, level: 3, label: 'testtest', children: [] };
       if (!data.children) {
         data.children = []
       }
@@ -70,6 +135,14 @@ export default {
     },
 
     remove (node, data) {
+      const parent = node.parent;
+      const children = parent.data.children || parent.data;
+      const index = children.findIndex(d => d.id === data.id);
+      children.splice(index, 1);
+      this.data = [...this.data]
+    },
+
+    edit (node, data) {
       const parent = node.parent;
       const children = parent.data.children || parent.data;
       const index = children.findIndex(d => d.id === data.id);
@@ -92,6 +165,11 @@ export default {
 
 // 以下为scss，记得去掉scoped，或者使用/deep/
 <style scoped>
+.icon-action {
+  font-size: 5px;
+  margin-left: 5px;
+  color: green;
+}
 .tree-container {
   overflow: hidden;
 }
