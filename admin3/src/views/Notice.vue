@@ -68,15 +68,10 @@
         </el-tree>
       </el-scrollbar>
     </div>
-    <div>
-      <!-- <RuleEdit :monitorData="{ a: 1 }"></RuleEdit> -->
-      <div>
-        <Leslie>
-          <span slot="diandian">
-            <span>Hello!, DianDian</span>
-          </span>
-        </Leslie>
-      </div>
+    <div class="node-content-edit">
+      <el-scrollbar class="card-scrollbar-right">
+        <RuleEdit :monitorData="{ a: 1 }"></RuleEdit>
+      </el-scrollbar>
     </div>
   </div>
 </template>
@@ -191,18 +186,28 @@ export default {
   flex-direction: row;
   flex-wrap: nowrap;
   height: 85vh;
+  width: 100%;
+}
+.node-content-edit {
+  width: 100%;
+  /* border: 1px solid royalblue; */
 }
 .card-scrollbar {
-  height: 84vh;
+  height: 85vh;
   width: 250px;
 }
+/* .card-scrollbar-right {
+  height: 84vh;
+  width: 100%;
+} */
 .icon-action {
   font-size: 5px;
   margin-left: 5px;
   color: green;
 }
 .tree-container {
-  overflow: hidden;
+  /* overflow: hidden; */
+  /* border: 1px solid rgb(222, 222, 224); */
 }
 .tree :deep() .el-tree-node {
   position: relative;

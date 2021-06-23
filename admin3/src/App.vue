@@ -13,4 +13,7 @@
   /* color: #2c3e50; */
   /* margin-top: 60px; */
 }
+.filed-explain {
+  width: 400px;
+}
 </style>
