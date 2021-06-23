@@ -19,14 +19,22 @@
                 effect="dark"
                 >{{ node.label }}</el-tag
               >
-              <el-tag v-if="data.level === 2" size="small" type="warning">{{
-                node.label
-              }}</el-tag>
-              <el-tag v-if="data.level === 3" size="small" type="info">{{
-                node.label
-              }}</el-tag>
+              <el-tag
+                v-if="data.level === 2"
+                size="small"
+                type="warning"
+                plain
+                >{{ node.label }}</el-tag
+              >
+              <el-tag
+                v-if="data.level === 3 || data.level === 4"
+                size="small"
+                type="info"
+                plain
+                >{{ node.label }}</el-tag
+              >
               <span v-if="data.level === 1"> </span>
-              <span v-if="data.level === 2">
+              <span v-if="data.level === 2 || data.level === 3">
                 <i
                   class="el-icon-plus icon-action"
                   @click="append(data)"
@@ -40,10 +48,10 @@
                 <i
                   class="el-icon-edit icon-action"
                   @click="edit(node, data)"
-                  title="删除"
+                  title="编辑"
                 ></i>
               </span>
-              <span v-if="data.level === 3">
+              <span v-if="data.level === 4">
                 <i
                   class="el-icon-minus icon-action"
                   @click="remove(node, data)"
@@ -52,7 +60,7 @@
                 <i
                   class="el-icon-edit icon-action"
                   @click="edit(node, data)"
-                  title="删除"
+                  title="编辑"
                 ></i>
               </span>
             </span>
@@ -113,7 +121,32 @@ export default {
             children: [{
               id: 8,
               label: 'hpool-miner-chia_stats',
-              level: 3
+              level: 3,
+              children: [{
+                id: 20,
+                label: "monitor_name_11111111111111111111111111111111111111111",
+                level: 4
+              }, {
+                id: 21,
+                label: "monitor_name_2",
+                level: 4
+              }, {
+                id: 22,
+                label: "monitor_name_3",
+                level: 4
+              }, {
+                id: 23,
+                label: "monitor_name_4",
+                level: 4
+              }, {
+                id: 24,
+                label: "monitor_name_5",
+                level: 4
+              }, {
+                id: 25,
+                label: "monitor_name_6",
+                level: 4
+              }]
             }]
           }
         ]

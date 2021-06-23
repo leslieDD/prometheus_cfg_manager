@@ -20,7 +20,7 @@
           </el-option>
         </el-select>
         <el-input
-          style="width: 79%"
+          style="width: 80%"
           v-model="data.value"
           :key="data.id"
         ></el-input>

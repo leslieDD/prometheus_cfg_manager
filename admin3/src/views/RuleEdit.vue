@@ -55,7 +55,7 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <el-input v-model="form.name"></el-input>
+          <KeyValue></KeyValue>
         </el-form-item>
         <el-form-item>
           <template #label>
@@ -71,8 +71,10 @@
           <KeyValue></KeyValue>
           <!-- <el-input v-model="form.name"></el-input> -->
         </el-form-item>
-        <el-form-item>
-          <el-button type="primary" @click="onSubmit">更新</el-button>
+        <el-form-item align="right">
+          <el-button style="margin-right: 20px" type="primary" @click="onSubmit"
+            >更新</el-button
+          >
         </el-form-item>
       </el-form>
     </div>
