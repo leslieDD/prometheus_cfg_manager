@@ -19,20 +19,12 @@
                 effect="dark"
                 >{{ node.label }}</el-tag
               >
-              <el-tag
-                v-if="data.level === 2"
-                size="small"
-                type="warning"
-                effect="dark"
-                >{{ node.label }}</el-tag
-              >
-              <el-tag
-                v-if="data.level === 3"
-                size="small"
-                type="info"
-                effect="dark"
-                >{{ node.label }}</el-tag
-              >
+              <el-tag v-if="data.level === 2" size="small" type="warning">{{
+                node.label
+              }}</el-tag>
+              <el-tag v-if="data.level === 3" size="small" type="info">{{
+                node.label
+              }}</el-tag>
               <span v-if="data.level === 1"> </span>
               <span v-if="data.level === 2">
                 <i
@@ -96,39 +88,31 @@ export default {
         children: [
           {
             id: 2,
-            label: '一级 1',
+            label: 'node-explorer',
             level: 2,
             children: [{
               id: 5,
-              label: '二级 1-1',
+              label: 'HostAndHardware',
               level: 3
             }]
           },
           {
             id: 3,
-            label: '一级 2',
+            label: 'process-explorer',
             level: 2,
             children: [{
               id: 6,
-              label: '二级 2-1',
-              level: 3
-            }, {
-              id: 7,
-              label: '二级 2-2',
+              label: 'blackbox_network_stats',
               level: 3
             }]
           },
           {
             id: 4,
-            label: '一级 3',
+            label: 'blackbox-explorer',
             level: 2,
             children: [{
               id: 8,
-              label: '二级 3-1',
-              level: 3
-            }, {
-              id: 9,
-              label: '二级 3-2',
+              label: 'hpool-miner-chia_stats',
               level: 3
             }]
           }

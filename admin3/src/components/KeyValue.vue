@@ -1,25 +1,32 @@
 <template>
-  <el-card class="box-card" :body-style="{ padding: '0px 0px 0px 0px' }">
+  <div>
     <div v-for="data in customerData" :key="data.id">
-      <el-select
-        v-model="data.key"
-        :key="data.id"
-        allow-create
-        default-first-option
-        placeholder="请选择"
-      >
-        <el-option :label="data.key" :value="data.key"></el-option>
-        <el-option
-          v-for="(label, lid) in labels"
-          :key="lid"
-          :label="label"
-          :value="label"
+      <el-card class="box-card" :body-style="{ padding: '0px' }">
+        <el-select
+          v-model="data.key"
+          :key="data.id"
+          allow-create
+          default-first-option
+          placeholder="请选择"
+          style="width: 20%"
         >
-        </el-option>
-      </el-select>
-      <el-input v-model="data.value" :key="data.id"></el-input>
+          <el-option :label="data.key" :value="data.key"></el-option>
+          <el-option
+            v-for="(label, lid) in labels"
+            :key="lid"
+            :label="label"
+            :value="label"
+          >
+          </el-option>
+        </el-select>
+        <el-input
+          style="width: 79%"
+          v-model="data.value"
+          :key="data.id"
+        ></el-input>
+      </el-card>
     </div>
-  </el-card>
+  </div>
 </template>
 
 <script>
@@ -61,3 +68,8 @@ export default {
 }
 </script>
 
+<style scoped>
+.box-card {
+  margin-bottom: 5px;
+}
+</style>
