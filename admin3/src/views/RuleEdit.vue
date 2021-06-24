@@ -82,44 +82,65 @@
 </template>
 
 <script>
-import { ref, reactive } from 'vue'
+import { ref, reactive, watch } from 'vue'
 import KeyValue from '@/components/KeyValue.vue'
 
 export default ({
-  prop: {
-    monitorData: {
+  props: {
+    query: {
       type: Object,
-      default () {
-        return { message: 'hello' }
-      }
+      default: null
     }
   },
   components: {
     KeyValue
   },
-  setup (props, context) {
+  // computed: {
+  //   localQueryInfo: {
+  //     deep: true,  // 深度监听
+  //     handler(newVal,oldVal) {
+  //        console.log(newVal,oldVal)
+  //        return newVal
+  //     }
+  //   }
+  // },
+  setup: function (props, context) {
     const tmplData = reactive([
       {
         alert: {
           label: "说明",
         }
       }])
-    const form = reactive({
-      name: '',
-      region: '',
-      date1: '',
-      date2: '',
-      delivery: false,
-      type: [],
-      resource: '',
-      desc: ''
+    const form = reactive({})
+    const localQueryInfo = reactive({})
+    watch(props, (nweProps, oldProps) => {
+      localQueryInfo['id'] = nweProps.query['id']
+      localQueryInfo['label'] = nweProps.query['label']
+      localQueryInfo['level'] = nweProps.query['level']
     })
     return {
       tmplData,
-      form
+      form,
+      localQueryInfo
     }
   },
+  // watch: {
+  //   localQueryInfo: 'doGetRuleDetail'
+  // },
   methods: {
+    doGetRuleDetail (info) {
+      if (!info) {
+        info = this.localQueryInfo
+      }
+      getRuleDetail(info).then(
+        r => {
+          // this.data = r.data
+          this.form = r.date
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
+    },
     onSubmit () {
 
     }

@@ -9,6 +9,7 @@
           node-key="id"
           default-expand-all
           :expand-on-click-node="false"
+          @node-click="handleNodeClick"
         >
           <template #default="{ node, data }">
             <span class="custom-tree-node">
@@ -33,7 +34,7 @@
                 plain
                 >{{ node.label }}</el-tag
               >
-              <span v-if="data.level === 1"> </span>
+              <!-- <span v-if="data.level === 1"> </span>
               <span v-if="data.level === 2 || data.level === 3">
                 <i
                   class="el-icon-plus icon-action"
@@ -62,7 +63,7 @@
                   @click="edit(node, data)"
                   title="编辑"
                 ></i>
-              </span>
+              </span> -->
             </span>
           </template>
         </el-tree>
@@ -70,7 +71,7 @@
     </div>
     <div class="node-content-edit">
       <el-scrollbar class="card-scrollbar-right">
-        <RuleEdit :monitorData="{ a: 1 }"></RuleEdit>
+        <RuleEdit :query="queryInfo"></RuleEdit>
       </el-scrollbar>
     </div>
   </div>
@@ -79,6 +80,7 @@
 <script>
 import RuleEdit from '@/views/RuleEdit.vue'
 import Leslie from '@/views/Leslie.vue'
+import { getTree, getRuleDetail } from '@/api/monitor.js'
 let id = 1000;
 
 export default {
@@ -88,76 +90,36 @@ export default {
     Leslie: Leslie
   },
   data () {
-    const data = [
-      {
-        id: 1,
-        label: '监控规则列表',
-        level: 1,
-        children: [
-          {
-            id: 2,
-            label: 'node-explorer',
-            level: 2,
-            children: [{
-              id: 5,
-              label: 'HostAndHardware',
-              level: 3
-            }]
-          },
-          {
-            id: 3,
-            label: 'process-explorer',
-            level: 2,
-            children: [{
-              id: 6,
-              label: 'blackbox_network_stats',
-              level: 3
-            }]
-          },
-          {
-            id: 4,
-            label: 'blackbox-explorer',
-            level: 2,
-            children: [{
-              id: 8,
-              label: 'hpool-miner-chia_stats',
-              level: 3,
-              children: [{
-                id: 20,
-                label: "monitor_name_11111111111111111111111111111111111111111",
-                level: 4
-              }, {
-                id: 21,
-                label: "monitor_name_2",
-                level: 4
-              }, {
-                id: 22,
-                label: "monitor_name_3",
-                level: 4
-              }, {
-                id: 23,
-                label: "monitor_name_4",
-                level: 4
-              }, {
-                id: 24,
-                label: "monitor_name_5",
-                level: 4
-              }, {
-                id: 25,
-                label: "monitor_name_6",
-                level: 4
-              }]
-            }]
-          }
-        ]
-      },
-    ];
     return {
-      data: JSON.parse(JSON.stringify(data))
+      data: [],
+      queryInfo:{}
     }
   },
-
+  mounted () {
+    this.doGetTree()
+  },
   methods: {
+    doGetTree () {
+      getTree().then(
+        r => {
+          this.data = r.data
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
+    },
+    handleNodeClick (data) {
+      if (data.level !== 4) {
+        return false
+      }
+      this.queryInfo = {
+        id: data.id,
+        label: data.label,
+        level: data.level
+      }
+      // console.log('click', this.queryInfo)
+      // doGetRuleDetail(queryInfo)
+    },
     append (data) {
       const newChild = { id: id++, level: 3, label: 'testtest', children: [] };
       if (!data.children) {

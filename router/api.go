@@ -31,6 +31,9 @@ func initApiRouter() {
 
 	v1.GET("/load/all-file-list", allFileList)
 	v1.POST("/load/file-content", FileContent)
+
+	v1.GET("/tree", getTree)
+	v1.GET("/tree/node", getNode)
 }
 
 func getJobs(c *gin.Context) {
@@ -205,5 +208,20 @@ func FileContent(c *gin.Context) {
 		return
 	}
 	data, bf := models.ReadFileContent(&child)
+	resComm(c, bf, data)
+}
+
+func getTree(c *gin.Context) {
+	data, bf := models.GetNodesFromDB()
+	resComm(c, bf, data)
+}
+
+func getNode(c *gin.Context) {
+	qni := models.QueryGetNode{}
+	if err := c.BindQuery(&qni); err != nil {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	data, bf := models.GetNode(&qni)
 	resComm(c, bf, data)
 }
