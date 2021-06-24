@@ -4,7 +4,7 @@
       <el-form
         label-position="top"
         ref="form"
-        :model="form"
+        :model="formData"
         label-width="180px"
         size="mini"
       >
@@ -18,7 +18,7 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <el-input v-model="form.name"></el-input>
+          <el-input v-model="formData.alert"></el-input>
         </el-form-item>
         <el-form-item>
           <template #label>
@@ -30,7 +30,7 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <el-input v-model="form.name"></el-input>
+          <el-input v-model="formData.expr"></el-input>
         </el-form-item>
         <el-form-item>
           <template #label>
@@ -43,7 +43,7 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <el-input v-model="form.name"></el-input>
+          <el-input v-model="formData.for"></el-input>
         </el-form-item>
         <el-form-item>
           <template #label>
@@ -55,7 +55,35 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <KeyValue></KeyValue>
+          <div>
+            <div v-for="data in formData.labels" :key="data.id">
+              <el-card class="box-card-two" :body-style="{ padding: '1px 0px 1px 0px' }">
+                <el-select
+                  v-model="data.key"
+                  :key="data.id"
+                  filterable
+                  allow-create
+                  default-first-option
+                  placeholder="请选择"
+                  style="width: 20%"
+                >
+                  <el-option :label="data.key" :value="data.key"></el-option>
+                  <el-option
+                    v-for="item in defaultLabels"
+                    :key="item.id"
+                    :label="item.label"
+                    :value="item.label"
+                  >
+                  </el-option>
+                </el-select>
+                <el-input
+                  style="width: 80%"
+                  v-model="data.value"
+                  :key="data.id"
+                ></el-input>
+              </el-card>
+            </div>
+          </div>
         </el-form-item>
         <el-form-item>
           <template #label>
@@ -68,8 +96,35 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <KeyValue></KeyValue>
-          <!-- <el-input v-model="form.name"></el-input> -->
+          <div>
+            <div v-for="data in formData.annotations" :key="data.id">
+              <el-card class="box-card-two" :body-style="{ padding: '1px 0px 1px 0px' }">
+                <el-select
+                  v-model="data.key"
+                  :key="data.id"
+                  allow-create
+                  filterable
+                  default-first-option
+                  placeholder="请选择"
+                  style="width: 20%"
+                >
+                  <el-option :label="data.key" :value="data.key"></el-option>
+                  <el-option
+                    v-for="item in defaultLabels"
+                    :key="item.id"
+                    :label="item.label"
+                    :value="item.label"
+                  >
+                  </el-option>
+                </el-select>
+                <el-input
+                  style="width: 80%"
+                  v-model="data.value"
+                  :key="data.id"
+                ></el-input>
+              </el-card>
+            </div>
+          </div>
         </el-form-item>
         <el-form-item align="right">
           <el-button style="margin-right: 20px" type="primary" @click="onSubmit"
@@ -82,8 +137,8 @@
 </template>
 
 <script>
-import { ref, reactive, watch } from 'vue'
 import KeyValue from '@/components/KeyValue.vue'
+import { getRuleDetail, getDefaultLabels } from '@/api/monitor.js'
 
 export default ({
   props: {
@@ -95,47 +150,33 @@ export default ({
   components: {
     KeyValue
   },
-  // computed: {
-  //   localQueryInfo: {
-  //     deep: true,  // 深度监听
-  //     handler(newVal,oldVal) {
-  //        console.log(newVal,oldVal)
-  //        return newVal
-  //     }
-  //   }
-  // },
-  setup: function (props, context) {
-    const tmplData = reactive([
-      {
-        alert: {
-          label: "说明",
-        }
-      }])
-    const form = reactive({})
-    const localQueryInfo = reactive({})
-    watch(props, (nweProps, oldProps) => {
-      localQueryInfo['id'] = nweProps.query['id']
-      localQueryInfo['label'] = nweProps.query['label']
-      localQueryInfo['level'] = nweProps.query['level']
-    })
+  data() {
     return {
-      tmplData,
-      form,
-      localQueryInfo
+      formData: {
+        alert: 'x',
+        expr: 'x',
+        for: 'x',
+        labels: [],
+        annotations: []
+      },
+      defaultLabels: []
     }
   },
-  // watch: {
-  //   localQueryInfo: 'doGetRuleDetail'
-  // },
   methods: {
     doGetRuleDetail (info) {
       if (!info) {
-        info = this.localQueryInfo
+        return false
       }
+      getDefaultLabels().then(
+        r => {
+          this.defaultLabels = r.data
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
       getRuleDetail(info).then(
         r => {
-          // this.data = r.data
-          this.form = r.date
+          this.formData = r.data
         }
       ).catch(
         e => { console.log(e) }

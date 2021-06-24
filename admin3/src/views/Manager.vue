@@ -18,7 +18,7 @@
           <div>
             <el-input
               size="small"
-              @keyup.enter.native="onSearch()"
+              @keyup.enter="onSearch()"
               placeholder="请输入内容"
               v-model="searchContent"
               class="input-with-select"
@@ -540,6 +540,8 @@ export default {
         this.$refs.previewRef.loadYaml()
       } else if (tab.instance.props.name === 'ftree') {
         this.$refs.ftreeRef.doLoadAllFiles()
+      } else if (tab.instance.props.name === 'noticeManager'){
+        this.$refs.noticeManagerRef.doGetTree()
       }
     }
   }

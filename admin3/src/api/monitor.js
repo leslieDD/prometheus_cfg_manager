@@ -8,11 +8,17 @@ export function getTree () {
   })
 }
 
-export function getRuleDetail (info) {
-    return request({
-      url: '/v1/tree/node',
-      method: 'get',
-      params: info
-    })
-  }
+export function getRuleDetail(info) {
+  return request({
+    url: '/v1/tree/node',
+    method: 'get',
+    params: info
+  })
+}
   
+export function getDefaultLabels() {
+  return request({
+    url: '/v1/tree/default/lables',
+    method: 'get'
+  })
+}

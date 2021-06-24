@@ -34,6 +34,7 @@ func initApiRouter() {
 
 	v1.GET("/tree", getTree)
 	v1.GET("/tree/node", getNode)
+	v1.GET("/tree/default/lables", getDefLabels)
 }
 
 func getJobs(c *gin.Context) {
@@ -223,5 +224,10 @@ func getNode(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetNode(&qni)
+	resComm(c, bf, data)
+}
+
+func getDefLabels(c *gin.Context) {
+	data, bf := models.GetDefLabels()
 	resComm(c, bf, data)
 }

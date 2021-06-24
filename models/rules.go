@@ -285,7 +285,7 @@ func SearchLabelsByMonitorID(MID int) ([]Label, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	label := []Label{}
-	tx := db.Table("monitor_rules").Where("monitor_rules_id=?", MID).Find(&label)
+	tx := db.Table("monitor_labels").Where("monitor_rules_id=?", MID).Find(&label)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
@@ -306,4 +306,24 @@ func SearchAnnotationsByMonitorID(MID int) ([]Label, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	return label, Success
+}
+
+type DefaultLables struct {
+	ID    int    `json:"id" gorm:"column:id"`
+	Lable string `json:"label" gorm:"column:label"`
+}
+
+func GetDefLabels() ([]DefaultLables, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	defLables := []DefaultLables{}
+	tx := db.Table("labels").Find(&defLables)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return defLables, Success
 }

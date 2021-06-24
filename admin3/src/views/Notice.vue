@@ -71,7 +71,7 @@
     </div>
     <div class="node-content-edit">
       <el-scrollbar class="card-scrollbar-right">
-        <RuleEdit :query="queryInfo"></RuleEdit>
+        <RuleEdit ref="ruleEditRef" :query="queryInfo"></RuleEdit>
       </el-scrollbar>
     </div>
   </div>
@@ -117,8 +117,7 @@ export default {
         label: data.label,
         level: data.level
       }
-      // console.log('click', this.queryInfo)
-      // doGetRuleDetail(queryInfo)
+      this.$refs.ruleEditRef.doGetRuleDetail(this.queryInfo)
     },
     append (data) {
       const newChild = { id: id++, level: 3, label: 'testtest', children: [] };
