@@ -185,7 +185,7 @@ export default {
         label: '[must rename me]',
         children: [],
         is_new: true,
-        parent: data.parent
+        parent: data.id
       }
       if (!data.children) {
         data.children = []
@@ -207,6 +207,7 @@ export default {
         const index = children.findIndex(d => d.id === data.id);
         children.splice(index, 1);
         this.data = [...this.data]
+        return true
       }
       const nodeInfo = {
         id: this.menuData.id,
@@ -287,9 +288,13 @@ export default {
         this.menuRenameDisabled = true
         this.menuAddDisabled = false
       } else if (data.level === 2 || data.level === 3) {
+        if (data.label === '[must rename me]') {
+          this.menuAddDisabled = true
+        } else {
+          this.menuAddDisabled = false
+        }
         this.menuDelDisabled = false
         this.menuRenameDisabled = false
-        this.menuAddDisabled = false
       } else if (data.level === 4) {
         if (data.label === '[must rename me]') {
           this.menuRenameDisabled = false
