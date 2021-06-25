@@ -182,10 +182,10 @@ export default {
   margin-left: 5px;
   color: green;
 }
-.tree-container {
-  /* overflow: hidden; */
-  /* border: 1px solid rgb(222, 222, 224); */
-}
+/* .tree-container {
+  overflow: hidden;
+  border: 1px solid rgb(222, 222, 224);
+} */
 .tree :deep() .el-tree-node {
   position: relative;
   padding-left: 0;

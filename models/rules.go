@@ -3,6 +3,8 @@ package models
 import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
+
+	"gorm.io/gorm"
 )
 
 type TreeNode struct {
@@ -396,4 +398,28 @@ func GetDefLabels() ([]DefaultLables, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	return defLables, Success
+}
+
+func DelLabel(l *Label, labelType string) *BriefMessage {
+	if labelType == "" {
+		return ErrQueryData
+	}
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	var tx *gorm.DB
+	if labelType == "labels" {
+		tx = db.Table("monitor_labels").Where("id=?", l.ID).Delete(nil)
+	} else if labelType == "annotations" {
+		tx = db.Table("annotations").Where("id=?", l.ID).Delete(nil)
+	} else {
+		return ErrQueryData
+	}
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	return Success
 }
