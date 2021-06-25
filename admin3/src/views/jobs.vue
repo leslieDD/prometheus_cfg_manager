@@ -126,7 +126,7 @@
       </el-pagination>
     </div>
     <el-dialog
-      title="新增IP地址"
+      :title="dialogTitle"
       v-model="dialogVisible"
       width="400px"
       modal
@@ -204,6 +204,7 @@ export default {
       deleteVisible: {},
       dialogVisible: false,
       buttonTitle: '',
+      dialogTitle: '',
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -228,6 +229,7 @@ export default {
         'display_order': 1
       }
       this.buttonTitle = '创建'
+      this.dialogTitle = '增加IP分组'
       this.dialogVisible = true
     },
     doGetJobs (getInfo) {
@@ -258,6 +260,7 @@ export default {
     },
     doEdit (data) {
       this.buttonTitle = '更新'
+      this.dialogTitle = '编辑IP分组'
       this.addJobInfo.id = data.row.id
       this.addJobInfo.name = data.row.name
       this.addJobInfo.port = data.row.port

@@ -297,52 +297,59 @@ export default ({
       }
     },
     addLables (label, witch) {
-      let newID = 0
-      if (witch === 'annotations') {
-        if (this.formData.annotations.length !== 0) {
-          newID = this.formData.annotations[(this.formData.annotations.length - 1)].id + 1
-        }
-        this.formData.annotations.push({ id: newID, key: '', value: '', is_new: true })
-      } else if (witch === 'labels') {
-        if (this.formData.annotations.length !== 0) {
-          newID = this.formData.labels[(this.formData.labels.length - 1)].id + 1
-        }
-        this.formData.labels.push({ id: newID, key: '', value: '', is_new: true })
-      }
-      this.formData = { ...this.formData }
-    }
-  },
-  delItem (data, lType) {
-    const labelInfo = data.valueOf()
-    if (label.is_new) {
-      if (lType === 'labels') {
-        const index = this.formData.labels.findIndex(d => d.id === data.id);
-        this.formData.labels.splice(index, 1)
-      } else if (lType === 'annotations') {
-        const index = this.formData.annotations.findIndex(d => d.id === data.id);
-        this.formData.annotations.splice(index, 1);
-      }
-      this.formData = { ...this.formData }
-    } else {
-      deleteNodeLable(labelInfo, { type: lType }).then(
+      getDefaultLabels().then(
         r => {
-          this.$notify({
-            title: '成功',
-            message: '删除成功！',
-            type: 'success'
-          });
-          if (lType === 'labels') {
-            const index = this.formData.labels.findIndex(d => d.id === data.id);
-            this.formData.labels.splice(index, 1)
-          } else if (lType === 'annotations') {
-            const index = this.formData.annotations.findIndex(d => d.id === data.id);
-            this.formData.annotations.splice(index, 1);
+          this.defaultLabels = r.data
+          let newID = 0
+          if (witch === 'annotations') {
+            if (this.formData.annotations.length !== 0) {
+              newID = this.formData.annotations[(this.formData.annotations.length - 1)].id + 1
+            }
+            this.formData.annotations.push({ id: newID, key: '', value: '', is_new: true })
+          } else if (witch === 'labels') {
+            if (this.formData.annotations.length !== 0) {
+              newID = this.formData.labels[(this.formData.labels.length - 1)].id + 1
+            }
+            this.formData.labels.push({ id: newID, key: '', value: '', is_new: true })
           }
           this.formData = { ...this.formData }
         }
       ).catch(
         e => { console.log(e) }
       )
+    },
+    delItem (data, lType) {
+      const labelInfo = data.valueOf()
+      if (labelInfo.is_new) {
+        if (lType === 'labels') {
+          const index = this.formData.labels.findIndex(d => d.id === data.id);
+          this.formData.labels.splice(index, 1)
+        } else if (lType === 'annotations') {
+          const index = this.formData.annotations.findIndex(d => d.id === data.id);
+          this.formData.annotations.splice(index, 1);
+        }
+        this.formData = { ...this.formData }
+      } else {
+        deleteNodeLable(labelInfo, { type: lType }).then(
+          r => {
+            this.$notify({
+              title: '成功',
+              message: '删除成功！',
+              type: 'success'
+            });
+            if (lType === 'labels') {
+              const index = this.formData.labels.findIndex(d => d.id === data.id);
+              this.formData.labels.splice(index, 1)
+            } else if (lType === 'annotations') {
+              const index = this.formData.annotations.findIndex(d => d.id === data.id);
+              this.formData.annotations.splice(index, 1);
+            }
+            this.formData = { ...this.formData }
+          }
+        ).catch(
+          e => { console.log(e) }
+        )
+      }
     }
   }
 })
