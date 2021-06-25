@@ -35,6 +35,7 @@ var ErrSearchDBData = &BriefMessage{500000, "数据查询失败"}
 
 // ErrDelData ErrDelData
 var ErrDelData = &BriefMessage{500000, "删除数据失败"}
+var ErrCheckDBData = &BriefMessage{500000, "核对数据时出错"}
 
 // ErrUpdateData ErrUpdateData
 var ErrUpdateData = &BriefMessage{500000, "更新数据失败"}
@@ -162,6 +163,7 @@ var ErrIPAddr = &BriefMessage{400000, "不是正确的IP地址"}
 var ErrJobTypeEmpty = &BriefMessage{400000, "IP的分组类型不允许为空"}
 var ErrOrderIDExist = &BriefMessage{400000, "排序号已经存在"}
 var ErrUnSupport = &BriefMessage{400000, "不支持的操作类型"}
+var ErrHaveDataNoAllowToDel = &BriefMessage{400000, "因存在相关联数据，不允许删除"}
 
 // --------------------------------------------------------------
 // ---------------- 300xxx 链接错误 ------------------------------

@@ -38,6 +38,9 @@ func initApiRouter() {
 	v1.PUT("/tree/node", putNode)
 	v1.GET("/tree/default/lables", getDefLabels)
 	v1.DELETE("/tree/node/label", delLabel)
+	v1.POST("/tree/create/node", createTreeNode)
+	v1.PUT("/tree/update/node", updateTreeNode)
+	v1.DELETE("/tree/remove/node", deleteTreeNode)
 }
 
 func getJobs(c *gin.Context) {
@@ -267,5 +270,35 @@ func delLabel(c *gin.Context) {
 		return
 	}
 	bf := models.DelLabel(&labelInfo, labelType)
+	resComm(c, bf, nil)
+}
+
+func createTreeNode(c *gin.Context) {
+	tnc := models.TreeNodeFromCli{}
+	if err := c.BindJSON(&tnc); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.CreateTreeNode(&tnc)
+	resComm(c, bf, nil)
+}
+
+func updateTreeNode(c *gin.Context) {
+	tnc := models.TreeNodeFromCli{}
+	if err := c.BindJSON(&tnc); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.UpdateTreeNode(&tnc)
+	resComm(c, bf, nil)
+}
+
+func deleteTreeNode(c *gin.Context) {
+	tnc := models.TreeNodeFromCli{}
+	if err := c.BindJSON(&tnc); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.DeleteTreeNode(&tnc)
 	resComm(c, bf, nil)
 }

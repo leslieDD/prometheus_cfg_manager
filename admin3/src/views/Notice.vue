@@ -13,67 +13,55 @@
         >
           <template #default="{ node, data }">
             <span class="custom-tree-node">
+              <el-input
+                size="mini"
+                v-if="data.display === true"
+                placeholder="输入名称"
+                v-model="titleFromShowMe"
+                @keyup.enter="receiveEnter"
+                @keyup.esc="receiveEsc"
+                clearable
+              ></el-input>
               <el-tag
-                v-if="data.level === 1"
+                v-show="data.showMe !== true"
+                v-if="data.level === 1 && data.display !== true"
                 size="small"
                 type="success"
                 effect="plain"
-                @contextmenu.prevent.native="openMenu($event, data)"
+                @click="closeMenu"
+                @contextmenu.prevent.native="openMenu($event, data, node)"
                 >{{ node.label }}</el-tag
               >
               <el-tag
+                v-show="data.showMe !== true && data.display !== true"
                 v-if="data.level === 2"
                 size="small"
                 type="warning"
                 effect="plain"
-                @contextmenu.prevent.native="openMenu($event, data)"
+                @click="closeMenu"
+                @contextmenu.prevent.native="openMenu($event, data, node)"
                 >{{ node.label }}</el-tag
               >
               <el-tag
+                v-show="data.showMe !== true && data.display !== true"
                 v-if="data.level === 3"
                 size="small"
                 type="info"
                 effect="plain"
-                @contextmenu.prevent.native="openMenu($event, data)"
+                @click="closeMenu"
+                @contextmenu.prevent.native="openMenu($event, data, node)"
                 >{{ node.label }}</el-tag
               >
               <el-tag
+                v-show="data.showMe !== true && data.display !== true"
                 v-if="data.level === 4"
                 size="small"
                 type="info"
                 effect="plain"
+                @click="closeMenu"
+                @contextmenu.prevent.native="openMenu($event, data, node)"
                 >{{ node.label }}</el-tag
               >
-              <!-- <span v-if="data.level === 1"> </span>
-              <span v-if="data.level === 2 || data.level === 3">
-                <i
-                  class="el-icon-plus icon-action"
-                  @click="append(data)"
-                  title="增加"
-                ></i>
-                <i
-                  class="el-icon-minus icon-action"
-                  @click="remove(node, data)"
-                  title="删除"
-                ></i>
-                <i
-                  class="el-icon-edit icon-action"
-                  @click="edit(node, data)"
-                  title="编辑"
-                ></i>
-              </span>
-              <span v-if="data.level === 4">
-                <i
-                  class="el-icon-minus icon-action"
-                  @click="remove(node, data)"
-                  title="删除"
-                ></i>
-                <i
-                  class="el-icon-edit icon-action"
-                  @click="edit(node, data)"
-                  title="编辑"
-                ></i>
-              </span> -->
             </span>
           </template>
         </el-tree>
@@ -94,18 +82,33 @@
       class="contextmenu"
     >
       <li>
-        <el-button size="mini" type="text" icon="el-icon-plus"
+        <el-button
+          v-bind:disabled="menuAddDisabled"
+          size="mini"
+          type="text"
+          icon="el-icon-plus"
+          @click="append(null)"
           >添加子节点</el-button
         >
       </li>
       <li>
-        <el-button size="mini" type="text" icon="el-icon-delete"
-          >删除此节点</el-button
+        <el-button
+          v-bind:disabled="menuRenameDisabled"
+          size="mini"
+          type="text"
+          icon="el-icon-edit-outline"
+          @click="edit(null, null)"
+          >重命名此节点</el-button
         >
       </li>
       <li>
-        <el-button size="mini" type="text" icon="el-icon-edit-outline"
-          >重命名此节点</el-button
+        <el-button
+          v-bind:disabled="menuDelDisabled"
+          size="mini"
+          type="text"
+          icon="el-icon-delete"
+          @click="remove(null, null)"
+          >删除此节点</el-button
         >
       </li>
     </ul>
@@ -115,7 +118,7 @@
 <script>
 import RuleEdit from '@/views/RuleEdit.vue'
 // import Leslie from '@/views/Leslie.vue'
-import { getTree, getRuleDetail } from '@/api/monitor.js'
+import { getTree, createTreeNode, updateTreeNode, removeTreeNode } from '@/api/monitor.js'
 let id = 1000;
 
 export default {
@@ -130,7 +133,13 @@ export default {
       visible: false,
       top: 0,
       left: 0,
-      menuData: null
+      menuData: null,
+      menuNode: null,
+      titleFromShowMe: '',
+      doneShowMe: true,
+      menuAddDisabled: true,
+      menuDelDisabled: true,
+      menuRenameDisabled: true
     }
   },
   mounted () {
@@ -167,7 +176,17 @@ export default {
       this.$refs.ruleEditRef.doGetRuleDetail(this.queryInfo)
     },
     append (data) {
-      const newChild = { id: id++, level: 3, label: 'testtest', children: [] };
+      if (!data) {
+        data = this.menuData
+      }
+      const newChild = {
+        id: id++,
+        level: data.level + 1,
+        label: '[must rename me]',
+        children: [],
+        is_new: true,
+        parent: data.parent
+      }
       if (!data.children) {
         data.children = []
       }
@@ -176,18 +195,53 @@ export default {
     },
 
     remove (node, data) {
-      const parent = node.parent;
-      const children = parent.data.children || parent.data;
-      const index = children.findIndex(d => d.id === data.id);
-      children.splice(index, 1);
-      this.data = [...this.data]
+      if (!node) {
+        node = this.menuNode
+      }
+      if (!data) {
+        data = this.menuData
+      }
+      if (data.is_new) {
+        const parent = node.parent;
+        const children = parent.data.children || parent.data;
+        const index = children.findIndex(d => d.id === data.id);
+        children.splice(index, 1);
+        this.data = [...this.data]
+      }
+      const nodeInfo = {
+        id: this.menuData.id,
+        label: this.titleFromShowMe,
+        level: this.menuData.level,
+        parent: this.menuData.parent
+      }
+      removeTreeNode(nodeInfo).then(
+        r => {
+          this.$notify({
+            title: '成功',
+            message: '删除节点成功！',
+            type: 'success'
+          })
+          this.menuData.label = this.titleFromShowMe
+          this.menuData.display = false
+          this.data = [...this.data]
+          this.titleFromShowMe = ''
+          this.doneShowMe = true
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
     },
 
     edit (node, data) {
-      const parent = node.parent;
-      const children = parent.data.children || parent.data;
-      const index = children.findIndex(d => d.id === data.id);
-      children.splice(index, 1);
+      if (!node) {
+        node = this.menuNode
+      }
+      if (!data) {
+        data = this.menuData
+      }
+      data.display = true
+      this.titleFromShowMe = data.label
+      this.doneShowMe = false
       this.data = [...this.data]
     },
 
@@ -201,25 +255,54 @@ export default {
       }, "Delete")));
     },
     fatherMethod (data, aType) {
-      this.data.forEach(element => {
-        if (!element.children || element.children.length === 0) {
-          return
-        }
-        element.children.forEach(children => {
-          if (!children.children || children.children.length === 0) {
-            return
-          }
-          children.children.forEach(final => {
-            if (final.id === data.id) {
-              final.label = data.alert
-            }
-          })
-
-        })
-      })
-      this.data = [...this.data]
+      this.doGetTree()
+      //   this.data.forEach(element => {
+      //     if (!element.children || element.children.length === 0) {
+      //       return
+      //     }
+      //     element.children.forEach(children => {
+      //       if (!children.children || children.children.length === 0) {
+      //         return
+      //       }
+      //       children.children.forEach(final => {
+      //         if (final.id === data.id) {
+      //           final.label = data.alert
+      //         }
+      //       })
+      //     })
+      //   })
+      //   this.data = [...this.data]
     },
-    openMenu (e, data) {
+    openMenu (e, data, node) {
+      if (!this.doneShowMe) {
+        this.$notify({
+          title: '错误',
+          message: '请先完成节点的重命名！',
+          type: 'error'
+        })
+        return false
+      }
+      if (data.level === 1) {
+        this.menuDelDisabled = true
+        this.menuRenameDisabled = true
+        this.menuAddDisabled = false
+      } else if (data.level === 2 || data.level === 3) {
+        this.menuDelDisabled = false
+        this.menuRenameDisabled = false
+        this.menuAddDisabled = false
+      } else if (data.level === 4) {
+        if (data.label === '[must rename me]') {
+          this.menuRenameDisabled = false
+        } else {
+          this.menuRenameDisabled = true
+        }
+        this.menuDelDisabled = false
+        this.menuAddDisabled = true
+      } else {
+        this.menuDelDisabled = true
+        this.menuRenameDisabled = true
+        this.menuAddDisabled = true
+      }
       const menuMinWidth = 105
       const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
       const offsetWidth = this.$el.offsetWidth // container width
@@ -232,13 +315,64 @@ export default {
         this.left = left
       }
 
-      this.top = e.clientY - 60 // fix 位置bug
+      this.top = e.clientY - 40 // fix 位置bug
+      this.left = this.left + 20
+      //   this.top = e.clientY - 60 // fix 位置bug
+      this.menuData = data.valueOf()
+      this.menuNode = node.valueOf()
       this.visible = true
-      this.menuData = data
+    },
+    receiveEsc () {
+      this.titleFromShowMe = ''
+      this.doneShowMe = true
+      this.menuData.display = false
+      this.data = [...this.data]
+    },
+    receiveEnter () {
+      const nodeInfo = {
+        id: this.menuData.id,
+        label: this.titleFromShowMe,
+        level: this.menuData.level,
+        parent: this.menuData.parent
+      }
+      if (this.menuData.is_new) {
+        createTreeNode(nodeInfo).then(
+          r => {
+            this.$notify({
+              title: '成功',
+              message: '创建新节点成功！',
+              type: 'success'
+            })
+            this.menuData.label = this.titleFromShowMe
+            this.menuData.display = false
+            this.data = [...this.data]
+            this.titleFromShowMe = ''
+            this.doneShowMe = true
+          }
+        ).catch(
+          e => { console.log(e) }
+        )
+      } else {
+        updateTreeNode(nodeInfo).then(
+          r => {
+            this.$notify({
+              title: '成功',
+              message: '更新节点成功！',
+              type: 'success'
+            })
+            this.menuData.label = this.titleFromShowMe
+            this.menuData.display = false
+            this.data = [...this.data]
+            this.titleFromShowMe = ''
+            this.doneShowMe = true
+          }
+        ).catch(
+          e => { console.log(e) }
+        )
+      }
     },
     closeMenu () {
       this.visible = false
-      this.menuData = null
     }
   }
 };

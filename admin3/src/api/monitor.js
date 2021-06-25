@@ -47,3 +47,27 @@ return request({
     params: lType
 })
 }
+
+export function createTreeNode(nodeInfo) {
+return request({
+    url: '/v1/tree/create/node',
+    method: 'post',
+    data: nodeInfo
+})
+}
+
+export function updateTreeNode(nodeInfo) {
+  return request({
+    url: '/v1/tree/update/node',
+    method: 'put',
+    data: nodeInfo
+  })
+}
+
+export function removeTreeNode(nodeInfo) {
+return request({
+    url: '/v1/tree/remove/node',
+    method: 'delete',
+    data: nodeInfo
+})
+}
