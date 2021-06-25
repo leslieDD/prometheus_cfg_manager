@@ -3,10 +3,11 @@
     <div class="box-member">
       <el-form
         label-position="top"
-        ref="form"
+        ref="formRef"
         :model="formData"
         label-width="180px"
         size="mini"
+        :disabled="formDisabled"
       >
         <el-form-item>
           <template #label>
@@ -204,8 +205,13 @@
           </div>
         </el-form-item>
         <el-form-item align="right">
-          <el-button style="margin-right: 20px" type="primary" @click="onSubmit"
-            >更新</el-button
+          <el-button
+            style="margin-right: 10px"
+            icon="el-icon-upload"
+            type="primary"
+            size="medium"
+            @click="onSubmit"
+            >提交数据</el-button
           >
         </el-form-item>
       </el-form>
@@ -236,7 +242,8 @@ export default ({
         annotations: []
       },
       defaultLabels: [],
-      submitType: ''
+      submitType: '',
+      formDisabled: true
     }
   },
   methods: {
@@ -244,9 +251,33 @@ export default ({
       if (!info) {
         return false
       }
+      if (info.label === '[must rename me]') {
+        return false
+      }
       getDefaultLabels().then(
         r => {
           this.defaultLabels = r.data
+          //   if (info.is_new) {
+          //     this.formData = {
+          //       "id": 0,
+          //       "alert": info.label,
+          //       "expr": "",
+          //       "for": "",
+          //       "sub_group_id": info.parent,
+          //       "labels": [],
+          //       "annotations": []
+          //     }
+          //     this.submitType = 'post'
+          //   } else {
+          //     getRuleDetail(info).then(
+          //       r => {
+          //         this.formData = r.data
+          //         this.submitType = 'put'
+          //       }
+          //     ).catch(
+          //       e => { console.log(e) }
+          //     )
+          //   }
           getRuleDetail(info).then(
             r => {
               this.formData = r.data
@@ -350,6 +381,16 @@ export default ({
           e => { console.log(e) }
         )
       }
+    },
+    setFormDisable () {
+      this.formDisabled = true
+    },
+    setFormEnable () {
+      this.formDisabled = false
+    },
+    resetForm () {
+      this.formData = {}
+      this.$refs['formRef'].resetFields();
     }
   }
 })

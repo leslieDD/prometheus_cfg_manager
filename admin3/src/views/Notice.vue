@@ -158,7 +158,7 @@ export default {
     doGetTree () {
       getTree().then(
         r => {
-          this.data = r.data
+          this.data = [...r.data]
         }
       ).catch(
         e => { console.log(e) }
@@ -166,14 +166,22 @@ export default {
     },
     handleNodeClick (data) {
       if (data.level !== 4) {
+        this.$refs.ruleEditRef.resetForm()
+        this.$refs.ruleEditRef.setFormDisable()
         return false
       }
-      this.queryInfo = {
+      this.$refs.ruleEditRef.setFormEnable()
+      if (data.label === '[must rename me]') {
+        return false
+      }
+      const queryInfo = {
         id: data.id,
         label: data.label,
-        level: data.level
+        level: data.level,
+        is_new: data.is_new,
+        parent: data.parent
       }
-      this.$refs.ruleEditRef.doGetRuleDetail(this.queryInfo)
+      this.$refs.ruleEditRef.doGetRuleDetail(queryInfo)
     },
     append (data) {
       if (!data) {
@@ -187,6 +195,7 @@ export default {
         is_new: true,
         parent: data.id
       }
+      //   console.log(data, newChild)
       if (!data.children) {
         data.children = []
       }
@@ -201,11 +210,11 @@ export default {
       if (!data) {
         data = this.menuData
       }
+      const parent = node.parent;
+      const children = parent.data.children || parent.data;
+      const index = children.findIndex(d => d.id === data.id);
+      children.splice(index, 1);
       if (data.is_new) {
-        const parent = node.parent;
-        const children = parent.data.children || parent.data;
-        const index = children.findIndex(d => d.id === data.id);
-        children.splice(index, 1);
         this.data = [...this.data]
         return true
       }
@@ -222,11 +231,11 @@ export default {
             message: '删除节点成功！',
             type: 'success'
           })
-          this.menuData.label = this.titleFromShowMe
-          this.menuData.display = false
+          //   this.menuData.label = this.titleFromShowMe
+          //   this.menuData.display = false
           this.data = [...this.data]
-          this.titleFromShowMe = ''
-          this.doneShowMe = true
+          //   this.titleFromShowMe = ''
+          //   this.doneShowMe = true
         }
       ).catch(
         e => { console.log(e) }
@@ -349,10 +358,12 @@ export default {
               type: 'success'
             })
             this.menuData.label = this.titleFromShowMe
-            this.menuData.display = false
-            this.data = [...this.data]
             this.titleFromShowMe = ''
             this.doneShowMe = true
+            this.menuData.display = false
+            // this.data = [...this.data]
+            this.doGetTree()
+            // this.handleNodeClick()
           }
         ).catch(
           e => { console.log(e) }
@@ -367,9 +378,11 @@ export default {
             })
             this.menuData.label = this.titleFromShowMe
             this.menuData.display = false
-            this.data = [...this.data]
+            // this.data = [...this.data]
             this.titleFromShowMe = ''
             this.doneShowMe = true
+            this.doGetTree()
+            // this.handleNodeClick()
           }
         ).catch(
           e => { console.log(e) }

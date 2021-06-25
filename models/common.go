@@ -80,7 +80,7 @@ func BatchSaveToTableLabels(node *TreeNodeInfo) string {
 }
 
 func BatchSaveToTableAnnotations(node *TreeNodeInfo) string {
-	if node.Labels == nil || len(node.Labels) == 0 {
+	if node.Annotations == nil || len(node.Annotations) == 0 {
 		return ""
 	}
 	insert := "REPLACE INTO `annotations` (`monitor_rules_id`,`key`,`value`) VALUES "

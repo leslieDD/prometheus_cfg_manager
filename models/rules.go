@@ -248,10 +248,11 @@ type QueryGetNode struct {
 }
 
 type Label struct {
-	ID    int    `json:"id" gorm:"column:id"`
-	Key   string `json:"key" gorm:"column:key"`
-	Value string `json:"value" gorm:"column:value"`
-	IsNew bool   `json:"is_new" gorm:"-"`
+	ID             int    `json:"id" gorm:"column:id"`
+	Key            string `json:"key" gorm:"column:key"`
+	Value          string `json:"value" gorm:"column:value"`
+	MonitorRulesID int    `json:"monitor_rules_id" gorm:"column:monitor_rules_id"`
+	IsNew          bool   `json:"is_new" gorm:"-"`
 }
 
 type TreeNodeInfo struct {
@@ -294,7 +295,13 @@ func PostNode(nodeInfo *TreeNodeInfo) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("monitor_rules").Create(nodeInfo)
+	createMap := map[string]interface{}{
+		"alert":        nodeInfo.Alert,
+		"expr":         nodeInfo.Expr,
+		"for":          nodeInfo.For,
+		"sub_group_id": nodeInfo.SubGroupID,
+	}
+	tx := db.Table("monitor_rules").Create(&createMap)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrCreateDBData
