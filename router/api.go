@@ -34,6 +34,8 @@ func initApiRouter() {
 
 	v1.GET("/tree", getTree)
 	v1.GET("/tree/node", getNode)
+	v1.POST("/tree/node", postNode)
+	v1.PUT("/tree/node", putNode)
 	v1.GET("/tree/default/lables", getDefLabels)
 }
 
@@ -225,6 +227,26 @@ func getNode(c *gin.Context) {
 	}
 	data, bf := models.GetNode(&qni)
 	resComm(c, bf, data)
+}
+
+func postNode(c *gin.Context) {
+	nodeInfo := models.TreeNodeInfo{}
+	if err := c.BindJSON(&nodeInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostNode(&nodeInfo)
+	resComm(c, bf, nil)
+}
+
+func putNode(c *gin.Context) {
+	nodeInfo := models.TreeNodeInfo{}
+	if err := c.BindJSON(&nodeInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutNode(&nodeInfo)
+	resComm(c, bf, nil)
 }
 
 func getDefLabels(c *gin.Context) {

@@ -2,7 +2,9 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"pro_cfg_manager/config"
+	"strings"
 
 	"gorm.io/datatypes"
 )
@@ -63,4 +65,28 @@ func JsonToIntSlice(jsonData datatypes.JSON) ([]int, *BriefMessage) {
 		return nil, ErrJobDataFormat
 	}
 	return idList, Success
+}
+
+func BatchSaveToTableLabels(node *TreeNodeInfo) string {
+	if node.Labels == nil || len(node.Labels) == 0 {
+		return ""
+	}
+	insert := "REPLACE INTO `monitor_labels` (`monitor_rules_id`,`key`,`value`) VALUES "
+	sqls := []string{}
+	for _, item := range node.Labels {
+		sqls = append(sqls, fmt.Sprintf("(%d,'%s','%s')", node.ID, item.Key, item.Value))
+	}
+	return insert + strings.Join(sqls, ",")
+}
+
+func BatchSaveToTableAnnotations(node *TreeNodeInfo) string {
+	if node.Labels == nil || len(node.Labels) == 0 {
+		return ""
+	}
+	insert := "REPLACE INTO `annotations` (`monitor_rules_id`,`key`,`value`) VALUES "
+	sqls := []string{}
+	for _, item := range node.Annotations {
+		sqls = append(sqls, fmt.Sprintf("(%d,'%s','%s')", node.ID, item.Key, item.Value))
+	}
+	return insert + strings.Join(sqls, ",")
 }

@@ -22,3 +22,21 @@ export function getDefaultLabels() {
     method: 'get'
   })
 }
+
+export function postNodeInfo(nodeInfo) {
+  console.log('postNodeInfo', nodeInfo)
+  return request({
+    url: '/v1/tree/node',
+    method: 'post',
+    data: nodeInfo
+  })
+}
+
+export function putNodeInfo(nodeInfo) {
+  console.log('putNodeInfo', nodeInfo)
+  return request({
+    url: '/v1/tree/node',
+    method: 'put',
+    data: nodeInfo
+  })
+}

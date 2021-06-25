@@ -30,7 +30,11 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <el-input v-model="formData.expr"></el-input>
+          <el-input
+            type="textarea"
+            :rows="2"
+            v-model="formData.expr"
+          ></el-input>
         </el-form-item>
         <el-form-item>
           <template #label>
@@ -47,17 +51,34 @@
         </el-form-item>
         <el-form-item>
           <template #label>
-            <span>标签(labels)：</span>
-            <el-tooltip
-              content="自定义标签，允许自行定义标签附加在警报上。<lable_name>: <label_value>"
-              placement="top"
-            >
-              <i class="el-icon-question"></i>
-            </el-tooltip>
+            <div class="annotations-labels">
+              <div>
+                <span>标签(labels)：</span>
+                <el-tooltip
+                  content="自定义标签，允许自行定义标签附加在警报上。<lable_name>: <label_value>"
+                  placement="top"
+                >
+                  <i class="el-icon-question"></i>
+                </el-tooltip>
+              </div>
+              <div>
+                <el-button
+                  type="success"
+                  plain
+                  size="mini"
+                  icon="el-icon-circle-plus"
+                  @click="addLables(formData, 'labels')"
+                  >增加</el-button
+                >
+              </div>
+            </div>
           </template>
           <div>
             <div v-for="data in formData.labels" :key="data.id">
-              <el-card class="box-card-two" :body-style="{ padding: '1px 0px 1px 0px' }">
+              <el-card
+                class="box-card-two"
+                :body-style="{ padding: '1px 0px 1px 0px' }"
+              >
                 <el-select
                   v-model="data.key"
                   :key="data.id"
@@ -87,41 +108,69 @@
         </el-form-item>
         <el-form-item>
           <template #label>
-            <span>注释(annotations)：</span>
-            <el-tooltip
-              content="用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值。<lable_name>: <tmpl_string>"
-              placement="top"
-              popper-class="filed-explain"
-            >
-              <i class="el-icon-question"></i>
-            </el-tooltip>
+            <div class="annotations-labels">
+              <div>
+                <span>注释(annotations)：</span>
+                <el-tooltip
+                  content="用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值。<lable_name>: <tmpl_string>"
+                  placement="top"
+                  popper-class="filed-explain"
+                >
+                  <i class="el-icon-question"></i>
+                </el-tooltip>
+              </div>
+              <div>
+                <el-button
+                  type="success"
+                  plain
+                  size="mini"
+                  @click="addLables(formData, 'annotations')"
+                  icon="el-icon-circle-plus"
+                  >增加</el-button
+                >
+              </div>
+            </div>
           </template>
           <div>
             <div v-for="data in formData.annotations" :key="data.id">
-              <el-card class="box-card-two" :body-style="{ padding: '1px 0px 1px 0px' }">
-                <el-select
-                  v-model="data.key"
-                  :key="data.id"
-                  allow-create
-                  filterable
-                  default-first-option
-                  placeholder="请选择"
-                  style="width: 20%"
-                >
-                  <el-option :label="data.key" :value="data.key"></el-option>
-                  <el-option
-                    v-for="item in defaultLabels"
-                    :key="item.id"
-                    :label="item.label"
-                    :value="item.label"
-                  >
-                  </el-option>
-                </el-select>
-                <el-input
-                  style="width: 80%"
-                  v-model="data.value"
-                  :key="data.id"
-                ></el-input>
+              <el-card
+                class="box-card-two"
+                :body-style="{ padding: '1px 0px 1px 0px' }"
+              >
+                <div class="annotations-move">
+                  <div class="annotations-left">
+                    <el-select
+                      v-model="data.key"
+                      :key="data.id"
+                      allow-create
+                      filterable
+                      default-first-option
+                      placeholder="请选择"
+                      style="width: 100%"
+                    >
+                      <el-option
+                        :label="data.key"
+                        :value="data.key"
+                      ></el-option>
+                      <el-option
+                        v-for="item in defaultLabels"
+                        :key="item.id"
+                        :label="item.label"
+                        :value="item.label"
+                      >
+                      </el-option>
+                    </el-select>
+                  </div>
+                  <div class="annotations-right">
+                    <el-input
+                      type="textarea"
+                      :rows="2"
+                      style="width: 100%"
+                      v-model="data.value"
+                      :key="data.id"
+                    ></el-input>
+                  </div>
+                </div>
               </el-card>
             </div>
           </div>
@@ -137,8 +186,8 @@
 </template>
 
 <script>
-import KeyValue from '@/components/KeyValue.vue'
-import { getRuleDetail, getDefaultLabels } from '@/api/monitor.js'
+// import KeyValue from '@/components/KeyValue.vue'
+import { getRuleDetail, getDefaultLabels, putNodeInfo, postNodeInfo } from '@/api/monitor.js'
 
 export default ({
   props: {
@@ -148,18 +197,18 @@ export default ({
     }
   },
   components: {
-    KeyValue
   },
-  data() {
+  data () {
     return {
       formData: {
-        alert: 'x',
-        expr: 'x',
-        for: 'x',
+        alert: '',
+        expr: '',
+        for: '',
         labels: [],
         annotations: []
       },
-      defaultLabels: []
+      defaultLabels: [],
+      submitType: ''
     }
   },
   methods: {
@@ -170,27 +219,104 @@ export default ({
       getDefaultLabels().then(
         r => {
           this.defaultLabels = r.data
-        }
-      ).catch(
-        e => { console.log(e) }
-      )
-      getRuleDetail(info).then(
-        r => {
-          this.formData = r.data
+          getRuleDetail(info).then(
+            r => {
+              this.formData = r.data
+              this.submitType = 'put'
+            }
+          ).catch(
+            e => { console.log(e) }
+          )
         }
       ).catch(
         e => { console.log(e) }
       )
     },
     onSubmit () {
-
+      const nodeData = this.formData.valueOf()
+      console.log(nodeData, this.formData)
+      if (this.submitType === 'put') {
+        putNodeInfo(nodeData).then(
+          r => {
+            this.$notify({
+              title: '成功',
+              message: '更新成功！',
+              type: 'success'
+            });
+          }
+        ).catch(
+          e => { console.log(e) }
+        )
+      } else if (this.submitType === 'post') {
+        postNodeInfo(nodeData).then(
+          r => {
+            this.$notify({
+              title: '成功',
+              message: '创建成功！',
+              type: 'success'
+            });
+          }
+        ).catch(
+          e => { console.log(e) }
+        )
+      } else {
+        this.$notify({
+          title: '失败',
+          message: '不支持的操作！',
+          type: 'error'
+        });
+      }
+    },
+    addLables (label, witch) {
+      getDefaultLabels().then(
+        r => {
+          this.defaultLabels = r.data
+          let newID = 0
+          if (witch === 'annotations') {
+            if (this.formData.annotations.length !== 0) {
+              newID = this.formData.annotations[(this.formData.annotations.length - 1)].id + 1
+            }
+            this.formData.annotations.push({ id: newID, key: '', value: '', is_new: true })
+            // this.formData.annotations = [...this.formData.annotations]
+          } else if (witch === 'labels') {
+            if (this.formData.annotations.length !== 0) {
+              newID = this.formData.labels[(this.formData.labels.length - 1)].id + 1
+            }
+            this.formData.labels.push({ id: newID, key: '', value: '', is_new: true })
+            // this.formData.labels = [...this.formData.labels]
+          }
+          this.formData = { ...this.formData }
+          //   this.formData = [...this.formData]
+          //   console.log(label)
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
     }
   }
 })
 </script>
 
 
-<style>
+<style scoped>
+.annotations-move {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+.annotations-left {
+  width: 20%;
+}
+.annotations-right {
+  width: 80%;
+}
+.box-member :deep() .annotations-labels {
+  display: flex !important;
+  flex-direction: row;
+  /* flex-wrap: nowrap; */
+  justify-content: space-between;
+  /* width: 800px; */
+}
 .box-member {
   width: 100%;
 }
@@ -198,7 +324,12 @@ export default ({
   /* width: 98%; */
   padding: 0px 0px;
 }
-.el-form-item__label {
+.box-member :deep() .el-form-item__label {
   padding-bottom: 0px !important;
+  /* width: 800px; */
+  width: 100%;
+}
+.box-member :deep() .el-tabs__content {
+  padding-right: 5px !important;
 }
 </style>

@@ -198,10 +198,11 @@ func GetSubGroup(rulesGroupsID int) ([]SubGroup, *BriefMessage) {
 }
 
 type MonitorRule struct {
-	ID    int    `json:"id" gorm:"column:id"`
-	Alert string `json:"alert" gorm:"column:alert"`
-	Expr  string `json:"expr" gorm:"column:expr"`
-	For   string `json:"for" gorm:"column:for"`
+	ID         int    `json:"id" gorm:"column:id"`
+	Alert      string `json:"alert" gorm:"column:alert"`
+	Expr       string `json:"expr" gorm:"column:expr"`
+	For        string `json:"for" gorm:"column:for"`
+	SubGroupID int    `json:"sub_group_id" gorm:"column:sub_group_id"`
 }
 
 func GetMonitorRules(subGroupID int) ([]MonitorRule, *BriefMessage) {
@@ -244,6 +245,7 @@ type Label struct {
 	ID    int    `json:"id" gorm:"column:id"`
 	Key   string `json:"key" gorm:"column:key"`
 	Value string `json:"value" gorm:"column:value"`
+	IsNew bool   `json:"is_new" gorm:"-"`
 }
 
 type TreeNodeInfo struct {
@@ -251,6 +253,7 @@ type TreeNodeInfo struct {
 	Alert       string  `json:"alert" gorm:"column:alert"`
 	Expr        string  `json:"expr" gorm:"column:expr"`
 	For         string  `json:"for" gorm:"column:for"`
+	SubGroupID  int     `json:"sub_group_id" gorm:"column:sub_group_id"`
 	Labels      []Label `json:"labels" gorm:"column:labels"`
 	Annotations []Label `json:"annotations" gorm:"column:annotations"`
 }
@@ -261,10 +264,11 @@ func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
 		return nil, bf
 	}
 	tni := TreeNodeInfo{
-		ID:    mr.ID,
-		Alert: mr.Alert,
-		Expr:  mr.Expr,
-		For:   mr.For,
+		ID:         mr.ID,
+		Alert:      mr.Alert,
+		Expr:       mr.Expr,
+		For:        mr.For,
+		SubGroupID: mr.SubGroupID,
 	}
 
 	tni.Labels, bf = SearchLabelsByMonitorID(tni.ID)
@@ -276,6 +280,72 @@ func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
 		return nil, bf
 	}
 	return &tni, Success
+}
+
+func PostNode(nodeInfo *TreeNodeInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("monitor_rules").Create(nodeInfo)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrCreateDBData
+	}
+	sqlInsert := BatchSaveToTableLabels(nodeInfo)
+	if sqlInsert != "" {
+		tx = db.Table("monitor_labels").Exec(sqlInsert)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrCreateDBData
+		}
+	}
+	sqlInsert = BatchSaveToTableAnnotations(nodeInfo)
+	if sqlInsert != "" {
+		tx = db.Table("annotations").Exec(sqlInsert)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrCreateDBData
+		}
+	}
+	return Success
+}
+
+func PutNode(nodeInfo *TreeNodeInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("monitor_rules").Where("id=?", nodeInfo.ID).
+		Update("alert", nodeInfo.Alert).
+		Update("expr", nodeInfo.Expr).
+		Update("for", nodeInfo.For).
+		Update("sub_group_id", nodeInfo.SubGroupID)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrCreateDBData
+	}
+	sqlInsert := BatchSaveToTableLabels(nodeInfo)
+	// config.Log.Warn(sqlInsert)
+	if sqlInsert != "" {
+		tx = db.Table("monitor_labels").Exec(sqlInsert)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrCreateDBData
+		}
+	}
+	sqlInsert = BatchSaveToTableAnnotations(nodeInfo)
+	// config.Log.Warn(sqlInsert)
+	if sqlInsert != "" {
+		tx = db.Table("annotations").Exec(sqlInsert)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrCreateDBData
+		}
+	}
+	return Success
 }
 
 func SearchLabelsByMonitorID(MID int) ([]Label, *BriefMessage) {

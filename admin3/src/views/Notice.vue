@@ -79,20 +79,19 @@
 
 <script>
 import RuleEdit from '@/views/RuleEdit.vue'
-import Leslie from '@/views/Leslie.vue'
+// import Leslie from '@/views/Leslie.vue'
 import { getTree, getRuleDetail } from '@/api/monitor.js'
 let id = 1000;
 
 export default {
   name: "Notice",
   components: {
-    RuleEdit: RuleEdit,
-    Leslie: Leslie
+    RuleEdit: RuleEdit
   },
   data () {
     return {
       data: [],
-      queryInfo:{}
+      queryInfo: {}
     }
   },
   mounted () {
