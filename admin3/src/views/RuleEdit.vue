@@ -77,7 +77,7 @@
             <div v-for="data in formData.labels" :key="data.id">
               <el-card
                 class="box-card-two"
-                :body-style="{ padding: '1px 0px 1px 0px' }"
+                :body-style="{ padding: '0px 0px 0px 0px' }"
               >
                 <el-select
                   v-model="data.key"
@@ -102,11 +102,19 @@
                   v-model="data.value"
                   :key="data.id"
                 ></el-input>
-                <i
-                  class="el-icon-delete-solid icon-action"
-                  @click="delItem(data, 'labels')"
-                  title=""
-                ></i>
+                <el-popconfirm
+                  title="确定删除吗？"
+                  @confirm="delItem(data, 'labels')"
+                >
+                  <template #reference>
+                    <el-button
+                      type="text"
+                      class="el-icon-delete-solid icon-action"
+                      title=""
+                      size="mini"
+                    ></el-button>
+                  </template>
+                </el-popconfirm>
               </el-card>
             </div>
           </div>
@@ -140,7 +148,7 @@
             <div v-for="data in formData.annotations" :key="data.id">
               <el-card
                 class="box-card-two"
-                :body-style="{ padding: '1px 0px 1px 0px' }"
+                :body-style="{ padding: '0px 0px 0px 0px' }"
               >
                 <div class="annotations-move">
                   <div class="annotations-left">
@@ -181,10 +189,12 @@
                       @confirm="delItem(data, 'annotations')"
                     >
                       <template #reference>
-                        <i
+                        <el-button
+                          type="text"
                           class="el-icon-delete-solid icon-action"
                           title=""
-                        ></i>
+                          size="mini"
+                        ></el-button>
                       </template>
                     </el-popconfirm>
                   </div>
@@ -252,10 +262,10 @@ export default ({
     },
     onSubmit () {
       const nodeData = this.formData.valueOf()
-      console.log(nodeData, this.formData)
       if (this.submitType === 'put') {
         putNodeInfo(nodeData).then(
           r => {
+            this.$emit('fatherMethod', nodeData, 'put');
             this.$notify({
               title: '成功',
               message: '更新成功！',
@@ -268,6 +278,7 @@ export default ({
       } else if (this.submitType === 'post') {
         postNodeInfo(nodeData).then(
           r => {
+            this.$emit('fatherMethod', nodeData, 'post');
             this.$notify({
               title: '成功',
               message: '创建成功！',

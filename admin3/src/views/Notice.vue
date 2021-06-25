@@ -17,21 +17,31 @@
                 v-if="data.level === 1"
                 size="small"
                 type="success"
-                effect="dark"
+                effect="plain"
+                @contextmenu.prevent.native="openMenu($event, data)"
                 >{{ node.label }}</el-tag
               >
               <el-tag
                 v-if="data.level === 2"
                 size="small"
                 type="warning"
-                plain
+                effect="plain"
+                @contextmenu.prevent.native="openMenu($event, data)"
                 >{{ node.label }}</el-tag
               >
               <el-tag
-                v-if="data.level === 3 || data.level === 4"
+                v-if="data.level === 3"
                 size="small"
                 type="info"
-                plain
+                effect="plain"
+                @contextmenu.prevent.native="openMenu($event, data)"
+                >{{ node.label }}</el-tag
+              >
+              <el-tag
+                v-if="data.level === 4"
+                size="small"
+                type="info"
+                effect="plain"
                 >{{ node.label }}</el-tag
               >
               <!-- <span v-if="data.level === 1"> </span>
@@ -71,9 +81,34 @@
     </div>
     <div class="node-content-edit">
       <el-scrollbar class="card-scrollbar-right">
-        <RuleEdit ref="ruleEditRef" :query="queryInfo"></RuleEdit>
+        <RuleEdit
+          ref="ruleEditRef"
+          @fatherMethod="fatherMethod"
+          :query="queryInfo"
+        ></RuleEdit>
       </el-scrollbar>
     </div>
+    <ul
+      v-show="visible"
+      :style="{ left: left + 'px', top: top + 'px' }"
+      class="contextmenu"
+    >
+      <li>
+        <el-button size="mini" type="text" icon="el-icon-plus"
+          >添加子节点</el-button
+        >
+      </li>
+      <li>
+        <el-button size="mini" type="text" icon="el-icon-delete"
+          >删除此节点</el-button
+        >
+      </li>
+      <li>
+        <el-button size="mini" type="text" icon="el-icon-edit-outline"
+          >重命名此节点</el-button
+        >
+      </li>
+    </ul>
   </div>
 </template>
 
@@ -91,11 +126,24 @@ export default {
   data () {
     return {
       data: [],
-      queryInfo: {}
+      queryInfo: {},
+      visible: false,
+      top: 0,
+      left: 0,
+      menuData: null
     }
   },
   mounted () {
     this.doGetTree()
+  },
+  watch: {
+    visible (value) {
+      if (value) {
+        document.body.addEventListener('click', this.closeMenu)
+      } else {
+        document.body.removeEventListener('click', this.closeMenu)
+      }
+    }
   },
   methods: {
     doGetTree () {
@@ -151,6 +199,46 @@ export default {
       }, "Append "), h("a", {
         onClick: () => this.remove(node, data)
       }, "Delete")));
+    },
+    fatherMethod (data, aType) {
+      this.data.forEach(element => {
+        if (!element.children || element.children.length === 0) {
+          return
+        }
+        element.children.forEach(children => {
+          if (!children.children || children.children.length === 0) {
+            return
+          }
+          children.children.forEach(final => {
+            if (final.id === data.id) {
+              final.label = data.alert
+            }
+          })
+
+        })
+      })
+      this.data = [...this.data]
+    },
+    openMenu (e, data) {
+      const menuMinWidth = 105
+      const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
+      const offsetWidth = this.$el.offsetWidth // container width
+      const maxLeft = offsetWidth - menuMinWidth // left boundary
+      const left = e.clientX - offsetLeft // 15: margin right
+
+      if (left > maxLeft) {
+        this.left = maxLeft
+      } else {
+        this.left = left
+      }
+
+      this.top = e.clientY - 60 // fix 位置bug
+      this.visible = true
+      this.menuData = data
+    },
+    closeMenu () {
+      this.visible = false
+      this.menuData = null
     }
   }
 };
@@ -230,5 +318,27 @@ export default {
   height: 20px;
   top: 12px;
   width: 10px;
+}
+
+.contextmenu {
+  margin: 0;
+  background: #fff;
+  z-index: 3000;
+  position: absolute;
+  list-style-type: none;
+  padding: 5px 0;
+  border-radius: 4px;
+  font-size: 12px;
+  font-weight: 400;
+  color: #333;
+  box-shadow: 2px 2px 3px 0 rgba(0, 0, 0, 0.3);
+}
+.contextmenu > li {
+  margin: 0;
+  padding: 5px 15px;
+  cursor: pointer;
+}
+.contextmenu > li:hover {
+  background: #eee;
 }
 </style>
