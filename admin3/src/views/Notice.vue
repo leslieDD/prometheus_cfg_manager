@@ -2,69 +2,71 @@
   <div class="monitor-board">
     <div class="tree-container">
       <el-scrollbar class="card-scrollbar">
-        <el-tree
-          class="tree"
-          :data="data"
-          :indent="0"
-          node-key="id"
-          default-expand-all
-          :expand-on-click-node="false"
-          @node-click="handleNodeClick"
-        >
-          <template #default="{ node, data }">
-            <span class="custom-tree-node">
-              <el-input
-                size="mini"
-                v-if="data.display === true"
-                placeholder="输入名称"
-                v-model="titleFromShowMe"
-                @keyup.enter="receiveEnter"
-                @keyup.esc="receiveEsc"
-                clearable
-              ></el-input>
-              <el-tag
-                v-show="data.showMe !== true"
-                v-if="data.level === 1 && data.display !== true"
-                size="small"
-                type="success"
-                effect="plain"
-                @click="closeMenu"
-                @contextmenu.prevent.native="openMenu($event, data, node)"
-                >{{ node.label }}</el-tag
-              >
-              <el-tag
-                v-show="data.showMe !== true && data.display !== true"
-                v-if="data.level === 2"
-                size="small"
-                type="warning"
-                effect="plain"
-                @click="closeMenu"
-                @contextmenu.prevent.native="openMenu($event, data, node)"
-                >{{ node.label }}</el-tag
-              >
-              <el-tag
-                v-show="data.showMe !== true && data.display !== true"
-                v-if="data.level === 3"
-                size="small"
-                type="info"
-                effect="plain"
-                @click="closeMenu"
-                @contextmenu.prevent.native="openMenu($event, data, node)"
-                >{{ node.label }}</el-tag
-              >
-              <el-tag
-                v-show="data.showMe !== true && data.display !== true"
-                v-if="data.level === 4"
-                size="small"
-                type="info"
-                effect="plain"
-                @click="closeMenu"
-                @contextmenu.prevent.native="openMenu($event, data, node)"
-                >{{ node.label }}</el-tag
-              >
-            </span>
-          </template>
-        </el-tree>
+        <div class="tree-box">
+          <el-tree
+            class="tree"
+            :data="data"
+            :indent="0"
+            node-key="id"
+            default-expand-all
+            :expand-on-click-node="false"
+            @node-click="handleNodeClick"
+          >
+            <template #default="{ node, data }">
+              <span class="custom-tree-node">
+                <el-input
+                  size="mini"
+                  v-if="data.display === true"
+                  placeholder="输入名称"
+                  v-model="titleFromShowMe"
+                  @keyup.enter="receiveEnter"
+                  @keyup.esc="receiveEsc"
+                  clearable
+                ></el-input>
+                <el-tag
+                  v-show="data.showMe !== true"
+                  v-if="data.level === 1 && data.display !== true"
+                  size="small"
+                  type="success"
+                  effect="plain"
+                  @click="closeMenu"
+                  @contextmenu.prevent.native="openMenu($event, data, node)"
+                  >{{ node.label }}</el-tag
+                >
+                <el-tag
+                  v-show="data.showMe !== true && data.display !== true"
+                  v-if="data.level === 2"
+                  size="small"
+                  type="warning"
+                  effect="plain"
+                  @click="closeMenu"
+                  @contextmenu.prevent.native="openMenu($event, data, node)"
+                  >{{ node.label }}</el-tag
+                >
+                <el-tag
+                  v-show="data.showMe !== true && data.display !== true"
+                  v-if="data.level === 3"
+                  size="small"
+                  type="info"
+                  effect="plain"
+                  @click="closeMenu"
+                  @contextmenu.prevent.native="openMenu($event, data, node)"
+                  >{{ node.label }}</el-tag
+                >
+                <el-tag
+                  v-show="data.showMe !== true && data.display !== true"
+                  v-if="data.level === 4"
+                  size="small"
+                  type="info"
+                  effect="plain"
+                  @click="closeMenu"
+                  @contextmenu.prevent.native="openMenu($event, data, node)"
+                  >{{ node.label }}</el-tag
+                >
+              </span>
+            </template>
+          </el-tree>
+        </div>
       </el-scrollbar>
     </div>
     <div class="node-content">
@@ -83,11 +85,13 @@
       </div>
       <div class="node-content-edit">
         <el-scrollbar class="card-scrollbar-right">
-          <RuleEdit
-            ref="ruleEditRef"
-            @fatherMethod="fatherMethod"
-            :query="queryInfo"
-          ></RuleEdit>
+          <div class="rule-edit-box">
+            <RuleEdit
+              ref="ruleEditRef"
+              @fatherMethod="fatherMethod"
+              :query="queryInfo"
+            ></RuleEdit>
+          </div>
         </el-scrollbar>
       </div>
     </div>
@@ -420,13 +424,19 @@ export default {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  height: 85vh;
+  height: 88vh;
   width: 100%;
 }
 .node-content {
   width: 100%;
   display: flex;
   flex-direction: column;
+}
+.tree-box {
+  min-height: 150vh;
+}
+.rule-edit-box {
+  min-height: 90vh;
 }
 .node-content-top {
   display: flex;
