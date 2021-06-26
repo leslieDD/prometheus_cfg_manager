@@ -12,6 +12,7 @@ type TreeNode struct {
 	Label    string      `json:"label"`
 	Level    int         `json:"level"`
 	Parent   int         `json:"parent"`
+	Path     []string    `json:"path"`
 	Children []*TreeNode `json:"children"`
 }
 
@@ -20,8 +21,10 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 	if bf != Success {
 		return nil, bf
 	}
+	root := &TreeNode{ID: 0, Level: 1, Label: "监控规则列表", Path: []string{}, Children: []*TreeNode{}}
+	root.Path = append(root.Path, root.Label)
 	tns := []*TreeNode{
-		{ID: 0, Level: 1, Label: "监控规则列表", Children: []*TreeNode{}},
+		root,
 	}
 	// 不考虑效率了
 	rootNodes := []*TreeNode{}
@@ -31,6 +34,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 			Level:    2,
 			Label:    rg.Name,
 			Parent:   -1,
+			Path:     []string{root.Label, rg.Name},
 			Children: []*TreeNode{}}
 		subGroup, bf := GetSubGroup(rg.ID)
 		if bf != Success {
@@ -43,6 +47,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 				Level:    3,
 				Label:    sub.Name,
 				Parent:   rg.ID,
+				Path:     []string{root.Label, rg.Name, sub.Name},
 				Children: []*TreeNode{},
 			}
 			mrs, bf := GetMonitorRules(sub.ID)
@@ -55,6 +60,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 					Level:    4,
 					Label:    mr.Alert,
 					Parent:   sub.ID,
+					Path:     []string{root.Label, rg.Name, sub.Name, mr.Alert},
 					Children: nil,
 				})
 			}

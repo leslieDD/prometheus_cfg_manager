@@ -67,14 +67,28 @@
         </el-tree>
       </el-scrollbar>
     </div>
-    <div class="node-content-edit">
-      <el-scrollbar class="card-scrollbar-right">
-        <RuleEdit
-          ref="ruleEditRef"
-          @fatherMethod="fatherMethod"
-          :query="queryInfo"
-        ></RuleEdit>
-      </el-scrollbar>
+    <div class="node-content">
+      <div class="node-content-top">
+        <span>
+          <el-tag size="mini" type="success" style="margin-right: 10px"
+            >路径：</el-tag
+          >
+        </span>
+        <span>
+          <el-tag class="path-list" size="mini" type="warning" effect="plain">{{
+            labelPath.join(" > ")
+          }}</el-tag>
+        </span>
+      </div>
+      <div class="node-content-edit">
+        <el-scrollbar class="card-scrollbar-right">
+          <RuleEdit
+            ref="ruleEditRef"
+            @fatherMethod="fatherMethod"
+            :query="queryInfo"
+          ></RuleEdit>
+        </el-scrollbar>
+      </div>
     </div>
     <ul
       v-show="visible"
@@ -139,7 +153,8 @@ export default {
       doneShowMe: true,
       menuAddDisabled: true,
       menuDelDisabled: true,
-      menuRenameDisabled: true
+      menuRenameDisabled: true,
+      labelPath: []
     }
   },
   mounted () {
@@ -165,6 +180,7 @@ export default {
       )
     },
     handleNodeClick (data) {
+      this.labelPath = data.path
       if (data.level !== 4) {
         this.$refs.ruleEditRef.resetForm()
         this.$refs.ruleEditRef.setFormDisable()
@@ -193,8 +209,10 @@ export default {
         label: '[must rename me]',
         children: [],
         is_new: true,
-        parent: data.id
+        parent: data.id,
+        path: data.path
       }
+      newChild.path.push(newChild.label)
       //   console.log(data, newChild)
       if (!data.children) {
         data.children = []
@@ -271,6 +289,7 @@ export default {
       }, "Delete")));
     },
     fatherMethod (data, aType) {
+      this.labelPath = data.path
       this.doGetTree()
       //   this.data.forEach(element => {
       //     if (!element.children || element.children.length === 0) {
@@ -411,9 +430,23 @@ export default {
   height: 85vh;
   width: 100%;
 }
-.node-content-edit {
+.node-content {
   width: 100%;
-  /* border: 1px solid royalblue; */
+  display: flex;
+  flex-direction: column;
+}
+.node-content-top {
+  margin-bottom: 3px;
+  display: flex;
+  flex-direction: row;
+  /* overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap; */
+}
+.path-list {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .card-scrollbar {
   height: 85vh;
