@@ -276,12 +276,12 @@ func CheckNodeHaveChildren(t *TreeNodeFromCli) *BriefMessage {
 	var tx *gorm.DB
 	var count int64
 	if t.Level == 2 { // table rules_groups
-		tx = db.Table("sub_group").Exec(
-			fmt.Sprintf("select count(*) from sub_group where rules_groups_id=%d", t.ID)).
+		tx = db.Table("sub_group").Raw(
+			fmt.Sprintf("select count(*) as count from sub_group where rules_groups_id=%d", t.ID)).
 			Count(&count)
 	} else if t.Level == 3 {
-		tx = db.Table("monitor_rules").Exec(
-			fmt.Sprintf("select count(*) from monitor_rules where sub_group_id=%d", t.Parent)).
+		tx = db.Table("monitor_rules").Raw(
+			fmt.Sprintf("select count(*) as count from monitor_rules where sub_group_id=%d", t.ID)).
 			Count(&count)
 	} else if t.Level == 4 {
 		// tx = db.Table("monitor_rules").Where("id=?", t.ID).Delete(nil)
