@@ -70,9 +70,9 @@
     <div class="node-content">
       <div class="node-content-top">
         <span class="node-content-path">
-          <el-tag size="small" type="success">路径：</el-tag>
+          <el-tag size="small" class="path-all" type="success">路径：</el-tag>
           <el-tag
-            class="path-list"
+            class="path-list path-all"
             size="small"
             type="warning"
             effect="plain"
@@ -151,7 +151,6 @@ export default {
       menuData: null,
       menuNode: null,
       titleFromShowMe: '',
-      doneShowMe: true,
       menuAddDisabled: true,
       menuDelDisabled: true,
       menuRenameDisabled: true,
@@ -214,7 +213,6 @@ export default {
         path: data.path
       }
       newChild.path.push(newChild.label)
-      //   console.log(data, newChild)
       if (!data.children) {
         data.children = []
       }
@@ -276,8 +274,7 @@ export default {
       }
       data.display = true
       this.titleFromShowMe = data.label
-      this.doneShowMe = false
-      this.data = [...this.data]
+      //   this.data = [...this.data]
     },
 
     renderContent (h, { node, data, store }) {
@@ -310,14 +307,6 @@ export default {
       //   this.data = [...this.data]
     },
     openMenu (e, data, node) {
-      if (!this.doneShowMe) {
-        this.$notify({
-          title: '错误',
-          message: '请先完成节点的重命名！',
-          type: 'error'
-        })
-        return false
-      }
       if (data.level === 1) {
         this.menuDelDisabled = true
         this.menuRenameDisabled = true
@@ -364,11 +353,18 @@ export default {
     },
     receiveEsc () {
       this.titleFromShowMe = ''
-      this.doneShowMe = true
       this.menuData.display = false
       this.data = [...this.data]
     },
     receiveEnter () {
+      if (this.titleFromShowMe === '[must rename me]') {
+        this.$notify({
+          title: '错误',
+          message: '请输入正确的名称！',
+          type: 'error'
+        })
+        return false
+      }
       const nodeInfo = {
         id: this.menuData.id,
         label: this.titleFromShowMe,
@@ -385,7 +381,6 @@ export default {
             })
             this.menuData.label = this.titleFromShowMe
             this.titleFromShowMe = ''
-            this.doneShowMe = true
             this.menuData.display = false
             // this.data = [...this.data]
             this.doGetTree()
@@ -404,11 +399,8 @@ export default {
             })
             this.menuData.label = this.titleFromShowMe
             this.menuData.display = false
-            // this.data = [...this.data]
             this.titleFromShowMe = ''
-            this.doneShowMe = true
             this.doGetTree()
-            // this.handleNodeClick()
           }
         ).catch(
           e => { console.log(e) }
@@ -450,14 +442,17 @@ export default {
   text-overflow: ellipsis;
   white-space: nowrap;
 }
+.path-all {
+  height: 28px;
+}
 .card-scrollbar {
   height: 85vh;
   width: 350px;
 }
-/* .card-scrollbar-right {
-  height: 84vh;
-  width: 100%;
-} */
+.card-scrollbar-right {
+  height: 83vh;
+  /* width: 100%; */
+}
 .icon-action {
   font-size: 5px;
   margin-left: 5px;
