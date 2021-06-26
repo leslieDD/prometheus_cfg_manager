@@ -101,6 +101,8 @@
                 <el-input
                   style="width: 77%"
                   v-model="data.value"
+                  maxlength="100"
+                  show-word-limit
                   :key="data.id"
                 ></el-input>
                 <el-popconfirm
@@ -179,6 +181,8 @@
                     <el-input
                       type="textarea"
                       :rows="2"
+                      maxlength="500"
+                      show-word-limit
                       style="width: 100%"
                       v-model="data.value"
                       :key="data.id"
@@ -286,6 +290,7 @@ export default ({
           ).catch(
             e => { console.log(e) }
           )
+          //   this.doGetRuleDetail(info)
         }
       ).catch(
         e => { console.log(e) }
@@ -296,12 +301,14 @@ export default ({
       if (this.submitType === 'put') {
         putNodeInfo(nodeData).then(
           r => {
+            this.formData = r.data
             this.$emit('fatherMethod', nodeData, 'put');
             this.$notify({
               title: '成功',
               message: '更新成功！',
               type: 'success'
             });
+            // this.doGetRuleDetail(this.storeInfo)
           }
         ).catch(
           e => { console.log(e) }
@@ -309,12 +316,14 @@ export default ({
       } else if (this.submitType === 'post') {
         postNodeInfo(nodeData).then(
           r => {
+            this.formData = r.data
             this.$emit('fatherMethod', nodeData, 'post');
             this.$notify({
               title: '成功',
               message: '创建成功！',
               type: 'success'
             });
+            // this.doGetRuleDetail(this.storeInfo)
           }
         ).catch(
           e => { console.log(e) }
@@ -404,10 +413,10 @@ export default ({
   flex-wrap: nowrap;
 }
 .annotations-left {
-  width: 20%;
+  width: 21%;
 }
 .annotations-right {
-  width: 80%;
+  width: 79%;
 }
 .box-member :deep() .annotations-labels {
   display: flex !important;

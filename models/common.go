@@ -2,11 +2,11 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"pro_cfg_manager/config"
 	"strings"
 
 	"gorm.io/datatypes"
+	"gorm.io/gorm"
 )
 
 type OptionType int
@@ -67,26 +67,60 @@ func JsonToIntSlice(jsonData datatypes.JSON) ([]int, *BriefMessage) {
 	return idList, Success
 }
 
-func BatchSaveToTableLabels(node *TreeNodeInfo) string {
+func BatchSaveToTableLabels(db *gorm.DB, node *TreeNodeInfo) *BriefMessage {
 	if node.Labels == nil || len(node.Labels) == 0 {
-		return ""
+		return Success
 	}
-	insert := "REPLACE INTO `monitor_labels` (`monitor_rules_id`,`key`,`value`) VALUES "
-	sqls := []string{}
 	for _, item := range node.Labels {
-		sqls = append(sqls, fmt.Sprintf("(%d,'%s','%s')", node.ID, item.Key, item.Value))
+		if item.IsNew {
+			item.MonitorRulesID = node.ID
+			tx := db.Table("monitor_labels").Create(&item)
+			if tx.Error != nil {
+				if strings.Contains(tx.Error.Error(), "Duplicate entry") {
+					continue
+				}
+				config.Log.Error(tx.Error)
+				return ErrCreateDBData
+			}
+		} else {
+			tx := db.Table("monitor_labels").Where("id=?", item.ID).
+				Update("monitor_rules_id", node.ID).
+				Update("key", item.Key).
+				Update("value", item.Value)
+			if tx.Error != nil {
+				config.Log.Error(tx.Error)
+				return ErrUpdateData
+			}
+		}
 	}
-	return insert + strings.Join(sqls, ",")
+	return Success
 }
 
-func BatchSaveToTableAnnotations(node *TreeNodeInfo) string {
+func BatchSaveToTableAnnotations(db *gorm.DB, node *TreeNodeInfo) *BriefMessage {
 	if node.Annotations == nil || len(node.Annotations) == 0 {
-		return ""
+		return Success
 	}
-	insert := "REPLACE INTO `annotations` (`monitor_rules_id`,`key`,`value`) VALUES "
-	sqls := []string{}
 	for _, item := range node.Annotations {
-		sqls = append(sqls, fmt.Sprintf("(%d,'%s','%s')", node.ID, item.Key, item.Value))
+		if item.IsNew {
+			item.MonitorRulesID = node.ID
+			tx := db.Table("annotations").Create(&item)
+			if tx.Error != nil {
+				if strings.Contains(tx.Error.Error(), "Duplicate entry") {
+					continue
+				}
+				config.Log.Error(tx.Error)
+				return ErrCreateDBData
+			}
+		} else {
+			tx := db.Table("annotations").Where("id=?", item.ID).
+				Update("monitor_rules_id", node.ID).
+				Update("key", item.Key).
+				Update("value", item.Value)
+			if tx.Error != nil {
+				config.Log.Error(tx.Error)
+				return ErrUpdateData
+			}
+		}
 	}
-	return insert + strings.Join(sqls, ",")
+	return Success
 }

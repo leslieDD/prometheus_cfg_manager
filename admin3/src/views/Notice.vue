@@ -411,7 +411,7 @@ export default {
 }
 .card-scrollbar {
   height: 85vh;
-  width: 250px;
+  width: 350px;
 }
 /* .card-scrollbar-right {
   height: 84vh;

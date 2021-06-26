@@ -289,11 +289,11 @@ func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
 	return &tni, Success
 }
 
-func PostNode(nodeInfo *TreeNodeInfo) *BriefMessage {
+func PostNode(nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
-		return ErrDataBase
+		return nil, ErrDataBase
 	}
 	createMap := map[string]interface{}{
 		"alert":        nodeInfo.Alert,
@@ -304,32 +304,22 @@ func PostNode(nodeInfo *TreeNodeInfo) *BriefMessage {
 	tx := db.Table("monitor_rules").Create(&createMap)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
-		return ErrCreateDBData
+		return nil, ErrCreateDBData
 	}
-	sqlInsert := BatchSaveToTableLabels(nodeInfo)
-	if sqlInsert != "" {
-		tx = db.Table("monitor_labels").Exec(sqlInsert)
-		if tx.Error != nil {
-			config.Log.Error(tx.Error)
-			return ErrCreateDBData
-		}
+	if bf := BatchSaveToTableLabels(db, nodeInfo); bf != Success {
+		return nil, bf
 	}
-	sqlInsert = BatchSaveToTableAnnotations(nodeInfo)
-	if sqlInsert != "" {
-		tx = db.Table("annotations").Exec(sqlInsert)
-		if tx.Error != nil {
-			config.Log.Error(tx.Error)
-			return ErrCreateDBData
-		}
+	if bf := BatchSaveToTableAnnotations(db, nodeInfo); bf != Success {
+		return nil, bf
 	}
-	return Success
+	return GetNode(&QueryGetNode{ID: nodeInfo.ID, Level: 4})
 }
 
-func PutNode(nodeInfo *TreeNodeInfo) *BriefMessage {
+func PutNode(nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
-		return ErrDataBase
+		return nil, ErrDataBase
 	}
 	tx := db.Table("monitor_rules").Where("id=?", nodeInfo.ID).
 		Update("alert", nodeInfo.Alert).
@@ -338,27 +328,15 @@ func PutNode(nodeInfo *TreeNodeInfo) *BriefMessage {
 		Update("sub_group_id", nodeInfo.SubGroupID)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
-		return ErrCreateDBData
+		return nil, ErrCreateDBData
 	}
-	sqlInsert := BatchSaveToTableLabels(nodeInfo)
-	// config.Log.Warn(sqlInsert)
-	if sqlInsert != "" {
-		tx = db.Table("monitor_labels").Exec(sqlInsert)
-		if tx.Error != nil {
-			config.Log.Error(tx.Error)
-			return ErrCreateDBData
-		}
+	if bf := BatchSaveToTableLabels(db, nodeInfo); bf != Success {
+		return nil, bf
 	}
-	sqlInsert = BatchSaveToTableAnnotations(nodeInfo)
-	// config.Log.Warn(sqlInsert)
-	if sqlInsert != "" {
-		tx = db.Table("annotations").Exec(sqlInsert)
-		if tx.Error != nil {
-			config.Log.Error(tx.Error)
-			return ErrCreateDBData
-		}
+	if bf := BatchSaveToTableAnnotations(db, nodeInfo); bf != Success {
+		return nil, bf
 	}
-	return Success
+	return GetNode(&QueryGetNode{ID: nodeInfo.ID, Level: 4})
 }
 
 func SearchLabelsByMonitorID(MID int) ([]Label, *BriefMessage) {

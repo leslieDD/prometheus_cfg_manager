@@ -239,8 +239,8 @@ func postNode(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostNode(&nodeInfo)
-	resComm(c, bf, nil)
+	data, bf := models.PostNode(&nodeInfo)
+	resComm(c, bf, data)
 }
 
 func putNode(c *gin.Context) {
@@ -249,8 +249,8 @@ func putNode(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutNode(&nodeInfo)
-	resComm(c, bf, nil)
+	data, bf := models.PutNode(&nodeInfo)
+	resComm(c, bf, data)
 }
 
 func getDefLabels(c *gin.Context) {

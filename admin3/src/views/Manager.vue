@@ -540,7 +540,7 @@ export default {
         this.$refs.previewRef.loadYaml()
       } else if (tab.instance.props.name === 'ftree') {
         this.$refs.ftreeRef.doLoadAllFiles()
-      } else if (tab.instance.props.name === 'noticeManager'){
+      } else if (tab.instance.props.name === 'noticeManager') {
         this.$refs.noticeManagerRef.doGetTree()
       }
     }
@@ -562,7 +562,7 @@ el-dialog {
 }
 .main-board {
   padding: 0;
-  max-width: 900px;
+  max-width: 1100px;
   margin: 0 auto;
 }
 .searchSelect {
