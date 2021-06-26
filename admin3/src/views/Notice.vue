@@ -4,13 +4,15 @@
       <el-scrollbar class="card-scrollbar">
         <div class="tree-box">
           <el-tree
+            :default-expanded-keys="expandedList"
+            node-key="code"
             class="tree"
             :data="data"
             :indent="0"
-            node-key="id"
-            default-expand-all
             :expand-on-click-node="false"
             @node-click="handleNodeClick"
+            @node-expand="nodeExpand"
+            @node-collapse="nodeCollapse"
           >
             <template #default="{ node, data }">
               <span class="custom-tree-node">
@@ -162,7 +164,8 @@ export default {
       menuAddDisabled: true,
       menuDelDisabled: true,
       menuRenameDisabled: true,
-      labelPath: []
+      labelPath: [],
+      expandedList: []
     }
   },
   mounted () {
@@ -432,6 +435,12 @@ export default {
       ).catch(
         e => { console.log(e) }
       )
+    },
+    nodeExpand (data) {
+      this.expandedList.push(data.code); // 在节点展开是添加到默认展开数组
+    },
+    nodeCollapse (data) {
+      this.expandedList.splice(this.expandedList.indexOf(data.code), 1); // 收起时删除数组里对应选项
     }
   }
 };

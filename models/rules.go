@@ -3,6 +3,7 @@ package models
 import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
+	"pro_cfg_manager/utils"
 
 	"gorm.io/gorm"
 )
@@ -13,6 +14,7 @@ type TreeNode struct {
 	Level    int         `json:"level"`
 	Parent   int         `json:"parent"`
 	Path     []string    `json:"path"`
+	Code     string      `json:"code"`
 	Children []*TreeNode `json:"children"`
 }
 
@@ -21,7 +23,14 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 	if bf != Success {
 		return nil, bf
 	}
-	root := &TreeNode{ID: 0, Level: 1, Label: "监控规则列表", Path: []string{}, Children: []*TreeNode{}}
+	root := &TreeNode{
+		ID:       0,
+		Level:    1,
+		Label:    "监控规则列表",
+		Path:     []string{},
+		Children: []*TreeNode{},
+	}
+	root.Code = utils.Getmd5(root.Label)
 	root.Path = append(root.Path, root.Label)
 	tns := []*TreeNode{
 		root,
@@ -35,6 +44,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 			Label:    rg.Name,
 			Parent:   -1,
 			Path:     []string{root.Label, rg.Name},
+			Code:     utils.Getmd5(rg.Name),
 			Children: []*TreeNode{}}
 		subGroup, bf := GetSubGroup(rg.ID)
 		if bf != Success {
@@ -48,6 +58,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 				Label:    sub.Name,
 				Parent:   rg.ID,
 				Path:     []string{root.Label, rg.Name, sub.Name},
+				Code:     utils.Getmd5(sub.Name),
 				Children: []*TreeNode{},
 			}
 			mrs, bf := GetMonitorRules(sub.ID)
@@ -60,6 +71,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 					Level:    4,
 					Label:    mr.Alert,
 					Parent:   sub.ID,
+					Code:     utils.Getmd5(mr.Alert),
 					Path:     []string{root.Label, rg.Name, sub.Name, mr.Alert},
 					Children: nil,
 				})

@@ -2,6 +2,8 @@ package utils
 
 import (
 	"bytes"
+	"crypto/md5"
+	"fmt"
 	"io/ioutil"
 
 	"golang.org/x/text/encoding/simplifiedchinese"
@@ -26,4 +28,9 @@ func Utf8ToGbk(s []byte) ([]byte, error) {
 		return nil, e
 	}
 	return d, nil
+}
+
+func Getmd5(s string) string {
+	has := md5.Sum([]byte(s))
+	return fmt.Sprintf("%x", has)
 }
