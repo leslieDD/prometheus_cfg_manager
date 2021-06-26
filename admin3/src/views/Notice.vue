@@ -291,7 +291,9 @@ export default {
       }, "Delete")));
     },
     fatherMethod (data, aType) {
-      this.labelPath = data.path
+      if (data.path) {
+        this.labelPath = data.path
+      }
       this.doGetTree()
       //   this.data.forEach(element => {
       //     if (!element.children || element.children.length === 0) {
