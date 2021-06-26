@@ -424,7 +424,7 @@ export default {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
-  height: 88vh;
+  height: 85vh;
   width: 100%;
 }
 .node-content {
