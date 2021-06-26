@@ -210,36 +210,42 @@ export default {
       if (!data) {
         data = this.menuData
       }
-      const parent = node.parent;
-      const children = parent.data.children || parent.data;
-      const index = children.findIndex(d => d.id === data.id);
-      children.splice(index, 1);
-      if (data.is_new) {
-        this.data = [...this.data]
-        return true
-      }
-      const nodeInfo = {
-        id: this.menuData.id,
-        label: this.titleFromShowMe,
-        level: this.menuData.level,
-        parent: this.menuData.parent
-      }
-      removeTreeNode(nodeInfo).then(
-        r => {
-          this.$notify({
-            title: '成功',
-            message: '删除节点成功！',
-            type: 'success'
-          })
-          //   this.menuData.label = this.titleFromShowMe
-          //   this.menuData.display = false
+      this.$confirm('是否确定删除？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '放弃'
+      }).then(() => {
+        if (data.is_new) {
+          const parent = node.parent;
+          const children = parent.data.children || parent.data;
+          const index = children.findIndex(d => d.id === data.id);
+          children.splice(index, 1);
           this.data = [...this.data]
-          //   this.titleFromShowMe = ''
-          //   this.doneShowMe = true
+          return true
         }
-      ).catch(
-        e => { console.log(e) }
-      )
+        const nodeInfo = {
+          id: this.menuData.id,
+          label: this.titleFromShowMe,
+          level: this.menuData.level,
+          parent: this.menuData.parent
+        }
+        removeTreeNode(nodeInfo).then(
+          r => {
+            this.$notify({
+              title: '成功',
+              message: '删除节点成功！',
+              type: 'success'
+            })
+            const parent = node.parent;
+            const children = parent.data.children || parent.data;
+            const index = children.findIndex(d => d.id === data.id);
+            children.splice(index, 1);
+            this.data = [...this.data]
+          }
+        ).catch(
+          e => { console.log(e) }
+        )
+      }).catch(() => { })
     },
 
     edit (node, data) {
