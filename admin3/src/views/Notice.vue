@@ -210,7 +210,7 @@ export default {
         children: [],
         is_new: true,
         parent: data.id,
-        path: data.path
+        path: [...data.path]
       }
       newChild.path.push(newChild.label)
       if (!data.children) {
