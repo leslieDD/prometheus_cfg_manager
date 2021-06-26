@@ -22,6 +22,7 @@ type prometheusCfg struct {
 	Password    string `json:"password" yaml:"password"`
 	TmplContext string `json:"tmpl_context" yaml:"-"`
 	MainConf    string `json:"main_conf" yaml:"-"`
+	RuleConf    string `json:"rule_conf" yaml:"-"`
 	Conf        string `json:"conf" yaml:"-"`
 }
 
@@ -46,6 +47,7 @@ var Version = "0.0.8"
 
 // SubDir for config
 var SubDir = "conf.d"
+var RuleDir = "rules"
 
 //
 var PrometheusConfigName = "prometheus.yml"

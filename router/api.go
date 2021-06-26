@@ -41,6 +41,7 @@ func initApiRouter() {
 	v1.POST("/tree/create/node", createTreeNode)
 	v1.PUT("/tree/update/node", updateTreeNode)
 	v1.DELETE("/tree/remove/node", deleteTreeNode)
+	v1.POST("/rules/publish", rulePublish)
 }
 
 func getJobs(c *gin.Context) {
@@ -300,5 +301,10 @@ func deleteTreeNode(c *gin.Context) {
 		return
 	}
 	bf := models.DeleteTreeNode(&tnc)
+	resComm(c, bf, nil)
+}
+
+func rulePublish(c *gin.Context) {
+	bf := models.RulePublish()
 	resComm(c, bf, nil)
 }

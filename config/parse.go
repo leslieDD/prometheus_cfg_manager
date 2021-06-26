@@ -67,6 +67,12 @@ func (cf *Config) verification() error {
 			return mkErr
 		}
 	}
+	cf.PrometheusCfg.RuleConf = filepath.Join(cf.PrometheusCfg.RootDir, RuleDir)
+	if exist, _ := utils.PathExists(cf.PrometheusCfg.RuleConf); !exist {
+		if mkErr := os.Mkdir(cf.PrometheusCfg.RuleConf, 0644); mkErr != nil {
+			return mkErr
+		}
+	}
 	cf.PrometheusCfg.MainConf = filepath.Join(cf.PrometheusCfg.RootDir, PrometheusConfigName)
 	tmplTxt, err := utils.RIoutil(cf.PrometheusCfg.TmplFile)
 	if err != nil {
@@ -76,6 +82,7 @@ func (cf *Config) verification() error {
 			return err
 		}
 	}
+
 	cf.PrometheusCfg.TmplContext = string(tmplTxt)
 	cf.PrometheusCfg.TmplFile = filepath.Join(cf.RuntimeParam.RootDir, cf.PrometheusCfg.TmplFile)
 	return nil

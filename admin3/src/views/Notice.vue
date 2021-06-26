@@ -81,7 +81,11 @@
             >{{ labelPath.join(" > ") }}</el-tag
           >
         </span>
-        <span><el-button type="primary" size="mini">发布</el-button></span>
+        <span
+          ><el-button type="primary" size="mini" @click="doRulesPublish"
+            >发布</el-button
+          ></span
+        >
       </div>
       <div class="node-content-edit">
         <el-scrollbar class="card-scrollbar-right">
@@ -137,7 +141,7 @@
 <script>
 import RuleEdit from '@/views/RuleEdit.vue'
 // import Leslie from '@/views/Leslie.vue'
-import { getTree, createTreeNode, updateTreeNode, removeTreeNode } from '@/api/monitor.js'
+import { getTree, createTreeNode, updateTreeNode, removeTreeNode, rulesPublish } from '@/api/monitor.js'
 let id = 1000;
 
 export default {
@@ -415,6 +419,19 @@ export default {
     },
     closeMenu () {
       this.visible = false
+    },
+    doRulesPublish () {
+      rulesPublish().then(
+        r => {
+          this.$notify({
+            title: '成功',
+            message: '创建新节点成功！',
+            type: 'success'
+          })
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
     }
   }
 };

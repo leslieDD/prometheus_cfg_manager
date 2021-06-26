@@ -71,3 +71,11 @@ return request({
     data: nodeInfo
 })
 }
+
+
+export function rulesPublish() {
+return request({
+    url: '/v1/rules/publish',
+    method: 'post'
+})
+}
