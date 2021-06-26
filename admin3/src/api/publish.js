@@ -22,3 +22,18 @@ export function loadAllFile() {
         method: 'get'
     })
 }
+
+export function loadAllRulesFile() {
+    return request({
+        url: '/v1/load/all-Rulefile-list',
+        method: 'get'
+    })
+}
+
+export function loadRuleFileContent(fileInfo) {
+    return request({
+        url: '/v1/load/rule-file-content',
+        method: 'post',
+        data: fileInfo
+    })
+}

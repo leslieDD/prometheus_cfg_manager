@@ -111,7 +111,7 @@ func (pr *PrometheusRule) Write() *BriefMessage {
 			config.Log.Error(err)
 			return ErrDataParse
 		}
-		absPath := filepath.Join(config.Cfg.PrometheusCfg.RuleConf, fmt.Sprintf("%s.yml", mf.FileName))
+		absPath := filepath.Join(config.Cfg.PrometheusCfg.RuleConf, fmt.Sprintf("%s%s", mf.FileName, MYYaml))
 		if err := utils.WIoutilByte(absPath, yamlData); err != nil {
 			config.Log.Error(err)
 			return ErrDataWriteDisk

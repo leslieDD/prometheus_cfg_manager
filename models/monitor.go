@@ -162,7 +162,50 @@ func AllFileList() ([]FileList, *BriefMessage) {
 	return fls, Success
 }
 
+func AllRulesFileList() ([]FileList, *BriefMessage) {
+	fl := FileList{
+		Label: "规则文件",
+	}
+	if err := filepath.Walk(config.Cfg.PrometheusCfg.RuleConf, func(path string, fi os.FileInfo, err error) error {
+		if err != nil {
+			config.Log.Error(err)
+			return nil
+		}
+		if fi.IsDir() {
+			return nil
+		}
+		nameLower := strings.ToLower(fi.Name())
+		if !strings.HasSuffix(nameLower, MYYaml) {
+			config.Log.Warnf("skip file: %s", fi.Name())
+			return nil
+		}
+		name := strings.TrimRight(fi.Name(), MYYaml)
+		c := Child{
+			Label: name,
+			Path:  path,
+		}
+		fl.Children = append(fl.Children, &c)
+		return nil
+	}); err != nil {
+		config.Log.Error(err)
+		return nil, ErrFileList
+	}
+	fls := []FileList{
+		fl,
+	}
+	return fls, Success
+}
+
 func ReadFileContent(child *Child) (string, *BriefMessage) {
+	content, err := utils.RIoutil(child.Path)
+	if err != nil {
+		config.Log.Errorf("err: %s path: %s", err, child.Path)
+		return "", ErrRFileContent
+	}
+	return string(content), Success
+}
+
+func ReadRuleFileContent(child *Child) (string, *BriefMessage) {
 	content, err := utils.RIoutil(child.Path)
 	if err != nil {
 		config.Log.Errorf("err: %s path: %s", err, child.Path)

@@ -6,3 +6,11 @@ export function preview () {
     method: 'get'
   })
 }
+
+export function preRulesView () {
+    return request({
+      url: '/v1/preview/rules',
+      method: 'get'
+    })
+  }
+  

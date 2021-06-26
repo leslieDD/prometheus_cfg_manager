@@ -61,7 +61,7 @@ import 'codemirror/mode/yaml/yaml'
 
 import { markRaw } from 'vue'
 
-import { ruleView } from '@/api/preview'
+// import { ruleView } from '@/api/preview'
 import * as js_yaml from "js-yaml"
 
 window.jsyaml = js_yaml
@@ -70,7 +70,7 @@ window.jsyaml = js_yaml
 import { loadRuleFileContent, loadAllRulesFile } from '@/api/publish'
 
 export default {
-  name: 'JsonEditor',
+  name: 'ymalViewer',
   data () {
     return {
       data: [],
@@ -92,8 +92,8 @@ export default {
         e => { console.log(e) }
       )
     },
-    doloadFileContent (info) {
-      loadFileContent(info).then(
+    doloadRuleFileContent (info) {
+      loadRuleFileContent(info).then(
         r => {
           this.yamlViewer.setValue(r.data)
         }
@@ -109,14 +109,14 @@ export default {
         label: data.label,
         path: data.path
       }
-      this.doloadFileContent(fInfo)
+      this.doloadRuleFileContent(fInfo)
     }
   },
   beforeUnmount () {
     this.yamlViewer.destroy();
   },
   mounted () {
-    this.yamlEditor = markRaw(CodeMirror.fromTextArea(this.$refs.textareaRV, {
+    this.yamlViewer = markRaw(CodeMirror.fromTextArea(this.$refs.textareaRV, {
       mode: 'text/x-yaml', // 语法model
       indentUnit: 2, // 缩进单位，默认2
       smartIndent: true, // 是否智能缩进
@@ -157,8 +157,8 @@ export default {
       scrollbarStyle: 'native'
     }))
 
-    this.yamlEditor.setValue(this.value)
-    this.yamlEditor.on('change', (cm) => {
+    this.yamlViewer.setValue(this.value)
+    this.yamlViewer.on('change', (cm) => {
       this.$emit('changed', cm.getValue())
       this.$emit('input', cm.getValue())
     })

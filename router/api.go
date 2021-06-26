@@ -30,7 +30,9 @@ func initApiRouter() {
 	v1.GET("/preview", preview)
 
 	v1.GET("/load/all-file-list", allFileList)
-	v1.POST("/load/file-content", FileContent)
+	v1.POST("/load/file-content", fileContent)
+	v1.GET("/load/all-Rulefile-list", allRulesFileList)
+	v1.POST("/load/rule-file-content", ruleFileContent)
 
 	v1.GET("/tree", getTree)
 	v1.GET("/tree/node", getNode)
@@ -209,13 +211,28 @@ func allFileList(c *gin.Context) {
 	resComm(c, bf, data)
 }
 
-func FileContent(c *gin.Context) {
+func fileContent(c *gin.Context) {
 	child := models.Child{}
 	if err := c.BindJSON(&child); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.ReadFileContent(&child)
+	resComm(c, bf, data)
+}
+
+func allRulesFileList(c *gin.Context) {
+	data, bf := models.AllRulesFileList()
+	resComm(c, bf, data)
+}
+
+func ruleFileContent(c *gin.Context) {
+	child := models.Child{}
+	if err := c.BindJSON(&child); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.ReadRuleFileContent(&child)
 	resComm(c, bf, data)
 }
 

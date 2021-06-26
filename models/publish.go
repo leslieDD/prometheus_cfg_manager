@@ -13,6 +13,7 @@ import (
 )
 
 const MYExt = ".json"
+const MYYaml = ".yml"
 
 var publish PublishResolve
 

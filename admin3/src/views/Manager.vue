@@ -188,6 +188,9 @@
       <el-tab-pane label="分组预览" name="ftree">
         <FTree ref="ftreeRef"></FTree>
       </el-tab-pane>
+      <el-tab-pane label="告警规则预览" name="ruleView">
+        <RuleView ref="ruleViewRef"></RuleView>
+      </el-tab-pane>
     </el-tabs>
     <el-dialog
       title="新增IP地址"
@@ -258,6 +261,7 @@ import Preview from '@/views/Preview.vue'
 import FTree from '@/views/FTree.vue'
 import Notice from '@/views/Notice.vue'
 import { getJobs } from '@/api/jobs'
+import RuleView from '@/views/RuleView.vue'
 import { getMachines, postMachine, deleteMachine, putMachine } from '@/api/machines'
 import { publish } from '@/api/publish'
 
@@ -267,7 +271,8 @@ export default {
     Jobs: Jobs,
     Preview: Preview,
     FTree: FTree,
-    Notice: Notice
+    Notice: Notice,
+    RuleView: RuleView
   },
   data () {
     function validateIP (rule, value, callback) {
@@ -542,6 +547,8 @@ export default {
         this.$refs.ftreeRef.doLoadAllFiles()
       } else if (tab.instance.props.name === 'noticeManager') {
         this.$refs.noticeManagerRef.doGetTree()
+      } else if (tab.instance.props.name === 'ruleView') {
+        this.$refs.ruleViewRef.doLoadAllRulesFiles()
       }
     }
   }
