@@ -69,16 +69,17 @@
     </div>
     <div class="node-content">
       <div class="node-content-top">
-        <span>
-          <el-tag size="mini" type="success" style="margin-right: 10px"
-            >路径：</el-tag
+        <span class="node-content-path">
+          <el-tag size="small" type="success">路径：</el-tag>
+          <el-tag
+            class="path-list"
+            size="small"
+            type="warning"
+            effect="plain"
+            >{{ labelPath.join(" > ") }}</el-tag
           >
         </span>
-        <span>
-          <el-tag class="path-list" size="mini" type="warning" effect="plain">{{
-            labelPath.join(" > ")
-          }}</el-tag>
-        </span>
+        <span><el-button type="primary" size="mini">发布</el-button></span>
       </div>
       <div class="node-content-edit">
         <el-scrollbar class="card-scrollbar-right">
@@ -436,14 +437,15 @@ export default {
   flex-direction: column;
 }
 .node-content-top {
-  margin-bottom: 3px;
+  display: flex;
+}
+.node-content-path {
   display: flex;
   flex-direction: row;
-  /* overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap; */
 }
 .path-list {
+  width: 600px;
+  margin-right: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
