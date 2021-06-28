@@ -99,14 +99,13 @@
                     <el-button
                       type="text"
                       class="el-icon-delete-solid icon-action"
-                      title=""
                       size="mini"
                     ></el-button>
                   </template>
                 </el-popconfirm>
               </el-card>
             </div>
-            <div style="text-align: right">
+            <div style="text-align: right; padding-right: 14px">
               <el-button
                 type="success"
                 plain
@@ -179,7 +178,6 @@
                         <el-button
                           type="text"
                           class="el-icon-delete-solid icon-action"
-                          title=""
                           size="mini"
                         ></el-button>
                       </template>
@@ -188,7 +186,7 @@
                 </div>
               </el-card>
             </div>
-            <div style="text-align: right">
+            <div style="text-align: right; padding-right: 14px">
               <el-button
                 type="success"
                 size="mini"

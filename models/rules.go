@@ -61,7 +61,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 				Code:     utils.Getmd5(sub.Name),
 				Children: []*TreeNode{},
 			}
-			mrs, bf := GetMonitorRules(sub.ID)
+			mrs, bf := GetMonitorRules(sub.ID, false)
 			if bf != Success {
 				return nil, bf
 			}
@@ -213,7 +213,7 @@ func GetSubGroup(rulesGroupsID int) ([]SubGroup, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	sgs := []SubGroup{}
-	tx := db.Table("sub_group").Where("enabled=1 and rules_groups_id=?", rulesGroupsID).Find(&sgs)
+	tx := db.Table("sub_group").Where("rules_groups_id=?", rulesGroupsID).Find(&sgs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
@@ -230,14 +230,19 @@ type MonitorRule struct {
 	Enabled    bool   `json:"enabled" gorm:"enabled"`
 }
 
-func GetMonitorRules(subGroupID int) ([]MonitorRule, *BriefMessage) {
+func GetMonitorRules(subGroupID int, isPublish bool) ([]MonitorRule, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return nil, ErrDataBase
 	}
 	mrs := []MonitorRule{}
-	tx := db.Table("monitor_rules").Where("sub_group_id=?", subGroupID).Find(&mrs)
+	var tx *gorm.DB
+	if isPublish {
+		tx = db.Table("monitor_rules").Where("enabled=1 and sub_group_id=?", subGroupID).Find(&mrs)
+	} else {
+		tx = db.Table("monitor_rules").Where("sub_group_id=?", subGroupID).Find(&mrs)
+	}
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData

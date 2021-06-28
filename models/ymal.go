@@ -66,7 +66,7 @@ func (pr *PrometheusRule) GetDate() *BriefMessage {
 				Rules: []*AlertType{},
 			}
 			mf.Data.Groups = append(mf.Data.Groups, mg)
-			mrs, bf := GetMonitorRules(sg.ID)
+			mrs, bf := GetMonitorRules(sg.ID, true)
 			if bf != Success {
 				return bf
 			}
