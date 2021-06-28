@@ -213,7 +213,7 @@ func GetSubGroup(rulesGroupsID int) ([]SubGroup, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	sgs := []SubGroup{}
-	tx := db.Table("sub_group").Where("rules_groups_id=?", rulesGroupsID).Find(&sgs)
+	tx := db.Table("sub_group").Where("enabled=1 and rules_groups_id=?", rulesGroupsID).Find(&sgs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
