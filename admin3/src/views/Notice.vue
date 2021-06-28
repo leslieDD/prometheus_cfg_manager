@@ -474,7 +474,7 @@ export default {
   flex-direction: row;
 }
 .path-list {
-  width: 600px;
+  width: 650px;
   margin-right: 10px;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -485,11 +485,11 @@ export default {
 }
 .card-scrollbar {
   height: 85vh;
-  width: 350px;
+  width: 300px;
 }
 .card-scrollbar-right {
   height: 83vh;
-  /* width: 100%; */
+  width: 100%;
 }
 .icon-action {
   font-size: 5px;

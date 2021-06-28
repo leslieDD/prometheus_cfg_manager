@@ -2,11 +2,11 @@
   <el-card class="box-card" :body-style="{ padding: '0px 0px 0px 0px' }">
     <div class="box-member">
       <el-form
-        label-position="top"
+        label-position="right"
         ref="formRef"
         :model="formData"
-        label-width="180px"
-        size="mini"
+        label-width="170px"
+        size="small"
         :disabled="formDisabled"
       >
         <el-form-item>
@@ -39,7 +39,7 @@
         </el-form-item>
         <el-form-item>
           <template #label>
-            <span>状态转换等待时间(for)：</span>
+            <span>等待时间(for)：</span>
             <el-tooltip
               content="带有for子句的警报触发以后首先会先转换成 Pending 状态，然后在转换为 Firing 状态。这里需要俩个周期才能触发警报条件，如果没有设置 for 子句，会直接 Inactive 状态转换成 Firing状态，然后触发警报，发送给 Receiver 设置的通知人。for: <string>，如：for: 5m，(m代表分钟)"
               placement="top"
@@ -52,27 +52,13 @@
         </el-form-item>
         <el-form-item>
           <template #label>
-            <div class="annotations-labels">
-              <div>
-                <span>标签(labels)：</span>
-                <el-tooltip
-                  content="自定义标签，允许自行定义标签附加在警报上。<lable_name>: <label_value>"
-                  placement="top"
-                >
-                  <i class="el-icon-question"></i>
-                </el-tooltip>
-              </div>
-              <div>
-                <el-button
-                  type="success"
-                  plain
-                  size="mini"
-                  icon="el-icon-circle-plus"
-                  @click="addLables(formData, 'labels')"
-                  >增加</el-button
-                >
-              </div>
-            </div>
+            <span>标签(labels)：</span>
+            <el-tooltip
+              content="自定义标签，允许自行定义标签附加在警报上。<lable_name>: <label_value>"
+              placement="top"
+            >
+              <i class="el-icon-question"></i>
+            </el-tooltip>
           </template>
           <div>
             <div v-for="data in formData.labels" :key="data.id">
@@ -120,32 +106,28 @@
                 </el-popconfirm>
               </el-card>
             </div>
+            <div style="text-align: right">
+              <el-button
+                type="success"
+                plain
+                size="mini"
+                icon="el-icon-circle-plus"
+                @click="addLables(formData, 'labels')"
+                >增加</el-button
+              >
+            </div>
           </div>
         </el-form-item>
         <el-form-item>
           <template #label>
-            <div class="annotations-labels">
-              <div>
-                <span>注释(annotations)：</span>
-                <el-tooltip
-                  content="用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值。<lable_name>: <tmpl_string>"
-                  placement="top"
-                  popper-class="filed-explain"
-                >
-                  <i class="el-icon-question"></i>
-                </el-tooltip>
-              </div>
-              <div>
-                <el-button
-                  type="success"
-                  plain
-                  size="mini"
-                  @click="addLables(formData, 'annotations')"
-                  icon="el-icon-circle-plus"
-                  >增加</el-button
-                >
-              </div>
-            </div>
+            <span>注释(annotations)：</span>
+            <el-tooltip
+              content="用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值。<lable_name>: <tmpl_string>"
+              placement="top"
+              popper-class="filed-explain"
+            >
+              <i class="el-icon-question"></i>
+            </el-tooltip>
           </template>
           <div>
             <div v-for="data in formData.annotations" :key="data.id">
@@ -206,7 +188,30 @@
                 </div>
               </el-card>
             </div>
+            <div style="text-align: right">
+              <el-button
+                type="success"
+                size="mini"
+                plain
+                @click="addLables(formData, 'annotations')"
+                icon="el-icon-circle-plus"
+                >增加</el-button
+              >
+            </div>
           </div>
+        </el-form-item>
+        <el-form-item>
+          <template #label>
+            <span>是否启用</span>
+            <el-tooltip content="是否启用" placement="top">
+              <i class="el-icon-question"></i>
+            </el-tooltip>
+          </template>
+          <el-switch
+            v-model="formData.enabled"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          ></el-switch>
         </el-form-item>
         <el-form-item align="right">
           <el-button
@@ -243,11 +248,13 @@ export default ({
         expr: '',
         for: '',
         labels: [],
-        annotations: []
+        annotations: [],
+        enabled: false
       },
       defaultLabels: [],
       submitType: '',
-      formDisabled: true
+      formDisabled: true,
+      switchValue: false
     }
   },
   methods: {

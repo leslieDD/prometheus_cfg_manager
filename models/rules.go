@@ -227,6 +227,7 @@ type MonitorRule struct {
 	Expr       string `json:"expr" gorm:"column:expr"`
 	For        string `json:"for" gorm:"column:for"`
 	SubGroupID int    `json:"sub_group_id" gorm:"column:sub_group_id"`
+	Enabled    bool   `json:"enabled" gorm:"enabled"`
 }
 
 func GetMonitorRules(subGroupID int) ([]MonitorRule, *BriefMessage) {
@@ -281,6 +282,7 @@ type TreeNodeInfo struct {
 	SubGroupID  int     `json:"sub_group_id" gorm:"column:sub_group_id"`
 	Labels      []Label `json:"labels" gorm:"column:labels"`
 	Annotations []Label `json:"annotations" gorm:"column:annotations"`
+	Enabled     bool    `json:"enabled" gorm:"enabled"`
 }
 
 func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
@@ -294,6 +296,7 @@ func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
 		Expr:       mr.Expr,
 		For:        mr.For,
 		SubGroupID: mr.SubGroupID,
+		Enabled:    mr.Enabled,
 	}
 
 	tni.Labels, bf = SearchLabelsByMonitorID(tni.ID)
@@ -318,6 +321,7 @@ func PostNode(nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
 		"expr":         nodeInfo.Expr,
 		"for":          nodeInfo.For,
 		"sub_group_id": nodeInfo.SubGroupID,
+		"enabled":      nodeInfo.Enabled,
 	}
 	tx := db.Table("monitor_rules").Create(&createMap)
 	if tx.Error != nil {
@@ -343,7 +347,8 @@ func PutNode(nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
 		Update("alert", nodeInfo.Alert).
 		Update("expr", nodeInfo.Expr).
 		Update("for", nodeInfo.For).
-		Update("sub_group_id", nodeInfo.SubGroupID)
+		Update("sub_group_id", nodeInfo.SubGroupID).
+		Update("enabled", nodeInfo.Enabled)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrCreateDBData

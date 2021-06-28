@@ -36,3 +36,4 @@ upload/*
 nohup.out
 cdn
 __debug_*
+*.exe*
