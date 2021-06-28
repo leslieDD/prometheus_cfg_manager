@@ -177,7 +177,7 @@ export default {
   height: 85vh;
 }
 .main-content {
-  width: 325px;
+  width: 250px;
   height: 84vh;
 }
 /* .card-scrollbar {
@@ -186,7 +186,7 @@ export default {
 } */
 .yaml-viewer {
   /* position: relative; */
-  width: 780px;
+  width: 820px;
 }
 .yaml-viewer :deep() .CodeMirror {
   height: 100%;
