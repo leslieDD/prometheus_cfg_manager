@@ -1,6 +1,6 @@
 <template>
   <div class="main-box">
-    <div>
+    <div class="main-content">
       <el-scrollbar class="card-scrollbar">
         <el-tree
           :data="data"
@@ -110,6 +110,9 @@ export default {
         path: data.path
       }
       this.doloadRuleFileContent(fInfo)
+    },
+    refresh () {
+      this.yamlViewer.refresh()
     }
   },
   beforeUnmount () {
@@ -128,7 +131,7 @@ export default {
       // 绑定sublime快捷键
       keyMap: "sublime",
       // 开启代码折叠
-      lineWrapping: true,
+      lineWrapping: false,
       foldGutter: true,
       gutters: [
         "CodeMirror-linenumbers",
@@ -156,7 +159,7 @@ export default {
       },
       scrollbarStyle: 'native'
     }))
-
+    this.yamlViewer.refresh()
     this.yamlViewer.setValue(this.value)
     this.yamlViewer.on('change', (cm) => {
       this.$emit('changed', cm.getValue())
@@ -170,15 +173,20 @@ export default {
 .main-box {
   display: flex;
   flex-direction: row;
+  justify-content: flex-start;
   height: 85vh;
 }
-.card-scrollbar {
+.main-content {
+  width: 325px;
+  height: 84vh;
+}
+/* .card-scrollbar {
   height: 84vh;
   width: 250px;
-}
+} */
 .yaml-viewer {
-  position: relative;
-  width: 100%;
+  /* position: relative; */
+  width: 780px;
 }
 .yaml-viewer :deep() .CodeMirror {
   height: 100%;

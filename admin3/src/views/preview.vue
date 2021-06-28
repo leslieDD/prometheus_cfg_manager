@@ -70,6 +70,9 @@ export default {
       }
     }
   },
+  beforeUnmount () {
+    this.yamlEditor.destroy();
+  },
   mounted () {
     this.yamlEditor = markRaw(CodeMirror.fromTextArea(this.$refs.textarea, {
       mode: 'text/x-yaml', // 语法model
@@ -111,8 +114,9 @@ export default {
       },
       scrollbarStyle: 'native'
     }))
-
+    this.refresh()
     this.yamlEditor.setValue(this.value)
+
     this.yamlEditor.on('change', (cm) => {
       this.$emit('changed', cm.getValue())
       this.$emit('input', cm.getValue())
@@ -136,6 +140,12 @@ export default {
       ).catch(
         e => { console.log(e) }
       )
+    },
+    destroy () {
+      this.yamlEditor.destroy()
+    },
+    refresh () {
+      this.yamlEditor.refresh()
     }
   }
 }

@@ -111,6 +111,9 @@ export default {
         path: data.path
       }
       this.doloadFileContent(fInfo)
+    },
+    refresh () {
+      this.jsonEditor.refresh()
     }
   },
   beforeUnmount () {
@@ -157,6 +160,7 @@ export default {
       }
     }))
     this.jsonEditor.setValue('')
+    this.jsonEditor.refresh()
     this.jsonEditor.on('change', (cm) => {
       this.$emit('changed', cm.getValue())
       this.$emit('input', cm.getValue())
