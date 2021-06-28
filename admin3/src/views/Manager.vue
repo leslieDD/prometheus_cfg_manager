@@ -179,6 +179,9 @@
       <el-tab-pane label="分组管理" name="groupManager">
         <Jobs ref="groupManagerRef"></Jobs>
       </el-tab-pane>
+      <el-tab-pane label="基本配置" name="baseConfig">
+        <BaseConfig ref="baseConfigRef"></BaseConfig>
+      </el-tab-pane>
       <el-tab-pane label="告警管理" name="noticeManager">
         <Notice ref="noticeManagerRef"></Notice>
       </el-tab-pane>
@@ -262,6 +265,7 @@ import FTree from '@/views/FTree.vue'
 import Notice from '@/views/Notice.vue'
 import { getJobs } from '@/api/jobs'
 import RuleView from '@/views/RuleView.vue'
+import BaseConfig from '@/views/Config.vue'
 import { getMachines, postMachine, deleteMachine, putMachine } from '@/api/machines'
 import { publish } from '@/api/publish'
 
@@ -272,7 +276,8 @@ export default {
     Preview: Preview,
     FTree: FTree,
     Notice: Notice,
-    RuleView: RuleView
+    RuleView: RuleView,
+    BaseConfig: BaseConfig
   },
   data () {
     function validateIP (rule, value, callback) {
@@ -549,6 +554,8 @@ export default {
         this.$refs.noticeManagerRef.doGetTree()
       } else if (tab.instance.props.name === 'ruleView') {
         this.$refs.ruleViewRef.doLoadAllRulesFiles()
+      } else if (tab.instance.props.name === 'baseConfig') {
+        this.$router.push({ name: 'baseLabels' })
       }
     }
   }

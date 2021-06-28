@@ -1,0 +1,91 @@
+package models
+
+import (
+	"fmt"
+	"pro_cfg_manager/config"
+	"pro_cfg_manager/dbs"
+	"time"
+)
+
+type BaseLabels struct {
+	ID       int       `json:"id" gorm:"column:id"`
+	Label    string    `json:"label" gorm:"column:label"`
+	UpdateAt time.Time `json:"update_at" gorm:"update_at"`
+}
+
+func GetBaseLabels(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
+	if sp.PageSize <= 0 {
+		sp.PageSize = 15
+	}
+	if sp.PageNo <= 0 {
+		sp.PageNo = 1
+	}
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	var count int64
+	tx := db.Table("labels").Where("label like ?", fmt.Sprint("%", sp.Search, "%")).Count(&count)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrCount
+	}
+	lists := []*BaseLabels{}
+	tx2 := db.Table("labels").Where("label like ?", fmt.Sprint("%", sp.Search, "%")).
+		Order("update_at desc").
+		Offset((sp.PageNo - 1) * sp.PageSize).
+		Limit(sp.PageSize).
+		Find(&lists)
+	if tx2.Error != nil {
+		config.Log.Error(tx2.Error)
+		return nil, ErrCount
+	}
+	return CalSplitPage(sp, count, lists), Success
+}
+
+func PostBaseLabels(newLabel *BaseLabels) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	newLabel.UpdateAt = time.Now()
+	tx := db.Table("labels").Create(newLabel)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrCreateDBData
+	}
+	return Success
+}
+
+func PutBaseLabels(label *BaseLabels) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("labels").
+		Where("id=?", label.ID).
+		Update("label", label.Label).
+		Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func DelBaseLabels(id int64) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("labels").Where("id=?", id).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	return Success
+}

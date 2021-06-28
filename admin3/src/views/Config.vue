@@ -1,4 +1,28 @@
-<template></template>
+<template>
+  <div class="base-config-board">
+    <div class="base-config-menu">
+      <el-menu
+        default-active="1"
+        class="el-menu-vertical-demo"
+        @open="handleOpen"
+        @close="handleClose"
+        @select="handleSelect"
+      >
+        <el-menu-item index="1">
+          <i class="el-icon-setting"></i>
+          <template #title>公共标签</template>
+        </el-menu-item>
+        <el-menu-item index="2">
+          <i class="el-icon-setting"></i>
+          <template #title>空状态</template>
+        </el-menu-item>
+      </el-menu>
+    </div>
+    <div class="base-config-router">
+      <router-view />
+    </div>
+  </div>
+</template>
 
 <script>
 export default {
@@ -9,10 +33,36 @@ export default {
     }
   },
   methods: {
-
+    handleOpen (key, keyPath) {
+      console.log(key, keyPath);
+    },
+    handleClose (key, keyPath) {
+      console.log(key, keyPath);
+    },
+    handleSelect (key, keyPath) {
+      if (key === '1') {
+        this.$router.push({ name: 'baseLabels' })
+      } else if (key === '2') {
+        this.$router.push({ name: 'empty' })
+      }
+    }
   }
 }
 </script>
 
 <style scoped>
+.base-config-menu {
+  width: 300px;
+  /* margin-right: 10px; */
+}
+.base-config-router {
+  width: 100%;
+}
+.base-config-board {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  width: 100%;
+  /* justify-content: space-between; */
+}
 </style>

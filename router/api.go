@@ -44,6 +44,11 @@ func initApiRouter() {
 	v1.PUT("/tree/update/node", updateTreeNode)
 	v1.DELETE("/tree/remove/node", deleteTreeNode)
 	v1.POST("/rules/publish", rulePublish)
+
+	v1.GET("/base/labels", getBaseLabels)
+	v1.POST("/base/labels", postBaseLabels)
+	v1.PUT("/base/labels", putBaseLabels)
+	v1.DELETE("/base/labels", delBaseLabels)
 }
 
 func getJobs(c *gin.Context) {
@@ -323,5 +328,51 @@ func deleteTreeNode(c *gin.Context) {
 
 func rulePublish(c *gin.Context) {
 	bf := models.RulePublish()
+	resComm(c, bf, nil)
+}
+
+func getBaseLabels(c *gin.Context) {
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.GetBaseLabels(sp)
+	resComm(c, bf, data)
+}
+
+func postBaseLabels(c *gin.Context) {
+	newLabel := models.BaseLabels{}
+	if err := c.BindJSON(&newLabel); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostBaseLabels(&newLabel)
+	resComm(c, bf, nil)
+}
+
+func putBaseLabels(c *gin.Context) {
+	label := models.BaseLabels{}
+	if err := c.BindJSON(&label); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutBaseLabels(&label)
+	resComm(c, bf, nil)
+}
+
+func delBaseLabels(c *gin.Context) {
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	id, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	bf := models.DelBaseLabels(id)
 	resComm(c, bf, nil)
 }

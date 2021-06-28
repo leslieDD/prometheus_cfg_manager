@@ -44,7 +44,7 @@ func GetJobs() (*[]Jobs, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	jobs := []Jobs{}
-	tx := db.Table("jobs").Order("display_order asc").Where("is_common=0").Find(&jobs)
+	tx := db.Table("jobs").Order("display_order desc").Where("is_common=0").Find(&jobs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
@@ -78,7 +78,7 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	} else {
 		tx = tx.Where("is_common=0")
 	}
-	tx = tx.Order("display_order asc").
+	tx = tx.Order("display_order desc").
 		Offset((sp.PageNo - 1) * sp.PageSize).
 		Limit(sp.PageSize).
 		Find(&jobs)
