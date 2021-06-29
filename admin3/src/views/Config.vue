@@ -14,6 +14,10 @@
         </el-menu-item>
         <el-menu-item index="2">
           <i class="el-icon-setting"></i>
+          <template #title>标签重写</template>
+        </el-menu-item>
+        <el-menu-item index="3">
+          <i class="el-icon-setting"></i>
           <template #title>空状态</template>
         </el-menu-item>
       </el-menu>
@@ -43,6 +47,8 @@ export default {
       if (key === '1') {
         this.$router.push({ name: 'baseLabels' })
       } else if (key === '2') {
+        this.$router.push({ name: 'reLabels' })
+      } else if (key === '3') {
         this.$router.push({ name: 'empty' })
       }
     }

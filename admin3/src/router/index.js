@@ -17,6 +17,11 @@ const routes = [
           path: '/base-labels',
           name: 'baseLabels',
           component: () => import('@/views/BaseLabels.vue')
+        },
+        {
+          path: '/re-labels',
+          name: 'reLabels',
+          component: () => import('@/views/RelabelConfig.vue')
         }
       ]
     }

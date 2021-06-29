@@ -49,6 +49,11 @@ func initApiRouter() {
 	v1.POST("/base/labels", postBaseLabels)
 	v1.PUT("/base/labels", putBaseLabels)
 	v1.DELETE("/base/labels", delBaseLabels)
+	v1.GET("/base/relabels", getReLabels)
+	v1.POST("/base/relabels", postReLabels)
+	v1.PUT("/base/relabels", putReLabels)
+	v1.DELETE("/base/relabels", delReLabels)
+	v1.PUT("base/relabels/code", putRelabelsCode)
 }
 
 func getJobs(c *gin.Context) {
@@ -374,5 +379,61 @@ func delBaseLabels(c *gin.Context) {
 		return
 	}
 	bf := models.DelBaseLabels(id)
+	resComm(c, bf, nil)
+}
+
+func getReLabels(c *gin.Context) {
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.GetReLabels(sp)
+	resComm(c, bf, data)
+}
+
+func postReLabels(c *gin.Context) {
+	reLabel := models.ReLabels{}
+	if err := c.BindJSON(&reLabel); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostReLabels(&reLabel)
+	resComm(c, bf, nil)
+}
+
+func putReLabels(c *gin.Context) {
+	reLabel := models.ReLabels{}
+	if err := c.BindJSON(&reLabel); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutReLabels(&reLabel)
+	resComm(c, bf, nil)
+}
+
+func delReLabels(c *gin.Context) {
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	id, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	bf := models.DelReLabels(id)
+	resComm(c, bf, nil)
+}
+
+func putRelabelsCode(c *gin.Context) {
+	reLabel := models.ReLabels{}
+	if err := c.BindJSON(&reLabel); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutReLabelsCode(&reLabel)
 	resComm(c, bf, nil)
 }
