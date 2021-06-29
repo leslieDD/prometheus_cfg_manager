@@ -60,6 +60,8 @@ func initApiRouter() {
 	v1.PUT("/base/relabels", putReLabels)
 	v1.DELETE("/base/relabels", delReLabels)
 	v1.PUT("base/relabels/code", putRelabelsCode)
+
+	v1.GET("/ws", ws)
 }
 
 func getJobs(c *gin.Context) {
@@ -496,4 +498,13 @@ func putRelabelsCode(c *gin.Context) {
 	}
 	bf := models.PutReLabelsCode(&reLabel)
 	resComm(c, bf, nil)
+}
+
+func ws(c *gin.Context) {
+	bf := models.WS(c)
+	if bf == nil {
+		resNil(c, bf, nil)
+	} else {
+		resComm(c, bf, nil)
+	}
 }

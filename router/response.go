@@ -38,3 +38,7 @@ func resComm(c *gin.Context, bf *models.BriefMessage, data interface{}) {
 		c.JSON(http.StatusOK, r)
 	}
 }
+
+func resNil(c *gin.Context, bf *models.BriefMessage, data interface{}) {
+
+}

@@ -22,6 +22,10 @@
         </el-menu-item>
         <el-menu-item index="4">
           <i class="el-icon-setting"></i>
+          <template #title>测试配置</template>
+        </el-menu-item>
+        <el-menu-item index="5">
+          <i class="el-icon-setting"></i>
           <template #title>空状态</template>
         </el-menu-item>
       </el-menu>
@@ -55,6 +59,8 @@ export default {
       } else if (key === '3') {
         this.$router.push({ name: 'defaultJobs' })
       } else if (key === '4') {
+        this.$router.push({ name: 'checkYml' })
+      } else if (key === '5') {
         this.$router.push({ name: 'empty' })
       }
     }

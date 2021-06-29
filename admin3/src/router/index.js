@@ -27,6 +27,11 @@ const routes = [
           path: '/default-jobs',
           name: 'defaultJobs',
           component: () => import('@/views/ContailAll.vue')
+        },
+        {
+          path: '/check-yml',
+          name: 'checkYml',
+          component: () => import('@/views/CheckYml.vue')
         }
       ]
     }
