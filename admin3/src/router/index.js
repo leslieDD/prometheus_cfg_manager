@@ -22,6 +22,11 @@ const routes = [
           path: '/re-labels',
           name: 'reLabels',
           component: () => import('@/views/RelabelConfig.vue')
+        },
+        {
+          path: '/default-jobs',
+          name: 'defaultJobs',
+          component: () => import('@/views/ContailAll.vue')
         }
       ]
     }

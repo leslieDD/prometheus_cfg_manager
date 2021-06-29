@@ -19,6 +19,11 @@ func initApiRouter() {
 	v1.PUT("/job/swap", swapJob)
 	v1.POST("/jobs/publish", publishJobs)
 
+	v1.GET("/jobs/default/split", getDefJobsSplit)
+	v1.POST("/job/default", postDefJob)
+	v1.PUT("/job/default", putDefJob)
+	v1.DELETE("/job/default", deleteDefJob)
+
 	v1.GET("/machine", getMachine)
 	v1.GET("/machines", getMachines)
 	v1.POST("/machine", postMachine)
@@ -72,6 +77,16 @@ func getJobsSplit(c *gin.Context) {
 	resComm(c, bf, result)
 }
 
+func getDefJobsSplit(c *gin.Context) {
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	result, bf := models.GetDefJobsSplit(sp)
+	resComm(c, bf, result)
+}
+
 func getJob(c *gin.Context) {
 	jIDstr, ok := c.GetQuery("id")
 	if !ok {
@@ -98,12 +113,35 @@ func postJob(c *gin.Context) {
 	resComm(c, bf, nil)
 }
 
+func postDefJob(c *gin.Context) {
+	jInfo := &models.Jobs{}
+	if err := c.BindJSON(jInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	jInfo.IsCommon = true
+	bf := models.PostJob(jInfo)
+	resComm(c, bf, nil)
+}
+
 func putJob(c *gin.Context) {
 	jInfo := &models.Jobs{}
 	if err := c.BindJSON(jInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
+	jInfo.IsCommon = false
+	bf := models.PutJob(jInfo)
+	resComm(c, bf, nil)
+}
+
+func putDefJob(c *gin.Context) {
+	jInfo := &models.Jobs{}
+	if err := c.BindJSON(jInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	jInfo.IsCommon = true
 	bf := models.PutJob(jInfo)
 	resComm(c, bf, nil)
 }
@@ -120,7 +158,23 @@ func deleteJob(c *gin.Context) {
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
-	bf := models.DeleteJob(jID)
+	bf := models.DeleteJob(jID, false)
+	resComm(c, bf, nil)
+}
+
+func deleteDefJob(c *gin.Context) {
+	jIDstr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	jID, err := strconv.ParseInt(jIDstr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	bf := models.DeleteJob(jID, true)
 	resComm(c, bf, nil)
 }
 

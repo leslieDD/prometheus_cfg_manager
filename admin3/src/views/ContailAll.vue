@@ -51,28 +51,6 @@
       <el-table-column label="IP数" width="80px" prop="count">
       </el-table-column>
       <el-table-column label="重写标签" prop="relabel_name"> </el-table-column>
-      <el-table-column label="排序号" width="80px" prop="display_order">
-      </el-table-column>
-      <el-table-column label="调整排序号" width="100px">
-        <template v-slot="scope">
-          <div class="change_order_button">
-            <el-button
-              size="mini"
-              type="primary"
-              icon="el-icon-top"
-              @click="doUp(scope)"
-              plain
-            ></el-button>
-            <el-button
-              size="mini"
-              type="primary"
-              icon="el-icon-bottom"
-              @click="doDown(scope)"
-              plain
-            ></el-button>
-          </div>
-        </template>
-      </el-table-column>
       <el-table-column label="最后更新时间" prop="update_at">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
@@ -189,12 +167,18 @@
 </template>
 
 <script>
-import { getJobsWithSplitPage, postJob, putJob, deleteJob, swapJob, publishJobs } from '@/api/jobs.js'
+import {
+  getDefJobsWithSplitPage,
+  postDefJob,
+  putDefJob,
+  deleteDefJob
+} from '@/api/defJobs.js'
+import { publishJobs } from '@/api/jobs.js'
 import { getAllReLabels } from '@/api/relabel.js'
 import { restartSrv } from '@/api/srv'
 
 export default {
-  name: 'Jobs',
+  name: 'JobsDefault',
   data () {
     function validateStr (rule, value, callback) {
       if (value === '' || typeof value === 'undefined' || value == null) {
@@ -268,7 +252,7 @@ export default {
           'search': this.searchContent
         }
       }
-      getJobsWithSplitPage(getInfo).then(
+      getDefJobsWithSplitPage(getInfo).then(
         r => {
           let n = 0
           r.data.data.forEach(element => {
@@ -330,7 +314,7 @@ export default {
           postData['display_order'] = this.addJobInfo.display_order
           postData['relabel_id'] = this.addJobInfo.relabel_id
           if (this.buttonTitle === '创建') {
-            postJob(postData).then(
+            postDefJob(postData).then(
               r => {
                 this.$notify({
                   title: '成功',
@@ -346,7 +330,7 @@ export default {
             )
           } else {
             postData['id'] = this.addJobInfo.id
-            putJob(postData).then(
+            putDefJob(postData).then(
               r => {
                 this.$notify({
                   title: '成功',
@@ -378,7 +362,7 @@ export default {
       return time.toLocaleDateString() + ' ' + time.toTimeString().split(' ')[0]
     },
     doYes (scope) {
-      deleteJob(scope.row.id).then(
+      deleteDefJob(scope.row.id).then(
         r => {
           this.$notify({
             title: '成功',

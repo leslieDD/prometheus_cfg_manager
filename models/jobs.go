@@ -147,6 +147,69 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	return CalSplitPage(sp, count, jobs), Success
 }
 
+func GetDefJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	var count int64
+	var tx *gorm.DB
+	tx = db.Table("jobs")
+	if sp.Search != "" {
+		tx = tx.Where("name like ? and is_common=1", fmt.Sprint("%", sp.Search, "%"))
+	} else {
+		tx = tx.Where("is_common=1")
+	}
+	tx = tx.Count(&count)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrCount
+	}
+	jobs := []*JobsWithRelabelName{}
+	tx = db.Table("jobs").
+		Select("jobs.*, relabels.name as relabel_name ").
+		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ")
+	if sp.Search != "" {
+
+		tx = tx.Where("name like ? and is_common=1", fmt.Sprint("%", sp.Search, "%"))
+	} else {
+		tx = tx.Where("is_common=1")
+	}
+	tx = tx.Order("display_order asc").
+		Offset((sp.PageNo - 1) * sp.PageSize).
+		Limit(sp.PageSize).
+		Find(&jobs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	jcs, bf := getMachineCount()
+	if bf != Success {
+		return nil, bf
+	}
+	idCount := map[int]int64{}
+	for _, j := range jcs {
+		if is, bf := JsonToIntSlice(j.JobId); bf != Success {
+			return nil, ErrDataParse
+		} else {
+			for _, i := range is {
+				if _, ok := idCount[i]; !ok {
+					idCount[i] = j.Count
+				} else {
+					idCount[i] += j.Count
+				}
+			}
+		}
+	}
+	for _, job := range jobs {
+		if c, ok := idCount[job.ID]; ok {
+			job.Count += c
+		}
+	}
+	return CalSplitPage(sp, count, jobs), Success
+}
+
 func getMachineCount() ([]JobCount, *BriefMessage) {
 	jcs := []JobCount{}
 	db := dbs.DBObj.GetGoRM()
@@ -226,7 +289,7 @@ func PutJob(job *Jobs) *BriefMessage {
 		Where("id = ?", job.ID).
 		Update("name", job.Name).
 		Update("port", job.Port).
-		Update("is_common", 0).
+		Update("is_common", job.IsCommon).
 		Update("relabel_id", job.ReLabelID).
 		// Update("display_order", job.DisplayOrder).
 		Update("update_at", time.Now())
@@ -237,7 +300,7 @@ func PutJob(job *Jobs) *BriefMessage {
 	return Success
 }
 
-func DeleteJob(jID int64) *BriefMessage {
+func DeleteJob(jID int64, isCommon bool) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
