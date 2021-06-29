@@ -1,8 +1,10 @@
 package models
 
 import (
+	"fmt"
 	"net/http"
 	"pro_cfg_manager/config"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -20,6 +22,7 @@ func WS(c *gin.Context) *BriefMessage {
 		return ErrUpGrader
 	}
 	defer ws.Close()
+	go send(ws)
 	for {
 		//读取ws中的数据
 		mt, message, err := ws.ReadMessage()
@@ -39,4 +42,12 @@ func WS(c *gin.Context) *BriefMessage {
 		}
 	}
 	return nil
+}
+
+func send(ws *websocket.Conn) {
+	for {
+		message := []byte(fmt.Sprintf(`{"action": "%s"}`, time.Now()))
+		ws.WriteMessage(1, message)
+		time.Sleep(1 * time.Second)
+	}
 }
