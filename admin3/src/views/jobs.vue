@@ -294,6 +294,8 @@ export default {
         this.addJobInfo.id = data.row.id
         this.addJobInfo.name = data.row.name
         this.addJobInfo.port = data.row.port
+        this.addJobInfo.relabel_id = data.row.relabel_id
+        this.addJobInfo.relabel_name = data.row.relabel_name
         //   this.addJobInfo.display_order = data.row.display_order
         this.dialogVisible = true
       }).catch(e => {
