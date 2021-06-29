@@ -50,6 +50,7 @@
       </el-table-column>
       <el-table-column label="IP数" width="80px" prop="count">
       </el-table-column>
+      <el-table-column label="重写标签" prop="relabel_name"> </el-table-column>
       <el-table-column label="排序号" width="80px" prop="display_order">
       </el-table-column>
       <el-table-column label="调整排序号" width="100px">
@@ -152,9 +153,24 @@
               v-model.number="addJobInfo.port"
             ></el-input>
           </el-form-item>
-          <!-- <el-form-item label="顺序号" prop="display_order">
-            <el-input type="number" style="width: 230px" v-model.number="addJobInfo.display_order"></el-input>
-          </el-form-item> -->
+          <el-form-item label="重写标签" prop="relabel_id">
+            <el-select
+              v-model="addJobInfo.relabel_id"
+              filterable
+              allow-create
+              default-first-option
+              placeholder="请选择"
+              style="width: 230px"
+            >
+              <el-option
+                v-for="item in relabelList"
+                :key="item.id"
+                :label="item.name"
+                :value="item.id"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item size="small">
             <el-button
               size="small"
@@ -174,6 +190,7 @@
 
 <script>
 import { getJobsWithSplitPage, postJob, putJob, deleteJob, swapJob, publishJobs } from '@/api/jobs'
+import { getAllReLabels } from '@/api/relabel.js'
 import { restartSrv } from '@/api/srv'
 
 export default {
@@ -196,8 +213,10 @@ export default {
       addJobInfo: {
         'name': '',
         'port': 0,
-        'display_order': 1
+        'display_order': 1,
+        'relabel_id': 0
       },
+      relabelList: [],
       pageSize: 15,
       pageTotal: 0,
       currentPage: 1,
@@ -211,7 +230,10 @@ export default {
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
         ],
         port: [
-          { type: 'number', min: 0, max: 65535, message: '请输入端口号[>=0, <=65535]', trigger: ['blur'] }
+          { required: true, type: 'number', min: 0, max: 65535, message: '请输入端口号[>=0, <=65535]', trigger: ['change'] }
+        ],
+        relabel_id: [
+          { required: true, type: 'number', min: 1, message: '请选择重写标签', trigger: ['change'] }
         ]
         // display_order: [
         //   { type: 'number', min: 1, message: '请输入排序号[>=1]', trigger: ['blur'] }
@@ -224,14 +246,19 @@ export default {
   },
   methods: {
     doAdd () {
-      this.addJobInfo = {
-        'name': '',
-        'port': 0,
-        'display_order': 1
-      }
-      this.buttonTitle = '创建'
-      this.dialogTitle = '增加IP分组'
-      this.dialogVisible = true
+      getAllReLabels().then(r => {
+        this.relabelList = r.data
+        this.addJobInfo = {
+          'name': '',
+          'port': 0,
+          'display_order': 1
+        }
+        this.buttonTitle = '创建'
+        this.dialogTitle = '增加IP分组'
+        this.dialogVisible = true
+      }).catch(e => {
+        console.log(e)
+      })
     },
     doGetJobs (getInfo) {
       if (!getInfo) {
@@ -260,13 +287,18 @@ export default {
       )
     },
     doEdit (data) {
-      this.buttonTitle = '更新'
-      this.dialogTitle = '编辑IP分组'
-      this.addJobInfo.id = data.row.id
-      this.addJobInfo.name = data.row.name
-      this.addJobInfo.port = data.row.port
-      //   this.addJobInfo.display_order = data.row.display_order
-      this.dialogVisible = true
+      getAllReLabels().then(r => {
+        this.relabelList = r.data
+        this.buttonTitle = '更新'
+        this.dialogTitle = '编辑IP分组'
+        this.addJobInfo.id = data.row.id
+        this.addJobInfo.name = data.row.name
+        this.addJobInfo.port = data.row.port
+        //   this.addJobInfo.display_order = data.row.display_order
+        this.dialogVisible = true
+      }).catch(e => {
+        console.log(e)
+      })
     },
     handleSizeChange (val) {
       let getInfo = {
@@ -294,6 +326,7 @@ export default {
           postData['name'] = this.addJobInfo.name
           postData['port'] = this.addJobInfo.port
           postData['display_order'] = this.addJobInfo.display_order
+          postData['relabel_id'] = this.addJobInfo.relabel_id
           if (this.buttonTitle === '创建') {
             postJob(postData).then(
               r => {

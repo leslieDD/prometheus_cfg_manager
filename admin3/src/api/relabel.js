@@ -1,5 +1,12 @@
 import request from '@/utils/request'
 
+export function getAllReLabels () {
+  return request({
+    url: '/v1/base/relabels/all',
+    method: 'get'
+  })
+}
+
 export function getReLabels (info) {
   return request({
     url: '/v1/base/relabels',

@@ -128,6 +128,23 @@ func GetReLabels(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	return CalSplitPage(sp, count, lists), Success
 }
 
+func GetAllReLabels() ([]*ReLabels, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	lists := []*ReLabels{}
+	tx2 := db.Table("relabels").
+		Order("update_at desc").
+		Find(&lists)
+	if tx2.Error != nil {
+		config.Log.Error(tx2.Error)
+		return nil, ErrCount
+	}
+	return lists, Success
+}
+
 func PostReLabels(rl *ReLabels) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {

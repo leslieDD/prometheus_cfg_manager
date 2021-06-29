@@ -2,10 +2,11 @@ package models
 
 import (
 	"bytes"
-	"html/template"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/utils"
+	"strings"
 	"sync"
+	"text/template"
 
 	"github.com/google/uuid"
 )
@@ -16,6 +17,11 @@ type Tmpl struct {
 
 var TmplObj = Tmpl{lock: sync.Mutex{}}
 
+func Raw(value string) string {
+	// config.Log.Error(value)
+	return strings.Trim(value, `'`)
+}
+
 func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
 	t.lock.Lock()
 	defer t.lock.Unlock()
@@ -25,11 +31,14 @@ func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
 		config.Log.Error(err)
 		return nil, ErrGenUUID
 	}
-	jobData, bf := GetJobs()
+	jobData, bf := GetJobsForTmpl()
 	if bf != Success {
 		return nil, bf
 	}
-	tmplParse, err := template.New(name.String()).Parse(config.Cfg.PrometheusCfg.TmplContext)
+	tmplParse, err := template.
+		New(name.String()).
+		// Funcs(template.FuncMap{"raw": Raw}).
+		Parse(config.Cfg.PrometheusCfg.TmplContext)
 	if err != nil {
 		config.Log.Error(err)
 		return nil, ErrTmplParse

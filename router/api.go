@@ -50,6 +50,7 @@ func initApiRouter() {
 	v1.PUT("/base/labels", putBaseLabels)
 	v1.DELETE("/base/labels", delBaseLabels)
 	v1.GET("/base/relabels", getReLabels)
+	v1.GET("/base/relabels/all", getAllRelabels)
 	v1.POST("/base/relabels", postReLabels)
 	v1.PUT("/base/relabels", putReLabels)
 	v1.DELETE("/base/relabels", delReLabels)
@@ -389,6 +390,11 @@ func getReLabels(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetReLabels(sp)
+	resComm(c, bf, data)
+}
+
+func getAllRelabels(c *gin.Context) {
+	data, bf := models.GetAllReLabels()
 	resComm(c, bf, data)
 }
 

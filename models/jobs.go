@@ -16,15 +16,27 @@ type Jobs struct {
 	Port         int       `json:"port" gorm:"column:port"`
 	CfgName      string    `json:"cfg_name" gorm:"column:cfg_name"`
 	IsCommon     bool      `json:"is_common" gorm:"column:is_common"`
-	DisplayOrder int       `json:"display_order" gorm:"display_order"`
+	DisplayOrder int       `json:"display_order" gorm:"column:display_order"`
+	ReLabelID    int       `json:"relabel_id" gorm:"column:relabel_id"`
 	Count        int64     `json:"count" gorm:"-"`
-	UpdateAt     time.Time `json:"update_at" gorm:"update_at"`
+	UpdateAt     time.Time `json:"update_at" gorm:"column:update_at"`
 	Online       string    `json:"online" gorm:"-"`
 	LastError    string    `json:"last_error" gorm:"-"`
 }
 
+type JobsWithRelabelName struct {
+	ReLabelName string `json:"relabel_name" gorm:"column:relabel_name"`
+	Jobs
+}
+
+type JobsForTmpl struct {
+	ReLabelName string `json:"relabel_name" gorm:"column:relabel_name"`
+	Code        string `json:"code" gorm:"column:code"`
+	Jobs
+}
+
 type JobCount struct {
-	Count int64          `json:"count" gorm:"count"`
+	Count int64          `json:"count" gorm:"column:count"`
 	JobId datatypes.JSON `json:"job_id" gorm:"column:job_id"`
 }
 
@@ -33,8 +45,8 @@ type OnlyID struct {
 }
 type SwapInfo struct {
 	ID           int    `json:"id" gorm:"column:id"`
-	DisplayOrder int    `json:"display_order" gorm:"display_order"`
-	Action       string `json:"action" gorm:"action"`
+	DisplayOrder int    `json:"display_order" gorm:"column:display_order"`
+	Action       string `json:"action" gorm:"column:action"`
 }
 
 func GetJobs() (*[]Jobs, *BriefMessage) {
@@ -44,7 +56,27 @@ func GetJobs() (*[]Jobs, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	jobs := []Jobs{}
-	tx := db.Table("jobs").Order("display_order desc").Where("is_common=0").Find(&jobs)
+	tx := db.Table("jobs").Order("display_order asc").Where("is_common=0").Find(&jobs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return &jobs, Success
+}
+
+func GetJobsForTmpl() (*[]JobsForTmpl, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	jobs := []JobsForTmpl{}
+	tx := db.Table("jobs").
+		Select("jobs.*, relabels.code, relabels.name as relabel_name ").
+		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ").
+		Order("display_order asc").
+		Where("is_common=0").
+		Find(&jobs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
@@ -71,14 +103,17 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrCount
 	}
-	jobs := []*Jobs{}
-	tx = db.Table("jobs")
+	jobs := []*JobsWithRelabelName{}
+	tx = db.Table("jobs").
+		Select("jobs.*, relabels.name as relabel_name ").
+		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ")
 	if sp.Search != "" {
+
 		tx = tx.Where("name like ? and is_common=0", fmt.Sprint("%", sp.Search, "%"))
 	} else {
 		tx = tx.Where("is_common=0")
 	}
-	tx = tx.Order("display_order desc").
+	tx = tx.Order("display_order asc").
 		Offset((sp.PageNo - 1) * sp.PageSize).
 		Limit(sp.PageSize).
 		Find(&jobs)
@@ -192,6 +227,7 @@ func PutJob(job *Jobs) *BriefMessage {
 		Update("name", job.Name).
 		Update("port", job.Port).
 		Update("is_common", 0).
+		Update("relabel_id", job.ReLabelID).
 		// Update("display_order", job.DisplayOrder).
 		Update("update_at", time.Now())
 	if tx.Error != nil {

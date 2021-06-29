@@ -36,11 +36,7 @@ scrape_configs:
       - files:
         - "/usr/local/prometheus/conf.d/{{.Name}}.json"
         refresh_interval: 15s
-    relabel_configs:
-      - source_labels: ['__address__']
-        regex: (.*):([\d]+)
-        target_label: 'instance'
-        replacement: $1
+{{.Code}}
 {{ end }}
   - job_name: '进程监控'
     file_sd_configs:
