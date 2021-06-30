@@ -1,6 +1,27 @@
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
+import ViteComponents from 'vite-plugin-components'
+
+ViteComponents({
+  // relative paths to the directory to search for components.
+  dirs: ['src/components'],
+
+  // valid file extensions for components.
+  extensions: ['vue'],
+  // search for subdirectories
+  deep: true,
+
+  // generate `components.d.ts` global declrations, 
+  // also accepts a path for custom filename
+  globalComponentsDeclaration: false,
+
+  // Allow subdirectories as namespace prefix for components.
+  directoryAsNamespace: false,
+  // Subdirectory paths for ignoring namespace prefixes
+  // works when `directoryAsNamespace: true`
+  globalNamespaces: [],
+})
 
 // https://vitejs.dev/config/
 export default defineConfig({
@@ -13,10 +34,11 @@ export default defineConfig({
     //'@': process.cwd()+'/src'
     //'@':path.resolve('src')
     //'@':path.resolve(__dirname, 'src')
-    '@': path.resolve(__dirname, './src')
+    '@': path.resolve(__dirname, './src'),
+    'comps': path.resolve(__dirname, 'src/components')
     },
   },
-  plugins: [vue()],
+  plugins: [vue(), ViteComponents()],
 
   /*
     Project root directory/项目根目录（index.html所在位置），可以是绝对路径，也可以是相对于本配置文件的路径。

@@ -32,6 +32,11 @@ const routes = [
           path: '/check-yml',
           name: 'checkYml',
           component: () => import('@/views/CheckYml.vue')
+        },
+        {
+          path: '/edit-prometheus-yml',
+          name: 'editPrometheusYml',
+          component: () => import('@/views/Tmpl.vue')
         }
       ]
     }
