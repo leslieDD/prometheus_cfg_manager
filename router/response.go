@@ -26,6 +26,9 @@ func resOK(c *gin.Context, data interface{}) {
 
 // 一般的回复
 func resComm(c *gin.Context, bf *models.BriefMessage, data interface{}) {
+	if bf == nil {
+		return
+	}
 	r := response{
 		Code: bf.Code,
 		Msg:  bf.Message,

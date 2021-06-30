@@ -228,6 +228,9 @@ export default {
   created () {
     // this.doGetJobs()
   },
+  mounted () {
+    this.doGetJobs()
+  },
   methods: {
     doAdd () {
       getAllReLabels().then(r => {

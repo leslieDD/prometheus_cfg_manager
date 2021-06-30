@@ -502,9 +502,5 @@ func putRelabelsCode(c *gin.Context) {
 
 func ws(c *gin.Context) {
 	bf := models.WS(c)
-	if bf == nil {
-		resNil(c, bf, nil)
-	} else {
-		resComm(c, bf, nil)
-	}
+	resComm(c, bf, nil)
 }

@@ -99,12 +99,12 @@ export default {
     },
     webSocketOnMessage (e) { //数据接收
       // const redata = JSON.parse(e.data);
-      this.term.writeln(e.data)
+      this.term.write(e.data)
       // console.log(e.data)
     },
     webSocketSend (data) {//数据发送
       this.websock.send(data)
-      this.term.writeln(data)
+      this.term.write(data)
     },
     webSocketClose (e) {  //关闭
       // console.log("closed:", this.websock)
