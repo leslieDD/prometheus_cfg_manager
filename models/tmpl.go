@@ -86,7 +86,7 @@ func PutProTmpl(pt *ProTmpl) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("tmpl").Update("tmpl", pt.Tmpl)
+	tx := db.Table("tmpl").Where("1=1").Update("tmpl", pt.Tmpl)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
