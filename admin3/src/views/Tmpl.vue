@@ -44,7 +44,8 @@ import "codemirror/lib/codemirror.css";
 // JSON代码高亮需要由JavaScript插件支持
 import "codemirror/mode/javascript/javascript.js";
 // 选择IDEA主题样式，还有其他很多主题可选
-import "codemirror/theme/idea.css";
+// import "codemirror/theme/idea.css";
+import "codemirror/theme/darcula.css"
 // 支持使用Sublime快捷键
 import "codemirror/keymap/sublime.js";
 // 搜索功能的依赖
@@ -122,7 +123,8 @@ export default {
       styleActiveLine: true,
       lineNumbers: true,
       // 设置主题
-      theme: "idea",
+      // theme: "idea",
+      theme: "darcula",
       // 绑定sublime快捷键
       keyMap: "sublime",
       // 开启代码折叠
