@@ -61,6 +61,9 @@ func initApiRouter() {
 	v1.DELETE("/base/relabels", delReLabels)
 	v1.PUT("base/relabels/code", putRelabelsCode)
 
+	v1.GET("/prometheus/tmpl", getProTmpl)
+	v1.PUT("/prometheus/tmpl", putProTmpl)
+
 	v1.GET("/ws", ws)
 }
 
@@ -497,6 +500,21 @@ func putRelabelsCode(c *gin.Context) {
 		return
 	}
 	bf := models.PutReLabelsCode(&reLabel)
+	resComm(c, bf, nil)
+}
+
+func getProTmpl(c *gin.Context) {
+	tmpl, bf := models.GetProTmpl()
+	resComm(c, bf, tmpl)
+}
+
+func putProTmpl(c *gin.Context) {
+	tp := models.ProTmpl{}
+	if err := c.BindJSON(&tp); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutProTmpl(&tp)
 	resComm(c, bf, nil)
 }
 

@@ -3,6 +3,7 @@ package models
 import (
 	"bytes"
 	"pro_cfg_manager/config"
+	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/utils"
 	"strings"
 	"sync"
@@ -56,6 +57,39 @@ func (t *Tmpl) doWrite(content []byte) *BriefMessage {
 	if err != nil {
 		config.Log.Error(err)
 		return ErrDataWriteDisk
+	}
+	return Success
+}
+
+type ProTmpl struct {
+	Tmpl string `json:"tmpl" gorm:"column:tmpl"`
+}
+
+func GetProTmpl() (*ProTmpl, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	pt := ProTmpl{}
+	tx := db.Table("tmpl").First(&pt)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return &pt, Success
+}
+
+func PutProTmpl(pt *ProTmpl) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("tmpl").Update("tmpl", pt.Tmpl)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
 	}
 	return Success
 }
