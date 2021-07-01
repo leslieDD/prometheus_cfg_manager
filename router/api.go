@@ -63,6 +63,7 @@ func initApiRouter() {
 
 	v1.GET("/prometheus/tmpl", getProTmpl)
 	v1.PUT("/prometheus/tmpl", putProTmpl)
+	v1.GET("/prometheus/struct", getStruct)
 
 	v1.GET("/ws", ws)
 }
@@ -516,6 +517,11 @@ func putProTmpl(c *gin.Context) {
 	}
 	bf := models.PutProTmpl(&tp)
 	resComm(c, bf, nil)
+}
+
+func getStruct(c *gin.Context) {
+	data, bf := models.GetStruct()
+	resComm(c, bf, data)
 }
 
 func ws(c *gin.Context) {

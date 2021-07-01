@@ -14,3 +14,10 @@ export function putProTmpl (data) {
     data: data
   })
 }
+
+export function getGoStruct () {
+  return request({
+    url: '/v1/prometheus/struct',
+    method: 'get'
+  })
+}

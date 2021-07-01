@@ -55,6 +55,7 @@
                       type="primary"
                       @click="doEdit(scope)"
                       plain
+                      :disabled="editCodeButVisable[scope.row.id]"
                       >编辑名称</el-button
                     >
                   </div>
@@ -63,6 +64,7 @@
                       size="mini"
                       type="primary"
                       @click="doEditReLablesCode(scope)"
+                      :disabled="editCodeButVisable[scope.row.id]"
                       plain
                       >编辑规则</el-button
                     >
@@ -99,6 +101,7 @@
                           type="danger"
                           plain
                           @click="doDelete(scope)"
+                          :disabled="editCodeButVisable[scope.row.id]"
                           >删除</el-button
                         >
                       </template>
@@ -239,6 +242,8 @@ export default {
         'name': ''
       },
       postCodeButVisable: {},
+      editCodeButVisable: {},
+      defaultRuleID: 0,
       pageSize: 10,
       pageTotal: 0,
       currentPage: 1,
@@ -327,6 +332,12 @@ export default {
           this.postCodeButVisable = {}
           r.data.data.forEach(element => {
             this.postCodeButVisable[element.id] = true
+            if (element.name === "空规则") {
+              this.editCodeButVisable[element.id] = true
+              // this.defaultRuleID = element.id
+            } else {
+              this.editCodeButVisable[element.id] = false
+            }
           })
           this.ReLabels = r.data.data
           this.pageTotal = r.data.totalCount

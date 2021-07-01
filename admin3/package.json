@@ -7,6 +7,7 @@
   },
   "dependencies": {
     "@tinymce/tinymce-vue": "^4.0.3",
+    "ace-builds": "^1.4.12",
     "axios": "^0.21.1",
     "codemirror": "^5.62.0",
     "element-plus": "^1.0.2-beta.48",

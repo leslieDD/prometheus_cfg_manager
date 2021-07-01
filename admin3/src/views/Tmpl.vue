@@ -1,9 +1,13 @@
 <template>
   <div class="tmpl-box">
     <div class="control-butn">
+      <el-button size="small" plain @click="viewGoStruct" icon="el-icon-view"
+        >查看数组结构</el-button
+      >
       <el-button
         size="small"
         type="danger"
+        plain
         @click="doReload(true)"
         icon="el-icon-refresh"
         >重新加载</el-button
@@ -35,6 +39,18 @@
     <div class="tmpl-editor">
       <textarea ref="textarea" />
     </div>
+    <el-dialog title="查看数据结构" v-model="dialogVisible" width="30%">
+      <div>
+        <ViewCode :value="structData"></ViewCode>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button size="small" type="primary" @click="enterDialog"
+            >确定</el-button
+          >
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -87,6 +103,8 @@ import { markRaw } from 'vue'
 
 // import { preview } from '@/api/preview'
 import { getProTmpl, putProTmpl } from '@/api/tmpl.js'
+import ViewCode from '@/components/ViewCodeMirror.vue'
+import { getGoStruct } from '@/api/tmpl.js'
 import * as js_yaml from "js-yaml"
 
 // window.jsyaml = require('js-yaml') // 引入js-yaml为codemirror提高语法检查核心支持
@@ -96,11 +114,16 @@ export default {
   name: 'tmplEditor',
   // eslint-disable-next-line vue/require-prop-types
   //   props: ['value'],
+  components: {
+    ViewCode
+  },
   data () {
     return {
       tmplEditor: false,
       value: '',
-      tmplChangled: false
+      tmplChangled: false,
+      dialogVisible: false,
+      structData: ''
     }
   },
   watch: {
@@ -238,6 +261,17 @@ export default {
     },
     refresh () {
       this.tmplEditor.refresh()
+    },
+    viewGoStruct () {
+      getGoStruct().then(r => {
+        this.structData = r.data
+        this.dialogVisible = true
+      }).catch(e => {
+        console.log(e)
+      })
+    },
+    enterDialog () {
+      this.dialogVisible = false
     }
   },
 
@@ -245,11 +279,6 @@ export default {
 </script>
 
 <style scoped>
-.tmpl-box {
-  /* height: 80vh; */
-  /* display: flex;
-  flex-direction: column; */
-}
 .tmpl-editor {
   position: relative;
   border: 1px solid burlywood;

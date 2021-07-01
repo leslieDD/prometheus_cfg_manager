@@ -93,3 +93,13 @@ func PutProTmpl(pt *ProTmpl) *BriefMessage {
 	}
 	return Success
 }
+
+func GetStruct() (string, *BriefMessage) {
+	st := `// 数组类型，成员为结构体
+[]{
+	ID          int       
+	Name        string    
+	Code        string
+}`
+	return st, Success
+}

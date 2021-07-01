@@ -28,7 +28,7 @@
           <i class="el-icon-setting"></i>
           <template #title>模板编辑</template>
         </el-menu-item>
-        <el-menu-item index="6">
+        <el-menu-item index="99">
           <i class="el-icon-setting"></i>
           <template #title>空状态</template>
         </el-menu-item>
@@ -66,7 +66,7 @@ export default {
         this.$router.push({ name: 'checkYml' })
       } else if (key === '5') {
         this.$router.push({ name: 'editPrometheusYml' })
-      } else if (key === '6') {
+      } else if (key === '99') {
         this.$router.push({ name: 'empty' })
       }
     }
