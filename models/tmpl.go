@@ -32,6 +32,10 @@ func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
 		config.Log.Error(err)
 		return nil, ErrGenUUID
 	}
+	tmpl, bf := GetProTmpl()
+	if bf != Success {
+		return nil, bf
+	}
 	jobData, bf := GetJobsForTmpl()
 	if bf != Success {
 		return nil, bf
@@ -39,7 +43,8 @@ func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
 	tmplParse, err := template.
 		New(name.String()).
 		// Funcs(template.FuncMap{"raw": Raw}).
-		Parse(config.Cfg.PrometheusCfg.TmplContext)
+		// Parse(config.Cfg.PrometheusCfg.TmplContext)
+		Parse(tmpl.Tmpl)
 	if err != nil {
 		config.Log.Error(err)
 		return nil, ErrTmplParse

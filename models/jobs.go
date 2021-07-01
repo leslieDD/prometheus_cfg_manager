@@ -75,7 +75,7 @@ func GetJobsForTmpl() (*[]JobsForTmpl, *BriefMessage) {
 		Select("jobs.*, relabels.code, relabels.name as relabel_name ").
 		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ").
 		Order("display_order asc").
-		Where("is_common=0").
+		// Where("is_common=0").
 		Find(&jobs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)

@@ -74,16 +74,16 @@ func (cf *Config) verification() error {
 		}
 	}
 	cf.PrometheusCfg.MainConf = filepath.Join(cf.PrometheusCfg.RootDir, PrometheusConfigName)
-	tmplTxt, err := utils.RIoutil(cf.PrometheusCfg.TmplFile)
-	if err != nil {
-		cf.PrometheusCfg.TmplFile = filepath.Join(cf.RuntimeParam.RootDir, cf.PrometheusCfg.TmplFile)
-		tmplTxt, err = utils.RIoutil(cf.PrometheusCfg.TmplFile)
-		if err != nil {
-			return err
-		}
-	}
+	// tmplTxt, err := utils.RIoutil(cf.PrometheusCfg.TmplFile)
+	// if err != nil {
+	// 	cf.PrometheusCfg.TmplFile = filepath.Join(cf.RuntimeParam.RootDir, cf.PrometheusCfg.TmplFile)
+	// 	tmplTxt, err = utils.RIoutil(cf.PrometheusCfg.TmplFile)
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// }
 
-	cf.PrometheusCfg.TmplContext = string(tmplTxt)
-	cf.PrometheusCfg.TmplFile = filepath.Join(cf.RuntimeParam.RootDir, cf.PrometheusCfg.TmplFile)
+	// cf.PrometheusCfg.TmplContext = string(tmplTxt)
+	// cf.PrometheusCfg.TmplFile = filepath.Join(cf.RuntimeParam.RootDir, cf.PrometheusCfg.TmplFile)
 	return nil
 }

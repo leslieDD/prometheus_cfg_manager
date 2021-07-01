@@ -15,15 +15,15 @@ type mysql struct {
 }
 
 type prometheusCfg struct {
-	RootDir     string `json:"dir" yaml:"dir"`
-	TmplFile    string `json:"tmpl" yaml:"tmpl"`
-	Api         string `json:"api" yaml:"api"`
-	Username    string `json:"username" yaml:"username"`
-	Password    string `json:"password" yaml:"password"`
-	TmplContext string `json:"tmpl_context" yaml:"-"`
-	MainConf    string `json:"main_conf" yaml:"-"`
-	RuleConf    string `json:"rule_conf" yaml:"-"`
-	Conf        string `json:"conf" yaml:"-"`
+	RootDir string `json:"dir" yaml:"dir"`
+	// TmplFile    string `json:"tmpl" yaml:"tmpl"`
+	Api      string `json:"api" yaml:"api"`
+	Username string `json:"username" yaml:"username"`
+	Password string `json:"password" yaml:"password"`
+	// TmplContext string `json:"tmpl_context" yaml:"-"`
+	MainConf string `json:"main_conf" yaml:"-"`
+	RuleConf string `json:"rule_conf" yaml:"-"`
+	Conf     string `json:"conf" yaml:"-"`
 }
 
 type runtimeParam struct {
