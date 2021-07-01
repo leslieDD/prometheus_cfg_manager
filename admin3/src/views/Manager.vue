@@ -186,13 +186,19 @@
         <Notice ref="noticeManagerRef"></Notice>
       </el-tab-pane>
       <el-tab-pane label="配置预览" name="preview">
-        <Preview ref="previewRef"></Preview>
+        <div class="have-board">
+          <Preview ref="previewRef"></Preview>
+        </div>
       </el-tab-pane>
       <el-tab-pane label="分组预览" name="ftree">
-        <FTree ref="ftreeRef"></FTree>
+        <div class="have-board">
+          <FTree ref="ftreeRef"></FTree>
+        </div>
       </el-tab-pane>
       <el-tab-pane label="告警规则预览" name="ruleView">
-        <RuleView ref="ruleViewRef"></RuleView>
+        <div class="have-board">
+          <RuleView ref="ruleViewRef"></RuleView>
+        </div>
       </el-tab-pane>
     </el-tabs>
     <el-dialog
@@ -567,6 +573,9 @@ export default {
   text-align: right;
   margin-top: -5px;
   padding-bottom: 8px;
+}
+.have-board {
+  border: 1px solid burlywood;
 }
 el-dialog {
   padding: 0px;
