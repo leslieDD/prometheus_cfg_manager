@@ -33,7 +33,9 @@
           </template>
           <el-input
             type="textarea"
-            :rows="2"
+            :rows="6"
+            maxlength="5000"
+            show-word-limit
             v-model="formData.expr"
           ></el-input>
         </el-form-item>
