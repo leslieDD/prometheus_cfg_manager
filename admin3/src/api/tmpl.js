@@ -10,7 +10,7 @@ export function getProTmpl () {
 export function putProTmpl (data) {
   return request({
     url: '/v1/prometheus/tmpl',
-    method: 'post',
+    method: 'put',
     data: data
   })
 }
