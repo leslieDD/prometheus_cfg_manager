@@ -2,8 +2,8 @@
   <div class="jobs-labels-board">
     <div class="label-and-action">
       <div>
-        <el-tag type="success" effect="dark"
-          >{{ jobInfo.name }} [ {{ jobInfo.count }} ]</el-tag
+        <el-tag type="warning" effect="dark" @change="clickElTag"
+          >编辑分组：{{ jobInfo.name }} [ {{ jobInfo.count }} ]</el-tag
         >
       </div>
       <div class="do_action">
@@ -296,6 +296,10 @@ export default {
           'search': this.searchContent
         }
       }
+      console.log('typeof', typeof this.jobInfo.id)
+      if (typeof this.jobInfo.id !== 'number') {
+        return
+      }
       getInfo.id = this.jobInfo.id
       getJobGroup(getInfo).then(
         r => {
@@ -386,6 +390,10 @@ export default {
     onSearch () {
       this.doGetSubGroup()
     },
+    clickElTag (checked) {
+      console.log('checked')
+      this.$router.push({ name: 'jobs' })
+    }
   }
 }
 </script>
