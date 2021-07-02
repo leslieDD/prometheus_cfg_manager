@@ -26,10 +26,14 @@ func Raw(value string) string {
 }
 
 type DataStructForTmpl struct {
-	Jobs    []JobsForTmpl
-	RooDir  string
-	ConfDir string
-	RuleDir string
+	Jobs []JobsForTmpl
+	// 以下以绝对路径
+	AbsRooDir  string
+	AbsConfDir string
+	AbsRuleDir string
+	// 以下为相对路径
+	RelConfDir string
+	RelRuleDir string
 }
 
 func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
@@ -59,15 +63,18 @@ func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
 		return nil, ErrTmplParse
 	}
 	dsft := DataStructForTmpl{
-		Jobs:   *jobData,
-		RooDir: config.Cfg.PrometheusCfg.RootDir,
+		Jobs:       *jobData,
+		AbsRooDir:  config.Cfg.PrometheusCfg.RootDir,
+		RelConfDir: config.SubDir,
+		RelRuleDir: config.RuleDir,
 	}
 	if runtime.GOOS == "windows" {
-		dsft.ConfDir = filepath.ToSlash(config.Cfg.PrometheusCfg.Conf)
-		dsft.RuleDir = filepath.ToSlash(config.Cfg.PrometheusCfg.RuleConf)
+		dsft.AbsConfDir = filepath.ToSlash(config.Cfg.PrometheusCfg.Conf)
+		dsft.AbsRuleDir = filepath.ToSlash(config.Cfg.PrometheusCfg.RuleConf)
+
 	} else {
-		dsft.ConfDir = config.Cfg.PrometheusCfg.Conf
-		dsft.RuleDir = config.Cfg.PrometheusCfg.RuleConf
+		dsft.AbsConfDir = config.Cfg.PrometheusCfg.Conf
+		dsft.AbsRuleDir = config.Cfg.PrometheusCfg.RuleConf
 	}
 	buf := new(bytes.Buffer)
 	if err := tmplParse.Execute(buf, dsft); err != nil {
@@ -142,10 +149,14 @@ type JobsForTmpl struct {
 }
 
 type DataStructForTmpl struct {
-	Jobs    []JobsForTmpl
-	RooDir  string
-	ConfDir string
-	RuleDir string
+	Jobs []JobsForTmpl
+	// 以下以绝对路径
+	AbsRooDir  string
+	AbsConfDir string
+	AbsRuleDir string
+	// 以下为相对路径
+	RelConfDir string
+	RelRuleDir string
 }
 `
 	return st, Success
