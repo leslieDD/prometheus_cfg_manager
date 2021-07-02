@@ -80,7 +80,7 @@ export default {
         label: 'label'
       },
       jsonEditor: false,
-      value: ''
+      value: JSON.stringify(JSON.parse('[{"怎么操作": "请选择左侧节点，以展示内容"}]'), null, 4)
     }
   },
   methods: {
@@ -159,8 +159,8 @@ export default {
         },
       }
     }))
-    this.jsonEditor.setValue('')
     this.jsonEditor.refresh()
+    this.jsonEditor.setValue(this.value)
     this.jsonEditor.on('change', (cm) => {
       this.$emit('changed', cm.getValue())
       this.$emit('input', cm.getValue())
