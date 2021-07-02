@@ -29,6 +29,7 @@ type DataStructForTmpl struct {
 	Jobs    []JobsForTmpl
 	RooDir  string
 	ConfDir string
+	RuleDir string
 }
 
 func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
@@ -63,8 +64,10 @@ func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
 	}
 	if runtime.GOOS == "windows" {
 		dsft.ConfDir = filepath.ToSlash(config.Cfg.PrometheusCfg.Conf)
+		dsft.RuleDir = filepath.ToSlash(config.Cfg.PrometheusCfg.RuleConf)
 	} else {
 		dsft.ConfDir = config.Cfg.PrometheusCfg.Conf
+		dsft.RuleDir = config.Cfg.PrometheusCfg.RuleConf
 	}
 	buf := new(bytes.Buffer)
 	if err := tmplParse.Execute(buf, dsft); err != nil {
@@ -142,6 +145,7 @@ type DataStructForTmpl struct {
 	Jobs    []JobsForTmpl
 	RooDir  string
 	ConfDir string
+	RuleDir string
 }
 `
 	return st, Success
