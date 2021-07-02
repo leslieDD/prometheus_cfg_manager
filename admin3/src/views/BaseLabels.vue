@@ -137,7 +137,12 @@
 </template>
 
 <script>
-import { getBaseLabels, putBaseLabels, postBaseLabels, deleteBaseLabels } from '@/api/base'
+import {
+  getBaseLabels,
+  putBaseLabels,
+  postBaseLabels,
+  deleteBaseLabels
+} from '@/api/base'
 
 export default {
   name: 'baseLabels',

@@ -71,7 +71,7 @@ export default {
     }
   },
   beforeUnmount () {
-    this.yamlEditor.destroy();
+    // this.yamlEditor.destroy();
   },
   mounted () {
     this.yamlEditor = markRaw(CodeMirror.fromTextArea(this.$refs.textarea, {
@@ -121,6 +121,7 @@ export default {
       this.$emit('changed', cm.getValue())
       this.$emit('input', cm.getValue())
     })
+    this.loadYaml()
   },
   methods: {
     // getValue () {
@@ -142,7 +143,7 @@ export default {
       )
     },
     destroy () {
-      this.yamlEditor.destroy()
+      // this.yamlEditor.destroy()
     },
     refresh () {
       this.yamlEditor.refresh()

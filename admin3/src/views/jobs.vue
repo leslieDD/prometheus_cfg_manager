@@ -1,5 +1,5 @@
 <template>
-  <div class="main-board">
+  <div class="jobs-board">
     <div class="do_action">
       <div style="padding-right: 15px">
         <el-button size="small" type="warning" @click="restartServer()"
@@ -243,6 +243,9 @@ export default {
   },
   created () {
     // this.doGetJobs()
+  },
+  mounted () {
+    this.doGetJobs()
   },
   methods: {
     doAdd () {
@@ -535,11 +538,6 @@ el-dialog {
 }
 .do_action > div {
   display: inline-block;
-}
-.main-board {
-  padding: 0;
-  max-width: 900px;
-  margin: 0 auto;
 }
 .searchSelect {
   width: 90px;

@@ -1,5 +1,5 @@
 <template>
-  <div class="main-box">
+  <div class="relabel-config-box">
     <div class="main-content">
       <div>
         <div class="do_action">

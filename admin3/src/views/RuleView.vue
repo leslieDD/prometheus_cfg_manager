@@ -165,6 +165,7 @@ export default {
       this.$emit('changed', cm.getValue())
       this.$emit('input', cm.getValue())
     })
+    this.doLoadAllRulesFiles()
   },
 };
 </script>

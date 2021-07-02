@@ -1,206 +1,168 @@
 <template>
-  <div class="main-board">
-    <el-tabs
-      type="border-card"
-      v-model="activeTabName"
-      @tab-click="handleTabClick"
-    >
-      <el-tab-pane label="IP管理" name="ipManager">
-        <div class="do_action">
-          <div style="padding-right: 15px">
-            <el-button size="small" type="primary" @click="onPublish()"
-              >发布</el-button
-            >
-            <el-button size="small" type="success" plain @click="doAdd()"
-              >添加</el-button
-            >
-          </div>
-          <div>
-            <el-input
-              size="small"
-              @keyup.enter="onSearch()"
-              placeholder="请输入内容"
-              v-model="searchContent"
-              class="input-with-select"
-            >
-              <template #prepend>
-                <el-select
-                  class="searchSelect"
-                  v-model="selectOption"
-                  placeholder="请选择"
-                >
-                  <el-option label="IP地址" value="1"></el-option>
-                  <el-option label="分组" value="2"></el-option>
-                </el-select>
-              </template>
-              <template #append>
-                <el-button
-                  icon="el-icon-search"
-                  @click="onSearch()"
-                ></el-button>
-              </template>
-            </el-input>
-          </div>
-        </div>
-        <el-table
-          size="mini"
-          highlight-current-row
-          border
-          :data="machines"
-          stripe
-          :row-style="rowStyle"
-          :cell-style="cellStyle"
-          header-align="center"
+  <div class="ipManager-board">
+    <div class="do_action">
+      <div style="padding-right: 15px">
+        <el-button size="small" type="primary" @click="onPublish()"
+          >发布</el-button
         >
-          <el-table-column
-            label="序号"
-            width="50px"
-            align="center"
-            header-align="center"
+        <el-button size="small" type="success" plain @click="doAdd()"
+          >添加</el-button
+        >
+      </div>
+      <div>
+        <el-input
+          size="small"
+          @keyup.enter="onSearch()"
+          placeholder="请输入内容"
+          v-model="searchContent"
+          class="input-with-select"
+        >
+          <template #prepend>
+            <el-select
+              class="searchSelect"
+              v-model="selectOption"
+              placeholder="请选择"
+            >
+              <el-option label="IP地址" value="1"></el-option>
+              <el-option label="分组" value="2"></el-option>
+            </el-select>
+          </template>
+          <template #append>
+            <el-button icon="el-icon-search" @click="onSearch()"></el-button>
+          </template>
+        </el-input>
+      </div>
+    </div>
+    <el-table
+      size="mini"
+      highlight-current-row
+      border
+      :data="machines"
+      stripe
+      :row-style="rowStyle"
+      :cell-style="cellStyle"
+      header-align="center"
+    >
+      <el-table-column
+        label="序号"
+        width="50px"
+        align="center"
+        header-align="center"
+      >
+        <template v-slot="scope">
+          {{ scope.$index + 1 }}
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="IP地址"
+        prop="ipaddr"
+        align="center"
+        header-align="center"
+      >
+      </el-table-column>
+      <el-table-column
+        label="分组选项"
+        prop="job_id"
+        align="center"
+        header-align="center"
+      >
+        <template v-slot="scope">
+          <el-select
+            v-model="selectTypeValue[scope.row.id]"
+            class="borderNone"
+            popper-class="pppselect"
+            @change="handleSelect(scope.$index, scope.row)"
+            size="small"
+            placeholder="请选择"
           >
-            <template v-slot="scope">
-              {{ scope.$index + 1 }}
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="IP地址"
-            prop="ipaddr"
-            align="center"
-            header-align="center"
+            <el-option
+              v-for="item in jobs"
+              :key="item.id"
+              :label="item.display_order + ' ' + item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="状态"
+        width="90px"
+        align="center"
+        header-align="center"
+      >
+        <template #header>
+          <el-tooltip content="所有机器状态5分钟更新一次" placement="top">
+            <span type="warning">状态</span>
+          </el-tooltip>
+        </template>
+        <template v-slot="{ row }">
+          <el-tooltip
+            v-if="row.health === 'up'"
+            content="主机正在运行"
+            placement="top"
           >
-          </el-table-column>
-          <el-table-column
-            label="分组选项"
-            prop="job_id"
-            align="center"
-            header-align="center"
+            <el-tag type="primary" size="mini">{{ row.health }}</el-tag>
+          </el-tooltip>
+          <el-tooltip v-else :content="row.last_error" placement="top">
+            <el-tag v-if="row.health === 'down'" size="mini" type="danger">{{
+              row.health
+            }}</el-tag>
+            <el-tag v-else type="info" size="mini">{{ row.health }}</el-tag>
+          </el-tooltip>
+        </template>
+      </el-table-column>
+      <el-table-column
+        label="最后更新时间"
+        prop="update_at"
+        align="center"
+        header-align="center"
+      >
+        <template v-slot="{ row }">
+          <span>{{ parseTimeSelf(row.update_at) }}</span>
+        </template>
+      </el-table-column>
+      <el-table-column label="操作" align="center" header-align="center">
+        <template v-slot="scope">
+          <el-popover
+            :visible="deleteVisible[scope.$index]"
+            placement="top"
+            :width="160"
           >
-            <template v-slot="scope">
-              <el-select
-                v-model="selectTypeValue[scope.row.id]"
-                class="borderNone"
-                popper-class="pppselect"
-                @change="handleSelect(scope.$index, scope.row)"
-                size="small"
-                placeholder="请选择"
+            <p>确定删除吗？</p>
+            <div style="text-align: right; margin: 0">
+              <el-button size="mini" type="text" @click="doNo(scope)"
+                >取消</el-button
               >
-                <el-option
-                  v-for="item in jobs"
-                  :key="item.id"
-                  :label="item.display_order + ' ' + item.name"
-                  :value="item.id"
-                >
-                </el-option>
-              </el-select>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="状态"
-            width="90px"
-            align="center"
-            header-align="center"
-          >
-            <template #header>
-              <el-tooltip content="所有机器状态5分钟更新一次" placement="top">
-                <span type="warning">状态</span>
-              </el-tooltip>
-            </template>
-            <template v-slot="{ row }">
-              <el-tooltip
-                v-if="row.health === 'up'"
-                content="主机正在运行"
-                placement="top"
+              <el-button type="primary" size="mini" @click="doYes(scope)"
+                >确定</el-button
               >
-                <el-tag type="primary" size="mini">{{ row.health }}</el-tag>
-              </el-tooltip>
-              <el-tooltip v-else :content="row.last_error" placement="top">
-                <el-tag
-                  v-if="row.health === 'down'"
-                  size="mini"
-                  type="danger"
-                  >{{ row.health }}</el-tag
-                >
-                <el-tag v-else type="info" size="mini">{{ row.health }}</el-tag>
-              </el-tooltip>
-            </template>
-          </el-table-column>
-          <el-table-column
-            label="最后更新时间"
-            prop="update_at"
-            align="center"
-            header-align="center"
-          >
-            <template v-slot="{ row }">
-              <span>{{ parseTimeSelf(row.update_at) }}</span>
-            </template>
-          </el-table-column>
-          <el-table-column label="操作" align="center" header-align="center">
-            <template v-slot="scope">
-              <el-popover
-                :visible="deleteVisible[scope.$index]"
-                placement="top"
-                :width="160"
+            </div>
+            <template #reference>
+              <el-button
+                size="mini"
+                type="danger"
+                plain
+                @click="doDelete(scope)"
+                >删除</el-button
               >
-                <p>确定删除吗？</p>
-                <div style="text-align: right; margin: 0">
-                  <el-button size="mini" type="text" @click="doNo(scope)"
-                    >取消</el-button
-                  >
-                  <el-button type="primary" size="mini" @click="doYes(scope)"
-                    >确定</el-button
-                  >
-                </div>
-                <template #reference>
-                  <el-button
-                    size="mini"
-                    type="danger"
-                    plain
-                    @click="doDelete(scope)"
-                    >删除</el-button
-                  >
-                </template>
-              </el-popover>
             </template>
-          </el-table-column>
-        </el-table>
-        <div class="block">
-          <el-pagination
-            @size-change="handleSizeChange"
-            @current-change="handleCurrentChange"
-            :current-page="currentPage"
-            :page-sizes="[15, 50, 100, 200]"
-            :page-size="pageSize"
-            layout="total, sizes, prev, pager, next, jumper"
-            :total="pageTotal"
-          >
-          </el-pagination>
-        </div>
-      </el-tab-pane>
-      <el-tab-pane label="分组管理" name="groupManager">
-        <Jobs ref="groupManagerRef"></Jobs>
-      </el-tab-pane>
-      <el-tab-pane label="基本配置" name="baseConfig">
-        <BaseConfig ref="baseConfigRef"></BaseConfig>
-      </el-tab-pane>
-      <el-tab-pane label="告警管理" name="noticeManager">
-        <Notice ref="noticeManagerRef"></Notice>
-      </el-tab-pane>
-      <el-tab-pane label="配置预览" name="preview">
-        <div class="have-board">
-          <Preview ref="previewRef"></Preview>
-        </div>
-      </el-tab-pane>
-      <el-tab-pane label="分组预览" name="ftree">
-        <div class="have-board">
-          <FTree ref="ftreeRef"></FTree>
-        </div>
-      </el-tab-pane>
-      <el-tab-pane label="告警规则预览" name="ruleView">
-        <div class="have-board">
-          <RuleView ref="ruleViewRef"></RuleView>
-        </div>
-      </el-tab-pane>
-    </el-tabs>
+          </el-popover>
+        </template>
+      </el-table-column>
+    </el-table>
+    <div class="block">
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[15, 50, 100, 200]"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="pageTotal"
+      >
+      </el-pagination>
+    </div>
     <el-dialog
       title="新增IP地址"
       v-model="dialogVisible"
@@ -265,25 +227,18 @@
 </template>
 
 <script>
-import Jobs from '@/views/Jobs.vue'
-import Preview from '@/views/Preview.vue'
-import FTree from '@/views/FTree.vue'
-import Notice from '@/views/Notice.vue'
 import { getJobs } from '@/api/jobs'
-import RuleView from '@/views/RuleView.vue'
-import BaseConfig from '@/views/Config.vue'
-import { getMachines, postMachine, deleteMachine, putMachine } from '@/api/machines'
+import {
+  getMachines,
+  postMachine,
+  deleteMachine,
+  putMachine
+} from '@/api/machines'
 import { publish } from '@/api/publish'
 
 export default {
   name: 'Manager',
   components: {
-    Jobs: Jobs,
-    Preview: Preview,
-    FTree: FTree,
-    Notice: Notice,
-    RuleView: RuleView,
-    BaseConfig: BaseConfig
   },
   data () {
     function validateIP (rule, value, callback) {
@@ -311,7 +266,6 @@ export default {
       searchContent: '',
       dialogVisible: false,
       deleteVisible: {},
-      activeTabName: 'ipManager',
       addMechineInfo: {
         ipAddr: '',
         jobId: ''
@@ -327,6 +281,9 @@ export default {
     }
   },
   created () {
+    // this.doGetMechines()
+  },
+  mounted () {
     this.doGetMechines()
   },
   methods: {
@@ -546,23 +503,6 @@ export default {
         'padding': '0'
       }
       return cs
-    },
-    handleTabClick (tab, event) {
-      if (tab.instance.props.name === 'ipManager') {
-        this.doGetMechines()
-      } else if (tab.instance.props.name === 'groupManager') {
-        this.$refs.groupManagerRef.doGetJobs()
-      } else if (tab.instance.props.name === 'preview') {
-        this.$refs.previewRef.loadYaml()
-      } else if (tab.instance.props.name === 'ftree') {
-        this.$refs.ftreeRef.doLoadAllFiles()
-      } else if (tab.instance.props.name === 'noticeManager') {
-        this.$refs.noticeManagerRef.doGetTree()
-      } else if (tab.instance.props.name === 'ruleView') {
-        this.$refs.ruleViewRef.doLoadAllRulesFiles()
-      } else if (tab.instance.props.name === 'baseConfig') {
-        this.$router.push({ name: 'baseLabels' })
-      }
     }
   }
 }
@@ -583,11 +523,11 @@ el-dialog {
 .do_action > div {
   display: inline-block;
 }
-.main-board {
+/* .main-board {
   padding: 0;
   max-width: 1100px;
   margin: 0 auto;
-}
+} */
 .searchSelect {
   width: 90px;
 }
@@ -599,9 +539,6 @@ el-dialog {
 }
 .block {
   padding-top: 12px;
-}
-el-tabs {
-  padding: 0px;
 }
 .el-form:last-child {
   text-align: left;

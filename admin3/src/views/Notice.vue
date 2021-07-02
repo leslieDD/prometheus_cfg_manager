@@ -143,7 +143,13 @@
 <script>
 import RuleEdit from '@/views/RuleEdit.vue'
 // import Leslie from '@/views/Leslie.vue'
-import { getTree, createTreeNode, updateTreeNode, removeTreeNode, rulesPublish } from '@/api/monitor.js'
+import {
+  getTree,
+  createTreeNode,
+  updateTreeNode,
+  removeTreeNode,
+  rulesPublish
+} from '@/api/monitor.js'
 let id = 1000;
 
 export default {

@@ -1,5 +1,5 @@
 <template>
-  <div class="main-box">
+  <div class="ftree-box">
     <div>
       <el-scrollbar class="card-scrollbar">
         <el-tree
@@ -117,7 +117,7 @@ export default {
     }
   },
   beforeUnmount () {
-    this.jsonEditor.destroy();
+    // this.jsonEditor.destroy();
   },
   mounted () {
     this.jsonEditor = markRaw(CodeMirror.fromTextArea(this.$refs.textareaGroup, {
@@ -165,12 +165,13 @@ export default {
       this.$emit('changed', cm.getValue())
       this.$emit('input', cm.getValue())
     })
+    this.doLoadAllFiles()
   },
 };
 </script>
 
 <style scoped>
-.main-box {
+.ftree-box {
   display: flex;
   flex-direction: row;
   height: 85vh;
