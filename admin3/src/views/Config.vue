@@ -48,6 +48,9 @@ export default {
 
     }
   },
+  mounted () {
+    this.$router.push({ name: 'baseLabels' })
+  },
   methods: {
     handleOpen (key, keyPath) {
       console.log(key, keyPath);
