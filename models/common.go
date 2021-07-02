@@ -22,6 +22,7 @@ type SplitPage struct {
 	PageSize int        `form:"pageSize"`
 	Search   string     `form:"search"`
 	Option   OptionType `form:"option"`
+	ID       int        `form:"id"`
 }
 
 // ResSplitPage 返回的分页信息

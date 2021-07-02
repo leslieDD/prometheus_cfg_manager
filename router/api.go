@@ -24,6 +24,11 @@ func initApiRouter() {
 	v1.PUT("/job/default", putDefJob)
 	v1.DELETE("/job/default", deleteDefJob)
 
+	v1.GET("/job/group", getJobGroup)
+	v1.POST("/job/group", postJobGroup)
+	v1.PUT("/job/group", putJobGroup)
+	v1.DELETE("/job/group", delJobGroup)
+
 	v1.GET("/machine", getMachine)
 	v1.GET("/machines", getMachines)
 	v1.POST("/machine", postMachine)
@@ -181,6 +186,46 @@ func deleteDefJob(c *gin.Context) {
 		return
 	}
 	bf := models.DeleteJob(jID, true)
+	resComm(c, bf, nil)
+}
+
+func getJobGroup(c *gin.Context) {
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.GetJobGroup(sp)
+	resComm(c, bf, data)
+}
+
+func postJobGroup(c *gin.Context) {
+	info := &models.JobGroup{}
+	if err := c.BindJSON(info); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostJobGroup(info)
+	resComm(c, bf, nil)
+}
+
+func putJobGroup(c *gin.Context) {
+	info := &models.JobGroup{}
+	if err := c.BindJSON(info); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutJobGroup(info)
+	resComm(c, bf, nil)
+}
+
+func delJobGroup(c *gin.Context) {
+	info := &models.DelJobGroupInfo{}
+	if err := c.BindQuery(info); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.DelJobGroup(info)
 	resComm(c, bf, nil)
 }
 

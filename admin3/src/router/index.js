@@ -27,6 +27,14 @@ const routes = [
           }
         },
         {
+          path: '/labels-jobs',
+          name: 'labelsJobs',
+          title: '分组标签', // 为分组再分子组，再为子组挂上标签
+          components:  {
+            jobs: () => import('@/views/LabelsJobs.vue')
+          }
+        },
+        {
           path: '/preview',
           name: 'preview',
           title: '配置预览',

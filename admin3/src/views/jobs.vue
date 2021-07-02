@@ -48,7 +48,12 @@
       <el-table-column label="分组名称" prop="name"> </el-table-column>
       <el-table-column label="端口号" width="90px" prop="port">
       </el-table-column>
-      <el-table-column label="IP数" width="80px" prop="count">
+      <el-table-column label="IP数" width="80px">
+        <template v-slot="scope">
+          <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
+            scope.row.count
+          }}</el-button>
+        </template>
       </el-table-column>
       <el-table-column label="重写标签" prop="relabel_name"> </el-table-column>
       <el-table-column label="排序号" width="80px" prop="display_order">
@@ -262,6 +267,10 @@ export default {
       }).catch(e => {
         console.log(e)
       })
+    },
+    doEditLabelsJob (scope) {
+      const jobInfo = { ...scope.row }
+      this.$router.push({ name: 'labelsJobs', params: jobInfo })
     },
     doGetJobs (getInfo) {
       if (!getInfo) {
