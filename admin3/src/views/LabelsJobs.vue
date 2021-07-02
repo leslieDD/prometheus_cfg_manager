@@ -3,14 +3,11 @@
     <div class="label-and-action">
       <div>
         <el-tag type="success" effect="dark"
-          >{{ jobInfo.name }} [{{ jobInfo.count }}]</el-tag
+          >{{ jobInfo.name }} [ {{ jobInfo.count }} ]</el-tag
         >
       </div>
       <div class="do_action">
         <div style="padding-right: 15px">
-          <el-button size="small" type="warning" @click="restartServer()"
-            >重新加载配置（Reload）</el-button
-          >
           <el-button size="small" type="primary" @click="publishJobsfunc()"
             >发布此分组</el-button
           >
