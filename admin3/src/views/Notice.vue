@@ -434,7 +434,7 @@ export default {
         r => {
           this.$notify({
             title: '成功',
-            message: '创建新节点成功！',
+            message: '发布成功！',
             type: 'success'
           })
         }

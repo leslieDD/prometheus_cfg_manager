@@ -39,7 +39,12 @@
     <div class="tmpl-editor">
       <textarea ref="textarea" />
     </div>
-    <el-dialog title="查看数据结构" v-model="dialogVisible" width="30%">
+    <el-dialog
+      title="查看数据结构"
+      v-model="dialogVisible"
+      width="30%"
+      custom-class="custom-dialog-class"
+    >
       <div>
         <ViewCode :value="structData"></ViewCode>
       </div>
@@ -290,14 +295,12 @@ export default {
   margin-bottom: 3px;
   margin-top: -10px;
 }
-/* .tmpl-editor :deep() .CodeMirror {
-  height: 85vh;
-  min-height: 300px;
+.custom-class {
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
-.tmpl-editor :deep() .CodeMirror-scroll {
-  min-height: 300px;
+.tmpl-box :deep() .el-dialog__body {
+  padding-top: 5px;
+  padding-bottom: 5px;
 }
-.tmpl-editor :deep() .cm-s-rubyblue span.cm-string {
-  color: #f08047;
-} */
 </style>

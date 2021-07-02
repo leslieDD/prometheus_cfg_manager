@@ -2,9 +2,11 @@ package models
 
 import (
 	"bytes"
+	"path/filepath"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/utils"
+	"runtime"
 	"strings"
 	"sync"
 	"text/template"
@@ -21,6 +23,12 @@ var TmplObj = Tmpl{lock: sync.Mutex{}}
 func Raw(value string) string {
 	// config.Log.Error(value)
 	return strings.Trim(value, `'`)
+}
+
+type DataStructForTmpl struct {
+	Jobs    []JobsForTmpl
+	RooDir  string
+	ConfDir string
 }
 
 func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
@@ -49,8 +57,17 @@ func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
 		config.Log.Error(err)
 		return nil, ErrTmplParse
 	}
+	dsft := DataStructForTmpl{
+		Jobs:   *jobData,
+		RooDir: config.Cfg.PrometheusCfg.RootDir,
+	}
+	if runtime.GOOS == "windows" {
+		dsft.ConfDir = filepath.ToSlash(config.Cfg.PrometheusCfg.Conf)
+	} else {
+		dsft.ConfDir = config.Cfg.PrometheusCfg.Conf
+	}
 	buf := new(bytes.Buffer)
-	if err := tmplParse.Execute(buf, *jobData); err != nil {
+	if err := tmplParse.Execute(buf, dsft); err != nil {
 		config.Log.Error(err)
 		return nil, ErrTmplParse
 	}
@@ -100,11 +117,32 @@ func PutProTmpl(pt *ProTmpl) *BriefMessage {
 }
 
 func GetStruct() (string, *BriefMessage) {
-	st := `// 数组类型，成员为结构体
-[]{
-	ID          int       
-	Name        string    
-	Code        string
-}`
+	st := `
+type Jobs struct {
+	ID           int       
+	Name         string    
+	Port         int       
+	CfgName      string    
+	IsCommon     bool      
+	DisplayOrder int       
+	ReLabelID    int       
+	Count        int64     
+	UpdateAt     time.Time 
+	Online       string    
+	LastError    string    
+}
+
+type JobsForTmpl struct {
+	ReLabelName string 
+	Code        string 
+	Jobs
+}
+
+type DataStructForTmpl struct {
+	Jobs    []JobsForTmpl
+	RooDir  string
+	ConfDir string
+}
+`
 	return st, Success
 }

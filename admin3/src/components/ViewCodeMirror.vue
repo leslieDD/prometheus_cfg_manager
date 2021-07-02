@@ -128,7 +128,7 @@ export default {
       scrollbarStyle: 'simple'
     }))
     // editor.setSize('width','height');
-    this.structView.setSize('100%', '150px');
+    this.structView.setSize('100%', '250px');
     this.refresh()
     this.structView.setValue(this.value)
 
