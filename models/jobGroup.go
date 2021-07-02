@@ -30,7 +30,7 @@ func GetJobGroup(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	var tx *gorm.DB
 	tx = db.Table("job_group")
 	if sp.Search != "" {
-		tx = tx.Where("jobs_id=? and name like ?", sp.ID, `'%`+sp.Search+`%'`)
+		tx = tx.Where("jobs_id=? and name like ?", sp.ID, `%`+sp.Search+`%`)
 	} else {
 		tx = tx.Where("jobs_id=?", sp.ID)
 	}
@@ -42,7 +42,7 @@ func GetJobGroup(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	groups := []*JobGroup{}
 	tx = db.Table("job_group")
 	if sp.Search != "" {
-		tx = tx.Where("jobs_id=? and name like ?", sp.ID, `'%`+sp.Search+`%'`)
+		tx = tx.Where("jobs_id=? and name like ?", sp.ID, `%`+sp.Search+`%`)
 	} else {
 		tx = tx.Where("jobs_id=?", sp.ID)
 	}

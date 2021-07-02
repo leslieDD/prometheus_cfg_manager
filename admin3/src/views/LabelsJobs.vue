@@ -382,7 +382,10 @@ export default {
     },
     doDelete (scope) {
       this.deleteVisible[scope.$index] = true
-    }
+    },
+    onSearch () {
+      this.doGetSubGroup()
+    },
   }
 }
 </script>
