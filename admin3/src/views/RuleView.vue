@@ -116,7 +116,7 @@ export default {
     }
   },
   beforeUnmount () {
-    this.yamlViewer.destroy();
+    // this.yamlViewer.destroy();
   },
   mounted () {
     this.yamlViewer = markRaw(CodeMirror.fromTextArea(this.$refs.textareaRV, {

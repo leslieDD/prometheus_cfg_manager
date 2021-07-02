@@ -296,8 +296,7 @@ export default {
           'search': this.searchContent
         }
       }
-      console.log('typeof', typeof this.jobInfo.id)
-      if (typeof this.jobInfo.id !== 'number') {
+      if (isNaN(this.jobInfo.id)) {
         return
       }
       getInfo.id = this.jobInfo.id

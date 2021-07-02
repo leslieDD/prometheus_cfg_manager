@@ -35,7 +35,12 @@
       </el-menu>
     </div>
     <div class="base-config-router">
-      <router-view />
+      <router-view v-slot="{ Component }">
+        <transition name="slide-fade">
+          <component :is="Component" />
+        </transition>
+      </router-view>
+      <!-- <router-view /> -->
     </div>
   </div>
 </template>
@@ -92,5 +97,19 @@ export default {
   flex-wrap: nowrap;
   width: 100%;
   /* justify-content: space-between; */
+}
+.slide-fade-enter-active {
+  transition: all 0.3s ease-in;
+}
+
+/* .slide-fade-leave-active {
+  transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
+} */
+
+.slide-fade-enter-from,
+.slide-fade-leave-to {
+  /* transition: all 0.5s ease-out; */
+  transform: translateX(10px);
+  opacity: 0;
 }
 </style>
