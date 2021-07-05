@@ -74,6 +74,14 @@ export function putGroupLabels (gID, jobGroupLablesInfo) {
   })
 }
 
+export function delGroupLabels (delInfo) {
+  return request({
+    url: '/v1/job/group/labels',
+    method: 'delete',
+    params: delInfo
+  })
+}
+
 export function getGroupMachine (jobGroupID) {
   return request({
     url: '/v1/job/group/machine',

@@ -318,3 +318,22 @@ func GetJobGroupWithSplitPage(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	}
 	return CalSplitPage(sp, count, gls), Success
 }
+
+type DelGroupLables struct {
+	GroupID int `form:"gid"`
+	ID      int `form:"id"`
+}
+
+func DelGroupLabels(dInfo *DelGroupLables) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("group_labels").Where("id=?", dInfo.ID).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}

@@ -307,7 +307,7 @@
                 </div>
                 <div>
                   <el-popover
-                    :visible="deleteLablesVisible[scope.$index]"
+                    :visible="deleteLabelsVisible[scope.$index]"
                     placement="top"
                   >
                     <p>确定删除吗？</p>
@@ -368,8 +368,7 @@ import {
   delJobGroup,
   getGroupLabels,
   putGroupLabels,
-  getGroupMachine,
-  putGroupMachine
+  delGroupLabels
 } from '@/api/labelsJob.js'
 import { getDefaultLabels } from '@/api/monitor.js'
 import { restartSrv } from '@/api/srv'
@@ -398,7 +397,7 @@ export default {
       currentPage: 1,
       searchContent: '',
       deleteVisible: {},
-      deleteLablesVisible: {},
+      deleteLabelsVisible: {},
       dialogVisible: false,
       buttonTitle: '',
       dialogTitle: '',
@@ -522,6 +521,13 @@ export default {
       getDefaultLabels().then(r => {
         this.defaultLabels = r.data
         getGroupLabels(getInfo).then(r => {
+          // 有两个一样的地方要更新
+          this.deleteLabelsVisible = {}
+          let n = 0
+          r.data.data.forEach(item => {
+            this.deleteLabelsVisible[n] = false
+            n += 1
+          })
           this.glPageTotal = r.data.totalCount
           this.glCurrentPage = r.data.pageNo
           this.glPageSize = r.data.pageSize
@@ -542,6 +548,13 @@ export default {
         }
       }
       getGroupLabels(getInfo).then(r => {
+        // 有两个一样的地方要更新
+        this.deleteLabelsVisible = {}
+        let n = 0
+        r.data.data.forEach(item => {
+          this.deleteLabelsVisible[n] = false
+          n += 1
+        })
         this.glPageTotal = r.data.totalCount
         this.glCurrentPage = r.data.pageNo
         this.glPageSize = r.data.pageSize
@@ -735,25 +748,25 @@ export default {
     },
     doLabelsYes (scope) {
       const delInfo = {
-        jobs_id: this.jobInfo.id,
+        gid: this.jobGroupIDCurrent,
         id: scope.row.id
       }
-      delJobGroup(delInfo).then(r => {
+      delGroupLabels(delInfo).then(r => {
         this.$notify({
           title: '成功',
-          message: '删除子组成功！',
+          message: '删除标签成功！',
           type: 'success'
         })
-        this.doGetSubGroup()
+        this.doGetGroupLabels()
       }).catch(e => {
         console.log(e)
       })
-      this.deleteVisible[scope.$index] = false
+      this.deleteLabelsVisible[scope.$index] = false
     },
     doNo (scope) {
       this.deleteVisible[scope.$index] = false
     },
-    doLablesNo () {
+    doLablesNo (scope) {
       this.deleteLabelsVisible[scope.$index] = false
     },
     doDelete (scope) {
