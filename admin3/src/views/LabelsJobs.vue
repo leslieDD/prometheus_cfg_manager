@@ -24,13 +24,13 @@
             <el-input
               size="small"
               placeholder="请输入内容"
-              @keyup.enter="onSearch()"
+              @keyup.enter="Search()"
               v-model="searchContent"
             >
               <template #append>
                 <el-button
                   size="small"
-                  @click="onSearch()"
+                  @click="Search()"
                   icon="el-icon-search"
                 ></el-button>
               </template>
@@ -199,7 +199,7 @@
     <el-dialog
       :title="'编辑标签列表：' + editObject"
       v-model="editLabelsVisible"
-      width="700px"
+      width="800px"
       modal
       :before-close="editLabelsClose"
       style="text-align: center"
@@ -213,24 +213,26 @@
           :model="addNewGroupLabels"
           class="demo-form-inline"
         >
-          <el-form-item label="标签" prop="key">
-            <el-select
-              v-model="addNewGroupLabels.key"
-              filterable
-              allow-create
-              default-first-option
-              placeholder="请选择或者输入"
-            >
-              <el-option
-                v-for="item in defaultLabels"
-                :key="item.id"
-                :label="item.label"
-                :value="item.label"
+          <el-form-item label="标签：" prop="key">
+            <div class="add-labels-select-box">
+              <el-select
+                v-model="addNewGroupLabels.key"
+                filterable
+                allow-create
+                default-first-option
+                placeholder="请选择或者输入"
               >
-              </el-option>
-            </el-select>
+                <el-option
+                  v-for="item in defaultLabels"
+                  :key="item.id"
+                  :label="item.label"
+                  :value="item.label"
+                >
+                </el-option>
+              </el-select>
+            </div>
           </el-form-item>
-          <el-form-item label="标签值" prop="value">
+          <el-form-item label="标签值：" prop="value">
             <div class="add-labels-input-box">
               <el-input v-model="addNewGroupLabels.value"></el-input>
             </div>
@@ -241,6 +243,22 @@
             </div>
           </el-form-item>
         </el-form>
+      </div>
+      <div class="search-label-input">
+        <el-input
+          size="small"
+          placeholder="请输入内容"
+          @keyup.enter="onLablesSearch()"
+          v-model="glSearchContent"
+        >
+          <template #append>
+            <el-button
+              size="small"
+              @click="onLablesSearch()"
+              icon="el-icon-search"
+            ></el-button>
+          </template>
+        </el-input>
       </div>
       <div>
         <el-table
@@ -263,16 +281,8 @@
               {{ scope.$index + 1 }}
             </template>
           </el-table-column>
-          <el-table-column
-            property="key"
-            label="标签名"
-            width="150"
-          ></el-table-column>
-          <el-table-column
-            property="value"
-            label="标签值"
-            width="200"
-          ></el-table-column>
+          <el-table-column property="key" label="标签名"></el-table-column>
+          <el-table-column property="value" label="标签值"></el-table-column>
           <el-table-column
             label="最后更新"
             prop="update_at"
@@ -281,6 +291,52 @@
           >
             <template v-slot="{ row }">
               <span>{{ parseTimeSelf(row.update_at) }}</span>
+            </template>
+          </el-table-column>
+          <el-table-column label="操作" align="center">
+            <template v-slot="scope" align="center">
+              <div class="actioneara">
+                <div>
+                  <el-button
+                    size="mini"
+                    type="primary"
+                    @click="doLabelsEdit(scope)"
+                    plain
+                    >编辑</el-button
+                  >
+                </div>
+                <div>
+                  <el-popover
+                    :visible="deleteLablesVisible[scope.$index]"
+                    placement="top"
+                  >
+                    <p>确定删除吗？</p>
+                    <div style="text-align: right; margin: 0">
+                      <el-button
+                        size="mini"
+                        type="text"
+                        @click="doLablesNo(scope)"
+                        >取消</el-button
+                      >
+                      <el-button
+                        type="primary"
+                        size="mini"
+                        @click="doLabelsYes(scope)"
+                        >确定</el-button
+                      >
+                    </div>
+                    <template #reference>
+                      <el-button
+                        size="mini"
+                        type="danger"
+                        plain
+                        @click="doLabelsDelete(scope)"
+                        >删除</el-button
+                      >
+                    </template>
+                  </el-popover>
+                </div>
+              </div>
             </template>
           </el-table-column>
         </el-table>
@@ -342,6 +398,7 @@ export default {
       currentPage: 1,
       searchContent: '',
       deleteVisible: {},
+      deleteLablesVisible: {},
       dialogVisible: false,
       buttonTitle: '',
       dialogTitle: '',
@@ -471,6 +528,7 @@ export default {
           this.labelsData = r.data.data
           this.jobGroupIDCurrent = gid
           this.editLabelsVisible = true
+          this.editObject = scope.row.name
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
@@ -675,14 +733,40 @@ export default {
       })
       this.deleteVisible[scope.$index] = false
     },
+    doLabelsYes (scope) {
+      const delInfo = {
+        jobs_id: this.jobInfo.id,
+        id: scope.row.id
+      }
+      delJobGroup(delInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '删除子组成功！',
+          type: 'success'
+        })
+        this.doGetSubGroup()
+      }).catch(e => {
+        console.log(e)
+      })
+      this.deleteVisible[scope.$index] = false
+    },
     doNo (scope) {
       this.deleteVisible[scope.$index] = false
+    },
+    doLablesNo () {
+      this.deleteLabelsVisible[scope.$index] = false
     },
     doDelete (scope) {
       this.deleteVisible[scope.$index] = true
     },
+    doLabelsDelete (scope) {
+      this.deleteLabelsVisible[scope.$index] = true
+    },
     onSearch () {
       this.doGetSubGroup()
+    },
+    onLablesSearch () {
+      this.doGetGroupLabels()
     },
     clickElTag (checked) {
       console.log('checked')
@@ -724,6 +808,18 @@ el-dialog {
 }
 el-tabs {
   padding: 0px;
+}
+.add-label-form {
+  margin-top: -18px;
+}
+.add-label-form :deep() .el-form-item:nth-child(3) {
+  margin-right: 0px;
+}
+.search-label-input :deep() .el-input__inner {
+  display: float;
+  float: right;
+  width: 250px;
+  /* text-align: right; */
 }
 /* .el-form:last-child {
   text-align: left;
@@ -776,6 +872,12 @@ el-tabs {
   margin-right: 26px;
 }
 .add-labels-input-box :deep() .el-input__inner {
-  width: 280px;
+  width: 296px;
+}
+.add-labels-select-box {
+  margin-right: 30px;
+}
+.add-labels-select-box :deep() .el-input__inner {
+  width: 235px;
 }
 </style>

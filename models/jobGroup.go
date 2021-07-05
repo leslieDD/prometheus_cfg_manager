@@ -290,8 +290,9 @@ func GetJobGroupWithSplitPage(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	var count int64
 	var tx *gorm.DB
 	tx = db.Table("group_labels")
+	like := `'%` + sp.Search + `%'`
 	if sp.Search != "" {
-		tx = tx.Where("job_group_id=? and ( key like or value like ? )", sp.ID, `%`+sp.Search+`%`, `%`+sp.Search+`%`)
+		tx = tx.Where(fmt.Sprintf(" `job_group_id`=%d AND ( `key` LIKE %s OR `value`LIKE %s ) ", sp.ID, like, like))
 	} else {
 		tx = tx.Where("job_group_id=?", sp.ID)
 	}
@@ -303,7 +304,7 @@ func GetJobGroupWithSplitPage(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	gls := []*GroupLabels{}
 	tx = db.Table("group_labels")
 	if sp.Search != "" {
-		tx = tx.Where("job_group_id=? and ( key like or value like ? )", sp.ID, `%`+sp.Search+`%`, `%`+sp.Search+`%`)
+		tx = tx.Where(fmt.Sprintf(" `job_group_id`=%d AND ( `key` LIKE %s OR `value` LIKE %s ) ", sp.ID, like, like))
 	} else {
 		tx = tx.Where("job_group_id=?", sp.ID)
 	}
