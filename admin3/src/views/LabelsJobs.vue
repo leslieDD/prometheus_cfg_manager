@@ -209,7 +209,7 @@
           size="mini"
           :inline="true"
           :rules="glRules"
-          ref="addMechineInfo"
+          ref="addLablesForm"
           :model="addNewGroupLabels"
           class="demo-form-inline"
         >
@@ -239,26 +239,44 @@
           </el-form-item>
           <el-form-item>
             <div class="add-labels-btn-box">
-              <el-button type="primary" @click="onAddNewLable">添加</el-button>
+              <el-button type="primary" @click="onAddNewLable('addLablesForm')"
+                >添加</el-button
+              >
+              <el-button
+                type="danger"
+                @click="onResetAddNewLable('addLablesForm')"
+                >重置</el-button
+              >
             </div>
           </el-form-item>
         </el-form>
       </div>
-      <div class="search-label-input">
-        <el-input
-          size="small"
-          placeholder="请输入内容"
-          @keyup.enter="onLablesSearch()"
-          v-model="glSearchContent"
-        >
-          <template #append>
-            <el-button
-              size="small"
-              @click="onLablesSearch()"
-              icon="el-icon-search"
-            ></el-button>
-          </template>
-        </el-input>
+      <div class="status-edit-area">
+        <div>
+          <el-alert
+            effect="dark"
+            :title="alertTitle"
+            type="warning"
+            :closable="false"
+          >
+          </el-alert>
+        </div>
+        <div class="search-label-input">
+          <el-input
+            size="small"
+            placeholder="请输入内容"
+            @keyup.enter="onLablesSearch()"
+            v-model="glSearchContent"
+          >
+            <template #append>
+              <el-button
+                size="small"
+                @click="onLablesSearch()"
+                icon="el-icon-search"
+              ></el-button>
+            </template>
+          </el-input>
+        </div>
       </div>
       <div>
         <el-table
@@ -417,12 +435,20 @@ export default {
       glCurrentPage: 1,
       addNewGroupLabels: {},
       glSearchContent: '',
+      alertTitle: '当前状态：可以添加新标签',
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
         ]
       },
-      glRules: {}
+      glRules: {
+        key: [
+          { required: true, message: '请选择分组', trigger: ['blur', 'change'] }
+        ]
+        // value: [
+        //   { required: true, message: '请输入正确的标签值', trigger: ['blur'] }
+        // ]
+      }
     }
   },
   created () {
@@ -581,25 +607,36 @@ export default {
         console.log(e)
       })
     },
-    onAddNewLable () {
-      const gid = this.jobGroupIDCurrent
-      let newGroupLabels = { ...this.addNewGroupLabels, job_group_id: this.jobGroupIDCurrent }
-      putGroupLabels(gid, newGroupLabels).then(
-        r => {
-          this.$notify({
-            title: '成功',
-            message: '创建标签成功！',
-            type: 'success'
-          })
-          this.doGetGroupLabels()
+    onAddNewLable (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          const gid = this.jobGroupIDCurrent
+          let newGroupLabels = { ...this.addNewGroupLabels, job_group_id: this.jobGroupIDCurrent }
+          putGroupLabels(gid, newGroupLabels).then(
+            r => {
+              this.$notify({
+                title: '成功',
+                message: '创建标签成功！',
+                type: 'success'
+              })
+              this.doGetGroupLabels()
+            }
+          ).catch(e => console.log(e))
         }
-      ).catch(e => console.log(e))
+      })
+    },
+    onResetAddNewLable (formName) {
+      this.$refs[formName].resetFields()
+      this.alertTitle = '当前状态：可以添加新标签'
     },
     doEdit (scope) {
       this.buttonTitle = '更新'
       this.dialogTitle = '更新子分组'
       this.subGroupData = { ...scope.row }
       this.dialogVisible = true
+    },
+    doLabelsEdit (scope) {
+      this.alertTitle = `当前编辑对象：${scope.row.key}，序号：${scope.$index + 1}`
     },
     handleSizeChange (val) {
       let getInfo = {
@@ -834,6 +871,12 @@ el-tabs {
   width: 250px;
   /* text-align: right; */
 }
+.status-edit-area {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  justify-content: space-between;
+}
 /* .el-form:last-child {
   text-align: left;
 } */
@@ -885,12 +928,12 @@ el-tabs {
   margin-right: 26px;
 }
 .add-labels-input-box :deep() .el-input__inner {
-  width: 296px;
+  width: 256px;
 }
 .add-labels-select-box {
-  margin-right: 30px;
+  margin-right: 10px;
 }
 .add-labels-select-box :deep() .el-input__inner {
-  width: 235px;
+  width: 200px;
 }
 </style>
