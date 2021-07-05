@@ -288,18 +288,24 @@ func putJobGroupMachines(c *gin.Context) {
 }
 
 func getGroupLabels(c *gin.Context) {
-	idStr, ok := c.GetQuery("id")
-	if !ok {
-		resComm(c, models.ErrQueryData, nil)
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
-	jID, err := strconv.ParseInt(idStr, 10, 0)
-	if err != nil {
-		config.Log.Error(err)
-		resComm(c, models.ErrQueryData, nil)
-		return
-	}
-	data, bf := models.GetGroupLabels(jID)
+	// idStr, ok := c.GetQuery("id")
+	// if !ok {
+	// 	resComm(c, models.ErrQueryData, nil)
+	// 	return
+	// }
+	// jID, err := strconv.ParseInt(idStr, 10, 0)
+	// if err != nil {
+	// 	config.Log.Error(err)
+	// 	resComm(c, models.ErrQueryData, nil)
+	// 	return
+	// }
+	// data, bf := models.GetGroupLabels(jID)
+	data, bf := models.GetJobGroupWithSplitPage(sp)
 	resComm(c, bf, data)
 }
 
@@ -315,8 +321,12 @@ func putGroupLabels(c *gin.Context) {
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
-	gls := []*models.GroupLabels{}
-	bf := models.PutGroupLabels(jID, gls)
+	gls := models.GroupLabels{}
+	if err := c.BindJSON(&gls); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutGroupLabels(jID, &gls)
 	resComm(c, bf, nil)
 }
 

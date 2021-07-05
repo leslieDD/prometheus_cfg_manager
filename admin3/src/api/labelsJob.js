@@ -57,18 +57,19 @@ export function putJobMachinesForGroup (gID, groupInfo) {
   })
 }
 
-export function getGroupLabels (jobGroupID) {
+export function getGroupLabels (gInfo) {
   return request({
     url: '/v1/job/group/labels',
     method: 'get',
-    params: {id: jobGroupID}
+    params: gInfo
   })
 }
 
-export function putGroupLabels (jobGroupLablesInfo) {
+export function putGroupLabels (gID, jobGroupLablesInfo) {
   return request({
     url: '/v1/job/group/labels',
     method: 'put',
+    params: {id: gID},
     data: jobGroupLablesInfo
   })
 }

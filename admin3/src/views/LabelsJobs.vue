@@ -254,23 +254,42 @@
           :data="labelsData"
         >
           <el-table-column
-            property="date"
-            label="日期"
+            label="序号"
+            width="50px"
+            align="center"
+            header-align="center"
+          >
+            <template v-slot="scope">
+              {{ scope.$index + 1 }}
+            </template>
+          </el-table-column>
+          <el-table-column
+            property="key"
+            label="标签名"
             width="150"
           ></el-table-column>
           <el-table-column
-            property="name"
-            label="姓名"
+            property="value"
+            label="标签值"
             width="200"
           ></el-table-column>
-          <el-table-column property="address" label="地址"></el-table-column>
+          <el-table-column
+            label="最后更新"
+            prop="update_at"
+            align="center"
+            header-align="center"
+          >
+            <template v-slot="{ row }">
+              <span>{{ parseTimeSelf(row.update_at) }}</span>
+            </template>
+          </el-table-column>
         </el-table>
         <div class="block">
           <el-pagination
             @size-change="glHandleSizeChange"
             @current-change="glHandleCurrentChange"
             :current-page="glCurrentPage"
-            :page-sizes="[15, 50, 100, 200]"
+            :page-sizes="[10]"
             :page-size="glPageSize"
             layout="total, sizes, prev, pager, next, jumper"
             :total="glPageTotal"
@@ -341,6 +360,7 @@ export default {
       glPageSize: 10,
       glCurrentPage: 1,
       addNewGroupLabels: {},
+      glSearchContent: '',
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -436,13 +456,41 @@ export default {
     doEditLabelList (scope) {
       const jobID = this.jobInfo.id
       const gid = scope.row.id
+      const getInfo = {
+        'pageNo': this.glCurrentPage,
+        'pageSize': this.glPageSize,
+        'search': this.glSearchContent,
+        id: gid
+      }
       getDefaultLabels().then(r => {
         this.defaultLabels = r.data
-        // getGroupLabels(gid).then(r => {
-        // }).catch(e => console.log(e))
-        this.jobGroupIDCurrent = gid
+        getGroupLabels(getInfo).then(r => {
+          this.glPageTotal = r.data.totalCount
+          this.glCurrentPage = r.data.pageNo
+          this.glPageSize = r.data.pageSize
+          this.labelsData = r.data.data
+          this.jobGroupIDCurrent = gid
+          this.editLabelsVisible = true
+        }).catch(e => console.log(e))
       }).catch(e => console.log(e))
-      this.editLabelsVisible = true
+    },
+    doGetGroupLabels (getInfo) {
+      if (!getInfo) {
+        getInfo = {
+          'pageNo': this.glCurrentPage,
+          'pageSize': this.glPageSize,
+          'search': this.glSearchContent,
+          'id': this.jobGroupIDCurrent
+        }
+      }
+      getGroupLabels(getInfo).then(r => {
+        this.glPageTotal = r.data.totalCount
+        this.glCurrentPage = r.data.pageNo
+        this.glPageSize = r.data.pageSize
+        this.labelsData = r.data.data
+        this.jobGroupIDCurrent = gid
+        this.editLabelsVisible = true
+      }).catch(e => console.log(e))
     },
     doAddSubGroupShow () {
       this.buttonTitle = '创建'
@@ -463,16 +511,18 @@ export default {
       })
     },
     onAddNewLable () {
-      this.addNewGroupLabels.job_group_id = this.jobGroupIDCurrent
-      putGroupLabels(this.addNewGroupLabels).then(
+      const gid = this.jobGroupIDCurrent
+      let newGroupLabels = { ...this.addNewGroupLabels, job_group_id: this.jobGroupIDCurrent }
+      putGroupLabels(gid, newGroupLabels).then(
         r => {
           this.$notify({
             title: '成功',
             message: '创建标签成功！',
             type: 'success'
           })
+          this.doGetGroupLabels()
         }
-      )
+      ).catch(e => console.log(e))
     },
     doEdit (scope) {
       this.buttonTitle = '更新'
@@ -490,11 +540,12 @@ export default {
     },
     glHandleSizeChange (val) {
       let getInfo = {
-        'pageNo': this.currentPage,
+        'pageNo': this.glCurrentPage,
         'pageSize': val,
-        'search': this.searchContent
+        'search': this.glSearchContent,
+        'id': this.jobGroupIDCurrent
       }
-      this.doGetSubGroup(getInfo)
+      this.doGetGroupLabels(getInfo)
     },
     handleCurrentChange (val) {
       let getInfo = {
@@ -507,10 +558,11 @@ export default {
     glHandleCurrentChange (val) {
       let getInfo = {
         'pageNo': val,
-        'pageSize': this.pageSize,
-        'search': this.searchContent
+        'pageSize': this.glPageSize,
+        'search': this.glSearchContent,
+        'id': this.jobGroupIDCurrent
       }
-      this.doGetSubGroup(getInfo)
+      this.doGetGroupLabels(getInfo)
     },
     rowStyle (row) {
       let rs = {
