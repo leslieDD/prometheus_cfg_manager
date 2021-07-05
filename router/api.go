@@ -28,6 +28,9 @@ func initApiRouter() {
 	v1.POST("/job/group", postJobGroup)
 	v1.PUT("/job/group", putJobGroup)
 	v1.DELETE("/job/group", delJobGroup)
+	v1.GET("/job/machines", getJobMachines)
+	v1.GET("/job/group/machines", getJobGroupMachines)
+	v1.PUT("/job/group/machines", putJobGroupMachines)
 
 	v1.GET("/machine", getMachine)
 	v1.GET("/machines", getMachines)
@@ -226,6 +229,59 @@ func delJobGroup(c *gin.Context) {
 		return
 	}
 	bf := models.DelJobGroup(info)
+	resComm(c, bf, nil)
+}
+
+func getJobMachines(c *gin.Context) {
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	jID, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	data, bf := models.GetJobMachines(jID)
+	resComm(c, bf, data)
+}
+
+func getJobGroupMachines(c *gin.Context) {
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	jID, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	data, bf := models.GetJobGroupMachines(jID)
+	resComm(c, bf, data)
+}
+
+func putJobGroupMachines(c *gin.Context) {
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	jID, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	gms := []models.JobGroupMachine{}
+	if err := c.BindJSON(&gms); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutJobGroupMachines(jID, &gms)
 	resComm(c, bf, nil)
 }
 

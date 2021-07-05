@@ -39,7 +39,6 @@
         </div>
       </div>
     </div>
-
     <el-table
       size="mini"
       highlight-current-row
@@ -168,6 +167,35 @@
         </el-form>
       </span>
     </el-dialog>
+    <el-dialog
+      :title="'编辑IP列表：' + editObject"
+      v-model="editIPVisible"
+      width="700px"
+      modal
+      :before-close="editIPClose"
+      style="text-align: center"
+    >
+      <el-row type="flex" align="middle" justify="center">
+        <el-transfer
+          v-model="editIPValue"
+          filterable
+          :filter-method="filterIPMethod"
+          filter-placeholder="请输入关键字"
+          :data="editIPData"
+          :titles="['分组IP地址池', '子分组IP列表']"
+        >
+        </el-transfer>
+      </el-row>
+      <div class="ip-list-push-box">
+        <el-button
+          class="ip-list-push-btn"
+          type="warning"
+          size="small"
+          @click="pushNewIPLiset"
+          >提交</el-button
+        >
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -177,6 +205,8 @@ import {
   getJobGroup,
   putJobGroup,
   getJobMachines,
+  getJobMachinesForGroup,
+  putJobMachinesForGroup,
   delJobGroup,
   getGroupLabels,
   putGroupLabels,
@@ -213,6 +243,13 @@ export default {
       buttonTitle: '',
       dialogTitle: '',
       subGroupData: {},
+      editIPVisible: false,
+      editIPValue: [],  //穿梭框绑定的数据，选定到右侧框中的数据项的value组成的数组
+      editIPValueMap: {},
+      editIPData: [],  //Transfer 的数据源	array[{ key, label, disabled }]
+      editIPDataMap: {},
+      editObject: '',
+      jobGroupIDCurrent: 0,
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -229,6 +266,76 @@ export default {
     this.doGetSubGroup()
   },
   methods: {
+    pushNewIPLiset () {
+      let newValues = []
+      this.editIPValue.forEach(machinedID => {
+        const v = this.editIPValueMap[machinedID]
+        let newV = {
+          machines_id: machinedID,
+          ipaddr: this.editIPDataMap[machinedID].ipaddr
+        }
+        if (v) {
+          newV.id = v.id
+        } else {
+          newV.id = 0
+        }
+        newValues.push(newV)
+      })
+      // const jobID = this.jobInfo.id
+      putJobMachinesForGroup(this.jobGroupIDCurrent, newValues).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新子组成功！',
+          type: 'success'
+        })
+      }).catch(e => console.log(e))
+    },
+    filterIPMethod (query, item) {
+      // return item.spell.indexOf(query) > -1;
+      return true
+    },
+    doEditIPList (scope) {
+      const jobID = this.jobInfo.id
+      const gid = scope.row.id
+      getJobMachinesForGroup(gid).then(r => {
+        let editIPValue = []
+        this.editIPValueMap = {}
+        r.data.forEach(item => {
+          editIPValue.push(item.machines_id)
+          this.editIPValueMap[item.machines_id] = item  // 不会出现重复
+        })
+        // this.editIPValue = editIPValue
+        let editIPData = []
+        this.editIPDataMap = {}
+        getJobMachines(jobID).then(r => {
+          r.data.forEach(item => {
+            let defVal = {
+              label: item.ipaddr,
+              key: item.id,
+              spell: item.ipaddr,
+              disabled: false
+            }
+            // if (this.editIPValueMap[item.id]) {
+            //   defVal.disabled = true
+            // }
+            editIPData.push(defVal)
+            this.editIPDataMap[item.id] = item
+          })
+          this.editIPData = editIPData
+          this.editIPValue = editIPValue
+          this.editObject = scope.row.name
+          this.jobGroupIDCurrent = gid
+          this.editIPVisible = true
+        }).catch(e => {
+          console.log(e)
+        })
+        // this.editIPVisible = true
+      }).catch(e => { console.log(e) })
+    },
+    editIPClose (scope) {
+      this.editIPVisible = false
+    },
+    doEditLabelList (scope) { },
     doAddSubGroupShow () {
       this.buttonTitle = '创建'
       this.dialogTitle = '创建新的子分组'
@@ -450,5 +557,34 @@ el-tabs {
 .change_order_button .el-button {
   padding: auto 0px;
   width: 20px;
+}
+.jobs-labels-board :deep() .el-transfer {
+  margin-top: -15px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+.jobs-labels-board :deep() .el-transfer-panel {
+  width: 250px;
+}
+.jobs-labels-board :deep() .el-transfer__buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.jobs-labels-board :deep() .el-transfer__button {
+  padding: 10px 15px;
+}
+.jobs-labels-board :deep() .el-transfer__button {
+  margin-left: 0px;
+}
+.ip-list-push-box {
+  display: float;
+  text-align: right;
+}
+.ip-list-push-btn {
+  margin-right: 26px;
 }
 </style>

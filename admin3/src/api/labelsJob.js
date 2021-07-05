@@ -32,11 +32,28 @@ export function delJobGroup (info) {
   })
 }
 
-export function getJobMachines (jobGroupID) {
+export function getJobMachines (jobID) {
   return request({
     url: '/v1/job/machines',
     method: 'get',
-    params: {id: jobGroupID}
+    params: {id: jobID}
+  })
+}
+
+export function getJobMachinesForGroup (groupID) {
+  return request({
+    url: '/v1/job/group/machines',
+    method: 'get',
+    params: {id: groupID}
+  })
+}
+
+export function putJobMachinesForGroup (gID, groupInfo) {
+  return request({
+    url: '/v1/job/group/machines',
+    method: 'put',
+    params: {id: gID},
+    data: groupInfo
   })
 }
 
