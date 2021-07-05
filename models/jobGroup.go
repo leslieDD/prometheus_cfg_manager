@@ -158,9 +158,9 @@ func GetJobGroupMachines(gID int64) ([]*JobGroupMachine, *BriefMessage) {
 	return jms, Success
 }
 
-type GroupMachineID struct {
-	ID int `json:"id" gorm:"column:id"`
-}
+// type OnlyID struct {
+// 	ID int `json:"id" gorm:"column:id"`
+// }
 
 func PutJobGroupMachines(gID int64, pools *[]JobGroupMachine) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
@@ -175,7 +175,7 @@ func PutJobGroupMachines(gID int64, pools *[]JobGroupMachine) *BriefMessage {
 		}
 		ids[p.ID] = struct{}{}
 	}
-	gmIDs := []GroupMachineID{}
+	gmIDs := []OnlyID{}
 	tx := db.Table("group_machines").Where("job_group_id=?", gID).Find(&gmIDs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -228,5 +228,81 @@ func PutJobGroupMachines(gID int64, pools *[]JobGroupMachine) *BriefMessage {
 	// 	config.Log.Error(tx2.Error)
 	// 	return ErrCreateDBData
 	// }
+	return Success
+}
+
+type GroupLabels struct {
+	ID         int    `json:"id" gorm:"column:id"`
+	Key        string `json:"key" gorm:"column:key"`
+	JobGroupID int    `json:"job_group_id" gorm:"column:job_group_id"`
+	Value      string `json:"value" gorm:"column:value"`
+}
+
+func GetGroupLabels(gID int64) ([]*GroupLabels, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	gls := []*GroupLabels{}
+	tx := db.Table("group_labels").Where("job_group_id=?", gID).Find(&gls)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return gls, Success
+}
+
+func PutGroupLabels(gID int64, gls []*GroupLabels) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	ids := map[int]struct{}{}
+	for _, l := range gls {
+		if l.ID == 0 {
+			continue
+		}
+		ids[l.ID] = struct{}{}
+	}
+	glIDs := []OnlyID{}
+	tx := db.Table("group_machines").Where("job_group_id=?", gID).Find(&glIDs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	if len(glIDs) != 0 {
+		delIDs := []string{}
+		for _, i := range glIDs {
+			_, ok := ids[i.ID]
+			if !ok {
+				delIDs = append(delIDs, fmt.Sprint(i.ID))
+			}
+		}
+		if len(delIDs) != 0 {
+			tx = db.Table("group_labels").Where("id in (" + strings.Join(delIDs, ",") + ")").Delete(nil)
+			if tx.Error != nil {
+				config.Log.Error(tx.Error)
+				return ErrDelData
+			}
+		}
+	}
+	ist := []string{}
+	for _, l := range gls {
+		ist = append(ist, fmt.Sprintf(`(%d, %d, %s, %s)`, l.ID, gID, l.Key, l.Value))
+	}
+	if len(ist) != 0 {
+		values := strings.Join(ist, ",")
+		sql := "INSERT INTO group_labels(`id`,`job_group_id`,`key`, `value`) VALUES " +
+			values +
+			" ON DUPLICATE KEY UPDATE `job_group_id`=VALUES(job_group_id),`machines_id`=VALUES(machines_id)," +
+			"`key`=VALUES(key),`value`=VALUES(value) "
+		tx2 := db.Table("group_labels").Exec(sql)
+		if tx2.Error != nil {
+			config.Log.Error(tx2.Error)
+			return ErrSearchDBData
+		}
+	}
 	return Success
 }

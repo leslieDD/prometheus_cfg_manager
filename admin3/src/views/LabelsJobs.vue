@@ -191,9 +191,92 @@
           class="ip-list-push-btn"
           type="warning"
           size="small"
-          @click="pushNewIPLiset"
+          @click="pushNewIPList"
           >提交</el-button
         >
+      </div>
+    </el-dialog>
+    <el-dialog
+      :title="'编辑标签列表：' + editObject"
+      v-model="editLabelsVisible"
+      width="700px"
+      modal
+      :before-close="editLabelsClose"
+      style="text-align: center"
+    >
+      <div class="add-label-form">
+        <el-form
+          size="mini"
+          :inline="true"
+          :rules="glRules"
+          ref="addMechineInfo"
+          :model="addNewGroupLabels"
+          class="demo-form-inline"
+        >
+          <el-form-item label="标签" prop="key">
+            <el-select
+              v-model="addNewGroupLabels.key"
+              filterable
+              allow-create
+              default-first-option
+              placeholder="请选择或者输入"
+            >
+              <el-option
+                v-for="item in defaultLabels"
+                :key="item.id"
+                :label="item.label"
+                :value="item.label"
+              >
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="标签值" prop="value">
+            <div class="add-labels-input-box">
+              <el-input v-model="addNewGroupLabels.value"></el-input>
+            </div>
+          </el-form-item>
+          <el-form-item>
+            <div class="add-labels-btn-box">
+              <el-button type="primary" @click="onAddNewLable">添加</el-button>
+            </div>
+          </el-form-item>
+        </el-form>
+      </div>
+      <div>
+        <el-table
+          size="mini"
+          highlight-current-row
+          border
+          stripe
+          :row-style="rowStyle"
+          :cell-style="cellStyle"
+          header-align="center"
+          :data="labelsData"
+        >
+          <el-table-column
+            property="date"
+            label="日期"
+            width="150"
+          ></el-table-column>
+          <el-table-column
+            property="name"
+            label="姓名"
+            width="200"
+          ></el-table-column>
+          <el-table-column property="address" label="地址"></el-table-column>
+        </el-table>
+        <div class="block">
+          <el-pagination
+            @size-change="glHandleSizeChange"
+            @current-change="glHandleCurrentChange"
+            :current-page="glCurrentPage"
+            :page-sizes="[15, 50, 100, 200]"
+            :page-size="glPageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="glPageTotal"
+          >
+          </el-pagination>
+        </div>
       </div>
     </el-dialog>
   </div>
@@ -213,6 +296,7 @@ import {
   getGroupMachine,
   putGroupMachine
 } from '@/api/labelsJob.js'
+import { getDefaultLabels } from '@/api/monitor.js'
 import { restartSrv } from '@/api/srv'
 
 export default {
@@ -250,11 +334,19 @@ export default {
       editIPDataMap: {},
       editObject: '',
       jobGroupIDCurrent: 0,
+      editLabelsVisible: false,
+      defaultLabels: [],
+      labelsData: [],
+      glPageTotal: 0,
+      glPageSize: 10,
+      glCurrentPage: 1,
+      addNewGroupLabels: {},
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
         ]
-      }
+      },
+      glRules: {}
     }
   },
   created () {
@@ -266,7 +358,7 @@ export default {
     this.doGetSubGroup()
   },
   methods: {
-    pushNewIPLiset () {
+    pushNewIPList () {
       let newValues = []
       this.editIPValue.forEach(machinedID => {
         const v = this.editIPValueMap[machinedID]
@@ -289,6 +381,9 @@ export default {
           type: 'success'
         })
       }).catch(e => console.log(e))
+    },
+    pushNewLablesList () {
+
     },
     filterIPMethod (query, item) {
       // return item.spell.indexOf(query) > -1;
@@ -335,7 +430,20 @@ export default {
     editIPClose (scope) {
       this.editIPVisible = false
     },
-    doEditLabelList (scope) { },
+    editLabelsClose () {
+      this.editLabelsVisible = false
+    },
+    doEditLabelList (scope) {
+      const jobID = this.jobInfo.id
+      const gid = scope.row.id
+      getDefaultLabels().then(r => {
+        this.defaultLabels = r.data
+        // getGroupLabels(gid).then(r => {
+        // }).catch(e => console.log(e))
+        this.jobGroupIDCurrent = gid
+      }).catch(e => console.log(e))
+      this.editLabelsVisible = true
+    },
     doAddSubGroupShow () {
       this.buttonTitle = '创建'
       this.dialogTitle = '创建新的子分组'
@@ -354,6 +462,18 @@ export default {
         console.log(e)
       })
     },
+    onAddNewLable () {
+      this.addNewGroupLabels.job_group_id = this.jobGroupIDCurrent
+      putGroupLabels(this.addNewGroupLabels).then(
+        r => {
+          this.$notify({
+            title: '成功',
+            message: '创建标签成功！',
+            type: 'success'
+          })
+        }
+      )
+    },
     doEdit (scope) {
       this.buttonTitle = '更新'
       this.dialogTitle = '更新子分组'
@@ -368,7 +488,23 @@ export default {
       }
       this.doGetSubGroup(getInfo)
     },
+    glHandleSizeChange (val) {
+      let getInfo = {
+        'pageNo': this.currentPage,
+        'pageSize': val,
+        'search': this.searchContent
+      }
+      this.doGetSubGroup(getInfo)
+    },
     handleCurrentChange (val) {
+      let getInfo = {
+        'pageNo': val,
+        'pageSize': this.pageSize,
+        'search': this.searchContent
+      }
+      this.doGetSubGroup(getInfo)
+    },
+    glHandleCurrentChange (val) {
       let getInfo = {
         'pageNo': val,
         'pageSize': this.pageSize,
@@ -525,8 +661,8 @@ el-dialog {
 .searchSelect {
   width: 90px;
 }
-.el-input__inner {
-  width: 130px;
+.label-and-action :deep() .el-input__inner {
+  width: 230px;
 }
 .el-pagination {
   text-align: center;
@@ -537,13 +673,13 @@ el-dialog {
 el-tabs {
   padding: 0px;
 }
-.el-form:last-child {
+/* .el-form:last-child {
   text-align: left;
-}
-.borderNone :deep() .el-input__inner {
+} */
+/* .borderNone :deep() .el-input__inner {
   border: none;
   background: transparent;
-}
+} */
 .actioneara {
   display: flex;
   flex-wrap: nowrap;
@@ -586,5 +722,8 @@ el-tabs {
 }
 .ip-list-push-btn {
   margin-right: 26px;
+}
+.add-labels-input-box :deep() .el-input__inner {
+  width: 280px;
 }
 </style>

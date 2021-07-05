@@ -31,6 +31,8 @@ func initApiRouter() {
 	v1.GET("/job/machines", getJobMachines)
 	v1.GET("/job/group/machines", getJobGroupMachines)
 	v1.PUT("/job/group/machines", putJobGroupMachines)
+	v1.GET("/job/group/labels", getGroupLabels)
+	v1.PUT("/job/group/labels", putGroupLabels)
 
 	v1.GET("/machine", getMachine)
 	v1.GET("/machines", getMachines)
@@ -282,6 +284,39 @@ func putJobGroupMachines(c *gin.Context) {
 		return
 	}
 	bf := models.PutJobGroupMachines(jID, &gms)
+	resComm(c, bf, nil)
+}
+
+func getGroupLabels(c *gin.Context) {
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	jID, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	data, bf := models.GetGroupLabels(jID)
+	resComm(c, bf, data)
+}
+
+func putGroupLabels(c *gin.Context) {
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	jID, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	gls := []*models.GroupLabels{}
+	bf := models.PutGroupLabels(jID, gls)
 	resComm(c, bf, nil)
 }
 
