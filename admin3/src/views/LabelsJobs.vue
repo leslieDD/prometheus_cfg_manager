@@ -174,7 +174,7 @@
           <el-form-item size="small">
             <el-button
               size="small"
-              type="primary"
+              :type="buttonType"
               @click="onSubmit('subGroupData')"
               >{{ buttonTitle }}</el-button
             >
@@ -441,6 +441,7 @@ export default {
       deleteLabelsVisible: {},
       dialogVisible: false,
       buttonTitle: '',
+      buttonType: 'primary',
       dialogTitle: '',
       subGroupData: {},
       editIPVisible: false,
@@ -625,6 +626,7 @@ export default {
     },
     doAddSubGroupShow () {
       this.buttonTitle = '创建'
+      this.buttonType = 'primary'
       this.dialogTitle = '创建新的子分组'
       this.dialogVisible = true
     },
@@ -665,9 +667,11 @@ export default {
       this.alertTitle = '当前状态：可以添加新标签'
       this.addNewGroupLabels = {}
       this.labelsBtnTitle = '添加'
+      this.buttonType = 'primary'
     },
     doEdit (scope) {
       this.buttonTitle = '更新'
+      this.buttonType = 'warning'
       this.dialogTitle = '更新子分组'
       this.subGroupData = { ...scope.row }
       this.dialogVisible = true
