@@ -24,13 +24,13 @@
             <el-input
               size="small"
               placeholder="请输入内容"
-              @keyup.enter="Search()"
+              @keyup.enter="onSearch()"
               v-model="searchContent"
             >
               <template #append>
                 <el-button
                   size="small"
-                  @click="Search()"
+                  @click="onSearch()"
                   icon="el-icon-search"
                 ></el-button>
               </template>

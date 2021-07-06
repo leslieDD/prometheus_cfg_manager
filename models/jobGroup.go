@@ -17,6 +17,12 @@ type JobGroup struct {
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 }
 
+type JobGroupBoard struct {
+	IPCount     int `json:"ip_count" gorm:"column:ip_count"`
+	LabelsCount int `json:"labels_count" gorm:"column:labels_count"`
+	JobGroup
+}
+
 type DelJobGroupInfo struct {
 	ID     int `json:"id" form:"id"`
 	JobsID int `json:"jobs_id" form:"jobs_id"`
@@ -41,7 +47,7 @@ func GetJobGroup(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
-	groups := []*JobGroup{}
+	groups := []*JobGroupBoard{}
 	tx = db.Table("job_group")
 	if sp.Search != "" {
 		tx = tx.Where("jobs_id=? and name like ?", sp.ID, `%`+sp.Search+`%`)
@@ -56,7 +62,74 @@ func GetJobGroup(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
+	// 统计
+	cdLabels, bf := CountEachGroupLables()
+	if bf != Success {
+		return nil, bf
+	}
+	cdIP, bf := CountEachGroupIP()
+	if bf != Success {
+		return nil, bf
+	}
+	cdLabelsMap := map[int]*CountDep{}
+	for _, obj := range cdLabels {
+		cdLabelsMap[obj.JobGroupID] = obj
+	}
+	cdIPMap := map[int]*CountDep{}
+	for _, obj := range cdIP {
+		cdIPMap[obj.JobGroupID] = obj
+	}
+	for _, g := range groups {
+		obj, ok := cdLabelsMap[g.ID]
+		if ok {
+			g.LabelsCount = obj.Count
+		}
+		obj, ok = cdIPMap[g.ID]
+		if ok {
+			g.IPCount = obj.Count
+		}
+	}
 	return CalSplitPage(sp, count, groups), Success
+}
+
+type CountDep struct {
+	JobGroupID int `json:"job_group_id" gorm:"column:job_group_id"`
+	Count      int `json:"count" gorm:"column:count"`
+	//
+}
+
+func CountEachGroupLables() ([]*CountDep, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	cd := []*CountDep{}
+	tx := db.Table("group_labels").
+		Raw("SELECT job_group_id, COUNT(`key`) AS `count` FROM group_labels  GROUP BY job_group_id ORDER BY job_group_id").
+		Scan(&cd)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return cd, Success
+}
+
+func CountEachGroupIP() ([]*CountDep, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	cd := []*CountDep{}
+	tx := db.Table("group_machines").
+		Raw("SELECT job_group_id, COUNT(`machines_id`) AS `count` FROM group_machines GROUP BY job_group_id ORDER BY job_group_id").
+		Scan(&cd)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return cd, Success
 }
 
 func PostJobGroup(jb *JobGroup) *BriefMessage {
