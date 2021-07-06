@@ -157,7 +157,7 @@ func PutJobGroup(jb *JobGroup) *BriefMessage {
 		return ErrDataBase
 	}
 	tx := db.Table("job_group").
-		Where("jobs_id=?", jb.JobsID).
+		Where("jobs_id=? and id=?", jb.JobsID, jb.ID).
 		Update("name", jb.Name)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)

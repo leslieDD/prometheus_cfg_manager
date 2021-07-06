@@ -462,6 +462,7 @@ export default {
       labelsBtnTitle: '添加',
       ipsAndLabels: {},
       ipsAndLabelsDone: {},
+      needtoUpdate: false,
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -508,6 +509,7 @@ export default {
           message: '更新子组成功！',
           type: 'success'
         })
+        this.needtoUpdate = true
       }).catch(e => console.log(e))
     },
     pushNewLablesList () {
@@ -556,9 +558,15 @@ export default {
       }).catch(e => { console.log(e) })
     },
     editIPClose (scope) {
+      if (this.needtoUpdate) {
+        this.doGetSubGroup()
+      }
       this.editIPVisible = false
     },
     editLabelsClose () {
+      if (this.needtoUpdate) {
+        this.doGetSubGroup()
+      }
       this.editLabelsVisible = false
     },
     doEditLabelList (scope) {
@@ -646,6 +654,7 @@ export default {
                 type: 'success'
               })
               this.doGetGroupLabels()
+              this.needtoUpdate = true
             }
           ).catch(e => console.log(e))
         }
@@ -782,7 +791,7 @@ export default {
             putJobGroup(createDate).then(r => {
               this.$notify({
                 title: '成功',
-                message: '创建子组成功！',
+                message: '更新子组成功！',
                 type: 'success'
               })
               this.doGetSubGroup()
