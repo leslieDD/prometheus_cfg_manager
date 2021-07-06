@@ -174,7 +174,45 @@ func DelJobGroup(dInfo *DelJobGroupInfo) *BriefMessage {
 		Delete(nil)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
-		return ErrCreateDBData
+		return ErrDelData
+	}
+	if bf := ClearGroupLabels(dInfo.ID); bf != Success {
+		return bf
+	}
+	if bf := ClearGroupIP(dInfo.ID); bf != Success {
+		return bf
+	}
+	return Success
+}
+
+func ClearGroupLabels(gID int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("group_labels").
+		Where("job_group_id=?", gID).
+		Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	return Success
+}
+
+func ClearGroupIP(gID int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("group_machines").
+		Where("job_group_id=?", gID).
+		Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
 	}
 	return Success
 }
