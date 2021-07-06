@@ -50,7 +50,7 @@
             <el-descriptions-item
               v-for="(ipaddr, index) in groupNameList[props.row.id]"
               :key="index"
-              :label="index"
+              :label="index + 1"
               >{{ ipaddr }}</el-descriptions-item
             >
           </el-descriptions>

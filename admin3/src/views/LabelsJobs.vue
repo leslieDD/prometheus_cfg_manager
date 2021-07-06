@@ -55,7 +55,7 @@
             <el-descriptions-item
               v-for="(ipaddr, index) in ipsAndLabels[props.row.id].ips"
               :key="index"
-              :label="index"
+              :label="index + 1"
               >{{ ipaddr }}</el-descriptions-item
             >
           </el-descriptions>

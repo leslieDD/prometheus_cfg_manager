@@ -39,7 +39,20 @@
       stripe
       :row-style="rowStyle"
       :cell-style="cellStyle"
+      @expand-change="expandChange"
     >
+      <el-table-column type="expand">
+        <template #default="props">
+          <el-descriptions title="IP列表" size="mini" :column="4" border>
+            <el-descriptions-item
+              v-for="(item, index) in jobAllIPList[props.row.id]"
+              :key="index"
+              :label="index + 1"
+              >{{ item.ipaddr }}</el-descriptions-item
+            >
+          </el-descriptions>
+        </template>
+      </el-table-column>
       <el-table-column label="序号" width="50px">
         <template v-slot="scope">
           {{ scope.$index + 1 }}
@@ -197,6 +210,7 @@
 import { getJobsWithSplitPage, postJob, putJob, deleteJob, swapJob, publishJobs } from '@/api/jobs.js'
 import { getAllReLabels } from '@/api/relabel.js'
 import { restartSrv } from '@/api/srv'
+import { getJobMachines } from '@/api/labelsJob.js'
 
 export default {
   name: 'Jobs',
@@ -230,6 +244,7 @@ export default {
       dialogVisible: false,
       buttonTitle: '',
       dialogTitle: '',
+      jobAllIPList: {},
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -531,6 +546,17 @@ export default {
       ).catch(
         e => { console.log(e) }
       )
+    },
+    expandChange (row, expandRows) {
+      if (!expandRows || expandRows.length === 0) {
+        return
+      }
+      if (this.jobAllIPList[row.id]) {
+        return
+      }
+      getJobMachines(row.id).then(r => {
+        this.jobAllIPList[row.id] = r.data
+      }).catch(e => console.log(e))
     }
   }
 }
