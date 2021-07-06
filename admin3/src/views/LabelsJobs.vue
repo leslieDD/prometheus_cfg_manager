@@ -461,6 +461,7 @@ export default {
       alertTitle: '当前状态：可以添加新标签',
       labelsBtnTitle: '添加',
       ipsAndLabels: {},
+      ipsAndLabelsDone: {},
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -740,6 +741,7 @@ export default {
         r => {
           let n = 0
           this.ipsAndLabels = {}
+          this.ipsAndLabelsDone = {}
           r.data.data.forEach(element => {
             this.deleteVisible[n] = false
             this.ipsAndLabels[element.id] = {}
@@ -858,12 +860,19 @@ export default {
       this.$router.push({ name: 'jobs' })
     },
     expandChange (row, expandRows) {
+      if (!expandRows || expandRows.length === 0) {
+        return
+      }
+      if (this.ipsAndLabelsDone[row.id]) {
+        return
+      }
       const query = {
         'job_id': row.jobs_id,
         'group_id': row.id
       }
       getAllIPAndLabels(query).then(r => {
         this.ipsAndLabels[row.id] = r.data
+        this.ipsAndLabelsDone[row.id] = true
       }).catch(e => console.log(e))
     }
   }
