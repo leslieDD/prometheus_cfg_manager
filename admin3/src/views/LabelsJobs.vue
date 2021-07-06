@@ -173,7 +173,6 @@
       width="700px"
       modal
       :before-close="editIPClose"
-      style="text-align: center"
     >
       <el-row type="flex" align="middle" justify="center">
         <el-transfer
@@ -202,7 +201,6 @@
       width="800px"
       modal
       :before-close="editLabelsClose"
-      style="text-align: center"
     >
       <div class="add-label-form">
         <el-form

@@ -7,7 +7,6 @@
         @tab-click="handleTabClick"
       >
         <el-tab-pane label="IP管理" name="ipManager">
-          <!-- <router-view name="ipManager"></router-view> -->
           <router-view name="ipManager" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -22,7 +21,6 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="基本配置" name="baseConfig">
-          <!-- <router-view name="baseConfig"></router-view> -->
           <router-view name="baseConfig" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -30,7 +28,6 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="告警管理" name="noticeManager">
-          <!-- <router-view name="noticeManager"></router-view> -->
           <router-view name="noticeManager" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -38,7 +35,6 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="配置预览" name="preview">
-          <!-- <router-view name="preview"></router-view> -->
           <router-view name="preview" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -46,7 +42,6 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="分组预览" name="ftree">
-          <!-- <router-view name="ftree"></router-view> -->
           <router-view name="ftree" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -54,7 +49,6 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="告警规则预览" name="ruleView">
-          <!-- <router-view name="ruleView"></router-view> -->
           <router-view name="ruleView" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -77,7 +71,7 @@ export default {
   },
   watch: {
     '$route' (to, from) {
-      //    console.log('现在路由:',to.path.split('/')[1],'来自路由:',from.path.split('/')[1],'现在的动画:',this.transitionName)
+      // console.log('现在路由:',to.path.split('/')[1],'来自路由:',from.path.split('/')[1],'现在的动画:',this.transitionName)
       const toDepth = to.path.split('/').length
       const fromDepth = from.path.split('/').length
       this.transitionName = toDepth < fromDepth ? 'slide-right' : 'slide-left'
