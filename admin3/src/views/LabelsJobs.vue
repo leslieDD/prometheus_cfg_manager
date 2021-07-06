@@ -47,7 +47,28 @@
       stripe
       :row-style="rowStyle"
       :cell-style="cellStyle"
+      @expand-change="expandChange"
     >
+      <el-table-column type="expand">
+        <template #default="props">
+          <el-descriptions title="IP列表" size="mini" :column="3" border>
+            <el-descriptions-item
+              v-for="(ipaddr, index) in ipsAndLabels[props.row.id].ips"
+              :key="index"
+              :label="index"
+              >{{ ipaddr }}</el-descriptions-item
+            >
+          </el-descriptions>
+          <el-descriptions title="标签列表" size="mini" :column="3" border>
+            <el-descriptions-item
+              v-for="(item, index) in ipsAndLabels[props.row.id].labels"
+              :key="index"
+              :label="item.key"
+              >{{ item.value }}
+            </el-descriptions-item>
+          </el-descriptions>
+        </template>
+      </el-table-column>
       <el-table-column label="序号" width="50px">
         <template v-slot="scope">
           {{ scope.$index + 1 }}
@@ -387,7 +408,8 @@ import {
   delJobGroup,
   getGroupLabels,
   putGroupLabels,
-  delGroupLabels
+  delGroupLabels,
+  getAllIPAndLabels
 } from '@/api/labelsJob.js'
 import { getDefaultLabels } from '@/api/monitor.js'
 import { restartSrv } from '@/api/srv'
@@ -438,6 +460,7 @@ export default {
       glSearchContent: '',
       alertTitle: '当前状态：可以添加新标签',
       labelsBtnTitle: '添加',
+      ipsAndLabels: {},
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -716,8 +739,10 @@ export default {
       getJobGroup(getInfo).then(
         r => {
           let n = 0
+          this.ipsAndLabels = {}
           r.data.data.forEach(element => {
             this.deleteVisible[n] = false
+            this.ipsAndLabels[element.id] = {}
             n += 1
           })
           this.subGroups = r.data.data
@@ -831,6 +856,15 @@ export default {
     clickElTag (checked) {
       console.log('checked')
       this.$router.push({ name: 'jobs' })
+    },
+    expandChange (row, expandRows) {
+      const query = {
+        'job_id': row.jobs_id,
+        'group_id': row.id
+      }
+      getAllIPAndLabels(query).then(r => {
+        this.ipsAndLabels[row.id] = r.data
+      }).catch(e => console.log(e))
     }
   }
 }

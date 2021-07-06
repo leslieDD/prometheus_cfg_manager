@@ -34,6 +34,7 @@ func initApiRouter() {
 	v1.GET("/job/group/labels", getGroupLabels)
 	v1.PUT("/job/group/labels", putGroupLabels)
 	v1.DELETE("/job/group/labels", delGroupLabels)
+	v1.GET("/job/group/machines-and-labels", getAllMachinesLabels)
 
 	v1.GET("/machine", getMachine)
 	v1.GET("/machines", getMachines)
@@ -339,6 +340,16 @@ func delGroupLabels(c *gin.Context) {
 	}
 	bf := models.DelGroupLabels(&dinfo)
 	resComm(c, bf, nil)
+}
+
+func getAllMachinesLabels(c *gin.Context) {
+	info := models.JobGroupID{}
+	if err := c.BindQuery(&info); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.GetAllMachinesLabels(&info)
+	resComm(c, bf, data)
 }
 
 func swapJob(c *gin.Context) {

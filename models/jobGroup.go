@@ -451,3 +451,50 @@ func DelGroupLabels(dInfo *DelGroupLables) *BriefMessage {
 	}
 	return Success
 }
+
+type JobGroupID struct {
+	JobID   int `form:"job_id"`
+	GroupID int `form:"group_id"`
+}
+
+type AllIPLablesOfGroup struct {
+	IP      string `json:"ip"`
+	GroupID int    `form:"group_id"`
+}
+
+type Label2 struct {
+	Key   string `json:"key" gorm:"column:key"`
+	Value string `json:"value" gorm:"column:value"`
+}
+
+func GetAllMachinesLabels(jg *JobGroupID) (interface{}, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	ips := []string{}
+	tx := db.Table("group_machines").
+		Select("ipaddr").
+		Joins("LEFT JOIN machines ON group_machines.machines_id=machines.id ").
+		Where("job_group_id=? AND ipaddr IS NOT NULL AND ipaddr<>''", jg.GroupID).
+		Find(&ips)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	labels := []Label2{}
+	tx = db.Table("group_labels").
+		Select("`key`, `value`").
+		Where("job_group_id=?", jg.GroupID).
+		Find(&labels)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	data := map[string]interface{}{
+		"ips":    ips,
+		"labels": labels,
+	}
+	return &data, Success
+}

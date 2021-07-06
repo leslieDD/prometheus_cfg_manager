@@ -97,3 +97,12 @@ export function putGroupMachine (jobGroupMachinesInfo) {
     params: jobGroupMachinesInfo
   })
 }
+
+export function getAllIPAndLabels (info) {
+  return request({
+    url: '/v1/job/group/machines-and-labels',
+    method: 'get',
+    params: info
+  })
+}
+
