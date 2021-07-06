@@ -239,8 +239,10 @@
           </el-form-item>
           <el-form-item>
             <div class="add-labels-btn-box">
-              <el-button type="primary" @click="onAddNewLable('addLablesForm')"
-                >添加</el-button
+              <el-button
+                type="primary"
+                @click="onAddNewLable('addLablesForm')"
+                >{{ labelsBtnTitle }}</el-button
               >
               <el-button
                 type="danger"
@@ -258,6 +260,7 @@
             :title="alertTitle"
             type="warning"
             :closable="false"
+            show-icon
           >
           </el-alert>
         </div>
@@ -436,6 +439,7 @@ export default {
       addNewGroupLabels: {},
       glSearchContent: '',
       alertTitle: '当前状态：可以添加新标签',
+      labelsBtnTitle: '添加',
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -628,6 +632,8 @@ export default {
     onResetAddNewLable (formName) {
       this.$refs[formName].resetFields()
       this.alertTitle = '当前状态：可以添加新标签'
+      this.addNewGroupLabels = {}
+      this.labelsBtnTitle = '添加'
     },
     doEdit (scope) {
       this.buttonTitle = '更新'
@@ -637,6 +643,12 @@ export default {
     },
     doLabelsEdit (scope) {
       this.alertTitle = `当前编辑对象：${scope.row.key}，序号：${scope.$index + 1}`
+      this.addNewGroupLabels = {
+        key: scope.row.key,
+        value: scope.row.value,
+        id: scope.row.id
+      }
+      this.labelsBtnTitle = '更新'
     },
     handleSizeChange (val) {
       let getInfo = {
