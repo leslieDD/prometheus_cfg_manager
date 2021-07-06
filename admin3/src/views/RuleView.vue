@@ -172,6 +172,11 @@ export default {
 
 <style scoped>
 .main-box {
+  /* border: 1px solid burlywood; */
+  border: 1px dashed burlywood;
+  /* box-shadow: -10px 0px 10px red, 0px -10px 10px black, 10px 0px 10px green,
+    0px 10px 10px blue; */
+  /* box-shadow: burlywood 5px 5px 5px 5px; */
   display: flex;
   flex-direction: row;
   justify-content: flex-start;

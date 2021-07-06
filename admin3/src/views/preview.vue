@@ -1,6 +1,8 @@
 <template>
-  <div class="yaml-editor">
-    <textarea ref="textarea" />
+  <div class="yaml-editor-box">
+    <div class="yaml-editor">
+      <textarea ref="textarea" />
+    </div>
   </div>
 </template>
 
@@ -153,6 +155,9 @@ export default {
 </script>
 
 <style scoped>
+.yaml-editor-box {
+  border: 1px dashed burlywood;
+}
 .yaml-editor {
   height: 85vh;
   position: relative;

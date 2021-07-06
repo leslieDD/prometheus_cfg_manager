@@ -460,6 +460,7 @@ export default {
   flex-wrap: nowrap;
   height: 85vh;
   width: 100%;
+  border: 1px dashed burlywood;
 }
 .node-content {
   width: 100%;

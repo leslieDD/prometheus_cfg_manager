@@ -172,6 +172,7 @@ export default {
 
 <style scoped>
 .ftree-box {
+  border: 1px dashed burlywood;
   display: flex;
   flex-direction: row;
   height: 85vh;
