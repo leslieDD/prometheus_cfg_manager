@@ -123,7 +123,10 @@ func CountEachGroupIP() ([]*CountDep, *BriefMessage) {
 	}
 	cd := []*CountDep{}
 	tx := db.Table("group_machines").
-		Raw("SELECT job_group_id, COUNT(`machines_id`) AS `count` FROM group_machines GROUP BY job_group_id ORDER BY job_group_id").
+		Raw("SELECT job_group_id, COUNT(`machines_id`) AS `count` FROM group_machines LEFT JOIN machines " +
+			" ON group_machines.machines_id=machines.id " +
+			" WHERE machines.ipaddr<>'' OR machines.ipaddr<>NULL " +
+			" GROUP BY job_group_id ORDER BY job_group_id ").
 		Scan(&cd)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -258,7 +261,7 @@ func GetJobGroupMachines(gID int64) ([]*JobGroupMachine, *BriefMessage) {
 	FROM group_machines 
 	LEFT JOIN machines 
 	ON group_machines.machines_id = machines.id 
-	WHERE group_machines.job_group_id=%d`, gID)).Find(&jms)
+	WHERE group_machines.job_group_id=%d AND (machines.ipaddr<>'' OR machines.ipaddr<>NULL) `, gID)).Find(&jms)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
