@@ -42,7 +42,20 @@
       :row-style="rowStyle"
       :cell-style="cellStyle"
       header-align="center"
+      @expand-change="expandChange"
     >
+      <el-table-column type="expand">
+        <template #default="props">
+          <el-descriptions title="分组列表" size="mini" :column="4" border>
+            <el-descriptions-item
+              v-for="(ipaddr, index) in groupNameList[props.row.id]"
+              :key="index"
+              :label="index"
+              >{{ ipaddr }}</el-descriptions-item
+            >
+          </el-descriptions>
+        </template>
+      </el-table-column>
       <el-table-column
         label="序号"
         width="50px"
@@ -281,6 +294,7 @@ export default {
         ipAddr: '',
         jobId: []
       },
+      groupNameList: {},
       addAndContinueDisabled: false,
       rules: {
         ipAddr: [
@@ -367,6 +381,7 @@ export default {
           });
           this.selectTableChanged[row.id] = false
           this.selectTypeValue = { ...this.selectTypeValue }
+          this.expandChange(row, row)
         }
       ).catch(
         e => {
@@ -457,6 +472,7 @@ export default {
                 this.selectTypeValue = { ...this.selectTypeValue }
                 this.dialogVisible = false
                 this.$refs[formName].resetFields()
+                this.expandChange({ id: this.addMechineInfo.id }, { id: this.addMechineInfo.id })
               }
             ).catch(e => console.log(e))
           }
@@ -543,6 +559,16 @@ export default {
       } else {
         this.addMechineInfo.jobId = scope.row.job_id
       }
+    },
+    expandChange (row, expandRows) {
+      if (!expandRows || expandRows.length === 0) {
+        return
+      }
+      let groupName = []
+      this.selectTypeValue[row.id].forEach(i => {
+        groupName.push(this.jobsMap[i])
+      })
+      this.groupNameList[row.id] = groupName
     }
   }
 }
