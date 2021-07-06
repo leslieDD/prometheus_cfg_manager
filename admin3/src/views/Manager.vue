@@ -71,6 +71,7 @@
             v-model="selectTypeValue[scope.row.id]"
             class="borderNone"
             popper-class="pppselect"
+            @change="tableSelectChange($event, scope.$index, scope.row)"
             @visible-change="handleSelect($event, scope.$index, scope.row)"
             size="small"
             multiple
@@ -219,7 +220,7 @@
               size="small"
               type="primary"
               @click="onSubmit('addMechineInfo')"
-              >创建</el-button
+              >{{ enterBtnTitle }}</el-button
             >
             <el-button
               size="small"
@@ -274,6 +275,8 @@ export default {
       searchContent: '',
       dialogVisible: false,
       deleteVisible: {},
+      enterBtnTitle: '创建',
+      selectTableChanged: {},
       addMechineInfo: {
         ipAddr: '',
         jobId: []
@@ -297,6 +300,7 @@ export default {
   },
   methods: {
     doAdd () {
+      this.enterBtnTitle = '创建'
       this.dialogVisible = true
       this.addAndContinueDisabled = false
     },
@@ -344,6 +348,10 @@ export default {
     },
     handleSelect (visible, index, row) {
       if (visible) {
+        this.selectTableChanged[row.id] = false // 下拉框打开的时候，设置为false，刚打开，所以没有变化
+        return
+      }
+      if (this.selectTableChanged[row.id] === false) {
         return
       }
       var updateData = {}
@@ -357,6 +365,7 @@ export default {
             message: '更新成功！',
             type: 'success'
           });
+          this.selectTableChanged[row.id] = false
           this.selectTypeValue = { ...this.selectTypeValue }
         }
       ).catch(
@@ -364,6 +373,9 @@ export default {
           console.log(e)
         }
       )
+    },
+    tableSelectChange (visible, index, row) {
+      this.selectTableChanged[row.id] = true
     },
     handleSizeChange (val) {
       let getInfo = {
@@ -417,23 +429,37 @@ export default {
         if (valid) {
           let postData = {}
           postData['ipaddr'] = this.addMechineInfo.ipAddr
-          postData['job_id'] = [parseInt(this.addMechineInfo.jobId)]
-          postMachine(postData).then(
-            r => {
-              this.$notify({
-                title: '成功',
-                message: '创建成功！',
-                type: 'success'
-              });
-              this.doGetMechines()
-              this.dialogVisible = false
-              this.$refs[formName].resetFields()
-            }
-          ).catch(
-            e => {
-              console.log(e)
-            }
-          )
+          postData['job_id'] = this.addMechineInfo.jobId
+          if (this.enterBtnTitle === '创建') {
+            postMachine(postData).then(
+              r => {
+                this.$notify({
+                  title: '成功',
+                  message: '创建成功！',
+                  type: 'success'
+                });
+                this.doGetMechines()
+                this.dialogVisible = false
+                this.$refs[formName].resetFields()
+              }
+            ).catch(e => console.log(e))
+          } else {
+            postData['id'] = this.addMechineInfo.id
+            putMachine(postData).then(
+              r => {
+                this.$notify({
+                  title: '成功',
+                  message: '更新成功！',
+                  type: 'success'
+                });
+                // this.doGetMechines()
+                this.selectTypeValue[this.addMechineInfo.id] = this.addMechineInfo.jobId
+                this.selectTypeValue = { ...this.selectTypeValue }
+                this.dialogVisible = false
+                this.$refs[formName].resetFields()
+              }
+            ).catch(e => console.log(e))
+          }
         } else {
           return false
         }
@@ -505,12 +531,17 @@ export default {
       return cs
     },
     edit (scope) {
+      this.enterBtnTitle = '更新'
       this.addAndContinueDisabled = true
       this.dialogVisible = true
       this.addMechineInfo = {
         ipAddr: scope.row.ipaddr,
-        jobId: scope.row.job_id,
         id: scope.row.id
+      }
+      if (this.selectTypeValue[scope.row.id].length !== 0) {
+        this.addMechineInfo.jobId = this.selectTypeValue[scope.row.id]
+      } else {
+        this.addMechineInfo.jobId = scope.row.job_id
       }
     }
   }
