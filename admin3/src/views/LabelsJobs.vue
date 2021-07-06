@@ -470,7 +470,7 @@ export default {
       },
       glRules: {
         key: [
-          { required: true, message: '请选择分组', trigger: ['blur', 'change'] }
+          { required: true, message: '请选择或者输入分组名称', trigger: ['blur', 'change'] }
         ]
         // value: [
         //   { required: true, message: '请输入正确的标签值', trigger: ['blur'] }
