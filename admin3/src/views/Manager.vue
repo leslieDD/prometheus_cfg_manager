@@ -71,14 +71,16 @@
             v-model="selectTypeValue[scope.row.id]"
             class="borderNone"
             popper-class="pppselect"
-            @change="handleSelect(scope.$index, scope.row)"
+            @visible-change="handleSelect($event, scope.$index, scope.row)"
             size="small"
+            multiple
+            collapse-tags
             placeholder="请选择"
           >
             <el-option
               v-for="item in jobs"
               :key="item.id"
-              :label="item.display_order + ' ' + item.name"
+              :label="item.name"
               :value="item.id"
             >
             </el-option>
@@ -124,6 +126,9 @@
       </el-table-column>
       <el-table-column label="操作" align="center" header-align="center">
         <template v-slot="scope">
+          <el-button type="primary" plain size="mini" @click="edit(scope)"
+            >编辑</el-button
+          >
           <el-popover
             :visible="deleteVisible[scope.$index]"
             placement="top"
@@ -191,11 +196,13 @@
               style="width: 230px"
               v-model="addMechineInfo.jobId"
               placeholder="请选择"
+              collapse-tags
+              multiple
             >
               <el-option
                 v-for="(item, index) in jobs"
                 :key="index"
-                :label="item.display_order + ' ' + item.name"
+                :label="item.name"
                 :value="item.id"
               ></el-option>
             </el-select>
@@ -204,6 +211,7 @@
             <el-button
               size="small"
               type="primary"
+              :disabled="addAndContinueDisabled"
               @click="onSubmitAndContinue('addMechineInfo')"
               >创建并继续</el-button
             >
@@ -268,8 +276,9 @@ export default {
       deleteVisible: {},
       addMechineInfo: {
         ipAddr: '',
-        jobId: ''
+        jobId: []
       },
+      addAndContinueDisabled: false,
       rules: {
         ipAddr: [
           { required: true, message: '请输入正确的IP地址', validator: validateIP, trigger: 'blur' }
@@ -289,20 +298,7 @@ export default {
   methods: {
     doAdd () {
       this.dialogVisible = true
-    },
-    doGetJobs () {
-      getJobs().then(
-        r => {
-          this.jobs = r.data
-          r.data.forEach(e => {
-            this.jobsMap[e.id] = e.name
-          })
-        }
-      ).catch(
-        e => {
-          console.log(e)
-        }
-      )
+      this.addAndContinueDisabled = false
     },
     doGetMechines (getInfo) {
       getJobs().then(
@@ -328,7 +324,8 @@ export default {
               this.deleteVisible = {}
               let n = 0
               r.data.data.forEach(element => {
-                this.selectTypeValue[element.id] = this.jobsMap[element.job_id[0]]
+                // this.selectTypeValue[element.id] = this.jobsMap[element.job_id[0]]
+                this.selectTypeValue[element.id] = element.job_id
                 this.deleteVisible[n] = false
                 n += 1
               })
@@ -345,11 +342,14 @@ export default {
         }
       )
     },
-    handleSelect (index, row) {
+    handleSelect (visible, index, row) {
+      if (visible) {
+        return
+      }
       var updateData = {}
       updateData['id'] = row.id
       updateData['ipaddr'] = row.ipaddr
-      updateData['job_id'] = [this.selectTypeValue[row.id]]
+      updateData['job_id'] = this.selectTypeValue[row.id]
       putMachine(updateData).then(
         r => {
           this.$notify({
@@ -503,6 +503,15 @@ export default {
         'padding': '0'
       }
       return cs
+    },
+    edit (scope) {
+      this.addAndContinueDisabled = true
+      this.dialogVisible = true
+      this.addMechineInfo = {
+        ipAddr: scope.row.ipaddr,
+        jobId: scope.row.job_id,
+        id: scope.row.id
+      }
     }
   }
 }

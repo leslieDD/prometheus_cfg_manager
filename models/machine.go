@@ -63,8 +63,8 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		sql := fmt.Sprintf(`SELECT %s 
 				FROM machines AS m 
 				LEFT JOIN jobs AS j 
-				ON JSON_CONTAINS(m.job_id, JSON_array(j.id)) 
-				`, s)
+				ON j.id = json_extract(m.job_id, '$[0]')`, s)
+		// ON JSON_CONTAINS(m.job_id, JSON_array(j.id))
 		like := `'%` + sp.Search + `%'`
 		var likeSql string
 		if sp.Search != "" {
@@ -86,6 +86,7 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		sp.PageSize,
 		(sp.PageNo-1)*sp.PageSize,
 	)
+	// config.Log.Warn(likeSql)
 	tx2 := db.Raw(likeSql).Scan(&lists)
 	if tx2.Error != nil {
 		config.Log.Error(tx2.Error)
