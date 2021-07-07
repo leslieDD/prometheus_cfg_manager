@@ -18,6 +18,7 @@ func initApiRouter() {
 	v1.DELETE("/job", deleteJob)
 	v1.PUT("/job/swap", swapJob)
 	v1.POST("/jobs/publish", publishJobs)
+	v1.PUT("/jobs/status", putJobsStatus)
 
 	v1.GET("/jobs/default/split", getDefJobsSplit)
 	v1.POST("/job/default", postDefJob)
@@ -365,6 +366,16 @@ func swapJob(c *gin.Context) {
 
 func publishJobs(c *gin.Context) {
 	bf := models.DoPublishJobs()
+	resComm(c, bf, nil)
+}
+
+func putJobsStatus(c *gin.Context) {
+	ed := models.EnabledInfo{}
+	if err := c.BindJSON(&ed); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.PutJobsStatus(&ed)
 	resComm(c, bf, nil)
 }
 

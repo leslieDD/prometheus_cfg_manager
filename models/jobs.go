@@ -18,6 +18,7 @@ type Jobs struct {
 	IsCommon     bool      `json:"is_common" gorm:"column:is_common"`
 	DisplayOrder int       `json:"display_order" gorm:"column:display_order"`
 	ReLabelID    int       `json:"relabel_id" gorm:"column:relabel_id"`
+	Enabled      bool      `json:"enabled" gorm:"column:enabled"`
 	Count        int64     `json:"count" gorm:"-"`
 	UpdateAt     time.Time `json:"update_at" gorm:"column:update_at"`
 	Online       string    `json:"online" gorm:"-"`
@@ -460,4 +461,21 @@ func getJobIdByOrder(orderID int) ([]OnlyID, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	return jobIdList, Success
+}
+
+func PutJobsStatus(oid *EnabledInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("jobs").
+		Where("id=?", oid.ID).
+		Update("enabled", oid.Enabled).
+		Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
 }

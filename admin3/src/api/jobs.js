@@ -62,3 +62,11 @@ export function publishJobs () {
     method: 'post'
   })
 }
+
+export function enabledJob (jInfo) {
+  return request({
+    url: '/v1/jobs/status',
+    method: 'put',
+    data: jInfo
+  })
+}
