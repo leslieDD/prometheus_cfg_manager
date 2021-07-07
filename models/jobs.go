@@ -57,7 +57,9 @@ func GetJobs() (*[]Jobs, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	jobs := []Jobs{}
-	tx := db.Table("jobs").Order("display_order asc").Where("is_common=0").Find(&jobs)
+	tx := db.Table("jobs").
+		Order("display_order asc").
+		Where("is_common=0 and enabled=1").Find(&jobs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
@@ -225,6 +227,22 @@ func getMachineCount() ([]JobCount, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	return jcs, Success
+}
+
+func getMachineCountForJob(jID int) (*int64, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	var count int64
+	sql := fmt.Sprintf(`SELECT COUNT(*) AS count FROM machines WHERE JSON_CONTAINS(job_id, JSON_ARRAY(%d))`, jID)
+	tx := db.Table("machines").Raw(sql).Count(&count)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return &count, Success
 }
 
 func GetJob(jID int64) (*Jobs, *BriefMessage) {
@@ -464,6 +482,13 @@ func getJobIdByOrder(orderID int) ([]OnlyID, *BriefMessage) {
 }
 
 func PutJobsStatus(oid *EnabledInfo) *BriefMessage {
+	count, bf := getMachineCountForJob(oid.ID)
+	if bf != Success {
+		return bf
+	}
+	if *count != 0 {
+		return ErrHaveDataNoAllowToDisabled
+	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)

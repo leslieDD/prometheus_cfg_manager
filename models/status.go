@@ -165,6 +165,7 @@ var ErrJobTypeEmpty = &BriefMessage{400000, "IP的分组类型不允许为空"}
 var ErrOrderIDExist = &BriefMessage{400000, "排序号已经存在"}
 var ErrUnSupport = &BriefMessage{400000, "不支持的操作类型"}
 var ErrHaveDataNoAllowToDel = &BriefMessage{400000, "因存在相关联数据，不允许删除"}
+var ErrHaveDataNoAllowToDisabled = &BriefMessage{400000, "因存在相关联数据，不允许禁用"}
 
 // --------------------------------------------------------------
 // ---------------- 300xxx 链接错误 ------------------------------
