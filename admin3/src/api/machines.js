@@ -39,3 +39,11 @@ export function deleteMachine (machineId) {
     params: { id: machineId }
   })
 }
+
+export function enabledMachine (mInfo) {
+  return request({
+    url: '/v1/machine/status',
+    method: 'put',
+    data: mInfo
+  })
+}

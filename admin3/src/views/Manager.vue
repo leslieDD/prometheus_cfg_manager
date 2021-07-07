@@ -143,6 +143,22 @@
           <el-button type="primary" plain size="mini" @click="edit(scope)"
             >编辑</el-button
           >
+          <el-button
+            v-if="scope.row.enabled === true"
+            type="info"
+            plain
+            size="mini"
+            @click="invocate(scope)"
+            >禁用</el-button
+          >
+          <el-button
+            v-if="scope.row.enabled === false"
+            type="warning"
+            plain
+            size="mini"
+            @click="invocate(scope)"
+            >启用</el-button
+          >
           <el-popover
             :visible="deleteVisible[scope.$index]"
             placement="top"
@@ -254,7 +270,8 @@ import {
   getMachines,
   postMachine,
   deleteMachine,
-  putMachine
+  putMachine,
+  enabledMachine
 } from '@/api/machines'
 import { publish } from '@/api/publish'
 
@@ -569,6 +586,22 @@ export default {
         groupName.push(this.jobsMap[i])
       })
       this.groupNameList[row.id] = groupName
+    },
+    invocate (scope) {
+      const newStatus = !this.machines[scope.$index].enabled
+      this.machines[scope.$index].enabled = newStatus
+      this.machines = [...this.machines]
+      const mInfo = {
+        id: scope.row.id,
+        enabled: newStatus
+      }
+      enabledMachine(mInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新状态成功！',
+          type: 'success'
+        });
+      }).catch(e => console.log(e))
     }
   }
 }

@@ -41,6 +41,7 @@ func initApiRouter() {
 	v1.POST("/machine", postMachine)
 	v1.PUT("/machine", putMachine)
 	v1.DELETE("/machine", deleteMachine)
+	v1.PUT("/machine/status", putMachineStatus)
 
 	v1.POST("/publish", publish)
 	v1.POST("/reload", reload)
@@ -427,6 +428,16 @@ func deleteMachine(c *gin.Context) {
 		return
 	}
 	bf := models.DeleteMachine(int(mID))
+	resComm(c, bf, nil)
+}
+
+func putMachineStatus(c *gin.Context) {
+	ed := models.EnabledInfo{}
+	if err := c.BindJSON(&ed); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.PutMachineStatus(&ed)
 	resComm(c, bf, nil)
 }
 

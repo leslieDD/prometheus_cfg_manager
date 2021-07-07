@@ -17,6 +17,7 @@ type Machine struct {
 	ID       int            `json:"id" gorm:"column:id"`
 	IpAddr   string         `json:"ipaddr" gorm:"column:ipaddr"`
 	JobId    datatypes.JSON `json:"job_id" gorm:"column:job_id"`
+	Enabled  bool           `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time      `json:"update_at" gorm:"column:update_at"`
 }
 
@@ -28,6 +29,7 @@ type ListMachine struct {
 	IpAddr    string         `json:"ipaddr" gorm:"column:ipaddr"`
 	JobId     datatypes.JSON `json:"job_id" gorm:"column:job_id"`
 	UpdateAt  time.Time      `json:"update_at" gorm:"column:update_at"`
+	Enabled   bool           `json:"enabled" gorm:"column:enabled"`
 	Health    string         `json:"health" gorm:"-"`
 	LastError string         `json:"last_error" gorm:"-"`
 }
@@ -82,7 +84,7 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		return nil, ErrCount
 	}
 	likeSql := fmt.Sprintf("%s LIMIT %d OFFSET %d",
-		createSql(`m.id, m.ipaddr, j.name, j.port, j.cfg_name, m.job_id, m.update_at`),
+		createSql(`m.id, m.ipaddr, j.name, j.port, j.cfg_name, m.job_id, m.enabled, m.update_at`),
 		sp.PageSize,
 		(sp.PageNo-1)*sp.PageSize,
 	)
@@ -218,6 +220,28 @@ func DeleteMachine(mID int) *BriefMessage {
 		return ErrDataBase
 	}
 	tx := db.Table("machines").Where("id=?", mID).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+type EnabledInfo struct {
+	ID      int  `json:"id" gorm:"column:id" form:"id"`
+	Enabled bool `json:"enabled" gorm:"column:enabled" form:"enabled"`
+}
+
+func PutMachineStatus(oid *EnabledInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("machines").
+		Where("id=?", oid.ID).
+		Update("enabled", oid.Enabled).
+		Update("update_at", time.Now())
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData

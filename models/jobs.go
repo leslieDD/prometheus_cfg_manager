@@ -41,7 +41,7 @@ type JobCount struct {
 }
 
 type OnlyID struct {
-	ID int `json:"id" gorm:"column:id"`
+	ID int `json:"id" gorm:"column:id" form:"id"`
 }
 type SwapInfo struct {
 	ID           int    `json:"id" gorm:"column:id"`
