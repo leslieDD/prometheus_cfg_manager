@@ -528,8 +528,6 @@ export default {
     },
     invocate (scope) {
       const newStatus = !this.jobs[scope.$index].enabled
-      this.jobs[scope.$index].enabled = newStatus
-      this.jobs = [...this.jobs]
       const jInfo = {
         id: scope.row.id,
         enabled: newStatus
@@ -540,6 +538,8 @@ export default {
           message: '更新状态成功！',
           type: 'success'
         });
+        this.jobs[scope.$index].enabled = newStatus
+        this.jobs = [...this.jobs]
       }).catch(e => console.log(e))
     }
   }

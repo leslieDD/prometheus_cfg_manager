@@ -589,8 +589,6 @@ export default {
     },
     invocate (scope) {
       const newStatus = !this.machines[scope.$index].enabled
-      this.machines[scope.$index].enabled = newStatus
-      this.machines = [...this.machines]
       const mInfo = {
         id: scope.row.id,
         enabled: newStatus
@@ -601,6 +599,8 @@ export default {
           message: '更新状态成功！',
           type: 'success'
         });
+        this.machines[scope.$index].enabled = newStatus
+        this.machines = [...this.machines]
       }).catch(e => console.log(e))
     }
   }

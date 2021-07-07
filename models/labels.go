@@ -236,7 +236,29 @@ func PutBaseLabelsStatus(edi *EnabledInfo) *BriefMessage {
 	return Success
 }
 
+func RelabelsHaveJobs(relabelID int) (*int64, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	var count int64
+	tx := db.Table("jobs").Where("relabel_id=?", relabelID).Count(&count)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrCount
+	}
+	return &count, Success
+}
+
 func PutBaseRelabelsStatus(edi *EnabledInfo) *BriefMessage {
+	count, bf := RelabelsHaveJobs(edi.ID)
+	if bf != Success {
+		return bf
+	}
+	if *count != 0 {
+		return ErrHaveDataNoAllowToDisabled
+	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)

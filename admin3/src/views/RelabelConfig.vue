@@ -528,8 +528,6 @@ export default {
     },
     invocate (scope) {
       const newStatus = !this.ReLabels[scope.$index].enabled
-      this.ReLabels[scope.$index].enabled = newStatus
-      this.ReLabels = [...this.ReLabels]
       const rInfo = {
         id: scope.row.id,
         enabled: newStatus
@@ -540,6 +538,8 @@ export default {
           message: '更新状态成功！',
           type: 'success'
         });
+        this.ReLabels[scope.$index].enabled = newStatus
+        this.ReLabels = [...this.ReLabels]
       }).catch(e => console.log(e))
     }
   }

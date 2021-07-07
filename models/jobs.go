@@ -240,7 +240,7 @@ func getMachineCountForJob(jID int) (*int64, *BriefMessage) {
 	tx := db.Table("machines").Raw(sql).Count(&count)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
-		return nil, ErrSearchDBData
+		return nil, ErrCount
 	}
 	return &count, Success
 }

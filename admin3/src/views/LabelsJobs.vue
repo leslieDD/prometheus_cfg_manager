@@ -928,8 +928,6 @@ export default {
     },
     invocate (scope) {
       const newStatus = !this.subGroups[scope.$index].enabled
-      this.subGroups[scope.$index].enabled = newStatus
-      this.subGroups = [...this.subGroups]
       const gInfo = {
         id: scope.row.id,
         enabled: newStatus
@@ -940,12 +938,12 @@ export default {
           message: '更新状态成功！',
           type: 'success'
         });
+        this.subGroups[scope.$index].enabled = newStatus
+        this.subGroups = [...this.subGroups]
       }).catch(e => console.log(e))
     },
     invocateLabels (scope) {
       const newStatus = !this.labelsData[scope.$index].enabled
-      this.labelsData[scope.$index].enabled = newStatus
-      this.labelsData = [...this.labelsData]
       const lInfo = {
         id: scope.row.id,
         enabled: newStatus
@@ -956,6 +954,8 @@ export default {
           message: '更新状态成功！',
           type: 'success'
         });
+        this.labelsData[scope.$index].enabled = newStatus
+        this.labelsData = [...this.labelsData]
       }).catch(e => console.log(e))
     }
   }

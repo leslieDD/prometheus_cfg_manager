@@ -359,8 +359,6 @@ export default {
     },
     invocate (scope) {
       const newStatus = !this.baseLabels[scope.$index].enabled
-      this.baseLabels[scope.$index].enabled = newStatus
-      this.baseLabels = [...this.baseLabels]
       const bInfo = {
         id: scope.row.id,
         enabled: newStatus
@@ -371,6 +369,8 @@ export default {
           message: '更新状态成功！',
           type: 'success'
         });
+        this.baseLabels[scope.$index].enabled = newStatus
+        this.baseLabels = [...this.baseLabels]
       }).catch(e => console.log(e))
     }
   }
