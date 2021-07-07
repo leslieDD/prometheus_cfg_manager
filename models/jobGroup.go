@@ -14,6 +14,7 @@ type JobGroup struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	JobsID   int       `json:"jobs_id" gorm:"jobs_id"`
 	Name     string    `json:"name" gorm:"column:name"`
+	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 }
 
@@ -497,4 +498,21 @@ func GetAllMachinesLabels(jg *JobGroupID) (interface{}, *BriefMessage) {
 		"labels": labels,
 	}
 	return &data, Success
+}
+
+func PutJobGroupStatus(edi *EnabledInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("job_group").
+		Where("id=?", edi.ID).
+		Update("enabled", edi.Enabled).
+		Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
 }

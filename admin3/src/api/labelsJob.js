@@ -106,3 +106,10 @@ export function getAllIPAndLabels (info) {
   })
 }
 
+export function enabledJobGroup (info) {
+  return request({
+    url: '/v1/job/group/status',
+    method: 'put',
+    data: info
+  })
+}

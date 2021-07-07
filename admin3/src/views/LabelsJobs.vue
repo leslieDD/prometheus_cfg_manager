@@ -96,7 +96,7 @@
                 type="primary"
                 @click="doEditIPList(scope)"
                 plain
-                >编辑IP列表</el-button
+                >编辑IP</el-button
               >
             </div>
             <div>
@@ -105,7 +105,25 @@
                 type="primary"
                 @click="doEditLabelList(scope)"
                 plain
-                >编辑标签列表</el-button
+                >编辑标签</el-button
+              >
+            </div>
+            <div>
+              <el-button
+                v-if="scope.row.enabled === true"
+                size="mini"
+                type="info"
+                @click="invocate(scope)"
+                plain
+                >禁用</el-button
+              >
+              <el-button
+                v-if="scope.row.enabled === false"
+                size="mini"
+                type="warning"
+                @click="invocate(scope)"
+                plain
+                >启用</el-button
               >
             </div>
             <div>
@@ -409,7 +427,8 @@ import {
   getGroupLabels,
   putGroupLabels,
   delGroupLabels,
-  getAllIPAndLabels
+  getAllIPAndLabels,
+  enabledJobGroup
 } from '@/api/labelsJob.js'
 import { getDefaultLabels } from '@/api/monitor.js'
 import { restartSrv } from '@/api/srv'
@@ -886,6 +905,22 @@ export default {
       getAllIPAndLabels(query).then(r => {
         this.ipsAndLabels[row.id] = r.data
         this.ipsAndLabelsDone[row.id] = true
+      }).catch(e => console.log(e))
+    },
+    invocate (scope) {
+      const newStatus = !this.subGroups[scope.$index].enabled
+      this.subGroups[scope.$index].enabled = newStatus
+      this.subGroups = [...this.subGroups]
+      const gInfo = {
+        id: scope.row.id,
+        enabled: newStatus
+      }
+      enabledJobGroup(gInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新状态成功！',
+          type: 'success'
+        });
       }).catch(e => console.log(e))
     }
   }

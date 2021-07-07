@@ -36,6 +36,7 @@ func initApiRouter() {
 	v1.PUT("/job/group/labels", putGroupLabels)
 	v1.DELETE("/job/group/labels", delGroupLabels)
 	v1.GET("/job/group/machines-and-labels", getAllMachinesLabels)
+	v1.PUT("/job/group/status", putJobGroupStatus)
 
 	v1.GET("/machine", getMachine)
 	v1.GET("/machines", getMachines)
@@ -354,6 +355,16 @@ func getAllMachinesLabels(c *gin.Context) {
 	resComm(c, bf, data)
 }
 
+func putJobGroupStatus(c *gin.Context) {
+	ed := models.EnabledInfo{}
+	if err := c.BindJSON(&ed); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutJobGroupStatus(&ed)
+	resComm(c, bf, nil)
+}
+
 func swapJob(c *gin.Context) {
 	sInfo := &models.SwapInfo{}
 	if err := c.BindJSON(sInfo); err != nil {
@@ -372,7 +383,7 @@ func publishJobs(c *gin.Context) {
 func putJobsStatus(c *gin.Context) {
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
-		resComm(c, models.ErrSplitParma, nil)
+		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobsStatus(&ed)
@@ -445,7 +456,7 @@ func deleteMachine(c *gin.Context) {
 func putMachineStatus(c *gin.Context) {
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
-		resComm(c, models.ErrSplitParma, nil)
+		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutMachineStatus(&ed)
