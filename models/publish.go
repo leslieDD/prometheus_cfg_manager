@@ -53,89 +53,7 @@ type JobGroupLablesInfo struct {
 	Value      string `json:"value" gorm:"column:value"`
 }
 
-func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) {
-	db := dbs.DBObj.GetGoRM()
-	if db == nil {
-		config.Log.Error(InternalGetBDInstanceErr)
-		return nil, ErrDataBase
-	}
-	jobs := []Jobs{}
-	tx := db.Table("jobs").Where("enabled=1").Find(&jobs)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
-		return nil, ErrSearchDBData
-	}
-	machines := []Machine{}
-	tx = db.Table("machines").Where("enabled=1 and JSON_LENGTH(job_id)<>0").Find(&machines)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
-		return nil, ErrSearchDBData
-	}
-	mapJobs := map[int]Jobs{}
-	for _, j := range jobs {
-		mapJobs[j.ID] = j
-	}
-	allIPsMap := map[string]struct{}{}
-	// 目前只支持一个组
-	// 如果是多个组，可以新增加一张labels表，再从machine表中关联labels表
-	mGrp := map[string]*TargetList{} // machine group
-	for _, m := range machines {
-		idList, bf := JsonToIntSlice(m.JobId)
-		if bf != Success {
-			return nil, bf
-		}
-		for _, jID := range idList {
-			if _, ok := mGrp[mapJobs[jID].Name]; !ok {
-				mGrp[mapJobs[jID].Name] = &TargetList{
-					Targets: []string{},
-					Lables:  map[string]string{},
-				}
-			}
-			allIPsMap[m.IpAddr] = struct{}{}
-			var ipAndPort string
-			if mapJobs[jID].Port == 0 {
-				ipAndPort = m.IpAddr
-			} else {
-				ipAndPort = fmt.Sprintf("%s:%d", m.IpAddr, mapJobs[jID].Port)
-			}
-			mGrp[mapJobs[jID].Name].Targets = append(mGrp[mapJobs[jID].Name].Targets, ipAndPort)
-		}
-	}
-	mGrpSyncPro := map[string][]*TargetList{} // machine group
-	for name, obj := range mGrp {
-		mGrpSyncPro[name] = []*TargetList{}
-		mGrpSyncPro[name] = append(mGrpSyncPro[name], obj)
-	}
-	allIPs := []string{}
-	for key := range allIPsMap {
-		allIPs = append(allIPs, key)
-	}
-	for _, j := range jobs {
-		if _, ok := mGrpSyncPro[j.Name]; !ok {
-			mGrpSyncPro[j.Name] = []*TargetList{}
-		}
-		if j.IsCommon {
-			thisIPs := []string{}
-			for _, i := range allIPs {
-				if j.Port == 0 {
-					thisIPs = append(thisIPs, i)
-				} else {
-					thisIPs = append(thisIPs, fmt.Sprintf("%s:%d", i, j.Port))
-				}
-			}
-			targetList := TargetList{
-				Targets: thisIPs,
-				Lables:  map[string]string{},
-			}
-			mGrpSyncPro[j.Name] = append(mGrpSyncPro[j.Name], &targetList)
-		}
-	}
-	// r, _ := json.MarshalIndent(mGrpSyncPro, "", "    ")
-	// fmt.Printf("%v\n", string(r))
-	return mGrpSyncPro, Success
-}
-
-func (p *PublishResolve) formatDataV2() (map[string]*[]*TargetList, *BriefMessage) {
+func (p *PublishResolve) formatData() (map[string]*[]*TargetList, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -153,9 +71,8 @@ func (p *PublishResolve) formatDataV2() (map[string]*[]*TargetList, *BriefMessag
 	if bf != Success {
 		return nil, bf
 	}
-	//          map[分组ID]map[子组ID][ip]string
+	//          map[分组ID]map[子组ID]
 	jobGpAndLb := map[int]map[int]*TargetList{}
-	// jobGpMap := map[int]map[int]*[]string{}
 	for _, obj := range jobGp {
 		job, ok := jobGpAndLb[obj.JobsID]
 		if !ok {
@@ -164,12 +81,14 @@ func (p *PublishResolve) formatDataV2() (map[string]*[]*TargetList, *BriefMessag
 		}
 		group, ok := job[obj.JobGroupID]
 		if !ok {
-			group = &TargetList{}
+			group = &TargetList{
+				Targets: []string{},
+				Lables:  map[string]string{},
+			}
 			job[obj.JobGroupID] = group
 		}
 		group.Targets = append(group.Targets, obj.IPAddr)
 	}
-	// jobLbMap := map[int]map[int]map[string]string{}
 	for _, obj := range jobLb {
 		job, ok := jobGpAndLb[obj.JobsID]
 		if !ok {
@@ -178,13 +97,15 @@ func (p *PublishResolve) formatDataV2() (map[string]*[]*TargetList, *BriefMessag
 		}
 		group, ok := job[obj.JobGroupID]
 		if !ok {
-			group = &TargetList{}
+			group = &TargetList{
+				Targets: []string{},
+				Lables:  map[string]string{},
+			}
 			job[obj.JobGroupID] = group
 		}
 		group.Lables[obj.Key] = obj.Value
 	}
 	targets := map[string]*[]*TargetList{}
-	// jobsMap = map[int]
 	for _, job := range jobs {
 		t, ok := targets[job.Name]
 		if !ok {
@@ -261,7 +182,7 @@ func (p *PublishResolve) Do() *BriefMessage {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
-	data, bf := p.formatDataV2()
+	data, bf := p.formatData()
 	if bf != Success {
 		return bf
 	}
@@ -291,13 +212,13 @@ func GetJobGroupIPInfo() ([]*JobGroupIPInfo, *BriefMessage) {
 	jgIPs := []*JobGroupIPInfo{}
 	tx := db.Table("group_machines").
 		Raw(
-			"SELECT job_group_id, machines_id, jobs_id, ipaddr" +
-				"FROM group_machines " +
-				"LEFT JOIN job_group " +
-				"ON group_machines.job_group_id=job_group.id " +
-				"LEFT JOIN machines " +
-				"ON machines.id=group_machines.machines_id " +
-				"WHERE job_group.enabled=1 AND machines.enabled=1 ").
+			" SELECT job_group_id, machines_id, jobs_id, ipaddr " +
+				" FROM group_machines " +
+				" LEFT JOIN job_group " +
+				" ON group_machines.job_group_id=job_group.id " +
+				" LEFT JOIN machines " +
+				" ON machines.id=group_machines.machines_id " +
+				" WHERE job_group.enabled=1 AND machines.enabled=1 ").
 		Find(&jgIPs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -315,11 +236,11 @@ func GetJobGroupLabelsInfo() ([]*JobGroupLablesInfo, *BriefMessage) {
 	jgLables := []*JobGroupLablesInfo{}
 	tx := db.Table("group_labels").
 		Raw(
-			"SELECT job_group_id, `key`, `value`, jobs_id " +
-				"FROM group_labels" +
-				"LEFT JOIN job_group" +
-				"ON group_labels.job_group_id=job_group.id" +
-				"WHERE group_labels.enabled=1 AND job_group.enabled=1").
+			" SELECT job_group_id, `key`, `value`, jobs_id " +
+				" FROM group_labels " +
+				" LEFT JOIN job_group " +
+				" ON group_labels.job_group_id=job_group.id " +
+				" WHERE group_labels.enabled=1 AND job_group.enabled=1 ").
 		Find(&jgLables)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
