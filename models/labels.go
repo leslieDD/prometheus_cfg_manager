@@ -10,6 +10,7 @@ import (
 type BaseLabels struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	Label    string    `json:"label" gorm:"column:label"`
+	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"update_at"`
 }
 
@@ -209,6 +210,23 @@ func PutReLabelsCode(label *ReLabels) *BriefMessage {
 	tx := db.Table("relabels").
 		Where("id=?", label.ID).
 		Update("code", label.Code).
+		Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func PutBaseLabelsStatus(edi *EnabledInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("labels").
+		Where("id=?", edi.ID).
+		Update("enabled", edi.Enabled).
 		Update("update_at", time.Now())
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)

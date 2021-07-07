@@ -54,6 +54,24 @@
               >
             </div>
             <div>
+              <el-button
+                size="mini"
+                type="info"
+                v-if="scope.row.enabled === true"
+                @click="invocate(scope)"
+                plain
+                >禁用</el-button
+              >
+              <el-button
+                size="mini"
+                type="warning"
+                v-if="scope.row.enabled === false"
+                @click="invocate(scope)"
+                plain
+                >启用</el-button
+              >
+            </div>
+            <div>
               <el-popover
                 :visible="deleteVisible[scope.$index]"
                 placement="top"
@@ -141,7 +159,8 @@ import {
   getBaseLabels,
   putBaseLabels,
   postBaseLabels,
-  deleteBaseLabels
+  deleteBaseLabels,
+  enabledBaseLabels
 } from '@/api/base'
 
 export default {
@@ -337,6 +356,22 @@ export default {
         'padding': '0'
       }
       return cs
+    },
+    invocate (scope) {
+      const newStatus = !this.baseLabels[scope.$index].enabled
+      this.baseLabels[scope.$index].enabled = newStatus
+      this.baseLabels = [...this.baseLabels]
+      const bInfo = {
+        id: scope.row.id,
+        enabled: newStatus
+      }
+      enabledBaseLabels(bInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新状态成功！',
+          type: 'success'
+        });
+      }).catch(e => console.log(e))
     }
   }
 }

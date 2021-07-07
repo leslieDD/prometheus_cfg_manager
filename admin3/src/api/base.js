@@ -33,5 +33,11 @@ export function deleteBaseLabels (info) {
   })
 }
 
-
+export function enabledBaseLabels (info) {
+  return request({
+    url: '/v1/base/labels/status',
+    method: 'put',
+    data: info
+  })
+}
   
