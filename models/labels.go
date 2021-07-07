@@ -95,6 +95,7 @@ type ReLabels struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	Name     string    `json:"name" gorm:"column:name"`
 	Code     string    `json:"code" gorm:"column:code"`
+	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"update_at"`
 }
 
@@ -225,6 +226,23 @@ func PutBaseLabelsStatus(edi *EnabledInfo) *BriefMessage {
 		return ErrDataBase
 	}
 	tx := db.Table("labels").
+		Where("id=?", edi.ID).
+		Update("enabled", edi.Enabled).
+		Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func PutBaseRelabelsStatus(edi *EnabledInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("relabels").
 		Where("id=?", edi.ID).
 		Update("enabled", edi.Enabled).
 		Update("update_at", time.Now())

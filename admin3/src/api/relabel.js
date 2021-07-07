@@ -46,3 +46,11 @@ export function putReLabelsCode (info) {
     data: info
   })
 }
+
+export function enabledRelabelCfg (info) {
+  return request({
+    url: '/v1/base/relabels/status',
+    method: 'put',
+    data: info
+  })
+}

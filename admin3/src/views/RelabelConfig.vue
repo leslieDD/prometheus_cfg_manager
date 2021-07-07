@@ -46,7 +46,7 @@
                 <span>{{ parseTimeSelf(row.update_at) }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" align="center" width="350px">
+            <el-table-column label="操作" align="center" width="380px">
               <template v-slot="scope" align="center">
                 <div class="actioneara">
                   <div>
@@ -76,6 +76,26 @@
                       :disabled="postCodeButVisable[scope.row.id]"
                       @click="doPostReLablesCode(scope)"
                       >提交规则</el-button
+                    >
+                  </div>
+                  <div>
+                    <el-button
+                      size="mini"
+                      type="info"
+                      v-if="scope.row.enabled === true"
+                      @click="invocate(scope)"
+                      plain
+                      :disabled="editCodeButVisable[scope.row.id]"
+                      >禁用</el-button
+                    >
+                    <el-button
+                      size="mini"
+                      type="warning"
+                      v-if="scope.row.enabled === false"
+                      @click="invocate(scope)"
+                      plain
+                      :disabled="editCodeButVisable[scope.row.id]"
+                      >启用</el-button
                     >
                   </div>
                   <div>
@@ -216,7 +236,14 @@ import { markRaw } from 'vue'
 import * as js_yaml from "js-yaml"
 window.jsyaml = js_yaml
 
-import { getReLabels, putReLabels, postReLabels, deleteReLabels, putReLabelsCode } from '@/api/relabel.js'
+import {
+  getReLabels,
+  putReLabels,
+  postReLabels,
+  deleteReLabels,
+  putReLabelsCode,
+  enabledRelabelCfg
+} from '@/api/relabel.js'
 
 export default {
   name: 'ymalRelabelEdit',
@@ -498,6 +525,22 @@ export default {
           console.log(e)
         }
       )
+    },
+    invocate (scope) {
+      const newStatus = !this.ReLabels[scope.$index].enabled
+      this.ReLabels[scope.$index].enabled = newStatus
+      this.ReLabels = [...this.ReLabels]
+      const rInfo = {
+        id: scope.row.id,
+        enabled: newStatus
+      }
+      enabledRelabelCfg(rInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新状态成功！',
+          type: 'success'
+        });
+      }).catch(e => console.log(e))
     }
   }
   // beforeUnmount () {
