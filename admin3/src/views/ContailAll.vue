@@ -56,12 +56,30 @@
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center">
+      <el-table-column label="操作" align="center" width="200px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
               <el-button size="mini" type="primary" @click="doEdit(scope)" plain
                 >编辑</el-button
+              >
+            </div>
+            <div>
+              <el-button
+                size="mini"
+                type="info"
+                v-if="scope.row.enabled === true"
+                @click="invocate(scope)"
+                plain
+                >禁用</el-button
+              >
+              <el-button
+                size="mini"
+                type="warning"
+                v-if="scope.row.enabled === false"
+                @click="invocate(scope)"
+                plain
+                >启用</el-button
               >
             </div>
             <div>
@@ -171,7 +189,8 @@ import {
   getDefJobsWithSplitPage,
   postDefJob,
   putDefJob,
-  deleteDefJob
+  deleteDefJob,
+  enabledDefaultJob
 } from '@/api/defJobs.js'
 import { publishJobs } from '@/api/jobs.js'
 import { getAllReLabels } from '@/api/relabel.js'
@@ -506,6 +525,22 @@ export default {
       ).catch(
         e => { console.log(e) }
       )
+    },
+    invocate (scope) {
+      const newStatus = !this.jobs[scope.$index].enabled
+      this.jobs[scope.$index].enabled = newStatus
+      this.jobs = [...this.jobs]
+      const jInfo = {
+        id: scope.row.id,
+        enabled: newStatus
+      }
+      enabledDefaultJob(jInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新状态成功！',
+          type: 'success'
+        });
+      }).catch(e => console.log(e))
     }
   }
 }

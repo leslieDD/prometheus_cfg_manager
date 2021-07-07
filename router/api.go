@@ -24,6 +24,7 @@ func initApiRouter() {
 	v1.POST("/job/default", postDefJob)
 	v1.PUT("/job/default", putDefJob)
 	v1.DELETE("/job/default", deleteDefJob)
+	v1.PUT("/job/default/status", putJobDefaultStatus)
 
 	v1.GET("/job/group", getJobGroup)
 	v1.POST("/job/group", postJobGroup)
@@ -199,6 +200,16 @@ func deleteDefJob(c *gin.Context) {
 		return
 	}
 	bf := models.DeleteJob(jID, true)
+	resComm(c, bf, nil)
+}
+
+func putJobDefaultStatus(c *gin.Context) {
+	ed := models.EnabledInfo{}
+	if err := c.BindJSON(&ed); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutJobDefaultStatus(&ed)
 	resComm(c, bf, nil)
 }
 

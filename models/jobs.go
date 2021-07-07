@@ -479,3 +479,20 @@ func PutJobsStatus(oid *EnabledInfo) *BriefMessage {
 	}
 	return Success
 }
+
+func PutJobDefaultStatus(edi *EnabledInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("jobs").
+		Where("id=?", edi.ID).
+		Update("enabled", edi.Enabled).
+		Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}

@@ -32,3 +32,10 @@ export function deleteDefJob (jobID) {
   })
 }
 
+export function enabledDefaultJob (info) {
+  return request({
+    url: '/v1/job/default/status',
+    method: 'put',
+    data: info
+  })
+}
