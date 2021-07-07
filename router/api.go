@@ -37,6 +37,7 @@ func initApiRouter() {
 	v1.DELETE("/job/group/labels", delGroupLabels)
 	v1.GET("/job/group/machines-and-labels", getAllMachinesLabels)
 	v1.PUT("/job/group/status", putJobGroupStatus)
+	v1.PUT("/job/group/labels/status", putJobGroupLabelsStatus)
 
 	v1.GET("/machine", getMachine)
 	v1.GET("/machines", getMachines)
@@ -362,6 +363,16 @@ func putJobGroupStatus(c *gin.Context) {
 		return
 	}
 	bf := models.PutJobGroupStatus(&ed)
+	resComm(c, bf, nil)
+}
+
+func putJobGroupLabelsStatus(c *gin.Context) {
+	ed := models.EnabledInfo{}
+	if err := c.BindJSON(&ed); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutJobGroupLabelsStatus(&ed)
 	resComm(c, bf, nil)
 }
 

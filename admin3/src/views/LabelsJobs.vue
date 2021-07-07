@@ -364,6 +364,24 @@
                   >
                 </div>
                 <div>
+                  <el-button
+                    size="mini"
+                    type="info"
+                    v-if="scope.row.enabled === true"
+                    @click="invocateLabels(scope)"
+                    plain
+                    >禁用</el-button
+                  >
+                  <el-button
+                    size="mini"
+                    type="warning"
+                    v-if="scope.row.enabled === false"
+                    @click="invocateLabels(scope)"
+                    plain
+                    >启用</el-button
+                  >
+                </div>
+                <div>
                   <el-popover
                     :visible="deleteLabelsVisible[scope.$index]"
                     placement="top"
@@ -428,7 +446,8 @@ import {
   putGroupLabels,
   delGroupLabels,
   getAllIPAndLabels,
-  enabledJobGroup
+  enabledJobGroup,
+  enabledJobGroupLables
 } from '@/api/labelsJob.js'
 import { getDefaultLabels } from '@/api/monitor.js'
 import { restartSrv } from '@/api/srv'
@@ -916,6 +935,22 @@ export default {
         enabled: newStatus
       }
       enabledJobGroup(gInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新状态成功！',
+          type: 'success'
+        });
+      }).catch(e => console.log(e))
+    },
+    invocateLabels (scope) {
+      const newStatus = !this.labelsData[scope.$index].enabled
+      this.labelsData[scope.$index].enabled = newStatus
+      this.labelsData = [...this.labelsData]
+      const lInfo = {
+        id: scope.row.id,
+        enabled: newStatus
+      }
+      enabledJobGroupLables(lInfo).then(r => {
         this.$notify({
           title: '成功',
           message: '更新状态成功！',

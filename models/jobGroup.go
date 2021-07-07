@@ -351,6 +351,7 @@ type GroupLabels struct {
 	JobGroupID int       `json:"job_group_id" gorm:"column:job_group_id"`
 	Key        string    `json:"key" gorm:"column:key"`
 	Value      string    `json:"value" gorm:"column:value"`
+	Enabled    bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt   time.Time `json:"update_at" gorm:"column:update_at"`
 }
 
@@ -507,6 +508,23 @@ func PutJobGroupStatus(edi *EnabledInfo) *BriefMessage {
 		return ErrDataBase
 	}
 	tx := db.Table("job_group").
+		Where("id=?", edi.ID).
+		Update("enabled", edi.Enabled).
+		Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func PutJobGroupLabelsStatus(edi *EnabledInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("group_labels").
 		Where("id=?", edi.ID).
 		Update("enabled", edi.Enabled).
 		Update("update_at", time.Now())

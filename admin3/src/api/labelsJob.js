@@ -113,3 +113,11 @@ export function enabledJobGroup (info) {
     data: info
   })
 }
+
+export function enabledJobGroupLables (info) {
+  return request({
+    url: '/v1/job/group/labels/status',
+    method: 'put',
+    data: info
+  })
+}
