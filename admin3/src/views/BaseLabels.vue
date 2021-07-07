@@ -45,7 +45,7 @@
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center">
+      <el-table-column label="操作" align="center" width="210px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
