@@ -46,13 +46,13 @@ func (p *PublishResolve) formatData() (map[string][]*TargetList, *BriefMessage) 
 		return nil, ErrDataBase
 	}
 	jobs := []Jobs{}
-	tx := db.Table("jobs").Find(&jobs)
+	tx := db.Table("jobs").Where("enabled=1").Find(&jobs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
 	machines := []Machine{}
-	tx = db.Table("machines").Find(&machines)
+	tx = db.Table("machines").Where("enabled=1 and JSON_LENGTH(job_id)<>0").Find(&machines)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
