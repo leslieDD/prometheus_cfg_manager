@@ -77,6 +77,7 @@ func GetJobsForTmpl() (*[]JobsForTmpl, *BriefMessage) {
 	tx := db.Table("jobs").
 		Select("jobs.*, relabels.code, relabels.name as relabel_name ").
 		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ").
+		Where("jobs.enabled=1 and relabels.enabled=1").
 		Order("display_order asc").
 		// Where("is_common=0").
 		Find(&jobs)
