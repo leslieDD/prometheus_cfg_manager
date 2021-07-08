@@ -9,22 +9,26 @@
         @select="handleSelect"
       >
         <el-menu-item index="1">
+          <i class="el-icon-orange"></i>
+          <template #title>选项编辑</template>
+        </el-menu-item>
+        <el-menu-item index="2">
           <i class="el-icon-grape"></i>
           <template #title>公共标签</template>
         </el-menu-item>
-        <el-menu-item index="2">
+        <el-menu-item index="3">
           <i class="el-icon-watermelon"></i>
           <template #title>标签重写</template>
         </el-menu-item>
-        <el-menu-item index="3">
+        <el-menu-item index="4">
           <i class="el-icon-cherry"></i>
           <template #title>默认分组</template>
         </el-menu-item>
-        <el-menu-item index="4">
+        <el-menu-item index="5">
           <i class="el-icon-apple"></i>
           <template #title>测试配置</template>
         </el-menu-item>
-        <el-menu-item index="5">
+        <el-menu-item index="6">
           <i class="el-icon-pear"></i>
           <template #title>模板编辑</template>
         </el-menu-item>
@@ -54,7 +58,7 @@ export default {
     }
   },
   mounted () {
-    this.$router.push({ name: 'baseLabels' })
+    this.$router.push({ name: 'options' })
   },
   methods: {
     handleOpen (key, keyPath) {
@@ -65,14 +69,16 @@ export default {
     },
     handleSelect (key, keyPath) {
       if (key === '1') {
-        this.$router.push({ name: 'baseLabels' })
+        this.$router.push({ name: 'options' })
       } else if (key === '2') {
-        this.$router.push({ name: 'reLabels' })
+        this.$router.push({ name: 'baseLabels' })
       } else if (key === '3') {
-        this.$router.push({ name: 'defaultJobs' })
+        this.$router.push({ name: 'reLabels' })
       } else if (key === '4') {
-        this.$router.push({ name: 'checkYml' })
+        this.$router.push({ name: 'defaultJobs' })
       } else if (key === '5') {
+        this.$router.push({ name: 'checkYml' })
+      } else if (key === '6') {
         this.$router.push({ name: 'editPrometheusYml' })
       } else if (key === '99') {
         this.$router.push({ name: 'empty' })

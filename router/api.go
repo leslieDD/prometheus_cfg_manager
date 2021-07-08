@@ -85,6 +85,9 @@ func initApiRouter() {
 	v1.GET("/prometheus/struct", getStruct)
 
 	v1.GET("/ws", ws)
+
+	v1.GET("/options", getOptions)
+	v1.PUT("/options", putOptions)
 }
 
 func getJobs(c *gin.Context) {
@@ -771,5 +774,20 @@ func getStruct(c *gin.Context) {
 
 func ws(c *gin.Context) {
 	bf := models.WS(c)
+	resComm(c, bf, nil)
+}
+
+func getOptions(c *gin.Context) {
+	data, bf := models.GetOptions()
+	resComm(c, bf, data)
+}
+
+func putOptions(c *gin.Context) {
+	opts := map[string]string{}
+	if err := c.BindJSON(&opts); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutOptions(opts)
 	resComm(c, bf, nil)
 }

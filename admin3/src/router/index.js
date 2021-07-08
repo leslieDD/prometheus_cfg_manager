@@ -109,6 +109,12 @@ const routes = [
               name: 'editPrometheusYml',
               title: '模板编辑',
               component: () => import('@/views/Tmpl.vue')
+            },
+            {
+              path: '/options',
+              name: 'options',
+              title: '选项编辑',
+              component: () => import('@/views/Options.vue')
             }
           ]
         }
