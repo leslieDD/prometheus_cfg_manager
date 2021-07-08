@@ -13,7 +13,7 @@
             </transition>
           </router-view>
         </el-tab-pane>
-        <el-tab-pane label="分组管理" name="jobs">
+        <el-tab-pane label="JOB组管理" name="jobs">
           <router-view name="jobs" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
