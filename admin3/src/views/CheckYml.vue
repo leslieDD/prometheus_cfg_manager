@@ -83,8 +83,7 @@ export default {
   methods: {
     initWebSocket () { //初始化weosocket
       const protocol = document.location.protocol === 'https:' ? 'wss://' : 'ws://'
-      // let wsuri = protocol + document.location.host + '/ws/'
-      let wsuri = protocol + '127.0.0.1:8200/v1/ws'
+      let wsuri = `${protocol}${document.location.host}/v1/ws`
       this.websock = new WebSocket(wsuri)
       this.websock.onmessage = this.webSocketOnMessage
       this.websock.onopen = this.webSocketOnOpen

@@ -1,0 +1,1 @@
+import{r as e,o as t,c as o}from"./vendor.61ee7ef1.js";const r={name:"Empty",data:()=>({}),methods:{}};r.render=function(r,a,n,s,m,d){const c=e("el-empty");return t(),o(c,{"image-size":200})};export default r;

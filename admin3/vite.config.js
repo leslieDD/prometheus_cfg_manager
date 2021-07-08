@@ -85,9 +85,8 @@ export default defineConfig({
         target: 'http://127.0.0.1:8200',
         changeOrigin: true
         // rewrite: (path) => path.replace(/^\/admin/, '')
-      },
-    }    
-
+      }
+    },
     //proxy: {
     //   // string shorthand
     //   '/foo': 'http://localhost:4567/foo',
@@ -105,7 +104,6 @@ export default defineConfig({
     //   }
     // }
   },
-  
   //生产模式打包配置
   build:{
     outDir: 'dist',//Specify the output directory (relative to project root).
