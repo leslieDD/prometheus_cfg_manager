@@ -450,6 +450,67 @@ func DoPublishJobs() *BriefMessage {
 	return TmplObj.doWrite(b)
 }
 
+type JobIDAndMachinesID struct {
+	MachinesID int `json:"machines_id" gorm:"column:machines_id"`
+	JobsID     int `json:"jobs_id" gorm:"column:jobs_id"`
+}
+
+// publish_at_null_subgroup
+func GetJobsForOptions() *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	// 事务
+	sql := `SELECT machines.id AS machines_id, jobs.id AS jobs_id FROM machines 
+	LEFT JOIN jobs 
+	ON JSON_CONTAINS(machines.job_id, JSON_ARRAY(jobs.id))
+	WHERE jobs.id NOT IN (SELECT jobs_id FROM job_group)
+	`
+	jgs := []*JobIDAndMachinesID{}
+	tx := db.Table("machines").Raw(sql).Find(&jgs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	// createGroups := map[int][]int{}
+	// for _, jg := range jgs {
+	// 	_, ok := createGroups[jg.JobsID]
+	// 	if !ok {
+	// 		createGroups[jg.JobsID] = []int{}
+	// 	}
+	// 	createGroups[jg.JobsID] = append(createGroups[jg.JobsID], jg.MachinesID)
+	// }
+	// 为每个JOB创建子组
+	// if len(createGroups) == 0 {
+	// 	return Success
+	// }
+	shiwu := db.Begin()
+	// newJG := []JobGroup{}
+	for _, jg := range jgs {
+		newJG := JobGroup{
+			ID:       0,
+			Name:     "默认子组",
+			JobsID:   jg.JobsID,
+			Enabled:  true,
+			UpdateAt: time.Now(),
+		}
+		txCreate := shiwu.Table("job_group").Create(&newJG)
+		if txCreate.Error != nil {
+			config.Log.Error(tx.Error)
+			db.Rollback()
+			return ErrCreateDBData
+		}
+	}
+
+}
+
+func DoOptionsFunc() {
+	// 在发布JOB组时，针对没有配置任何子组的JOB组，是否为此JOB组的所有IP生成无标签子组
+	//
+}
+
 func getJobId(name string) ([]OnlyID, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
