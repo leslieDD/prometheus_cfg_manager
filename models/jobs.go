@@ -502,6 +502,7 @@ func GetJobsForOptions() *BriefMessage {
 			db.Rollback()
 			return ErrCreateDBData
 		}
+		txCreate2 := 
 	}
 
 }
