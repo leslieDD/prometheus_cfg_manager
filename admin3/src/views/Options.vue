@@ -52,7 +52,7 @@
     <el-descriptions-item>
       <template #label>
         <!-- <i class="el-icon-mobile-phone"></i> -->
-        在发布JOB组时，针对没有设置相关联的JOB组，不在prometheus.yml中生成job项
+        在发布JOB组时，针对没有设置相关联IP的JOB组（IP数0），不在prometheus.yml中生成job项
       </template>
       <el-tooltip
         :content="'当前:' + titles.publish_at_empty_nocreate_file"
@@ -113,7 +113,7 @@
       <template #label>
         <!-- <i class="el-icon-mobile-phone"></i> -->
         在发布'IP管理'中发布IP分组文件时，同时Reload
-        Prometheus服务(默认Prometheus自动更新)
+        Prometheus服务（默认Prometheus自动更新）
       </template>
       <el-tooltip
         :content="'当前:' + titles.publish_ips_also_reload_srv"

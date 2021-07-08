@@ -77,6 +77,7 @@ export default {
     // this.yamlEditor.destroy();
   },
   mounted () {
+    // CodeMirror 中文说明文档： https://www.tun6.com/code_mirror/config/
     this.yamlEditor = markRaw(CodeMirror.fromTextArea(this.$refs.textarea, {
       mode: 'text/x-yaml', // 语法model
       indentUnit: 2, // 缩进单位，默认2
