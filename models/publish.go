@@ -71,6 +71,10 @@ func (p *PublishResolve) formatData() (map[string]*[]*TargetList, *BriefMessage)
 	if bf != Success {
 		return nil, bf
 	}
+	jobsMap := map[int]*Jobs{}
+	for _, j := range jobs {
+		jobsMap[j.ID] = j
+	}
 	//          map[分组ID]map[子组ID]
 	jobGpAndLb := map[int]map[int]*TargetList{}
 	for _, obj := range jobGp {
@@ -87,7 +91,16 @@ func (p *PublishResolve) formatData() (map[string]*[]*TargetList, *BriefMessage)
 			}
 			job[obj.JobGroupID] = group
 		}
-		group.Targets = append(group.Targets, obj.IPAddr)
+		relJob, ok := jobsMap[obj.JobsID]
+		if !ok {
+			config.Log.Errorf("no found real job, id: %d, ipaddr: %s", obj.JobsID, obj.IPAddr)
+			continue
+		}
+		if relJob.Port == 0 {
+			group.Targets = append(group.Targets, obj.IPAddr)
+		} else {
+			group.Targets = append(group.Targets, fmt.Sprintf("%s:%d", obj.IPAddr, relJob.Port))
+		}
 	}
 	for _, obj := range jobLb {
 		job, ok := jobGpAndLb[obj.JobsID]
@@ -186,12 +199,32 @@ func (p *PublishResolve) Do() *BriefMessage {
 	if bf != Success {
 		return bf
 	}
-	return p.syncToPrometheus(data)
-	// bf = p.syncToPrometheus(data)
-	// if bf != Success {
-	// 	return bf
-	// }
+	bf = p.syncToPrometheus(data)
+	if bf != Success {
+		return bf
+	}
+	return ReloadByFiled("publish_ips_also_reload_srv", "true")
 	// return p.ReloadPrometheus()
+}
+
+func ReloadByFiled(optKey string, optValue string) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	var count int64
+	tx := db.Table("options").
+		Where("opt_key=? and opt_value=?", optKey, optValue).
+		Count(&count)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrGetControlField
+	}
+	if count != 1 {
+		return Success
+	}
+	return Reload()
 }
 
 func Preview() (string, *BriefMessage) {

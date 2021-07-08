@@ -168,7 +168,6 @@ export default {
           }
         }
         this.titles = { ...newTitle }
-        console.log('update newtitle')
       },
       deep: true
     }
