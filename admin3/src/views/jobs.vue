@@ -58,7 +58,7 @@
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column label="分组名称" prop="name"> </el-table-column>
+      <el-table-column label="JOB组名称" prop="name"> </el-table-column>
       <el-table-column label="端口号" width="70px" prop="port">
       </el-table-column>
       <el-table-column label="IP数" width="60px">
