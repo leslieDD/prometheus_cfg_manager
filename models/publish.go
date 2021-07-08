@@ -203,15 +203,22 @@ func (p *PublishResolve) Do() *BriefMessage {
 	if bf != Success {
 		return bf
 	}
-	return ReloadByFiled("publish_ips_also_reload_srv", "true")
+	r, bf := CheckByFiled("publish_ips_also_reload_srv", "true")
+	if bf != Success {
+		return bf
+	}
+	if r {
+		return Reload()
+	}
+	return Success
 	// return p.ReloadPrometheus()
 }
 
-func ReloadByFiled(optKey string, optValue string) *BriefMessage {
+func CheckByFiled(optKey string, optValue string) (bool, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
-		return ErrDataBase
+		return false, ErrDataBase
 	}
 	var count int64
 	tx := db.Table("options").
@@ -219,12 +226,12 @@ func ReloadByFiled(optKey string, optValue string) *BriefMessage {
 		Count(&count)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
-		return ErrGetControlField
+		return false, ErrGetControlField
 	}
 	if count != 1 {
-		return Success
+		return false, Success
 	}
-	return Reload()
+	return true, Success
 }
 
 func Preview() (string, *BriefMessage) {

@@ -30,6 +30,9 @@ var ErrGenRsa = &BriefMessage{500000, "rsa生成失败"}
 // ErrCreateDBData ErrCreateDBData
 var ErrCreateDBData = &BriefMessage{500000, "创建数据失败"}
 
+// ErrCreateDBData ErrCreateDBData
+var ErrTransaction = &BriefMessage{500000, "执行事务出错"}
+
 // ErrSearchDBData ErrSearchDBData
 var ErrSearchDBData = &BriefMessage{500000, "数据查询失败"}
 

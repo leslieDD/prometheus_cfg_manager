@@ -455,8 +455,15 @@ type JobIDAndMachinesID struct {
 	JobsID     int `json:"jobs_id" gorm:"column:jobs_id"`
 }
 
+type JobGroupIP struct {
+	ID         int       `json:"id" gorm:"column:id"`
+	JobGroupID int       `json:"job_group_id" gorm:"column:job_group_id"`
+	MachinesID int       `json:"machines_id" gorm:"column:machines_id"`
+	UpdateAt   time.Time `json:"update_at" gorm:"column:update_at"`
+}
+
 // publish_at_null_subgroup
-func GetJobsForOptions() *BriefMessage {
+func GetJobsForOptions_6() *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -474,20 +481,12 @@ func GetJobsForOptions() *BriefMessage {
 		config.Log.Error(tx.Error)
 		return ErrSearchDBData
 	}
-	// createGroups := map[int][]int{}
-	// for _, jg := range jgs {
-	// 	_, ok := createGroups[jg.JobsID]
-	// 	if !ok {
-	// 		createGroups[jg.JobsID] = []int{}
-	// 	}
-	// 	createGroups[jg.JobsID] = append(createGroups[jg.JobsID], jg.MachinesID)
-	// }
-	// 为每个JOB创建子组
-	// if len(createGroups) == 0 {
-	// 	return Success
-	// }
 	shiwu := db.Begin()
-	// newJG := []JobGroup{}
+	defer func() {
+		if r := recover(); r != nil {
+			shiwu.Rollback()
+		}
+	}()
 	for _, jg := range jgs {
 		newJG := JobGroup{
 			ID:       0,
@@ -498,18 +497,82 @@ func GetJobsForOptions() *BriefMessage {
 		}
 		txCreate := shiwu.Table("job_group").Create(&newJG)
 		if txCreate.Error != nil {
-			config.Log.Error(tx.Error)
+			config.Log.Error(txCreate.Error)
 			db.Rollback()
-			return ErrCreateDBData
+			return ErrTransaction
 		}
-		txCreate2 := 
+		jgm := JobGroupIP{
+			ID:         0,
+			MachinesID: jg.MachinesID,
+			JobGroupID: newJG.ID,
+			UpdateAt:   time.Now(),
+		}
+		txCreate2 := shiwu.Table("group_machines").Create(&jgm)
+		if txCreate2.Error != nil {
+			config.Log.Error(txCreate2.Error)
+			db.Rollback()
+			return ErrTransaction
+		}
 	}
-
+	r := shiwu.Commit()
+	if r.Error != nil {
+		config.Log.Error(r.Error)
+		db.Rollback()
+		return ErrTransaction
+	}
+	return Success
 }
 
-func DoOptionsFunc() {
+func DoOptionsFunc() *BriefMessage {
 	// 在发布JOB组时，针对没有配置任何子组的JOB组，是否为此JOB组的所有IP生成无标签子组
-	//
+	r, bf := CheckByFiled("publish_at_null_subgroup", "true")
+	if bf != Success {
+		return bf
+	}
+	if r {
+		if bf := GetJobsForOptions_6(); bf != Success {
+			return bf
+		}
+	}
+	// 在发布JOB组时，针对有配置子组的JOB组，是否为此JOB组的未分组IP生成无标签子组
+	r, bf = CheckByFiled("publish_at_remain_subgroup", "true")
+	if bf != Success {
+		return bf
+	}
+	if r {
+		// if bf := GetJobsForOptions(); bf != Success {
+		// 	return bf
+		// }
+	}
+	r, bf = CheckByFiled("publish_at_empty_nocreate_file", "true")
+	if bf != Success {
+		return bf
+	}
+	if r {
+		// if bf := GetJobsForOptions(); bf != Success {
+		// 	return bf
+		// }
+	}
+	r, bf = CheckByFiled("publish_jobs_also_ips", "true")
+	if bf != Success {
+		return bf
+	}
+	if r {
+		// if bf := GetJobsForOptions(); bf != Success {
+		// 	return bf
+		// }
+	}
+	r, bf = CheckByFiled("publish_jobs_also_reload_srv", "true")
+	if bf != Success {
+		return bf
+	}
+	if r {
+		// if bf := GetJobsForOptions(); bf != Success {
+		// 	return bf
+		// }
+	}
+	return Success
+
 }
 
 func getJobId(name string) ([]OnlyID, *BriefMessage) {
