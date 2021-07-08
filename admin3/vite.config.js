@@ -83,7 +83,9 @@ export default defineConfig({
     proxy: {
       '/v1': {
         target: 'http://127.0.0.1:8200',
-        changeOrigin: true
+        changeOrigin: true,
+        secure: false,
+        ws: true
         // rewrite: (path) => path.replace(/^\/admin/, '')
       }
     },
