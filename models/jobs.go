@@ -463,7 +463,7 @@ type JobGroupIP struct {
 }
 
 // publish_at_null_subgroup
-func GetJobsForOptions_6() *BriefMessage {
+func doOptions_6() *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -521,6 +521,10 @@ func GetJobsForOptions_6() *BriefMessage {
 		return ErrTransaction
 	}
 	return Success
+}
+
+func doOptions_1() {
+
 }
 
 func DoOptionsFunc() *BriefMessage {
