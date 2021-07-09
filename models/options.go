@@ -48,6 +48,25 @@ func PutOptions(opts map[string]string) *BriefMessage {
 	return Success
 }
 
+func getJobGroupID(groupName string, jobID int) (*OnlyID, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	id := OnlyID{ID: -1}
+	tx := db.Table("job_group").
+		Select("id").
+		Where("name=? and jobs_id=?", groupName, jobID).
+		Order("update_at desc").
+		First(&id)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return &id, Success
+}
+
 func doOptions_1() *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -79,23 +98,34 @@ WHERE jobs.is_common=0 AND job_group.name IS NULL `
 	jobsIDMap := map[int]int{}
 	for _, jg := range jgs {
 		// 检查是否有默认子组，如果有则加入第一个，如果没有则新建一个
-		newJG := JobGroup{
-			ID:       0,
-			Name:     "默认子组",
-			JobsID:   jg.JobsID,
-			Enabled:  true,
-			UpdateAt: time.Now(),
-		}
-		txCreate := shiwu.Table("job_group").Create(&newJG)
-		if txCreate.Error != nil {
-			config.Log.Error(txCreate.Error)
-			db.Rollback()
-			return ErrTransaction
+		groupID, ok := jobsIDMap[jg.JobsID]
+		if !ok {
+			// 检查是不是有这么一个子组
+			id, bf := getJobGroupID("默认子组", jg.JobsID)
+			if bf == Success {
+				jobsIDMap[jg.JobsID] = id.ID
+			} else {
+				newJG := JobGroup{
+					ID:       0,
+					Name:     "默认子组",
+					JobsID:   jg.JobsID,
+					Enabled:  true,
+					UpdateAt: time.Now(),
+				}
+				txCreate := shiwu.Table("job_group").Create(&newJG)
+				if txCreate.Error != nil {
+					config.Log.Error(txCreate.Error)
+					db.Rollback()
+					return ErrTransaction
+				}
+				jobsIDMap[jg.JobsID] = newJG.ID
+			}
+			groupID = id.ID
 		}
 		jgm := JobGroupIP{
 			ID:         0,
 			MachinesID: jg.MachinesID,
-			JobGroupID: newJG.ID,
+			JobGroupID: groupID,
 			UpdateAt:   time.Now(),
 		}
 		txCreate2 := shiwu.Table("group_machines").Create(&jgm)
@@ -214,9 +244,9 @@ func DoOptionsFunc() *BriefMessage {
 		return bf
 	}
 	if r {
-		// if bf := GetJobsForOptions(); bf != Success {
-		// 	return bf
-		// }
+		if bf := doOptions_1(); bf != Success {
+			return bf
+		}
 	}
 	r, bf = CheckByFiled("publish_at_empty_nocreate_file", "true")
 	if bf != Success {

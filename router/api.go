@@ -10,6 +10,8 @@ import (
 
 func initApiRouter() {
 
+	v1.GET("/test", getTest)
+
 	v1.GET("/jobs", getJobs)
 	v1.GET("/jobs/split", getJobsSplit)
 	v1.GET("/job", getJob)
@@ -88,6 +90,11 @@ func initApiRouter() {
 
 	v1.GET("/options", getOptions)
 	v1.PUT("/options", putOptions)
+}
+
+func getTest(c *gin.Context) {
+	result, bf := models.GetTest()
+	resComm(c, bf, result)
 }
 
 func getJobs(c *gin.Context) {
