@@ -12,7 +12,7 @@
     <el-descriptions-item>
       <template #label>
         <!-- <i class="el-icon-user"></i> -->
-        在发布JOB组时，针对没有配置任何子组的JOB组，是否为此JOB组的所有IP生成无标签子组
+        1）在发布JOB组时，针对没有配置任何子组的JOB组，是否为此JOB组的所有IP生成无标签子组
       </template>
       <el-tooltip
         :content="'当前:' + titles.publish_at_null_subgroup"
@@ -32,7 +32,7 @@
     <el-descriptions-item>
       <template #label>
         <!-- <i class="el-icon-mobile-phone"></i> -->
-        在发布JOB组时，针对有配置子组的JOB组，是否为此JOB组的未分组IP生成无标签子组
+        2）在发布JOB组时，针对有配置子组的JOB组，是否为此JOB组的未分组IP生成无标签子组
       </template>
       <el-tooltip
         :content="'当前:' + titles.publish_at_remain_subgroup"
@@ -52,7 +52,7 @@
     <el-descriptions-item>
       <template #label>
         <!-- <i class="el-icon-mobile-phone"></i> -->
-        在发布JOB组时，针对没有设置相关联IP的JOB组（IP数0），不在prometheus.yml中生成job项
+        3）在发布JOB组时，针对没有设置相关联IP的JOB组（IP数0），不在prometheus.yml中生成job项
       </template>
       <el-tooltip
         :content="'当前:' + titles.publish_at_empty_nocreate_file"
@@ -72,7 +72,7 @@
     <el-descriptions-item>
       <template #label>
         <!-- <i class="el-icon-mobile-phone"></i> -->
-        在发布JOB组时，同进也更新JOB组对应的IP分组（在'分组预览'中看到的）文件
+        4）在发布JOB组时，同进也更新JOB组对应的IP分组（在'分组预览'中看到的）文件
       </template>
       <el-tooltip
         :content="'当前:' + titles.publish_jobs_also_ips"
@@ -92,7 +92,7 @@
     <el-descriptions-item>
       <template #label>
         <!-- <i class="el-icon-mobile-phone"></i> -->
-        在发布JOB组时，同时Reload Prometheus服务
+        5）在发布JOB组时，同时Reload Prometheus服务
       </template>
       <el-tooltip
         :content="'当前:' + titles.publish_jobs_also_reload_srv"
@@ -112,7 +112,7 @@
     <el-descriptions-item>
       <template #label>
         <!-- <i class="el-icon-mobile-phone"></i> -->
-        在发布'IP管理'中发布IP分组文件时，同时Reload
+        6）在发布'IP管理'中发布IP分组文件时，同时Reload
         Prometheus服务（默认Prometheus自动更新）
       </template>
       <el-tooltip
