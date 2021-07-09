@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
+	"strings"
 	"time"
 
 	"gorm.io/datatypes"
@@ -44,6 +45,12 @@ type JobCount struct {
 type OnlyID struct {
 	ID int `json:"id" gorm:"column:id" form:"id"`
 }
+
+type OnlyIDAndCount struct {
+	ID    int `json:"id" gorm:"column:id" form:"id"`
+	Count int `json:"count" gorm:"column:count" form:"count"`
+}
+
 type SwapInfo struct {
 	ID           int    `json:"id" gorm:"column:id"`
 	DisplayOrder int    `json:"display_order" gorm:"column:display_order"`
@@ -68,16 +75,40 @@ func GetJobs() (*[]Jobs, *BriefMessage) {
 }
 
 func GetJobsForTmpl() (*[]JobsForTmpl, *BriefMessage) {
+	r, bf := CheckByFiled("publish_at_empty_nocreate_file", "true")
+	if bf != Success {
+		return nil, bf
+	}
+	jobsCount := []*OnlyIDAndCount{}
+	if r {
+		jobsCount, bf = doOptions_3()
+		if bf != Success {
+			return nil, bf
+		}
+	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return nil, ErrDataBase
 	}
+	var where string
+	if len(jobsCount) == 0 {
+		where = "jobs.enabled=1 and relabels.enabled=1"
+	} else {
+		ids := []string{}
+		for _, obj := range jobsCount {
+			if obj.Count == 0 {
+				continue
+			}
+			ids = append(ids, fmt.Sprint(obj.ID))
+		}
+		where = fmt.Sprintf("jobs.enabled=1 and relabels.enabled=1 and jobs.id not in (%s)", strings.Join(ids, ","))
+	}
 	jobs := []JobsForTmpl{}
 	tx := db.Table("jobs").
 		Select("jobs.*, relabels.code, relabels.name as relabel_name ").
 		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ").
-		Where("jobs.enabled=1 and relabels.enabled=1").
+		Where(where).
 		Order("display_order asc").
 		// Where("is_common=0").
 		Find(&jobs)
@@ -443,11 +474,20 @@ func downSwap(sInfo *SwapInfo) *BriefMessage {
 }
 
 func DoPublishJobs() *BriefMessage {
+	if bf := DoTmplBefore(); bf != Success {
+		return bf
+	}
 	b, bf := TmplObj.doTmpl()
 	if bf != Success {
 		return bf
 	}
-	return TmplObj.doWrite(b)
+	if bf := TmplObj.doWrite(b); bf != Success {
+		return bf
+	}
+	if bf := DoTmplAfter(); bf != Success {
+		return bf
+	}
+	return Success
 }
 
 type JobIDAndMachinesID struct {
