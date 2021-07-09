@@ -24,7 +24,7 @@ func init() {
 }
 
 func Publish() *BriefMessage {
-	return publish.Do()
+	return publish.Do(false)
 }
 
 type ConfPublish struct {
@@ -191,7 +191,7 @@ func (p *PublishResolve) ReloadPrometheus() *BriefMessage {
 	return Success
 }
 
-func (p *PublishResolve) Do() *BriefMessage {
+func (p *PublishResolve) Do(alreadyReload bool) *BriefMessage {
 	p.lock.Lock()
 	defer p.lock.Unlock()
 
@@ -203,12 +203,14 @@ func (p *PublishResolve) Do() *BriefMessage {
 	if bf != Success {
 		return bf
 	}
-	r, bf := CheckByFiled("publish_ips_also_reload_srv", "true")
-	if bf != Success {
-		return bf
-	}
-	if r {
-		return Reload()
+	if !alreadyReload {
+		r, bf := CheckByFiled("publish_ips_also_reload_srv", "true")
+		if bf != Success {
+			return bf
+		}
+		if r {
+			return Reload()
+		}
 	}
 	return Success
 	// return p.ReloadPrometheus()

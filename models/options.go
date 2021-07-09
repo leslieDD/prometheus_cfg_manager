@@ -255,20 +255,24 @@ func DoTmplBefore() *BriefMessage {
 }
 
 func DoTmplAfter() *BriefMessage {
-	r, bf := CheckByFiled("publish_jobs_also_ips", "true")
+	var needReload bool
+	r, bf := CheckByFiled("publish_jobs_also_reload_srv", "true")
 	if bf != Success {
 		return bf
 	}
 	if r {
-		if bf := publish.Do(); bf != Success {
+		needReload = true
+	}
+	r, bf = CheckByFiled("publish_jobs_also_ips", "true")
+	if bf != Success {
+		return bf
+	}
+	if r {
+		if bf := publish.Do(needReload); bf != Success {
 			return bf
 		}
 	}
-	r, bf = CheckByFiled("publish_jobs_also_reload_srv", "true")
-	if bf != Success {
-		return bf
-	}
-	if r {
+	if needReload {
 		if bf := Reload(); bf != Success {
 			return bf
 		}
