@@ -67,7 +67,7 @@ func getJobGroupID(groupName string, jobID int) (*OnlyID, *BriefMessage) {
 	return &id, Success
 }
 
-func doOptions_1() *BriefMessage {
+func doOptions_2() *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -144,10 +144,6 @@ WHERE jobs.is_common=0 AND job_group.name IS NULL `
 	return Success
 }
 
-func doOptions_2() *BriefMessage {
-	return Success
-}
-
 func doOptions_3() *BriefMessage {
 	return Success
 }
@@ -156,12 +152,8 @@ func doOptions_4() *BriefMessage {
 	return Success
 }
 
-func doOptions_5() *BriefMessage {
-	return Success
-}
-
 // publish_at_null_subgroup
-func doOptions_6() *BriefMessage {
+func doOptions_1() *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -234,7 +226,7 @@ func DoOptionsFunc() *BriefMessage {
 		return bf
 	}
 	if r {
-		if bf := doOptions_6(); bf != Success {
+		if bf := doOptions_1(); bf != Success {
 			return bf
 		}
 	}
@@ -244,7 +236,7 @@ func DoOptionsFunc() *BriefMessage {
 		return bf
 	}
 	if r {
-		if bf := doOptions_1(); bf != Success {
+		if bf := doOptions_2(); bf != Success {
 			return bf
 		}
 	}
