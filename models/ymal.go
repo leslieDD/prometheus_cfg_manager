@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"os"
 	"path/filepath"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/utils"
@@ -105,13 +106,28 @@ func (pr *PrometheusRule) Write() *BriefMessage {
 	if pr.data == nil {
 		return ErrDataIsNil
 	}
+	// 清理文件
+	if err := filepath.Walk(config.Cfg.PrometheusCfg.RuleConf,
+		func(path string, fi os.FileInfo, err error) error {
+			if err != nil {
+				config.Log.Error(err)
+				return nil
+			}
+			if path == config.Cfg.PrometheusCfg.RuleConf {
+				return nil
+			}
+			return os.RemoveAll(path)
+		}); err != nil {
+		config.Log.Error(err)
+	}
 	for _, mf := range *pr.data {
 		yamlData, err := yaml.Marshal(mf.Data)
 		if err != nil {
 			config.Log.Error(err)
 			return ErrDataParse
 		}
-		absPath := filepath.Join(config.Cfg.PrometheusCfg.RuleConf, fmt.Sprintf("%s%s", mf.FileName, MYYaml))
+		absPath := filepath.Join(config.Cfg.PrometheusCfg.RuleConf,
+			fmt.Sprintf("%s%s", mf.FileName, MYYaml))
 		if err := utils.WIoutilByte(absPath, yamlData); err != nil {
 			config.Log.Error(err)
 			return ErrDataWriteDisk

@@ -132,27 +132,28 @@ func AllFileList() ([]FileList, *BriefMessage) {
 	fl := FileList{
 		Label: "分组文件",
 	}
-	if err := filepath.Walk(config.Cfg.PrometheusCfg.Conf, func(path string, fi os.FileInfo, err error) error {
-		if err != nil {
-			config.Log.Error(err)
+	if err := filepath.Walk(config.Cfg.PrometheusCfg.Conf,
+		func(path string, fi os.FileInfo, err error) error {
+			if err != nil {
+				config.Log.Error(err)
+				return nil
+			}
+			if fi.IsDir() {
+				return nil
+			}
+			nameLower := strings.ToLower(fi.Name())
+			if !strings.HasSuffix(nameLower, MYExt) {
+				config.Log.Warnf("skip file: %s", fi.Name())
+				return nil
+			}
+			name := strings.TrimRight(fi.Name(), MYExt)
+			c := Child{
+				Label: name,
+				Path:  path,
+			}
+			fl.Children = append(fl.Children, &c)
 			return nil
-		}
-		if fi.IsDir() {
-			return nil
-		}
-		nameLower := strings.ToLower(fi.Name())
-		if !strings.HasSuffix(nameLower, MYExt) {
-			config.Log.Warnf("skip file: %s", fi.Name())
-			return nil
-		}
-		name := strings.TrimRight(fi.Name(), MYExt)
-		c := Child{
-			Label: name,
-			Path:  path,
-		}
-		fl.Children = append(fl.Children, &c)
-		return nil
-	}); err != nil {
+		}); err != nil {
 		config.Log.Error(err)
 		return nil, ErrFileList
 	}
@@ -166,27 +167,28 @@ func AllRulesFileList() ([]FileList, *BriefMessage) {
 	fl := FileList{
 		Label: "规则文件",
 	}
-	if err := filepath.Walk(config.Cfg.PrometheusCfg.RuleConf, func(path string, fi os.FileInfo, err error) error {
-		if err != nil {
-			config.Log.Error(err)
+	if err := filepath.Walk(config.Cfg.PrometheusCfg.RuleConf,
+		func(path string, fi os.FileInfo, err error) error {
+			if err != nil {
+				config.Log.Error(err)
+				return nil
+			}
+			if fi.IsDir() {
+				return nil
+			}
+			nameLower := strings.ToLower(fi.Name())
+			if !strings.HasSuffix(nameLower, MYYaml) {
+				config.Log.Warnf("skip file: %s", fi.Name())
+				return nil
+			}
+			name := strings.TrimRight(fi.Name(), MYYaml)
+			c := Child{
+				Label: name,
+				Path:  path,
+			}
+			fl.Children = append(fl.Children, &c)
 			return nil
-		}
-		if fi.IsDir() {
-			return nil
-		}
-		nameLower := strings.ToLower(fi.Name())
-		if !strings.HasSuffix(nameLower, MYYaml) {
-			config.Log.Warnf("skip file: %s", fi.Name())
-			return nil
-		}
-		name := strings.TrimRight(fi.Name(), MYYaml)
-		c := Child{
-			Label: name,
-			Path:  path,
-		}
-		fl.Children = append(fl.Children, &c)
-		return nil
-	}); err != nil {
+		}); err != nil {
 		config.Log.Error(err)
 		return nil, ErrFileList
 	}

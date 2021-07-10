@@ -8,7 +8,6 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/utils"
-	"strings"
 	"sync"
 )
 
@@ -140,6 +139,20 @@ func (p *PublishResolve) syncToPrometheus(data map[string]*[]*TargetList) *Brief
 		config.Log.Error("data is nil")
 		return ErrDataIsNil
 	}
+	// 清理文件
+	if err := filepath.Walk(config.Cfg.PrometheusCfg.Conf,
+		func(path string, fi os.FileInfo, err error) error {
+			if err != nil {
+				config.Log.Error(err)
+				return nil
+			}
+			if path == config.Cfg.PrometheusCfg.Conf {
+				return nil
+			}
+			return os.RemoveAll(path)
+		}); err != nil {
+		config.Log.Error(err)
+	}
 	for name, objData := range data {
 		pathName := filepath.Join(config.Cfg.PrometheusCfg.Conf, fmt.Sprintf("%s%s", name, MYExt))
 		writeData, err := json.MarshalIndent(&objData, "", "    ")
@@ -152,28 +165,6 @@ func (p *PublishResolve) syncToPrometheus(data map[string]*[]*TargetList) *Brief
 			config.Log.Error(err)
 			return ErrDataWriteDisk
 		}
-	}
-	// 删除无用的文件
-	if err := filepath.Walk(config.Cfg.PrometheusCfg.Conf, func(path string, fi os.FileInfo, err error) error {
-		if err != nil {
-			config.Log.Error(err)
-			return nil
-		}
-		if fi.IsDir() {
-			return nil
-		}
-		name := strings.TrimRight(fi.Name(), MYExt)
-		_, ok := data[name]
-		if !ok {
-			if err := os.RemoveAll(path); err != nil {
-				config.Log.Error(err)
-			} else {
-				config.Log.Warnf("delete file: %s", fi.Name())
-			}
-		}
-		return nil
-	}); err != nil {
-		config.Log.Error(err)
 	}
 	return Success
 }
@@ -213,7 +204,6 @@ func (p *PublishResolve) Do(alreadyReload bool) *BriefMessage {
 		}
 	}
 	return Success
-	// return p.ReloadPrometheus()
 }
 
 func CheckByFiled(optKey string, optValue string) (bool, *BriefMessage) {
