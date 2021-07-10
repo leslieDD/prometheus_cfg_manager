@@ -7,7 +7,7 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/utils"
 	"runtime"
-	"time"
+	"sync"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -19,65 +19,106 @@ var upGrader = websocket.Upgrader{
 	},
 }
 
+type wsCommand struct {
+	Cmd    string
+	Result chan string
+}
+
 func WS(c *gin.Context) *BriefMessage {
 	ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return ErrUpGrader
 	}
 	defer ws.Close()
-	// for {
-	// 	//读取ws中的数据
-	// 	// mt, message, err := ws.ReadMessage()
-	// 	// if err != nil {
-	// 	// 	config.Log.Error(err)
-	// 	// 	break
-	// 	// }
-	// 	// message = []byte(`{"action": "pong"}`)
-	// 	statusCode, output, err := doCheck()
-	// 	message := fmt.Sprintf("状态码：%d\n输出结果：%s\n错误信息：%s\n",
-	// 		statusCode, output, err)
-	// 	//写入ws数据
-	// 	err = ws.WriteMessage(websocket.BinaryMessage, []byte(message))
-	// 	if err != nil {
-	// 		config.Log.Error(err)
-	// 		break
-	// 	}
-	// 	err = ws.WriteControl(websocket.CloseMessage, []byte(""), time.Now().Add(5*time.Second))
-	// 	if err != nil {
-	// 		config.Log.Error(err)
-	// 	}
-	// 	break
-	// }
-	// return nil
-	tag := []byte("测试中，请稍等...\n--------------------------\n")
-	err = ws.WriteMessage(websocket.TextMessage, tag)
-	if err != nil {
-		config.Log.Error(err)
-		return nil
-	}
-	statusCode, output, cmd, err := doCheck()
-	message := fmt.Sprintf("执行命令：%s\n状态码：%d\n输出结果：%s\n错误信息：%s\n",
-		cmd, statusCode, output, err)
-	//写入ws数据
-	err = ws.WriteMessage(websocket.TextMessage, []byte(message))
-	if err != nil {
-		config.Log.Error(err)
-		return nil
-	}
-	tag = []byte("--------------------------\n测试完成\n")
-	err = ws.WriteMessage(websocket.TextMessage, tag)
-	if err != nil {
-		config.Log.Error(err)
-		return nil
-	}
-	err = ws.WriteControl(websocket.CloseMessage, []byte(""), time.Now().Add(5*time.Second))
-	if err != nil {
-		config.Log.Error(err)
+	for {
+		mt, message, err := ws.ReadMessage()
+		if err != nil {
+			config.Log.Error(err)
+			break
+		}
+		wsc := &wsCommand{Cmd: string(message), Result: make(chan string)}
+		bf := cmdArea.RecvFromWS(wsc)
+		if bf != Success {
+			err = ws.WriteMessage(mt, []byte(bf.Message))
+			if err != nil {
+				config.Log.Error(err)
+			}
+			continue
+		}
+		go func() {
+			for output := range wsc.Result {
+				err = ws.WriteMessage(mt, []byte(output))
+				if err != nil {
+					config.Log.Error(err)
+					return
+				}
+			}
+		}()
 	}
 	return nil
 }
 
-func doCheck() (int, string, string, error) {
+type CmdAreaT struct {
+	reloadLock  sync.Mutex
+	restartLock sync.Mutex
+	messRecv    chan *wsCommand
+	messSend    chan []byte
+}
+
+var cmdArea = NewCmdArea()
+
+func NewCmdArea() *CmdAreaT {
+	cmdArea := &CmdAreaT{
+		reloadLock:  sync.Mutex{},
+		restartLock: sync.Mutex{},
+		messRecv:    make(chan *wsCommand),
+		messSend:    make(chan []byte, 10),
+	}
+	go cmdArea.Work()
+	return cmdArea
+}
+
+func (c *CmdAreaT) RecvFromWS(wsc *wsCommand) *BriefMessage {
+	select {
+	case c.messRecv <- wsc:
+	default:
+		return ErrHaveTaskRunning
+	}
+	return Success
+}
+
+func (c *CmdAreaT) Work() {
+	for message := range c.messRecv {
+		switch message.Cmd {
+		case "restart":
+			c.Restart(message)
+		case "check":
+			c.Check(message)
+		default:
+			config.Log.Error("unsupport cmd: %s", message.Cmd)
+		}
+	}
+}
+
+func (c *CmdAreaT) Restart(wsc *wsCommand) {
+	c.restartLock.Lock()
+	defer c.restartLock.Unlock()
+	code, output, err := utils.ExecCmd("systemctl", "restart", "prometheus")
+	if err != nil {
+		config.Log.Errorf("err: %v: output: %v", err, output)
+		wsc.Result <- fmt.Sprintf("err: %v: output: %v", err, output)
+		return
+	}
+	if code != 0 {
+		config.Log.Errorf("code: %d, output: %v", code, output)
+		wsc.Result <- fmt.Sprintf("code: %d, output: %v", code, output)
+		return
+	}
+	wsc.Result <- "重启成功"
+	close(wsc.Result)
+}
+
+func (c *CmdAreaT) Check(wsc *wsCommand) {
 	var promtool string
 	if runtime.GOOS == "windows" {
 		promtool = "promtool.exe"
@@ -94,6 +135,10 @@ func doCheck() (int, string, string, error) {
 	if err != nil {
 		config.Log.Error(err)
 	}
+	wsc.Result <- "测试中，请稍等...\n--------------------------"
 	cmd = fmt.Sprintf("%s check config %s", cmd, config.Cfg.PrometheusCfg.MainConf)
-	return statusCode, output, cmd, err
+	wsc.Result <- fmt.Sprintf("执行命令：%s\n状态码：%d\n输出结果：%s\n错误信息：%s",
+		cmd, statusCode, output, err)
+	wsc.Result <- "--------------------------\n测试完成"
+	close(wsc.Result)
 }

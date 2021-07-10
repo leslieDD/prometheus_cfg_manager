@@ -1,6 +1,16 @@
 <template>
-  <div ref="terminalbox" style="height: 100%; background: #002833">
-    <div id="terminal" ref="terminal"></div>
+  <div style="height: 100%">
+    <div class="control-btn">
+      <el-button type="warning" @click="restart" size="small"
+        >重启Prometheus服务</el-button
+      >
+      <el-button type="primary" @click="check" size="small"
+        >测试配置文件</el-button
+      >
+    </div>
+    <div ref="terminalbox" style="height: 100%; background: #002833">
+      <div id="terminal" ref="terminal"></div>
+    </div>
   </div>
 </template>
 
@@ -28,7 +38,7 @@ export default {
     let height = this.$refs.terminalbox.clientHeight
     let width = this.$refs.terminalbox.clientWidth
     // console.log(height, width)
-    let rows = parseInt(height / 17 + 1, 10);//18是字体高度,根据需要自己修改
+    let rows = parseInt(height / 18, 10);//18是字体高度,根据需要自己修改
     let cols = parseInt(width / 9, 10);
     let term = new Terminal({
       rendererType: "canvas", //渲染类型
@@ -37,13 +47,30 @@ export default {
       convertEol: true, //启用时，光标将设置为下一行的开头
       scrollback: 50, //终端中的回滚量
       disableStdin: false, //是否应禁用输入。
-      cursorStyle: "underline", //光标样式
+      // cursorStyle: "bar", //光标样式 underline
       cursorBlink: true, //光标闪烁
+      fontSize: 16,
       theme: {
-        foreground: "#7e9192", //字体
-        background: "#002833", //背景色
-        cursor: "help", //设置光标
-        lineHeight: 16
+        foreground: '#ffffff', // 字体
+        background: '#1b212f', // 背景色
+        cursor: '#c16f93', // 设置光标
+        selection: 'rgba(255, 255, 255, 0.3)',
+        black: '#000000',
+        brightBlack: '#808080',
+        red: '#ce2f2b',
+        brightRed: '#f44a47',
+        green: '#00b976',
+        brightGreen: '#05d289',
+        yellow: '#e0d500',
+        brightYellow: '#f4f628',
+        magenta: '#bd37bc',
+        brightMagenta: '#d86cd8',
+        blue: '#1d6fca',
+        brightBlue: '#358bed',
+        cyan: '#00a8cf',
+        brightCyan: '#19b8dd',
+        white: '#e5e5e5',
+        brightWhite: '#ffffff'
       }
     });
 
@@ -98,16 +125,32 @@ export default {
     },
     webSocketOnMessage (e) { //数据接收
       // const redata = JSON.parse(e.data);
-      this.term.write(e.data)
+      this.term.write(e.data + "\n")
       // console.log(e.data)
     },
     webSocketSend (data) {//数据发送
       this.websock.send(data)
-      this.term.write(data)
+      this.term.write(data + "\n")
     },
     webSocketClose (e) {  //关闭
       // console.log("closed:", this.websock)
+    },
+    restart () {
+      this.websock.send("restart")
+      this.term.write('send command: \x1B[1;3;31mrestart\x1B[0m\n')
+    },
+    check () {
+      this.websock.send("check")
+      this.term.write('send command: \x1B[1;3;31mcheck\x1B[0m\n')
     }
   }
 };
 </script>
+<style scoped>
+.control-btn {
+  margin-bottom: 5px;
+  display: flex;
+  justify-content: space-around;
+  flex-wrap: nowrap;
+}
+</style>
