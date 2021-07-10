@@ -8,9 +8,9 @@
       </div>
       <div class="do_action">
         <div style="padding-right: 15px">
-          <el-button size="small" type="primary" @click="publishJobsfunc()"
+          <!-- <el-button size="small" type="primary" @click="publishJobsfunc()"
             >发布此JOB组</el-button
-          >
+          > -->
           <el-button
             size="small"
             type="success"
