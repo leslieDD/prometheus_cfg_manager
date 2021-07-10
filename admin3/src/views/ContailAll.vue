@@ -48,7 +48,7 @@
       <el-table-column label="分组名称" prop="name"> </el-table-column>
       <el-table-column label="端口号" width="90px" prop="port">
       </el-table-column>
-      <el-table-column label="IP数" width="80px" prop="count">
+      <el-table-column label="IP数" width="80px" prop="ip_count">
       </el-table-column>
       <el-table-column label="重写标签" prop="relabel_name"> </el-table-column>
       <el-table-column label="最后更新时间" prop="update_at">

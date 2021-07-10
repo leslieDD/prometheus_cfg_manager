@@ -140,9 +140,6 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		return nil, ErrCount
 	}
 	jobs := []*JobsWithRelabelNameAndCount{}
-	// tx = db.Table("jobs").
-	// 	Select("jobs.*, relabels.name as relabel_name ").
-	// 	Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ")
 	sql := `SELECT * FROM (SELECT t.*, COUNT(job_group.name) AS group_count 
 	FROM (SELECT jobs.*, relabels.name as relabel_name, COUNT(machines.ipaddr) AS ip_count FROM jobs 
 	LEFT JOIN relabels ON jobs.relabel_id=relabels.id 
@@ -193,7 +190,6 @@ func GetDefJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		Select("jobs.*, relabels.name as relabel_name ").
 		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ")
 	if sp.Search != "" {
-
 		tx = tx.Where("name like ? and is_common=1", fmt.Sprint("%", sp.Search, "%"))
 	} else {
 		tx = tx.Where("is_common=1")
@@ -206,29 +202,13 @@ func GetDefJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
-	jcs, bf := getMachineCount()
+	allIPCount, bf := getAllMachineCount()
 	if bf != Success {
 		return nil, bf
 	}
-	idCount := map[int]int64{}
-	for _, j := range jcs {
-		if is, bf := JsonToIntSlice(j.JobId); bf != Success {
-			return nil, ErrDataParse
-		} else {
-			for _, i := range is {
-				if _, ok := idCount[i]; !ok {
-					idCount[i] = j.Count
-				} else {
-					idCount[i] += j.Count
-				}
-			}
-		}
+	for _, j := range jobs {
+		j.IPCount = allIPCount
 	}
-	// for _, job := range jobs {
-	// 	if c, ok := idCount[job.ID]; ok {
-	// 		job.Count += c
-	// 	}
-	// }
 	return CalSplitPage(sp, count, jobs), Success
 }
 
@@ -246,6 +226,21 @@ func getMachineCount() ([]JobCount, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	return jcs, Success
+}
+
+func getAllMachineCount() (int64, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return 0, ErrDataBase
+	}
+	var count int64
+	tx := db.Table("machines").Where("enabled=1").Count(&count)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return 0, ErrSearchDBData
+	}
+	return count, Success
 }
 
 func getMachineCountForJob(jID int) (*int64, *BriefMessage) {
