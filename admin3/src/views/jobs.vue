@@ -64,7 +64,14 @@
       <el-table-column label="IP数" width="60px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
-            scope.row.count
+            scope.row.ip_count
+          }}</el-button>
+        </template>
+      </el-table-column>
+      <el-table-column label="子组数" width="60px">
+        <template v-slot="scope">
+          <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
+            scope.row.group_count
           }}</el-button>
         </template>
       </el-table-column>

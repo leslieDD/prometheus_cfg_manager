@@ -20,14 +20,15 @@ type Jobs struct {
 	DisplayOrder int       `json:"display_order" gorm:"column:display_order"`
 	ReLabelID    int       `json:"relabel_id" gorm:"column:relabel_id"`
 	Enabled      bool      `json:"enabled" gorm:"column:enabled"`
-	Count        int64     `json:"count" gorm:"-"`
 	UpdateAt     time.Time `json:"update_at" gorm:"column:update_at"`
 	Online       string    `json:"online" gorm:"-"`
 	LastError    string    `json:"last_error" gorm:"-"`
 }
 
-type JobsWithRelabelName struct {
+type JobsWithRelabelNameAndCount struct {
 	ReLabelName string `json:"relabel_name" gorm:"column:relabel_name"`
+	IPCount     int64  `json:"ip_count" gorm:"column:ip_count"`
+	GroupCount  int64  `json:"group_count" gorm:"column:group_count"`
 	Jobs
 }
 
@@ -138,46 +139,32 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrCount
 	}
-	jobs := []*JobsWithRelabelName{}
-	tx = db.Table("jobs").
-		Select("jobs.*, relabels.name as relabel_name ").
-		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ")
+	jobs := []*JobsWithRelabelNameAndCount{}
+	// tx = db.Table("jobs").
+	// 	Select("jobs.*, relabels.name as relabel_name ").
+	// 	Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ")
+	sql := `SELECT * FROM (SELECT t.*, COUNT(job_group.name) AS group_count 
+	FROM (SELECT jobs.*, relabels.name as relabel_name, COUNT(machines.ipaddr) AS ip_count FROM jobs 
+	LEFT JOIN relabels ON jobs.relabel_id=relabels.id 
+	LEFT JOIN machines ON JSON_CONTAINS(machines.job_id, JSON_ARRAY(jobs.id))
+	WHERE %s
+	GROUP BY jobs.id
+	ORDER BY jobs.id
+	) AS t 
+	LEFT JOIN job_group ON job_group.jobs_id=t.id
+	GROUP BY t.id
+	ORDER BY t.id) AS t2 ORDER BY t2.display_order asc `
 	if sp.Search != "" {
-
-		tx = tx.Where("name like ? and is_common=0", fmt.Sprint("%", sp.Search, "%"))
+		sql = fmt.Sprintf(sql,
+			fmt.Sprintf(" jobs.name like '%s' and jobs.is_common=0 ", fmt.Sprint("%", sp.Search, "%")))
 	} else {
-		tx = tx.Where("is_common=0")
+		sql = fmt.Sprintf(sql, " is_common=0 ")
 	}
-	tx = tx.Order("display_order asc").
-		Offset((sp.PageNo - 1) * sp.PageSize).
-		Limit(sp.PageSize).
-		Find(&jobs)
+	sql = sql + fmt.Sprintf(" LIMIT %d OFFSET %d ", sp.PageSize, (sp.PageNo-1)*sp.PageSize)
+	tx = db.Table("jobs").Raw(sql).Find(&jobs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
-	}
-	jcs, bf := getMachineCount()
-	if bf != Success {
-		return nil, bf
-	}
-	idCount := map[int]int64{}
-	for _, j := range jcs {
-		if is, bf := JsonToIntSlice(j.JobId); bf != Success {
-			return nil, ErrDataParse
-		} else {
-			for _, i := range is {
-				if _, ok := idCount[i]; !ok {
-					idCount[i] = j.Count
-				} else {
-					idCount[i] += j.Count
-				}
-			}
-		}
-	}
-	for _, job := range jobs {
-		if c, ok := idCount[job.ID]; ok {
-			job.Count += c
-		}
 	}
 	return CalSplitPage(sp, count, jobs), Success
 }
@@ -201,7 +188,7 @@ func GetDefJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrCount
 	}
-	jobs := []*JobsWithRelabelName{}
+	jobs := []*JobsWithRelabelNameAndCount{}
 	tx = db.Table("jobs").
 		Select("jobs.*, relabels.name as relabel_name ").
 		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ")
@@ -237,11 +224,11 @@ func GetDefJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 			}
 		}
 	}
-	for _, job := range jobs {
-		if c, ok := idCount[job.ID]; ok {
-			job.Count += c
-		}
-	}
+	// for _, job := range jobs {
+	// 	if c, ok := idCount[job.ID]; ok {
+	// 		job.Count += c
+	// 	}
+	// }
 	return CalSplitPage(sp, count, jobs), Success
 }
 
