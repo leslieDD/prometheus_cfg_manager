@@ -258,11 +258,19 @@
           :filter-method="filterIPMethod"
           filter-placeholder="请输入关键字"
           :data="allIPData"
+          @change="transferChange"
           :titles="['IP池', 'Job组IP列表']"
         >
         </el-transfer>
       </el-row>
       <div class="ip-list-push-box">
+        <el-button
+          class="ip-list-close-btn"
+          type="info"
+          size="small"
+          @click="clearIPClose"
+          >关闭</el-button
+        >
         <el-button
           class="ip-list-push-btn"
           type="warning"
@@ -329,6 +337,7 @@ export default {
       allIPDataMap: {},
       currentJobId: 0,
       editIPVisible: false,
+      transferChanged: false,
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -349,7 +358,6 @@ export default {
     // this.doGetJobs()
   },
   mounted () {
-    console.log('currentPage: ', this.$route.params.currentPage)
     if (this.$route.params.currentPage) {
       this.currentPage = parseInt(this.$route.params.currentPage)
     }
@@ -651,7 +659,9 @@ export default {
       return item.spell.indexOf(query) > -1;
     },
     clearIPClose (scope) {
-      this.doGetJobs()
+      if (this.transferChanged) {
+        this.doGetJobs()
+      }
       this.editIPVisible = false
     },
     doPool (scope) {
@@ -673,6 +683,7 @@ export default {
             this.currentJobId = scope.row.id
             this.allIPData = allIPData
             this.currentIPValue = currentIPValue
+            this.transferChanged = false
             this.editIPVisible = true
           })
         }).catch(e => console.log(e))
@@ -696,6 +707,9 @@ export default {
         })
         this.doGetJobs()
       }).catch(e => console.log(e))
+    },
+    transferChange (value, direction, movedKeys) {
+      this.transferChanged = true
     },
     invocate (scope) {
       const newStatus = !this.jobs[scope.$index].enabled
@@ -797,5 +811,8 @@ el-tabs {
 }
 .ip-list-push-btn {
   margin-right: 26px;
+}
+.ip-list-close-btn {
+  margin-right: 8px;
 }
 </style>

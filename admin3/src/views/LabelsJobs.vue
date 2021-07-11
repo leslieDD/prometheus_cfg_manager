@@ -228,11 +228,19 @@
           :filter-method="filterIPMethod"
           filter-placeholder="请输入关键字"
           :data="editIPData"
+          @change="transferChange"
           :titles="['分组IP地址池', '子分组IP列表']"
         >
         </el-transfer>
       </el-row>
       <div class="ip-list-push-box">
+        <el-button
+          class="ip-list-close-btn"
+          type="info"
+          size="small"
+          @click="editIPClose"
+          >关闭</el-button
+        >
         <el-button
           class="ip-list-push-btn"
           type="warning"
@@ -510,6 +518,7 @@ export default {
       ipsAndLabels: {},
       ipsAndLabelsDone: {},
       needtoUpdate: false,
+      transferChanged: false,
       rules: {
         name: [
           { required: true, message: '请输入正确的子组名称', validator: validateStr, trigger: ['blur'] }
@@ -596,6 +605,7 @@ export default {
           this.editIPValue = editIPValue
           this.editObject = scope.row.name
           this.jobGroupIDCurrent = gid
+          this.transferChanged = false
           this.editIPVisible = true
         }).catch(e => {
           console.log(e)
@@ -604,9 +614,10 @@ export default {
       }).catch(e => { console.log(e) })
     },
     editIPClose (scope) {
-      if (this.needtoUpdate) {
+      if (this.needtoUpdate || this.transferChanged) {
         this.doGetSubGroup()
       }
+      this.transferChanged = false
       this.editIPVisible = false
     },
     editLabelsClose () {
@@ -965,6 +976,9 @@ export default {
         this.labelsData = [...this.labelsData]
       }).catch(e => console.log(e))
     },
+    transferChange (value, direction, movedKeys) {
+      this.transferChanged = true
+    },
     goBack () {
       let queryInfo = {
         currentPage: 0
@@ -1072,6 +1086,9 @@ el-tabs {
 }
 .ip-list-push-btn {
   margin-right: 26px;
+}
+.ip-list-close-btn {
+  margin-right: 8px;
 }
 .add-labels-input-box :deep() .el-input__inner {
   width: 256px;
