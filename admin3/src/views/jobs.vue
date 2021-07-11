@@ -349,6 +349,10 @@ export default {
     // this.doGetJobs()
   },
   mounted () {
+    console.log('currentPage: ', this.$route.params.currentPage)
+    if (this.$route.params.currentPage) {
+      this.currentPage = parseInt(this.$route.params.currentPage)
+    }
     this.doGetJobs()
   },
   methods: {
@@ -368,7 +372,7 @@ export default {
       })
     },
     doEditLabelsJob (scope) {
-      const jobInfo = { ...scope.row }
+      const jobInfo = { ...scope.row, currentPage: this.currentPage }
       this.$router.push({ name: 'labelsJobs', params: jobInfo })
     },
     doGetJobs (getInfo) {
@@ -643,7 +647,7 @@ export default {
       }).catch(e => console.log(e))
     },
     filterIPMethod (query, item) {
-      return true
+      return item.spell.indexOf(query) > -1;
     },
     clearIPClose (scope) {
       this.doGetJobs()

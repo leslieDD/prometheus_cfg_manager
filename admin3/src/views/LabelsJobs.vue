@@ -5,6 +5,11 @@
         <el-tag type="warning" effect="dark" @change="clickElTag"
           >编辑JOB组：{{ jobInfo.name }} [ {{ jobInfo.ip_count }} ]</el-tag
         >
+        <span class="go-back"
+          ><el-button size="small" type="primary" plain @click="goBack"
+            >返回</el-button
+          ></span
+        >
       </div>
       <div class="do_action">
         <div style="padding-right: 15px">
@@ -555,8 +560,7 @@ export default {
 
     },
     filterIPMethod (query, item) {
-      // return item.spell.indexOf(query) > -1;
-      return true
+      return item.spell.indexOf(query) > -1;
     },
     doEditIPList (scope) {
       const jobID = this.jobInfo.id
@@ -957,6 +961,15 @@ export default {
         this.labelsData[scope.$index].enabled = newStatus
         this.labelsData = [...this.labelsData]
       }).catch(e => console.log(e))
+    },
+    goBack () {
+      let queryInfo = {
+        currentPage: 0
+      }
+      if (this.jobInfo.currentPage) {
+        queryInfo.currentPage = this.jobInfo.currentPage
+      }
+      this.$router.push({ name: 'jobs', params: queryInfo })
     }
   }
 }
@@ -1020,6 +1033,9 @@ el-tabs {
   border: none;
   background: transparent;
 } */
+.go-back {
+  margin-left: 10px;
+}
 .actioneara {
   display: flex;
   flex-wrap: nowrap;
