@@ -480,8 +480,8 @@ func DoPublishJobs() *BriefMessage {
 }
 
 type JobIDAndMachinesID struct {
-	MachinesID int `json:"machines_id" gorm:"column:machines_id"`
-	JobsID     int `json:"jobs_id" gorm:"column:jobs_id"`
+	MachineID int `json:"machine_id" gorm:"column:machine_id"`
+	JobID     int `json:"job_id" gorm:"column:job_id"`
 }
 
 type JobGroupIP struct {
@@ -570,9 +570,6 @@ type UpdateIPForJob struct {
 }
 
 func PostUpdateJobIPs(cInfo *UpdateIPForJob) *BriefMessage {
-	if len(cInfo.MachinesIDs) == 0 {
-		return Success
-	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -584,6 +581,9 @@ func PostUpdateJobIPs(cInfo *UpdateIPForJob) *BriefMessage {
 			Delete(nil).Error; err != nil {
 			config.Log.Error(err)
 			return err
+		}
+		if len(cInfo.MachinesIDs) == 0 {
+			return nil
 		}
 		tjms := []*TableJobMachines{}
 		for _, m := range cInfo.MachinesIDs {

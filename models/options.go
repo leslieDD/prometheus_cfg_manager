@@ -75,13 +75,12 @@ func doOptions_1() *BriefMessage {
 		return ErrDataBase
 	}
 	// 事务
-	sql := `SELECT machines.id AS machines_id, jobs.id AS jobs_id FROM machines 
-	LEFT JOIN jobs 
-	ON JSON_CONTAINS(machines.job_id, JSON_ARRAY(jobs.id))
-	WHERE jobs.id NOT IN (SELECT jobs_id FROM job_group)
-	`
+	sql := `SELECT machines.id AS machines_id, job_machines.job_id FROM job_machines 
+	LEFT JOIN machines 
+	ON machines.id=job_machines.machine_id
+	WHERE job_machines.job_id NOT IN (SELECT jobs_id FROM job_group)`
 	jgs := []*JobIDAndMachinesID{}
-	tx := db.Table("machines").Raw(sql).Find(&jgs)
+	tx := db.Table("job_machines").Raw(sql).Find(&jgs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrSearchDBData
@@ -94,12 +93,12 @@ func doOptions_1() *BriefMessage {
 	}()
 	jobsIDMap := map[int]int{}
 	for _, jg := range jgs {
-		groupID, ok := jobsIDMap[jg.JobsID] // 是唯一
+		groupID, ok := jobsIDMap[jg.JobID] // 是唯一
 		if !ok {
 			newJG := JobGroup{
 				ID:       0,
 				Name:     "默认子组",
-				JobsID:   jg.JobsID,
+				JobsID:   jg.JobID,
 				Enabled:  true,
 				UpdateAt: time.Now(),
 			}
@@ -109,12 +108,12 @@ func doOptions_1() *BriefMessage {
 				db.Rollback()
 				return ErrTransaction
 			}
-			jobsIDMap[jg.JobsID] = newJG.ID
+			jobsIDMap[jg.JobID] = newJG.ID
 			groupID = newJG.ID
 		}
 		jgm := JobGroupIP{
 			ID:         0,
-			MachinesID: jg.MachinesID,
+			MachinesID: jg.MachineID,
 			JobGroupID: groupID,
 			UpdateAt:   time.Now(),
 		}
@@ -141,17 +140,12 @@ func doOptions_2() *BriefMessage {
 		return ErrDataBase
 	}
 	// 事务
-	sql := `SELECT 
-	jobs.id as jobs_id, 
-  machines.id AS machines_id 
-FROM machines 
-LEFT JOIN jobs 
-ON JSON_CONTAINS(machines.job_id, JSON_ARRAY(jobs.id)) 
-LEFT JOIN job_group 
-ON job_group.jobs_id=jobs.id 
-WHERE jobs.is_common=0 AND job_group.name IS NULL `
+	sql := `SELECT job_machines.* FROM job_machines
+	LEFT JOIN group_machines 
+	ON job_machines.machine_id=group_machines.machines_id
+	WHERE group_machines.job_group_id IS NULL `
 	jgs := []*JobIDAndMachinesID{}
-	tx := db.Table("machines").Raw(sql).Find(&jgs)
+	tx := db.Table("job_machines").Raw(sql).Find(&jgs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrSearchDBData
@@ -165,17 +159,17 @@ WHERE jobs.is_common=0 AND job_group.name IS NULL `
 	jobsIDMap := map[int]int{}
 	for _, jg := range jgs {
 		// 检查是否有默认子组，如果有则加入第一个，如果没有则新建一个
-		groupID, ok := jobsIDMap[jg.JobsID]
+		groupID, ok := jobsIDMap[jg.JobID]
 		if !ok {
 			// 检查是不是有这么一个子组
-			id, bf := getJobGroupID("默认子组", jg.JobsID)
+			id, bf := getJobGroupID("默认子组", jg.JobID)
 			if bf == Success {
-				jobsIDMap[jg.JobsID] = id.ID
+				jobsIDMap[jg.JobID] = id.ID
 			} else {
 				newJG := JobGroup{
 					ID:       0,
 					Name:     "默认子组",
-					JobsID:   jg.JobsID,
+					JobsID:   jg.JobID,
 					Enabled:  true,
 					UpdateAt: time.Now(),
 				}
@@ -185,13 +179,13 @@ WHERE jobs.is_common=0 AND job_group.name IS NULL `
 					db.Rollback()
 					return ErrTransaction
 				}
-				jobsIDMap[jg.JobsID] = newJG.ID
+				jobsIDMap[jg.JobID] = newJG.ID
 			}
-			groupID = id.ID
+			groupID = jobsIDMap[jg.JobID]
 		}
 		jgm := JobGroupIP{
 			ID:         0,
-			MachinesID: jg.MachinesID,
+			MachinesID: jg.MachineID,
 			JobGroupID: groupID,
 			UpdateAt:   time.Now(),
 		}
@@ -218,9 +212,9 @@ func doOptions_3() ([]*OnlyIDAndCount, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	idC := []*OnlyIDAndCount{}
-	tx := db.Table("machines").Raw(`SELECT jobs.id, COUNT(ipaddr) AS count FROM machines 
+	tx := db.Table("job_machines").Raw(`SELECT jobs.id, COUNT(job_machines.machine_id) AS count FROM job_machines 
 	LEFT JOIN jobs 
-	ON JSON_CONTAINS(machines.job_id, JSON_ARRAY(jobs.id)) 
+	ON job_machines.job_id=jobs.id
 	GROUP BY jobs.id 
 	ORDER BY jobs.id `).Find(&idC)
 	if tx.Error != nil {
