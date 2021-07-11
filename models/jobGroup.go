@@ -233,9 +233,10 @@ func GetJobMachines(jID int64) ([]*JobMachine, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	jms := []*JobMachine{}
-	tx := db.Table("machines").
+	tx := db.Table("job_machines").
 		Select("id, ipaddr").
-		Where("JSON_CONTAINS(`job_id`, JSON_ARRAY(?))", jID).
+		Joins("LEFT JOIN machines ON job_machines.machine_id=machines.id").
+		Where("job_machines.job_id=?", jID).
 		Find(&jms)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)

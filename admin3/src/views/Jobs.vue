@@ -58,10 +58,16 @@
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column label="JOB组名称" prop="name"> </el-table-column>
+      <el-table-column
+        label="JOB组名称"
+        prop="name"
+        width="130px"
+        show-overflow-tooltip
+      >
+      </el-table-column>
       <el-table-column label="端口号" width="70px" prop="port">
       </el-table-column>
-      <el-table-column label="IP数" width="60px">
+      <el-table-column label="IP数" width="45px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
             scope.row.ip_count
@@ -75,10 +81,15 @@
           }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column label="重写标签" prop="relabel_name"> </el-table-column>
-      <el-table-column label="排序号" width="60px" prop="display_order">
+      <el-table-column
+        label="重写标签"
+        prop="relabel_name"
+        show-overflow-tooltip
+      >
       </el-table-column>
-      <el-table-column label="调整排序号" width="90px">
+      <el-table-column label="排序" width="45px" prop="display_order">
+      </el-table-column>
+      <el-table-column label="调整排序" width="70px">
         <template v-slot="scope">
           <div class="change_order_button">
             <el-button
@@ -103,7 +114,7 @@
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="200px">
+      <el-table-column label="操作" align="center" width="235px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
@@ -127,6 +138,15 @@
                 @click="invocate(scope)"
                 plain
                 >启用</el-button
+              >
+            </div>
+            <div>
+              <el-button
+                size="mini"
+                type="primary"
+                @click="doEmpty(scope)"
+                plain
+                >清理</el-button
               >
             </div>
             <div>
@@ -228,6 +248,34 @@
         </el-form>
       </span>
     </el-dialog>
+    <el-dialog
+      title="清理IP列表"
+      v-model="clearIPVisible"
+      width="700px"
+      modal
+      :before-close="clearIPClose"
+    >
+      <el-row type="flex" align="middle" justify="center">
+        <el-transfer
+          v-model="clearIPValue"
+          filterable
+          :filter-method="filterIPMethod"
+          filter-placeholder="请输入关键字"
+          :data="currentIPData"
+          :titles="['Job组中有的IP', '从组中删除的IP']"
+        >
+        </el-transfer>
+      </el-row>
+      <div class="ip-list-push-box">
+        <el-button
+          class="ip-list-push-btn"
+          type="warning"
+          size="small"
+          @click="pushClearIPList"
+          >提交</el-button
+        >
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -239,7 +287,8 @@ import {
   deleteJob,
   swapJob,
   publishJobs,
-  enabledJob
+  enabledJob,
+  clearIPForJob
 } from '@/api/jobs.js'
 import { getAllReLabels } from '@/api/relabel.js'
 import { restartSrv } from '@/api/srv'
@@ -278,6 +327,10 @@ export default {
       buttonTitle: '',
       dialogTitle: '',
       jobAllIPList: {},
+      clearIPValue: [],
+      currentIPData: [],
+      currentJobId: 0,
+      clearIPVisible: false,
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -591,6 +644,48 @@ export default {
         this.jobAllIPList[row.id] = r.data
       }).catch(e => console.log(e))
     },
+    filterIPMethod (query, item) {
+      // return item.spell.indexOf(query) > -1;
+      return true
+    },
+    clearIPClose (scope) {
+      this.doGetJobs()
+      this.clearIPVisible = false
+    },
+    doEmpty (scope) {
+      getJobMachines(scope.row.id).then(r => {
+        this.jobAllIPList[scope.row.id] = r.data
+        this.clearIPVisible = true
+        // this.jobAllIPList = [...this.jobAllIPList]
+        let currentIPData = []
+        r.data.forEach(item => {
+          let defVal = {
+            label: item.ipaddr,
+            key: item.id,
+            spell: item.ipaddr,
+            disabled: false
+          }
+          currentIPData.push(defVal)
+          this.currentJobId = scope.row.id
+        })
+        this.currentIPData = currentIPData
+        this.clearIPValue = []
+      }).catch(e => console.log(e))
+    },
+    pushClearIPList () {
+      const clearInfo = {
+        job_id: this.currentJobId,
+        machines_ids: [...this.clearIPValue]
+      }
+      clearIPForJob(clearInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '清理成功！',
+          type: 'success'
+        })
+        this.doGetJobs()
+      }).catch(e => console.log(e))
+    },
     invocate (scope) {
       const newStatus = !this.jobs[scope.$index].enabled
       const jInfo = {
@@ -653,10 +748,43 @@ el-tabs {
 .change_order_button {
   display: flex;
   flex-wrap: nowrap;
-  justify-content: center;
 }
 .change_order_button .el-button {
-  padding: auto 0px;
   width: 20px;
+}
+.change_order_button .el-button:nth-child(1) {
+  margin: 0px 0px 0px -10px;
+}
+.change_order_button .el-button:nth-child(2) {
+  margin: 0px 0px 0px 0px;
+}
+.jobs-board :deep() .el-transfer {
+  margin-top: -15px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+.jobs-board :deep() .el-transfer-panel {
+  width: 250px;
+}
+.jobs-board :deep() .el-transfer__buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.jobs-board :deep() .el-transfer__button {
+  padding: 10px 15px;
+}
+.jobs-board :deep() .el-transfer__button {
+  margin-left: 0px;
+}
+.ip-list-push-box {
+  display: float;
+  text-align: right;
+}
+.ip-list-push-btn {
+  margin-right: 26px;
 }
 </style>

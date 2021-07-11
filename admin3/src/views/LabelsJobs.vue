@@ -1025,15 +1025,6 @@ el-tabs {
   flex-wrap: nowrap;
   justify-content: space-around;
 }
-.change_order_button {
-  display: flex;
-  flex-wrap: nowrap;
-  justify-content: center;
-}
-.change_order_button .el-button {
-  padding: auto 0px;
-  width: 20px;
-}
 .jobs-labels-board :deep() .el-transfer {
   margin-top: -15px;
   margin-bottom: 20px;

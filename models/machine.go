@@ -9,29 +9,40 @@ import (
 	"strings"
 	"time"
 
-	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
 
 type Machine struct {
-	ID       int            `json:"id" gorm:"column:id"`
-	IpAddr   string         `json:"ipaddr" gorm:"column:ipaddr"`
-	JobId    datatypes.JSON `json:"job_id" gorm:"column:job_id"`
-	Enabled  bool           `json:"enabled" gorm:"column:enabled"`
-	UpdateAt time.Time      `json:"update_at" gorm:"column:update_at"`
+	ID       int       `json:"id" gorm:"column:id"`
+	IpAddr   string    `json:"ipaddr" gorm:"column:ipaddr"`
+	JobsID   []int     `json:"jobs_id" gorm:"-"`
+	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+}
+
+type TableJobMachines struct {
+	JobID     int `json:"job_id" gorm:"job_id"`
+	MachineID int `json:"machine_id" gorm:"column:machine_id"`
 }
 
 type ListMachine struct {
-	Name      string         `json:"name" gorm:"column:name"`
-	Port      int            `json:"port" gorm:"column:port"`
-	CfgName   string         `json:"cfg_name" gorm:"column:cfg_name"`
-	ID        int            `json:"id" gorm:"column:id"`
-	IpAddr    string         `json:"ipaddr" gorm:"column:ipaddr"`
-	JobId     datatypes.JSON `json:"job_id" gorm:"column:job_id"`
-	UpdateAt  time.Time      `json:"update_at" gorm:"column:update_at"`
-	Enabled   bool           `json:"enabled" gorm:"column:enabled"`
-	Health    string         `json:"health" gorm:"-"`
-	LastError string         `json:"last_error" gorm:"-"`
+	ID        int       `json:"id" gorm:"column:id"`
+	Name      string    `json:"name" gorm:"column:name"`
+	IpAddr    string    `json:"ipaddr" gorm:"column:ipaddr"`
+	JobsIdStr string    `json:"jobs_id_str" gorm:"jobs_id_str"`
+	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
+	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
+}
+
+type ListMachineMerge struct {
+	ID        int       `json:"id" gorm:"column:id"`
+	Name      string    `json:"name" gorm:"column:name"`
+	IpAddr    string    `json:"ipaddr" gorm:"column:ipaddr"`
+	JobsId    []int     `json:"jobs_id" gorm:"jobs_id"`
+	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
+	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
+	Health    string    `json:"health" gorm:"-"`
+	LastError string    `json:"last_error" gorm:"-"`
 }
 
 func GetMachine(machineID int) (*Machine, *BriefMessage) {
@@ -63,16 +74,22 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	}
 	createSql := func(s string) string {
 		sql := fmt.Sprintf(`SELECT %s 
-				FROM machines AS m 
-				LEFT JOIN jobs AS j 
-				ON j.id = json_extract(m.job_id, '$[0]')`, s)
-		// ON JSON_CONTAINS(m.job_id, JSON_array(j.id))
+	FROM machines 
+	LEFT JOIN job_machines 
+	ON machines.id=job_machines.machine_id 
+	LEFT JOIN jobs 
+	ON jobs.id=job_machines.job_id `, s)
 		like := `'%` + sp.Search + `%'`
+		whereLike := fmt.Sprintf(" AND (machines.ipaddr LIKE %s OR jobs.name LIKE %s) ", like, like)
+		where := " WHERE (jobs.is_common=0 OR jobs.is_common IS NULL) " +
+			" %s " +
+			" GROUP BY machines.ipaddr " +
+			" ORDER BY machines.update_at desc "
 		var likeSql string
 		if sp.Search != "" {
-			likeSql = sql + fmt.Sprintf(" WHERE j.is_common=0 AND (m.ipaddr LIKE %s OR j.name LIKE %s ) ORDER BY m.update_at desc", like, like)
+			likeSql = sql + fmt.Sprintf(where, whereLike)
 		} else {
-			likeSql = sql + " WHERE j.is_common=0 ORDER BY m.update_at desc "
+			likeSql = sql + fmt.Sprintf(where, "")
 		}
 		return likeSql
 	}
@@ -84,18 +101,32 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		return nil, ErrCount
 	}
 	likeSql := fmt.Sprintf("%s LIMIT %d OFFSET %d",
-		createSql(`m.id, m.ipaddr, j.name, j.port, j.cfg_name, m.job_id, m.enabled, m.update_at`),
+		createSql(`machines.*, GROUP_CONCAT(DISTINCT job_machines.job_id separator ';') jobs_id_str `),
 		sp.PageSize,
 		(sp.PageNo-1)*sp.PageSize,
 	)
-	// config.Log.Warn(likeSql)
 	tx2 := db.Raw(likeSql).Scan(&lists)
 	if tx2.Error != nil {
 		config.Log.Error(tx2.Error)
-		return nil, ErrCount
+		return nil, ErrSearchDBData
 	}
-	mObj.Check(&lists)
-	return CalSplitPage(sp, count, lists), Success
+	listsSend := []*ListMachineMerge{}
+	for _, l := range lists {
+		ints, err := ConvertStrToIntSlice(l.JobsIdStr)
+		if err != nil {
+			return nil, ErrConvertDataType
+		}
+		listsSend = append(listsSend, &ListMachineMerge{
+			ID:       l.ID,
+			Name:     l.Name,
+			IpAddr:   l.IpAddr,
+			UpdateAt: l.UpdateAt,
+			Enabled:  l.Enabled,
+			JobsId:   ints,
+		})
+	}
+	mObj.Check(&listsSend)
+	return CalSplitPage(sp, count, listsSend), Success
 }
 
 func GetMachines(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
@@ -161,56 +192,86 @@ func PostMachine(m *Machine) *BriefMessage {
 	if utils.CheckIPAddr(m.IpAddr) {
 		return ErrIPAddr
 	}
-	idList, bf := JsonToIntSlice(m.JobId)
-	if bf != Success {
-		return bf
-	}
-	if len(idList) == 0 {
-		return ErrJobTypeEmpty
-	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
 	m.UpdateAt = time.Now()
-	tx := db.Table("machines").Create(m)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
-		if strings.Contains(tx.Error.Error(), "Duplicate entry") {
-			return ErrDataExist
+	err := db.Transaction(func(tx *gorm.DB) error {
+		err := tx.Table("machines").Create(m).Error
+		if err != nil {
+			config.Log.Error(err)
+			return err
 		}
-		return ErrCreateDBData
+		if len(m.JobsID) == 0 {
+			return nil
+		}
+		jms := []TableJobMachines{}
+		for _, jID := range m.JobsID {
+			jms = append(jms, TableJobMachines{
+				JobID:     jID,
+				MachineID: m.ID,
+			})
+		}
+		err = tx.Table("job_machines").Create(&jms).Error
+		if err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		return nil
+	})
+	if err == nil {
+		return Success
 	}
-	return Success
+	if strings.Contains(err.Error(), "Duplicate entry") {
+		return ErrDataExist
+	}
+	return ErrCreateDBData
 }
 
 func PutMachine(m *Machine) *BriefMessage {
 	if utils.CheckIPAddr(m.IpAddr) {
 		return ErrIPAddr
 	}
-	idList, bf := JsonToIntSlice(m.JobId)
-	if bf != Success {
-		return bf
-	}
-	if len(idList) == 0 {
-		return ErrJobTypeEmpty
-	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("machines").
-		Where("id = ?", m.ID).
-		Update("ipaddr", m.IpAddr).
-		Update("job_id", m.JobId).
-		Update("update_at", time.Now())
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
-		return ErrUpdateData
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := db.Table("machines").
+			Where("id = ?", m.ID).
+			Update("ipaddr", m.IpAddr).
+			Update("update_at", time.Now()).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		if err := db.Table("job_machines").
+			Where("machine_id=?", m.ID).Delete(nil).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		if len(m.JobsID) == 0 {
+			return nil
+		}
+		jms := []*TableJobMachines{}
+		for _, jID := range m.JobsID {
+			jms = append(jms, &TableJobMachines{
+				JobID:     jID,
+				MachineID: m.ID,
+			})
+		}
+		if err := db.Table("job_machines").Create(&jms).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		return nil
+	})
+	if err == nil {
+		return Success
 	}
-	return Success
+	return ErrUpdateData
 }
 
 func DeleteMachine(mID int) *BriefMessage {
@@ -219,10 +280,19 @@ func DeleteMachine(mID int) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("machines").Where("id=?", mID).Delete(nil)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
-		return ErrUpdateData
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("machines").Where("id=?", mID).Delete(nil).Error; err != nil {
+			config.Log.Error(tx.Error)
+			return err
+		}
+		if err := tx.Table("job_machines").Where("machine_id=?", mID).Delete(nil).Error; err != nil {
+			config.Log.Error(tx.Error)
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return ErrDelData
 	}
 	return Success
 }

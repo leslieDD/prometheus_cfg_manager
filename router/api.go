@@ -21,6 +21,7 @@ func initApiRouter() {
 	v1.PUT("/job/swap", swapJob)
 	v1.POST("/jobs/publish", publishJobs)
 	v1.PUT("/jobs/status", putJobsStatus)
+	v1.POST("jobs/clear-ips", postClearJobIPs)
 
 	v1.GET("/jobs/default/split", getDefJobsSplit)
 	v1.POST("/job/default", postDefJob)
@@ -421,6 +422,16 @@ func putJobsStatus(c *gin.Context) {
 		return
 	}
 	bf := models.PutJobsStatus(&ed)
+	resComm(c, bf, nil)
+}
+
+func postClearJobIPs(c *gin.Context) {
+	cInfo := models.ClearIPForJob{}
+	if err := c.BindJSON(&cInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostClearJobIPs(&cInfo)
 	resComm(c, bf, nil)
 }
 

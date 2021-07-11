@@ -99,6 +99,7 @@ var ErrDataParse = &BriefMessage{500000, "解析数据出错"}
 var ErrUpGrader = &BriefMessage{500000, "提升GET请求为webSocket协议时出错"}
 var ErrGetControlField = &BriefMessage{500000, "获取控制参数时出错"}
 var ErrHaveTaskRunning = &BriefMessage{500000, "有命令正在运行，请稍后重试"}
+var ErrConvertDataType = &BriefMessage{500000, "转换数据类型出错"}
 
 // --------------------------------------------------------------
 // ---------------- 400xxx 客户端错误 ----------------------------

@@ -75,7 +75,7 @@
       </el-table-column>
       <el-table-column
         label="分组选项"
-        prop="job_id"
+        prop="jobs_id"
         align="center"
         header-align="center"
       >
@@ -317,9 +317,9 @@ export default {
         ipAddr: [
           { required: true, message: '请输入正确的IP地址', validator: validateIP, trigger: 'blur' }
         ],
-        jobId: [
-          { required: true, message: '请选择分组', trigger: ['blur', 'change'] }
-        ]
+        // jobId: [
+        //   { required: true, message: '请选择分组', trigger: ['blur', 'change'] }
+        // ]
       }
     }
   },
@@ -334,6 +334,7 @@ export default {
       this.enterBtnTitle = '创建'
       this.dialogVisible = true
       this.addAndContinueDisabled = false
+      this.addMechineInfo = {}
     },
     doGetMechines (getInfo) {
       getJobs().then(
@@ -359,8 +360,8 @@ export default {
               this.deleteVisible = {}
               let n = 0
               r.data.data.forEach(element => {
-                // this.selectTypeValue[element.id] = this.jobsMap[element.job_id[0]]
-                this.selectTypeValue[element.id] = element.job_id
+                // this.selectTypeValue[element.id] = this.jobsMap[element.jobs_id[0]]
+                this.selectTypeValue[element.id] = element.jobs_id
                 this.deleteVisible[n] = false
                 n += 1
               })
@@ -388,7 +389,7 @@ export default {
       var updateData = {}
       updateData['id'] = row.id
       updateData['ipaddr'] = row.ipaddr
-      updateData['job_id'] = this.selectTypeValue[row.id]
+      updateData['jobs_id'] = this.selectTypeValue[row.id]
       putMachine(updateData).then(
         r => {
           this.$notify({
@@ -435,7 +436,7 @@ export default {
         if (valid) {
           let postData = {}
           postData['ipaddr'] = this.addMechineInfo.ipAddr
-          postData['job_id'] = [parseInt(this.addMechineInfo.jobId)]
+          postData['jobs_id'] = this.addMechineInfo.jobId
           postMachine(postData).then(
             r => {
               this.$notify({
@@ -461,7 +462,7 @@ export default {
         if (valid) {
           let postData = {}
           postData['ipaddr'] = this.addMechineInfo.ipAddr
-          postData['job_id'] = this.addMechineInfo.jobId
+          postData['jobs_id'] = this.addMechineInfo.jobId
           if (this.enterBtnTitle === '创建') {
             postMachine(postData).then(
               r => {
@@ -574,7 +575,7 @@ export default {
       if (this.selectTypeValue[scope.row.id].length !== 0) {
         this.addMechineInfo.jobId = this.selectTypeValue[scope.row.id]
       } else {
-        this.addMechineInfo.jobId = scope.row.job_id
+        this.addMechineInfo.jobId = scope.row.jobs_id
       }
     },
     expandChange (row, expandRows) {

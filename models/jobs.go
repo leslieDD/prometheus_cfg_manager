@@ -141,10 +141,10 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	}
 	jobs := []*JobsWithRelabelNameAndCount{}
 	sql := `SELECT * FROM (SELECT t.*, COUNT(job_group.name) AS group_count 
-	FROM (SELECT jobs.*, relabels.name as relabel_name, COUNT(machines.ipaddr) AS ip_count FROM jobs 
+	FROM (SELECT jobs.*, relabels.name as relabel_name, COUNT(job_machines.machine_id) AS ip_count FROM jobs 
 	LEFT JOIN relabels ON jobs.relabel_id=relabels.id 
-	LEFT JOIN machines ON JSON_CONTAINS(machines.job_id, JSON_ARRAY(jobs.id))
-	WHERE %s
+	LEFT JOIN job_machines ON job_machines.job_id=jobs.id
+	WHERE %s 
 	GROUP BY jobs.id
 	ORDER BY jobs.id
 	) AS t 
@@ -250,8 +250,7 @@ func getMachineCountForJob(jID int) (*int64, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	var count int64
-	sql := fmt.Sprintf(`SELECT COUNT(*) AS count FROM machines WHERE JSON_CONTAINS(job_id, JSON_ARRAY(%d))`, jID)
-	tx := db.Table("machines").Raw(sql).Count(&count)
+	tx := db.Table("group_machines").Where("job_id=?", jID).Count(&count)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrCount
@@ -517,13 +516,13 @@ func getJobIdByOrder(orderID int) ([]OnlyID, *BriefMessage) {
 }
 
 func PutJobsStatus(oid *EnabledInfo) *BriefMessage {
-	count, bf := getMachineCountForJob(oid.ID)
-	if bf != Success {
-		return bf
-	}
-	if *count != 0 {
-		return ErrHaveDataNoAllowToDisabled
-	}
+	// count, bf := getMachineCountForJob(oid.ID)
+	// if bf != Success {
+	// 	return bf
+	// }
+	// if *count != 0 {
+	// 	return ErrHaveDataNoAllowToDisabled
+	// }
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -554,5 +553,102 @@ func PutJobDefaultStatus(edi *EnabledInfo) *BriefMessage {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
 	}
+	return Success
+}
+
+type ClearIPForJob struct {
+	JobID       int   `json:"job_id" gorm:"column:job_id"`
+	MachinesIDs []int `json:"machines_ids" gorm:"column:machines_ids"`
+}
+
+type MachinesOnlyJobs struct {
+	ID       int            `json:"id" gorm:"column:id"`
+	JobID    datatypes.JSON `json:"job_id" gorm:"column:job_id"`
+	JobIDInt string         `json:"-" gorm:"-"`
+	jsonObj  datatypes.JSON `json:"-" gorm:"-"`
+}
+
+func PostClearJobIPs(cInfo *ClearIPForJob) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	if len(cInfo.MachinesIDs) == 0 {
+		return Success
+	}
+	tx := db.Table("job_machines").Where("machine_id in (?)", cInfo.MachinesIDs).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	// err := db.Transaction(func(tx *gorm.DB) error {
+	// 	// 在事务中执行一些 db 操作（从这里开始，您应该使用 'tx' 而不是 'db'）
+	// 	ids := []OnlyID{}
+	// 	if err := tx.Table("job_group").
+	// 		Select("id").
+	// 		Where("jobs_id=?", cInfo.JobID).
+	// 		Find(&ids).Error; err != nil {
+	// 		return err
+	// 	}
+	// 	jobGroupIDs := []string{}
+	// 	for _, id := range ids {
+	// 		jobGroupIDs = append(jobGroupIDs, fmt.Sprint(id.ID))
+	// 	}
+	// 	jobGroupIDsStr := strings.Join(jobGroupIDs, ",")
+	// 	machinesIDs := []string{}
+	// 	for _, id := range cInfo.MachinesIDs {
+	// 		machinesIDs = append(machinesIDs, fmt.Sprint(id))
+	// 	}
+	// 	machinesIDsStr := strings.Join(machinesIDs, ",")
+	// 	if len(jobGroupIDs) != 0 {
+	// 		if err := tx.
+	// 			Table("group_machines").
+	// 			Where(fmt.Sprintf("job_group_id in (%s) and machines_id in (%s)",
+	// 				jobGroupIDsStr,
+	// 				machinesIDsStr,
+	// 			)).Delete(nil).
+	// 			Error; err != nil {
+	// 			return err
+	// 		}
+	// 	}
+	// 	mjs := []*MachinesOnlyJobs{}
+	// 	err := tx.Table("machines").Where(fmt.Sprintf("id in (%s)", machinesIDsStr)).Find(&mjs).Error
+	// 	if err != nil {
+	// 		return err
+	// 	}
+	// 	for _, mj := range mjs {
+	// 		ints, bf := JsonToIntSlice(mj.JobID)
+	// 		if bf != Success {
+	// 			return errors.New("解析JSON数据到整形数组时出错")
+	// 		}
+	// 		newInts := []string{}
+	// 		for _, i := range ints {
+	// 			if i == cInfo.JobID {
+	// 				continue
+	// 			}
+	// 			newInts = append(newInts, fmt.Sprint(i))
+	// 		}
+	// 		mj.JobIDInt = fmt.Sprintf("[%s]", strings.Join(newInts, ","))
+	// 		err := json.Unmarshal([]byte(mj.JobIDInt), &mj.jsonObj)
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 	}
+	// 	for _, m := range mjs {
+	// 		err := tx.Table("job_machines").
+	// 			Where("id=?", m.ID).
+	// 			Update("job_id", m.jsonObj).
+	// 			Update("update_at", time.Now()).Error
+	// 		if err != nil {
+	// 			return err
+	// 		}
+	// 	}
+	// 	return nil
+	// })
+	// if err != nil {
+	// 	config.Log.Error(err)
+	// 	return ErrDelData
+	// }
 	return Success
 }

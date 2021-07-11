@@ -48,7 +48,7 @@ type TargetInfo struct {
 	Data   TargetData `json:"data"`
 }
 
-func (m *Monitor) Check(list *[]*ListMachine) {
+func (m *Monitor) Check(list *[]*ListMachineMerge) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
 	if m.info == nil || time.Since(m.syncTime).Minutes() > 5.0 {

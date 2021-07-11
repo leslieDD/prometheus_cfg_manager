@@ -2,7 +2,9 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 	"pro_cfg_manager/config"
+	"strconv"
 	"strings"
 
 	"gorm.io/datatypes"
@@ -124,4 +126,56 @@ func BatchSaveToTableAnnotations(db *gorm.DB, node *TreeNodeInfo) *BriefMessage 
 		}
 	}
 	return Success
+}
+
+func DiffSliceToInt(newInts []int, dbInts []OnlyID) []int {
+	newMap := map[int]struct{}{}
+	for _, i := range newInts {
+		newMap[i] = struct{}{}
+	}
+	cyInt := []int{}
+	for _, o := range dbInts {
+		if _, ok := newMap[o.ID]; !ok {
+			cyInt = append(cyInt, o.ID)
+		}
+	}
+	return cyInt
+}
+
+func DiffSliceToStr(newInts []int, dbInts []OnlyID) []string {
+	newMap := map[int]struct{}{}
+	for _, i := range newInts {
+		newMap[i] = struct{}{}
+	}
+	cyInt := []string{}
+	for _, o := range dbInts {
+		if _, ok := newMap[o.ID]; !ok {
+			cyInt = append(cyInt, fmt.Sprint(o.ID))
+		}
+	}
+	return cyInt
+}
+
+func IntSliceStrSliceJoind(ints []int) string {
+	newInts := []string{}
+	for _, i := range ints {
+		newInts = append(newInts, fmt.Sprint(i))
+	}
+	return strings.Join(newInts, ",")
+}
+
+func ConvertStrToIntSlice(s string) ([]int, error) {
+	ints := []int{}
+	if len(s) == 0 {
+		return ints, nil
+	}
+	for _, each := range strings.Split(s, ";") {
+		eachInt, err := strconv.ParseInt(each, 10, 0)
+		if err != nil {
+			config.Log.Error(err)
+			return ints, err
+		}
+		ints = append(ints, int(eachInt))
+	}
+	return ints, nil
 }
