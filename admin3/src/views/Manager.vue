@@ -3,7 +3,7 @@
     <div class="do_action">
       <div style="padding-right: 15px">
         <el-button size="small" type="primary" @click="onPublish()"
-          >发布</el-button
+          >发布【file_sd_configs】</el-button
         >
         <el-button size="small" type="success" plain @click="doAdd()"
           >添加</el-button
