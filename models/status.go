@@ -77,6 +77,7 @@ var ErrOrderIDExist = &BriefMessage{400000, "排序号已经存在"}
 var ErrUnSupport = &BriefMessage{400000, "不支持的操作类型"}
 var ErrHaveDataNoAllowToDel = &BriefMessage{400000, "因存在相关联数据，不允许删除"}
 var ErrHaveDataNoAllowToDisabled = &BriefMessage{400000, "因存在相关联数据，不允许禁用"}
+var ErrHaveInstanceRunning = &BriefMessage{500000, "有一个实例正在运行，请稍后重试"}
 
 // --------------------------------------------------------------
 // ---------------- 300xxx 链接错误 ------------------------------

@@ -412,7 +412,8 @@ func swapJob(c *gin.Context) {
 }
 
 func publishJobs(c *gin.Context) {
-	bf := models.DoPublishJobs()
+	// bf := models.DoPublishJobs()
+	bf := models.AllowOneObj.DoPublishJobs()
 	resComm(c, bf, nil)
 }
 

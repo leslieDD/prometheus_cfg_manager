@@ -462,6 +462,48 @@ func downSwap(sInfo *SwapInfo) *BriefMessage {
 	return Success
 }
 
+var AllowOneObj = NewOnlyAllowOne()
+
+func NewOnlyAllowOne() *onlyAllowOne {
+	oao := &onlyAllowOne{
+		// lock:   sync.Mutex{},
+		notice: make(chan *Notice),
+	}
+	go oao.doWork()
+	return oao
+}
+
+type Notice struct {
+	Result chan *BriefMessage
+}
+
+type onlyAllowOne struct {
+	// lock   sync.Mutex
+	notice chan *Notice
+}
+
+func (o *onlyAllowOne) DoPublishJobs() *BriefMessage {
+	n := &Notice{
+		Result: make(chan *BriefMessage),
+	}
+	select {
+	case o.notice <- n:
+		return <-n.Result
+	default:
+		return ErrHaveInstanceRunning
+	}
+}
+
+func (o *onlyAllowOne) doWork() {
+	for {
+		select {
+		case mess := <-o.notice:
+			mess.Result <- DoPublishJobs()
+			close(mess.Result)
+		}
+	}
+}
+
 func DoPublishJobs() *BriefMessage {
 	if bf := DoTmplBefore(); bf != Success {
 		return bf
