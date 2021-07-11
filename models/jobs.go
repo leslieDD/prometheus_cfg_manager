@@ -67,7 +67,7 @@ func GetJobs() (*[]Jobs, *BriefMessage) {
 	jobs := []Jobs{}
 	tx := db.Table("jobs").
 		Order("display_order asc").
-		Where("is_common=0 and enabled=1").Find(&jobs)
+		Where("is_common=0").Find(&jobs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
@@ -338,21 +338,29 @@ func DeleteJob(jID int64, isCommon bool) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	var count int64
-	sql := fmt.Sprintf(`SELECT count(*) as count FROM machines as m WHERE JSON_CONTAINS(m.job_id, JSON_array(%d))`, jID)
-	tx := db.Table("machines").Raw(sql).Count(&count)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
-		return ErrSearchDBData
-	}
-	if count != 0 {
-		return ErrGroupNotEmpty
-	}
-	tx = db.Table("jobs").Where("id=?", jID).Delete(nil)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
-		return ErrSearchDBData
-	}
+	db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("jobs").Where("id=?", jID).Delete(nil).Error; err != nil {
+			return err
+		}
+		if err := tx.Table("job_machines").Where("job_id=?", jID).Delete(nil).Error; err != nil {
+			return err
+		}
+		groupIDs := []OnlyID{}
+		if err := tx.Table("job_group").Where("jobs_id=?", jID).Find(&groupIDs).Error; err != nil {
+			return err
+		}
+		ids := []int{}
+		for _, g := range groupIDs {
+			ids = append(ids, g.ID)
+		}
+		if err := tx.Table("group_labels").Where("job_group_id in (?)", ids).Delete(nil).Error; err != nil {
+			return err
+		}
+		if err := tx.Table("group_machines").Where("job_group_id in (?)", ids).Delete(nil).Error; err != nil {
+			return err
+		}
+		return nil
+	})
 	return Success
 }
 
@@ -556,99 +564,42 @@ func PutJobDefaultStatus(edi *EnabledInfo) *BriefMessage {
 	return Success
 }
 
-type ClearIPForJob struct {
+type UpdateIPForJob struct {
 	JobID       int   `json:"job_id" gorm:"column:job_id"`
 	MachinesIDs []int `json:"machines_ids" gorm:"column:machines_ids"`
 }
 
-type MachinesOnlyJobs struct {
-	ID       int            `json:"id" gorm:"column:id"`
-	JobID    datatypes.JSON `json:"job_id" gorm:"column:job_id"`
-	JobIDInt string         `json:"-" gorm:"-"`
-	jsonObj  datatypes.JSON `json:"-" gorm:"-"`
-}
-
-func PostClearJobIPs(cInfo *ClearIPForJob) *BriefMessage {
+func PostUpdateJobIPs(cInfo *UpdateIPForJob) *BriefMessage {
+	if len(cInfo.MachinesIDs) == 0 {
+		return Success
+	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	if len(cInfo.MachinesIDs) == 0 {
-		return Success
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := db.Table("job_machines").
+			Where("job_id=?", cInfo.JobID).
+			Delete(nil).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		tjms := []*TableJobMachines{}
+		for _, m := range cInfo.MachinesIDs {
+			tjms = append(tjms, &TableJobMachines{
+				JobID:     cInfo.JobID,
+				MachineID: m,
+			})
+		}
+		if err := db.Table("job_machines").Create(&tjms).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return ErrUpdateData
 	}
-	tx := db.Table("job_machines").Where("machine_id in (?)", cInfo.MachinesIDs).Delete(nil)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
-		return ErrDelData
-	}
-	// err := db.Transaction(func(tx *gorm.DB) error {
-	// 	// 在事务中执行一些 db 操作（从这里开始，您应该使用 'tx' 而不是 'db'）
-	// 	ids := []OnlyID{}
-	// 	if err := tx.Table("job_group").
-	// 		Select("id").
-	// 		Where("jobs_id=?", cInfo.JobID).
-	// 		Find(&ids).Error; err != nil {
-	// 		return err
-	// 	}
-	// 	jobGroupIDs := []string{}
-	// 	for _, id := range ids {
-	// 		jobGroupIDs = append(jobGroupIDs, fmt.Sprint(id.ID))
-	// 	}
-	// 	jobGroupIDsStr := strings.Join(jobGroupIDs, ",")
-	// 	machinesIDs := []string{}
-	// 	for _, id := range cInfo.MachinesIDs {
-	// 		machinesIDs = append(machinesIDs, fmt.Sprint(id))
-	// 	}
-	// 	machinesIDsStr := strings.Join(machinesIDs, ",")
-	// 	if len(jobGroupIDs) != 0 {
-	// 		if err := tx.
-	// 			Table("group_machines").
-	// 			Where(fmt.Sprintf("job_group_id in (%s) and machines_id in (%s)",
-	// 				jobGroupIDsStr,
-	// 				machinesIDsStr,
-	// 			)).Delete(nil).
-	// 			Error; err != nil {
-	// 			return err
-	// 		}
-	// 	}
-	// 	mjs := []*MachinesOnlyJobs{}
-	// 	err := tx.Table("machines").Where(fmt.Sprintf("id in (%s)", machinesIDsStr)).Find(&mjs).Error
-	// 	if err != nil {
-	// 		return err
-	// 	}
-	// 	for _, mj := range mjs {
-	// 		ints, bf := JsonToIntSlice(mj.JobID)
-	// 		if bf != Success {
-	// 			return errors.New("解析JSON数据到整形数组时出错")
-	// 		}
-	// 		newInts := []string{}
-	// 		for _, i := range ints {
-	// 			if i == cInfo.JobID {
-	// 				continue
-	// 			}
-	// 			newInts = append(newInts, fmt.Sprint(i))
-	// 		}
-	// 		mj.JobIDInt = fmt.Sprintf("[%s]", strings.Join(newInts, ","))
-	// 		err := json.Unmarshal([]byte(mj.JobIDInt), &mj.jsonObj)
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 	}
-	// 	for _, m := range mjs {
-	// 		err := tx.Table("job_machines").
-	// 			Where("id=?", m.ID).
-	// 			Update("job_id", m.jsonObj).
-	// 			Update("update_at", time.Now()).Error
-	// 		if err != nil {
-	// 			return err
-	// 		}
-	// 	}
-	// 	return nil
-	// })
-	// if err != nil {
-	// 	config.Log.Error(err)
-	// 	return ErrDelData
-	// }
 	return Success
 }

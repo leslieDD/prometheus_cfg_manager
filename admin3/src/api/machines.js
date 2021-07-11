@@ -47,3 +47,10 @@ export function enabledMachine (mInfo) {
     data: mInfo
   })
 }
+
+export function allIPList () {
+  return request({
+    url: '/v1/machines/all',
+    method: 'get'
+  })
+}

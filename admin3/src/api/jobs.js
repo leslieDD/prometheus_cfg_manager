@@ -71,10 +71,10 @@ export function enabledJob (jInfo) {
   })
 }
 
-export function clearIPForJob (clearInfo) {
+export function updateIPForJob (uInfo) {
   return request({
-    url: '/v1/jobs/clear-ips',
+    url: '/v1/jobs/update-ips',
     method: 'post',
-    data: clearInfo
+    data: uInfo
   })
 }

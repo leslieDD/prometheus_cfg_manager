@@ -141,12 +141,8 @@
               >
             </div>
             <div>
-              <el-button
-                size="mini"
-                type="primary"
-                @click="doEmpty(scope)"
-                plain
-                >清理</el-button
+              <el-button size="mini" type="primary" @click="doPool(scope)" plain
+                >IP池</el-button
               >
             </div>
             <div>
@@ -249,20 +245,20 @@
       </span>
     </el-dialog>
     <el-dialog
-      title="清理IP列表"
-      v-model="clearIPVisible"
+      title="IP池"
+      v-model="editIPVisible"
       width="700px"
       modal
       :before-close="clearIPClose"
     >
       <el-row type="flex" align="middle" justify="center">
         <el-transfer
-          v-model="clearIPValue"
+          v-model="currentIPValue"
           filterable
           :filter-method="filterIPMethod"
           filter-placeholder="请输入关键字"
-          :data="currentIPData"
-          :titles="['Job组中有的IP', '从组中删除的IP']"
+          :data="allIPData"
+          :titles="['IP池', 'Job组IP列表']"
         >
         </el-transfer>
       </el-row>
@@ -271,7 +267,7 @@
           class="ip-list-push-btn"
           type="warning"
           size="small"
-          @click="pushClearIPList"
+          @click="updateJobIPList"
           >提交</el-button
         >
       </div>
@@ -288,8 +284,9 @@ import {
   swapJob,
   publishJobs,
   enabledJob,
-  clearIPForJob
+  updateIPForJob
 } from '@/api/jobs.js'
+import { allIPList } from '@/api/machines.js'
 import { getAllReLabels } from '@/api/relabel.js'
 import { restartSrv } from '@/api/srv'
 import { getJobMachines } from '@/api/labelsJob.js'
@@ -327,10 +324,11 @@ export default {
       buttonTitle: '',
       dialogTitle: '',
       jobAllIPList: {},
-      clearIPValue: [],
-      currentIPData: [],
+      currentIPValue: [],
+      allIPData: [],
+      allIPDataMap: {},
       currentJobId: 0,
-      clearIPVisible: false,
+      editIPVisible: false,
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -645,42 +643,50 @@ export default {
       }).catch(e => console.log(e))
     },
     filterIPMethod (query, item) {
-      // return item.spell.indexOf(query) > -1;
       return true
     },
     clearIPClose (scope) {
       this.doGetJobs()
-      this.clearIPVisible = false
+      this.editIPVisible = false
     },
-    doEmpty (scope) {
+    doPool (scope) {
       getJobMachines(scope.row.id).then(r => {
-        this.jobAllIPList[scope.row.id] = r.data
-        this.clearIPVisible = true
-        // this.jobAllIPList = [...this.jobAllIPList]
-        let currentIPData = []
+        let currentIPValue = []
         r.data.forEach(item => {
-          let defVal = {
-            label: item.ipaddr,
-            key: item.id,
-            spell: item.ipaddr,
-            disabled: false
-          }
-          currentIPData.push(defVal)
-          this.currentJobId = scope.row.id
+          currentIPValue.push(item.id)
         })
-        this.currentIPData = currentIPData
-        this.clearIPValue = []
+        let allIPData = []
+        allIPList().then(r => {
+          r.data.forEach(item => {
+            let defVal = {
+              label: item.ipaddr,
+              key: item.id,
+              spell: item.ipaddr,
+              disabled: false
+            }
+            allIPData.push(defVal)
+            this.currentJobId = scope.row.id
+            this.allIPData = allIPData
+            this.currentIPValue = currentIPValue
+            this.editIPVisible = true
+          })
+        }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
-    pushClearIPList () {
-      const clearInfo = {
+    updateJobIPList () {
+      let clearInfo = {
         job_id: this.currentJobId,
-        machines_ids: [...this.clearIPValue]
+        machines_ids: []
       }
-      clearIPForJob(clearInfo).then(r => {
+      this.currentIPValue.forEach(item => {
+        if (item) {
+          clearInfo.machines_ids.push(item)
+        }
+      })
+      updateIPForJob(clearInfo).then(r => {
         this.$notify({
           title: '成功',
-          message: '清理成功！',
+          message: '整理成功！',
           type: 'success'
         })
         this.doGetJobs()

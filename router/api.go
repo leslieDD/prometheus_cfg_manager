@@ -21,7 +21,7 @@ func initApiRouter() {
 	v1.PUT("/job/swap", swapJob)
 	v1.POST("/jobs/publish", publishJobs)
 	v1.PUT("/jobs/status", putJobsStatus)
-	v1.POST("jobs/clear-ips", postClearJobIPs)
+	v1.POST("/jobs/update-ips", postUpdateJobIPs)
 
 	v1.GET("/jobs/default/split", getDefJobsSplit)
 	v1.POST("/job/default", postDefJob)
@@ -49,6 +49,7 @@ func initApiRouter() {
 	v1.PUT("/machine", putMachine)
 	v1.DELETE("/machine", deleteMachine)
 	v1.PUT("/machine/status", putMachineStatus)
+	v1.GET("/machines/all", getAllMachines)
 
 	v1.POST("/publish", publish)
 	v1.POST("/reload", reload)
@@ -425,13 +426,13 @@ func putJobsStatus(c *gin.Context) {
 	resComm(c, bf, nil)
 }
 
-func postClearJobIPs(c *gin.Context) {
-	cInfo := models.ClearIPForJob{}
+func postUpdateJobIPs(c *gin.Context) {
+	cInfo := models.UpdateIPForJob{}
 	if err := c.BindJSON(&cInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostClearJobIPs(&cInfo)
+	bf := models.PostUpdateJobIPs(&cInfo)
 	resComm(c, bf, nil)
 }
 
@@ -506,6 +507,11 @@ func putMachineStatus(c *gin.Context) {
 	}
 	bf := models.PutMachineStatus(&ed)
 	resComm(c, bf, nil)
+}
+
+func getAllMachines(c *gin.Context) {
+	data, bf := models.GetAllMachine()
+	resComm(c, bf, data)
 }
 
 func publish(c *gin.Context) {

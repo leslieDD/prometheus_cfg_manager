@@ -60,6 +60,21 @@ func GetMachine(machineID int) (*Machine, *BriefMessage) {
 	return &machine, Success
 }
 
+func GetAllMachine() ([]*Machine, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	ms := []*Machine{}
+	tx := db.Table("machines").Find(&ms)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return ms, Success
+}
+
 func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	if sp.PageSize <= 0 {
 		sp.PageSize = 15

@@ -3,7 +3,7 @@
     <div class="label-and-action">
       <div>
         <el-tag type="warning" effect="dark" @change="clickElTag"
-          >编辑JOB组：{{ jobInfo.name }} [ {{ jobInfo.count }} ]</el-tag
+          >编辑JOB组：{{ jobInfo.name }} [ {{ jobInfo.ip_count }} ]</el-tag
         >
       </div>
       <div class="do_action">
