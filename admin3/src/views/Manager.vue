@@ -199,7 +199,7 @@
       </el-pagination>
     </div>
     <el-dialog
-      title="新增IP地址"
+      :title="dialogTitle"
       v-model="dialogVisible"
       width="400px"
       modal
@@ -313,6 +313,7 @@ export default {
       },
       groupNameList: {},
       addAndContinueDisabled: false,
+      dialogTitle: '新增IP地址',
       rules: {
         ipAddr: [
           { required: true, message: '请输入正确的IP地址', validator: validateIP, trigger: 'blur' }
@@ -332,6 +333,7 @@ export default {
   methods: {
     doAdd () {
       this.enterBtnTitle = '创建'
+      this.dialogTitle = '新增IP地址'
       this.dialogVisible = true
       this.addAndContinueDisabled = false
       this.addMechineInfo = {}
@@ -566,6 +568,7 @@ export default {
     },
     edit (scope) {
       this.enterBtnTitle = '更新'
+      this.dialogTitle = '编辑IP地址'
       this.addAndContinueDisabled = true
       this.dialogVisible = true
       this.addMechineInfo = {

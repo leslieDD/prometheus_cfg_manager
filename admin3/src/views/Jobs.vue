@@ -245,7 +245,7 @@
       </span>
     </el-dialog>
     <el-dialog
-      title="IP池"
+      :title="'IP池 - ' + editIPDialog"
       v-model="editIPVisible"
       width="700px"
       modal
@@ -338,6 +338,7 @@ export default {
       currentJobId: 0,
       editIPVisible: false,
       transferChanged: false,
+      editIPDialog: '未设置',
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -684,6 +685,7 @@ export default {
             this.allIPData = allIPData
             this.currentIPValue = currentIPValue
             this.transferChanged = false
+            this.editIPDialog = scope.row.name
             this.editIPVisible = true
           })
         }).catch(e => console.log(e))
