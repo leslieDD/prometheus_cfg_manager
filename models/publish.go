@@ -282,13 +282,31 @@ func GetJobGroupLabelsInfo() ([]*JobGroupLablesInfo, *BriefMessage) {
 }
 
 func GetAllActiveJobs() ([]*Jobs, *BriefMessage) {
+	r, bf := CheckByFiled("publish_at_empty_nocreate_file", "true")
+	if bf != Success {
+		return nil, bf
+	}
+	jobsCount := []*OnlyIDAndCount{}
+	if r {
+		jobsCount, bf = doOptions_3()
+		if bf != Success {
+			return nil, bf
+		}
+	}
+	ids := []int{}
+	for _, obj := range jobsCount {
+		if obj.Count == 0 {
+			continue
+		}
+		ids = append(ids, obj.ID)
+	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return nil, ErrDataBase
 	}
 	jobs := []*Jobs{}
-	tx := db.Table("jobs").Where("enabled=1").Find(&jobs)
+	tx := db.Table("jobs").Where("enabled=1 and id in (?)", ids).Find(&jobs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
