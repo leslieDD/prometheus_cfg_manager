@@ -171,7 +171,8 @@ export default {
       menuDelDisabled: true,
       menuRenameDisabled: true,
       labelPath: [],
-      expandedList: []
+      expandedList: [],
+      currentMode: ''
     }
   },
   mounted () {
@@ -283,6 +284,14 @@ export default {
     },
 
     edit (node, data) {
+      if (this.currentMode === 'rename') {
+        this.$notify({
+          title: '错误',
+          message: '请先完成节点的重新命名！',
+          type: 'error'
+        })
+        return false
+      }
       if (!node) {
         node = this.menuNode
       }
@@ -290,6 +299,7 @@ export default {
         data = this.menuData
       }
       data.display = true
+      this.currentMode = 'rename'
       this.titleFromShowMe = data.label
       //   this.data = [...this.data]
     },
@@ -326,6 +336,14 @@ export default {
       //   this.data = [...this.data]
     },
     openMenu (e, data, node) {
+      if (this.currentMode === 'rename') {
+        this.$notify({
+          title: '错误',
+          message: '请先完成节点的重新命名！',
+          type: 'error'
+        })
+        return false
+      }
       if (data.level === 1) {
         this.menuDelDisabled = true
         this.menuRenameDisabled = true
@@ -373,6 +391,7 @@ export default {
     receiveEsc () {
       this.titleFromShowMe = ''
       this.menuData.display = false
+      this.currentMode = 'normal'
       this.data = [...this.data]
     },
     receiveEnter () {
@@ -401,6 +420,7 @@ export default {
             this.menuData.label = this.titleFromShowMe
             this.titleFromShowMe = ''
             this.menuData.display = false
+            this.currentMode = 'normal'
             // this.data = [...this.data]
             this.doGetTree()
             // this.handleNodeClick()
@@ -419,6 +439,7 @@ export default {
             this.menuData.label = this.titleFromShowMe
             this.menuData.display = false
             this.titleFromShowMe = ''
+            this.currentMode = 'normal'
             this.doGetTree()
           }
         ).catch(
