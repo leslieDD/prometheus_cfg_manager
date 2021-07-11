@@ -70,6 +70,9 @@ func (m *Monitor) Check(list *[]*ListMachineMerge) {
 		if ok {
 			each.Health = obj.Health
 			each.LastError = obj.LastError
+		} else if !each.Enabled {
+			each.Health = "disabled"
+			each.LastError = "IP已经被禁用"
 		} else {
 			each.Health = "unknow"
 			each.LastError = "信息还未同步或者IP异常"
