@@ -79,10 +79,13 @@
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column label="名称" prop="name"> </el-table-column>
-      <el-table-column label="IP数" prop="ip_count"> </el-table-column>
-      <el-table-column label="标签数" prop="labels_count"> </el-table-column>
-      <el-table-column label="最后更新时间" prop="update_at">
+      <el-table-column label="名称" prop="name" show-overflow-tooltip>
+      </el-table-column>
+      <el-table-column label="IP数" prop="ip_count" width="60px">
+      </el-table-column>
+      <el-table-column label="标签数" prop="labels_count" width="60px">
+      </el-table-column>
+      <el-table-column label="最后更新时间" prop="update_at" width="140px">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
@@ -136,7 +139,7 @@
                 :visible="deleteVisible[scope.$index]"
                 placement="top"
               >
-                <p>确定删除吗？</p>
+                <p>确定删除{{ scope.row.name }}吗？</p>
                 <div style="text-align: right; margin: 0">
                   <el-button size="mini" type="text" @click="doNo(scope)"
                     >取消</el-button

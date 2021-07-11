@@ -54,7 +54,7 @@ func getJobGroupID(groupName string, jobID int) (*OnlyID, *BriefMessage) {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return nil, ErrDataBase
 	}
-	id := OnlyID{ID: -1}
+	id := OnlyID{}
 	tx := db.Table("job_group").
 		Select("id").
 		Where("name=? and jobs_id=?", groupName, jobID).
@@ -75,7 +75,7 @@ func doOptions_1() *BriefMessage {
 		return ErrDataBase
 	}
 	// 事务
-	sql := `SELECT machines.id AS machines_id, job_machines.job_id FROM job_machines 
+	sql := `SELECT machines.id AS machine_id, job_machines.job_id FROM job_machines 
 	LEFT JOIN machines 
 	ON machines.id=job_machines.machine_id
 	WHERE job_machines.job_id NOT IN (SELECT jobs_id FROM job_group)`

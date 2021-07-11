@@ -617,6 +617,7 @@ export default {
             message: '发布成功！',
             type: 'success'
           });
+          this.doGetJobs()
         }
       ).catch(
         e => { console.log(e) }
