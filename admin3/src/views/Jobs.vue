@@ -18,7 +18,6 @@
           icon="el-icon-loading"
           size="small"
           type="primary"
-          @click="publishJobsfunc()"
           >发布</el-button
         >
         <el-button size="small" type="success" plain @click="doAdd()"
@@ -645,7 +644,10 @@ export default {
           this.doGetJobs()
         }
       ).catch(
-        e => { console.log(e) }
+        e => {
+          console.log(e)
+          this.publishMode = false
+        }
       )
     },
     restartServer () {
