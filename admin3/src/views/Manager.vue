@@ -125,7 +125,9 @@
             :content="row.last_error"
             placement="top"
           >
-            <el-tag size="mini" type="warning">disabled</el-tag>
+            <el-tag v-if="row.enabled === false" size="mini" type="warning"
+              >disabled</el-tag
+            >
           </el-tooltip>
           <el-tooltip v-else :content="row.last_error" placement="top">
             <el-tag v-if="row.health === 'down'" size="mini" type="danger">{{

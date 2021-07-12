@@ -5,7 +5,20 @@
         <el-button size="small" type="warning" @click="restartServer()"
           >重新加载配置（Reload）</el-button
         >
-        <el-button size="small" type="primary" @click="publishJobsfunc()"
+        <el-button
+          v-if="publishMode === false"
+          size="small"
+          icon="el-icon-upload"
+          type="primary"
+          @click="publishJobsfunc()"
+          >发布</el-button
+        >
+        <el-button
+          v-if="publishMode === true"
+          icon="el-icon-loading"
+          size="small"
+          type="primary"
+          @click="publishJobsfunc()"
           >发布</el-button
         >
         <el-button size="small" type="success" plain @click="doAdd()"
@@ -339,6 +352,7 @@ export default {
       editIPVisible: false,
       transferChanged: false,
       editIPDialog: '未设置',
+      publishMode: false,
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -619,6 +633,7 @@ export default {
       )
     },
     publishJobsfunc () {
+      this.publishMode = true
       publishJobs().then(
         r => {
           this.$notify({
@@ -626,6 +641,7 @@ export default {
             message: '发布成功！',
             type: 'success'
           });
+          this.publishMode = false
           this.doGetJobs()
         }
       ).catch(
