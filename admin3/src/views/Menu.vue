@@ -7,6 +7,13 @@
         @tab-click="handleTabClick"
       >
         <el-tab-pane label="IP管理" name="ipManager">
+          <template #label>
+            <span>
+              <icon-svg icon-class="promgtshuiguo5" />
+              <!-- <i class="iconfont prometheusshengxianshuiguo"></i> -->
+              IP管理</span
+            >
+          </template>
           <router-view name="ipManager" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -14,6 +21,13 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="JOB组管理" name="jobs">
+          <template #label>
+            <span>
+              <icon-svg icon-class="promgtxinxianshuiguo" />
+              <!-- <i class="iconfont prometheusshuiguopingguo"></i> -->
+              JOB组管理</span
+            >
+          </template>
           <router-view name="jobs" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -21,6 +35,13 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="基本配置" name="baseConfig">
+          <template #label>
+            <span>
+              <!-- <i class="iconfont prometheusshuiguo1"></i> -->
+              <icon-svg icon-class="promgtshuiguo7" />
+              基本配置</span
+            >
+          </template>
           <router-view name="baseConfig" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -28,6 +49,13 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="告警管理" name="noticeManager">
+          <template #label>
+            <span>
+              <!-- <i class="iconfont prometheushuolongguo"></i> -->
+              <icon-svg icon-class="promgtshuiguo3" />
+              告警管理</span
+            >
+          </template>
           <router-view name="noticeManager" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -35,6 +63,13 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="配置预览" name="preview">
+          <template #label>
+            <span>
+              <!-- <i class="iconfont prometheuskiwi__easyico"></i> -->
+              <icon-svg icon-class="promgtshuiguo1" />
+              配置预览</span
+            >
+          </template>
           <router-view name="preview" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -42,6 +77,13 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="分组预览" name="ftree">
+          <template #label>
+            <span>
+              <icon-svg icon-class="promgtlanmei" />
+              <!-- <i class="iconfont prometheusshuiguohuluobu"></i> -->
+              分组预览</span
+            >
+          </template>
           <router-view name="ftree" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
@@ -49,7 +91,13 @@
           </router-view>
         </el-tab-pane>
         <el-tab-pane label="告警规则预览" name="ruleView">
-          <router-view name="ruleView" v-slot="{ Component }">
+          <template #label>
+            <span>
+              <!-- <i class="iconfont prometheusshuiguo2"></i> -->
+              <icon-svg icon-class="promgtshengnvguo" />
+              告警规则预览</span
+            > </template
+          ><router-view name="ruleView" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
             </transition>
