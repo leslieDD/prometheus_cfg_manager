@@ -213,6 +213,7 @@ func PostMachine(m *Machine) *BriefMessage {
 		return ErrDataBase
 	}
 	m.UpdateAt = time.Now()
+	m.Enabled = true
 	err := db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Table("machines").Create(m).Error
 		if err != nil {
@@ -301,6 +302,10 @@ func DeleteMachine(mID int) *BriefMessage {
 			return err
 		}
 		if err := tx.Table("job_machines").Where("machine_id=?", mID).Delete(nil).Error; err != nil {
+			config.Log.Error(tx.Error)
+			return err
+		}
+		if err := tx.Table("group_machines").Where("machines_id=?", mID).Delete(nil).Error; err != nil {
 			config.Log.Error(tx.Error)
 			return err
 		}
