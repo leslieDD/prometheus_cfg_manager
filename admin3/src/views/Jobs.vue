@@ -18,6 +18,7 @@
           icon="el-icon-loading"
           size="small"
           type="primary"
+          @click="publishJobsRunning()"
           >发布</el-button
         >
         <el-button size="small" type="success" plain @click="doAdd()"
@@ -630,6 +631,13 @@ export default {
           console.log(e)
         }
       )
+    },
+    publishJobsRunning () {
+      this.$notify({
+        title: '警告',
+        message: '正在发布，请稍等...',
+        type: 'warning'
+      });
     },
     publishJobsfunc () {
       this.publishMode = true
