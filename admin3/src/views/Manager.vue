@@ -2,8 +2,15 @@
   <div class="ipManager-board">
     <div class="do_action">
       <div style="padding-right: 15px">
-        <el-button size="small" type="primary" @click="onPublish()"
+        <el-button
+          size="small"
+          icon="el-icon-upload"
+          type="primary"
+          @click="onPublish()"
           >发布【file_sd_configs】</el-button
+        >
+        <el-button size="small" type="warning" plain @click="doBatchAdd()"
+          >批量添加</el-button
         >
         <el-button size="small" type="success" plain @click="doAdd()"
           >添加</el-button
@@ -615,6 +622,9 @@ export default {
         this.machines[scope.$index].enabled = newStatus
         this.machines = [...this.machines]
       }).catch(e => console.log(e))
+    },
+    doBatchAdd () {
+      this.$router.push({ name: 'ipBatchImport', params: { currentPage: this.currentPage } })
     }
   }
 }

@@ -19,6 +19,14 @@ const routes = [
           }
         },
         {
+          path: '/ip-batch-import',
+          name: 'ipBatchImport',
+          title: 'IP批量导入',
+          components: {
+            ipManager: () => import('@/views/BatchAdd.vue')
+          }
+        },
+        {
           path: '/jobs',
           name: 'jobs',
           title: '分组管理',
