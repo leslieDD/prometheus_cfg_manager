@@ -54,3 +54,11 @@ export function allIPList () {
     method: 'get'
   })
 }
+
+export function batchDeleteMachine(ids){
+  return request({
+    url: '/v1/machines/selection',
+    method: 'delete',
+    data: ids
+  })
+}

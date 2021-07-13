@@ -75,6 +75,33 @@ func GetAllMachine() ([]*Machine, *BriefMessage) {
 	return ms, Success
 }
 
+func BatchDeleteMachine(delIDs []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("machines").Where("id in (?)", delIDs).Delete(nil).Error; err != nil {
+			config.Log.Error(tx.Error)
+			return err
+		}
+		if err := tx.Table("job_machines").Where("machine_id in (?)", delIDs).Delete(nil).Error; err != nil {
+			config.Log.Error(tx.Error)
+			return err
+		}
+		if err := tx.Table("group_machines").Where("machines_id in (?)", delIDs).Delete(nil).Error; err != nil {
+			config.Log.Error(tx.Error)
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return ErrDelData
+	}
+	return Success
+}
+
 func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	if sp.PageSize <= 0 {
 		sp.PageSize = 15

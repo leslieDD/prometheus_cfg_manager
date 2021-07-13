@@ -1,43 +1,55 @@
 <template>
   <div class="ipManager-board">
-    <div class="do_action">
-      <div style="padding-right: 15px">
+    <div class="action-btn-area">
+      <div>
         <el-button
+          icon="el-icon-lightning"
           size="small"
-          icon="el-icon-upload"
-          type="primary"
-          @click="onPublish()"
-          >发布【file_sd_configs】</el-button
-        >
-        <el-button size="small" type="warning" plain @click="doBatchAdd()"
-          >批量添加</el-button
-        >
-        <el-button size="small" type="success" plain @click="doAdd()"
-          >添加</el-button
+          type="info"
+          plain
+          @click="doBatchDel()"
+          >删除选中项</el-button
         >
       </div>
-      <div>
-        <el-input
-          size="small"
-          @keyup.enter="onSearch()"
-          placeholder="请输入内容"
-          v-model="searchContent"
-          class="input-with-select"
-        >
-          <template #prepend>
-            <el-select
-              class="searchSelect"
-              v-model="selectOption"
-              placeholder="请选择"
-            >
-              <el-option label="IP地址" value="1"></el-option>
-              <el-option label="分组" value="2"></el-option>
-            </el-select>
-          </template>
-          <template #append>
-            <el-button icon="el-icon-search" @click="onSearch()"></el-button>
-          </template>
-        </el-input>
+      <div class="do_action">
+        <div style="padding-right: 15px">
+          <el-button
+            size="small"
+            icon="el-icon-upload"
+            type="primary"
+            @click="onPublish()"
+            >发布【file_sd_configs】</el-button
+          >
+          <el-button size="small" type="warning" plain @click="doBatchAdd()"
+            >批量添加</el-button
+          >
+          <el-button size="small" type="success" plain @click="doAdd()"
+            >添加</el-button
+          >
+        </div>
+        <div>
+          <el-input
+            size="small"
+            @keyup.enter="onSearch()"
+            placeholder="请输入内容"
+            v-model="searchContent"
+            class="input-with-select"
+          >
+            <template #prepend>
+              <el-select
+                class="searchSelect"
+                v-model="selectOption"
+                placeholder="请选择"
+              >
+                <el-option label="IP地址" value="1"></el-option>
+                <el-option label="分组" value="2"></el-option>
+              </el-select>
+            </template>
+            <template #append>
+              <el-button icon="el-icon-search" @click="onSearch()"></el-button>
+            </template>
+          </el-input>
+        </div>
       </div>
     </div>
     <el-table
@@ -50,7 +62,9 @@
       :cell-style="cellStyle"
       header-align="center"
       @expand-change="expandChange"
+      @selection-change="handleSelectionChange"
     >
+      <el-table-column type="selection" width="40"> </el-table-column>
       <el-table-column type="expand">
         <template #default="props">
           <el-descriptions title="分组列表" size="mini" :column="4" border>
@@ -154,7 +168,12 @@
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" header-align="center">
+      <el-table-column
+        label="操作"
+        align="center"
+        header-align="center"
+        width="210px"
+      >
         <template v-slot="scope">
           <el-button type="primary" plain size="mini" @click="edit(scope)"
             >编辑</el-button
@@ -287,7 +306,8 @@ import {
   postMachine,
   deleteMachine,
   putMachine,
-  enabledMachine
+  enabledMachine,
+  batchDeleteMachine
 } from '@/api/machines'
 import { publish } from '@/api/publish'
 
@@ -337,7 +357,8 @@ export default {
         // jobId: [
         //   { required: true, message: '请选择分组', trigger: ['blur', 'change'] }
         // ]
-      }
+      },
+      multipleSelection: []
     }
   },
   created () {
@@ -624,13 +645,48 @@ export default {
       }).catch(e => console.log(e))
     },
     doBatchAdd () {
-      this.$router.push({ name: 'ipBatchImport', params: { currentPage: this.currentPage } })
+      this.$router.push({ name: 'BatchOpt', params: { currentPage: this.currentPage } })
+    },
+    doBatchDel () {
+      if (this.multipleSelection.length === 0) {
+        this.$notify({
+          title: '警告',
+          message: '未选中任何项！',
+          type: 'warning'
+        });
+        return false
+      }
+      this.$confirm('是否确定删除？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '放弃'
+      }).then(_ => {
+        batchDeleteMachine(this.multipleSelection).then(r => {
+          this.$notify({
+            title: '成功',
+            message: '删除所选项成功！',
+            type: 'success'
+          });
+          this.doGetMechines()
+        }).catch(e => console.log(e))
+      }).catch(e => console.log(e))
+    },
+    handleSelectionChange (val) {
+      this.multipleSelection = []
+      val.forEach(each => {
+        this.multipleSelection.push(each.id)
+      })
     }
   }
 }
 </script>
 
 <style scoped>
+.action-btn-area {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+}
 .do_action {
   text-align: right;
   margin-top: -5px;
