@@ -925,7 +925,6 @@ export default {
       this.doGetGroupLabels()
     },
     clickElTag (checked) {
-      console.log('checked')
       this.$router.push({ name: 'jobs' })
     },
     expandChange (row, expandRows) {
