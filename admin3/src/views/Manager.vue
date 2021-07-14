@@ -1,7 +1,7 @@
 <template>
   <div class="ipManager-board">
     <div class="action-btn-area">
-      <div>
+      <div class="action-btn-del">
         <el-button
           icon="el-icon-lightning"
           size="small"
@@ -686,6 +686,9 @@ export default {
   display: flex;
   justify-content: space-between;
   flex-wrap: nowrap;
+}
+.action-btn-del {
+  margin-top: -5px;
 }
 .do_action {
   text-align: right;
