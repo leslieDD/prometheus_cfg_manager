@@ -62,21 +62,27 @@
                 size="small"
                 type="success"
                 @click="submitUpload"
-                >上传到服务器</el-button
+                >上传数据到服务器</el-button
               >
               <template #tip>
                 <div class="el-upload__tip">文件格式：xlxs, xls, cvs</div>
               </template>
             </el-upload>
-            <!-- <el-button size="small" type="success" plain>提交</el-button> -->
           </div>
           <div>
             <el-input
               size="small"
               placeholder="请输入内容"
+              @keyup.enter="onSearch()"
               v-model="searchContent"
             >
-              <template #append>搜索</template>
+              <template #append>
+                <el-button
+                  size="small"
+                  @click="onSearch()"
+                  icon="el-icon-search"
+                ></el-button>
+              </template>
             </el-input>
           </div>
         </div>
@@ -250,28 +256,39 @@ export default {
     },
     handleSizeChange (val) {
       this.pageSize = val
-      this.tableData(this.currentPage, this.pageSize)
+      this.tableData()
     },
     handleCurrentChange (val) {
       this.currentPage = val
-      this.tableData(this.currentPage, this.pageSize)
+      this.tableData()
     },
-    tableData (currPage, pageSize) {
+    tableData () {
+      let currPage = this.currentPage
+      let pageSize = this.pageSize
       if (currPage === 0) {
         currPage = 0
       } else {
         currPage -= 1
       }
-      this.uploadIPsSplit = this.uploadIPs.slice(currPage * pageSize, currPage * pageSize + pageSize)
-      this.pageTotal = this.uploadIPs.length
+      console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
+      if (this.searchContent === '') {
+        this.uploadIPsSplit = this.uploadIPs.slice(currPage * pageSize, currPage * pageSize + pageSize)
+        this.pageTotal = this.uploadIPs.length
+        return
+      }
+      let searchUploadIPs = this.uploadIPs.filter(x => x.ipaddr.indexOf(this.searchContent) > -1)
+      this.pageTotal = searchUploadIPs.length
+      this.uploadIPsSplit = searchUploadIPs.slice(currPage * pageSize, currPage * pageSize + pageSize)
+      console.log('searchUploadIPs', searchUploadIPs)
+      console.log('uploadIPsSplit', this.uploadIPsSplit)
     },
     filterIPMethod (query, ipaddr) {
-      return ipaddr.indexOf(query) > -1;
+      return ipaddr.filter(query) > -1;
     },
     doYes (scope) {
       const index = this.uploadIPs.findIndex(d => d.ipaddr === scope.row.ipaddr)
       this.uploadIPs.splice(index, 1);
-      this.tableData(this.currentPage, this.pageSize)
+      this.tableData()
       this.deleteVisible[scope.$index] = false
     },
     doNo (scope) {
@@ -290,7 +307,10 @@ export default {
     submitUpload () {
       this.$refs.upload.submit();
     },
-    onSearch () { },
+    onSearch () {
+      console.log('onSearchonSearchonSearchonSearchonSearch')
+      this.tableData()
+    },
     handleRemove (file, fileList) {
       console.log(file, fileList);
     },
@@ -318,7 +338,7 @@ export default {
 }
 .batch-box-data {
   width: 100%;
-  text-align: center;
+  /* text-align: center; */
 }
 .do_action {
   display: flex;
@@ -328,5 +348,6 @@ export default {
 }
 .block {
   padding-top: 12px;
+  text-align: center;
 }
 </style>
