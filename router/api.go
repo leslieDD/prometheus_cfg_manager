@@ -51,6 +51,7 @@ func initApiRouter() {
 	v1.PUT("/machine/status", putMachineStatus)
 	v1.GET("/machines/all", getAllMachines)
 	v1.DELETE("/machines/selection", batchDeleteMachine)
+	v1.POST("/upload/machines", uploadMachines)
 
 	v1.POST("/publish", publish)
 	v1.POST("/reload", reload)
@@ -523,6 +524,16 @@ func batchDeleteMachine(c *gin.Context) {
 		return
 	}
 	bf := models.BatchDeleteMachine(ids)
+	resComm(c, bf, nil)
+}
+
+func uploadMachines(c *gin.Context) {
+	info := models.UploadMachinesInfo{}
+	if err := c.BindJSON(&info); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.UploadMachines(&info)
 	resComm(c, bf, nil)
 }
 

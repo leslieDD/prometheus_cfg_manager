@@ -365,3 +365,25 @@ func PutMachineStatus(oid *EnabledInfo) *BriefMessage {
 	}
 	return Success
 }
+
+type UploadOpts struct {
+	IgnoreErr bool `json:"ignore_err" form:"ignore_err"`
+}
+type UploadMachinesInfo struct {
+	Opts     UploadOpts `json:"opts" form:"opts"`
+	JobsID   []int      `json:"jobs_id" form:"jobs_id"`
+	Machines []string   `json:"machines" form:"machines"`
+}
+
+func UploadMachines(uploadInfo *UploadMachinesInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	db.Transaction(func(tx *gorm.DB) error {
+		tx.Table("")
+		return nil
+	})
+	return Success
+}

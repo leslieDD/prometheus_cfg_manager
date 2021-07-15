@@ -20,19 +20,23 @@
             size="mini"
           >
             <el-form-item label="忽略IP已存在的错误：">
-              <el-switch
-                v-model="pushOption.ignoreErr"
-                active-color="#13ce66"
-                inactive-color="#ff4949"
-              ></el-switch>
+              <el-tooltip :content="'当前:' + ignoreErrStatus" placement="top">
+                <el-switch
+                  v-model="pushOption.ignoreErr"
+                  active-color="#13ce66"
+                  inactive-color="#ff4949"
+                  :active-value="true"
+                  :inactive-value="false"
+                >
+                </el-switch>
+              </el-tooltip>
             </el-form-item>
             <el-form-item label="为导入IP指定所属组：">
               <el-select
                 v-model="selectTypeValue"
                 class="borderNone"
                 popper-class="pppselect"
-                @change="tableSelectChange($event)"
-                @visible-change="handleSelect($event)"
+                @change="selectChange($event)"
                 size="small"
                 multiple
                 collapse-tags
@@ -217,8 +221,8 @@
 </template>
 <script>
 import XLSX from "xlsx";
-import { getJobs } from '@/api/jobs'
-import execlSvg from '@/assets/execl/execl.svg'
+import { getJobs } from '@/api/jobs.js'
+import { uploadMachines } from '@/api/upload.js'
 export default {
   data () {
     return {
@@ -234,6 +238,8 @@ export default {
       pushOption: {
         ignoreErr: false
       },
+      // titles: { ignoreErrStatus: '未选中' },
+      // ignoreErrStatus: '未选中',
       exampleData: [
         '标题，内容不限',
         '192.168.100.1',
@@ -254,6 +260,31 @@ export default {
   mounted () {
     this.doGetJobs()
   },
+  // computed: 中的key，不能在data里面定义
+  // watched: 中的key,在data是有定义的
+  computed: {
+    ignoreErrStatus () {
+      if (this.pushOption.ignoreErr === true) {
+        return '选中'
+      } else {
+        return '未选中'
+      }
+    }
+  },
+  // watch: {
+  //   pushOption: {
+  //     handler () {
+  //       if (this.pushOption.ignoreErr === true) {
+  //         // this.titles.ignoreErrStatus = '选中'
+  //         this.ignoreErrStatus = '选中'
+  //       } else {
+  //         // this.titles.ignoreErrStatus = '未选中'
+  //         this.ignoreErrStatus = '未选中'
+  //       }
+  //     },
+  //     deep: true
+  //   }
+  // },
   methods: {
     importExcel (file) {
       const types = file.name.split(".")[1];
@@ -392,19 +423,12 @@ export default {
       this.tableData()
     },
     submitUpload () {
-      this.$refs.upload.submit();
+      this.doUploadMachines()
     },
     onSearch () {
       this.tableData()
     },
-    handleRemove (file, fileList) {
-      console.log(file, fileList);
-    },
-    handlePreview (file) {
-      console.log(file);
-    },
-    tableSelectChange (event) { },
-    handleSelect (event) { },
+    selectChange (event) { },
     goBack () {
       let queryInfo = {
         currentPage: 0
@@ -413,6 +437,28 @@ export default {
         queryInfo.currentPage = this.$route.params.currentPage
       }
       this.$router.push({ name: 'ipManager', params: queryInfo })
+    },
+    doUploadMachines () {
+      let uploadIPs = []
+      this.uploadIPs.forEach(
+        e => {
+          uploadIPs.push(e.ipaddr)
+        }
+      )
+      let uploadData = {
+        opts: {
+          ignore_err: this.pushOption.ignoreErr,
+        },
+        jobs_id: this.selectTypeValue,
+        machines: uploadIPs
+      }
+      uploadMachines(uploadData).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '提交成功！',
+          type: 'success'
+        })
+      }).catch(e => console.log(e))
     }
   }
 }
