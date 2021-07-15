@@ -278,9 +278,11 @@ export default {
           let n = 0
           sets.forEach(each => {
             uploadIPs.push({
+              id: n,
               ipaddr: each
             })
             deleteVisible[n] = false
+            n += 1
           })
           this.uploadIPs = uploadIPs
           this.deleteVisible = deleteVisible
@@ -376,7 +378,16 @@ export default {
         this.multipleSelection.push(each.id)
       })
     },
-    doBatchDel () { },
+    doBatchDel () {
+      let searchUploadIPs = this.uploadIPs.filter(x => {
+        const result = this.multipleSelection.some(
+          id => id === x.id
+        );
+        return !result
+      })
+      this.uploadIPs = searchUploadIPs
+      this.tableData()
+    },
     submitUpload () {
       this.$refs.upload.submit();
     },
