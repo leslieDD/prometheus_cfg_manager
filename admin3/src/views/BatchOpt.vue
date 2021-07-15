@@ -2,7 +2,9 @@
   <div class="batch-box">
     <div class="batch-box-desc">
       <div class="return-back">
-        <el-button size="small" type="primary" plain>返回</el-button>
+        <el-button size="small" type="primary" @click="goBack" plain
+          >返回</el-button
+        >
       </div>
       <div class="push-options">
         <el-card class="box-card" shadow="never">
@@ -14,15 +16,36 @@
           <el-form
             ref="form"
             :model="pushOption"
-            label-width="180px"
+            label-width="155px"
             size="mini"
           >
-            <el-form-item label="忽略IP已经存在的错误：">
+            <el-form-item label="忽略IP已存在的错误：">
               <el-switch
                 v-model="pushOption.ignoreErr"
                 active-color="#13ce66"
                 inactive-color="#ff4949"
               ></el-switch>
+            </el-form-item>
+            <el-form-item label="为导入IP指定所属组：">
+              <el-select
+                v-model="selectTypeValue"
+                class="borderNone"
+                popper-class="pppselect"
+                @change="tableSelectChange($event)"
+                @visible-change="handleSelect($event)"
+                size="small"
+                multiple
+                collapse-tags
+                placeholder="请选择"
+              >
+                <el-option
+                  v-for="item in jobs"
+                  :key="item.id"
+                  :label="item.name"
+                  :value="item.id"
+                >
+                </el-option>
+              </el-select>
             </el-form-item>
           </el-form>
         </el-card>
@@ -192,6 +215,7 @@
 </template>
 <script>
 import XLSX from "xlsx";
+import { getJobs } from '@/api/jobs'
 export default {
   data () {
     return {
@@ -219,8 +243,13 @@ export default {
         '192.168.100.8',
         '......',
         ''
-      ]
+      ],
+      jobs: [],
+      selectTypeValue: []
     }
+  },
+  mounted () {
+    this.doGetJobs()
   },
   methods: {
     importExcel (file) {
@@ -257,8 +286,14 @@ export default {
           this.deleteVisible = deleteVisible
           this.uploadIPsSplit = uploadIPs.slice(0, this.pageSize)
           this.pageTotal = uploadIPs.length
+          this.doGetJobs()
         }
       });
+    },
+    doGetJobs () {
+      getJobs().then(r => {
+        this.jobs = r.data
+      }).catch(e => console.log(e))
     },
     file2Xce (file) {
       return new Promise(function (resolve, reject) {
@@ -311,7 +346,6 @@ export default {
       } else {
         currPage -= 1
       }
-      console.log('xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx')
       if (this.searchContent === '') {
         this.uploadIPsSplit = this.uploadIPs.slice(currPage * pageSize, currPage * pageSize + pageSize)
         this.pageTotal = this.uploadIPs.length
@@ -320,8 +354,6 @@ export default {
       let searchUploadIPs = this.uploadIPs.filter(x => x.ipaddr.indexOf(this.searchContent) > -1)
       this.pageTotal = searchUploadIPs.length
       this.uploadIPsSplit = searchUploadIPs.slice(currPage * pageSize, currPage * pageSize + pageSize)
-      console.log('searchUploadIPs', searchUploadIPs)
-      console.log('uploadIPsSplit', this.uploadIPsSplit)
     },
     filterIPMethod (query, ipaddr) {
       return ipaddr.filter(query) > -1;
@@ -349,7 +381,6 @@ export default {
       this.$refs.upload.submit();
     },
     onSearch () {
-      console.log('onSearchonSearchonSearchonSearchonSearch')
       this.tableData()
     },
     handleRemove (file, fileList) {
@@ -357,6 +388,17 @@ export default {
     },
     handlePreview (file) {
       console.log(file);
+    },
+    tableSelectChange (event) { },
+    handleSelect (event) { },
+    goBack () {
+      let queryInfo = {
+        currentPage: 0
+      }
+      if (this.$route.params.currentPage) {
+        queryInfo.currentPage = this.$route.params.currentPage
+      }
+      this.$router.push({ name: 'ipManager', params: queryInfo })
     }
   }
 }

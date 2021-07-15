@@ -365,6 +365,10 @@ export default {
     // this.doGetMechines()
   },
   mounted () {
+    this.currentPage = 1
+    if (this.$route.params.currentPage) {
+      this.currentPage = parseInt(this.$route.params.currentPage)
+    }
     this.doGetMechines()
   },
   methods: {
@@ -392,10 +396,10 @@ export default {
           }
           getMachines(getInfo).then(
             r => {
+              this.machines = r.data.data
               this.pageTotal = r.data.totalCount
               this.currentPage = r.data.pageNo
               this.pageSize = r.data.pageSize
-              this.machines = r.data.data
               this.deleteVisible = {}
               let n = 0
               r.data.data.forEach(element => {
@@ -645,7 +649,8 @@ export default {
       }).catch(e => console.log(e))
     },
     doBatchAdd () {
-      this.$router.push({ name: 'BatchOpt', params: { currentPage: this.currentPage } })
+      const params = { currentPage: this.currentPage }
+      this.$router.push({ name: 'BatchOpt', params: params })
     },
     doBatchDel () {
       if (this.multipleSelection.length === 0) {
