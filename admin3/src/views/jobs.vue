@@ -187,7 +187,7 @@
         </template>
       </el-table-column>
     </el-table>
-    <div class="block">
+    <div class="block" v-if="pageshow">
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -353,6 +353,7 @@ export default {
       transferChanged: false,
       editIPDialog: '未设置',
       publishMode: false,
+      pageshow: true,
       rules: {
         name: [
           { required: true, message: '请输入正确的分组名称', validator: validateStr, trigger: ['blur'] }
@@ -417,6 +418,10 @@ export default {
           this.pageTotal = r.data.totalCount
           this.currentPage = r.data.pageNo
           this.pageSize = r.data.pageSize
+          this.pageshow = false;//让分页隐藏
+          this.$nextTick(function () {//重新渲染分页
+            this.pageshow = true;
+          });
         }
       ).catch(
         e => {

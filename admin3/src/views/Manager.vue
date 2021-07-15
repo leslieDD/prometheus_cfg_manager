@@ -221,15 +221,16 @@
         </template>
       </el-table-column>
     </el-table>
-    <div class="block">
+    <div class="block" v-if="pageshow">
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
-        :current-page="currentPage"
+        :current-page.sync="currentPage"
         :page-sizes="[15, 50, 100, 200]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="pageTotal"
+        ref="pagination"
       >
       </el-pagination>
     </div>
@@ -358,16 +359,18 @@ export default {
         //   { required: true, message: '请选择分组', trigger: ['blur', 'change'] }
         // ]
       },
-      multipleSelection: []
+      multipleSelection: [],
+      pageshow: false
     }
   },
   created () {
     // this.doGetMechines()
   },
   mounted () {
-    this.currentPage = 1
     if (this.$route.params.currentPage) {
       this.currentPage = parseInt(this.$route.params.currentPage)
+    } else {
+      this.currentPage = 1
     }
     this.doGetMechines()
   },
@@ -400,10 +403,13 @@ export default {
               this.pageTotal = r.data.totalCount
               this.currentPage = r.data.pageNo
               this.pageSize = r.data.pageSize
+              this.pageshow = false;//让分页隐藏
+              this.$nextTick(() => {//重新渲染分页
+                this.pageshow = true;
+              });
               this.deleteVisible = {}
               let n = 0
               r.data.data.forEach(element => {
-                // this.selectTypeValue[element.id] = this.jobsMap[element.jobs_id[0]]
                 this.selectTypeValue[element.id] = element.jobs_id
                 this.deleteVisible[n] = false
                 n += 1
@@ -454,6 +460,7 @@ export default {
       this.selectTableChanged[row.id] = true
     },
     handleSizeChange (val) {
+      // this.pageSize = val
       let getInfo = {
         'pageNo': this.currentPage,
         'pageSize': val,
@@ -463,6 +470,7 @@ export default {
       this.doGetMechines(getInfo)
     },
     handleCurrentChange (val) {
+      // this.currentPage = val
       let getInfo = {
         'pageNo': val,
         'pageSize': this.pageSize,
