@@ -2,6 +2,7 @@ import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
 import ViteComponents from 'vite-plugin-components'
+import viteSvgIcons from 'vite-plugin-svg-icons';
 
 ViteComponents({
   // relative paths to the directory to search for components.
@@ -38,7 +39,11 @@ export default defineConfig({
     'comps': path.resolve(__dirname, 'src/components')
     },
   },
-  plugins: [vue(), ViteComponents()],
+  plugins: [vue(), ViteComponents(), viteSvgIcons({
+    // 配置路劲在你的src里的svg存放文件
+    iconDirs: [path.resolve(__dirname, './src/assets/single')],
+    symbolId: 'icon-[dir]-[name]',
+  })],
 
   /*
     Project root directory/项目根目录（index.html所在位置），可以是绝对路径，也可以是相对于本配置文件的路径。

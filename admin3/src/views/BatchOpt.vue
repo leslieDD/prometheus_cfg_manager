@@ -60,7 +60,9 @@
           <table class="pure-table">
             <thead>
               <tr>
-                <th class="pure-table-th1"></th>
+                <th class="pure-table-th1">
+                  <single-svg icon-class="excel" />
+                </th>
                 <th class="pure-table-th2">A</th>
                 <th class="pure-table-th3">B</th>
               </tr>
@@ -216,6 +218,7 @@
 <script>
 import XLSX from "xlsx";
 import { getJobs } from '@/api/jobs'
+import execlSvg from '@/assets/execl/execl.svg'
 export default {
   data () {
     return {
