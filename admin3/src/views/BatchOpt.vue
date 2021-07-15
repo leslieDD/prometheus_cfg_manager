@@ -1,34 +1,59 @@
 <template>
   <div class="batch-box">
     <div class="batch-box-desc">
-      <el-tag style="primary">导入格式说明：</el-tag>
-      <el-descriptions title="自定义样式列表" :column="1" border>
-        <el-descriptions-item
-          label="用户名"
-          label-align="right"
-          align="center"
-          label-class-name="my-label"
-          class-name="my-content"
-          width="150px"
-          >kooriookami</el-descriptions-item
-        >
-        <el-descriptions-item label="手机号" label-align="right" align="center"
-          >18100000000</el-descriptions-item
-        >
-        <el-descriptions-item label="居住地" label-align="right" align="center"
-          >苏州市</el-descriptions-item
-        >
-        <el-descriptions-item label="备注" label-align="right" align="center">
-          <el-tag size="small">学校</el-tag>
-        </el-descriptions-item>
-        <el-descriptions-item
-          label="联系地址"
-          label-align="right"
-          align="center"
-          >江苏省苏州市吴中区吴中大道 1188 号</el-descriptions-item
-        >
-      </el-descriptions>
+      <div class="return-back">
+        <el-button size="small" type="primary" plain>返回</el-button>
+      </div>
+      <div class="push-options">
+        <el-card class="box-card" shadow="never">
+          <template #header>
+            <div class="card-header">
+              <span>导入选项：</span>
+            </div>
+          </template>
+          <el-form
+            ref="form"
+            :model="pushOption"
+            label-width="180px"
+            size="mini"
+          >
+            <el-form-item label="忽略IP已经存在的错误：">
+              <el-switch
+                v-model="pushOption.ignoreErr"
+                active-color="#13ce66"
+                inactive-color="#ff4949"
+              ></el-switch>
+            </el-form-item>
+          </el-form>
+        </el-card>
+      </div>
+      <div>
+        <el-card class="box-card" shadow="never">
+          <template #header>
+            <div class="card-header">
+              <span>导入格式说明：</span>
+            </div>
+          </template>
+          <table class="pure-table">
+            <thead>
+              <tr>
+                <th class="pure-table-th1"></th>
+                <th class="pure-table-th2">A</th>
+                <th class="pure-table-th3">B</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(ipaddr, index) in exampleData" :key="index">
+                <td class="pure-table-td1">{{ index + 1 }}</td>
+                <td class="pure-table-td2">{{ ipaddr }}</td>
+                <td class="pure-table-td2"></td>
+              </tr>
+            </tbody>
+          </table>
+        </el-card>
+      </div>
     </div>
+    <div class="split-line" />
     <div class="batch-box-data">
       <div class="ctl_btn_area">
         <div>
@@ -178,7 +203,23 @@ export default {
       pageSize: 15,
       pageTotal: 0,
       searchContent: '',
-      multipleSelection: []
+      multipleSelection: [],
+      pushOption: {
+        ignoreErr: false
+      },
+      exampleData: [
+        '标题，内容不限',
+        '192.168.100.1',
+        '192.168.100.2',
+        '192.168.100.3',
+        '192.168.100.4',
+        '192.168.100.5',
+        '192.168.100.6',
+        '192.168.100.7',
+        '192.168.100.8',
+        '......',
+        ''
+      ]
     }
   },
   methods: {
@@ -338,7 +379,6 @@ export default {
 }
 .batch-box-data {
   width: 100%;
-  /* text-align: center; */
 }
 .do_action {
   display: flex;
@@ -349,5 +389,64 @@ export default {
 .block {
   padding-top: 12px;
   text-align: center;
+}
+.return-back {
+  margin-bottom: 27px;
+}
+.split-line {
+  margin-left: 8px;
+  margin-right: 8px;
+  min-height: 85vh;
+}
+.push-options {
+  margin-bottom: 15px;
+}
+.table-example {
+  border: 1px;
+}
+body {
+  margin: 10px;
+}
+table {
+  border-collapse: collapse;
+  border-spacing: 0;
+}
+
+td,
+th {
+  border: 1px solid #cbcbcb;
+  display: inline-block;
+  height: 20px;
+}
+.pure-table {
+  font-size: 15px;
+  border: 1px solid lightblue;
+  align-content: center;
+  text-align: center;
+}
+.pure-table-td1 {
+  align-content: center;
+  text-align: center;
+  background-color: #f8fbef;
+  width: 30px;
+}
+.pure-table-td2,
+.pure-table-th2,
+.pure-table-th3 {
+  width: 130px;
+}
+.pure-table-th1,
+.pure-table-th2,
+.pure-table-th3 {
+  display: inline-block;
+  font-size: 15px;
+  /* border: 1px solid lightblue; */
+  align-content: center;
+  text-align: center;
+  background-color: #f8fbef;
+}
+
+.pure-table-th1 {
+  width: 30px;
 }
 </style>
