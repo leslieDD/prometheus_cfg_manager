@@ -369,10 +369,18 @@ func PutMachineStatus(oid *EnabledInfo) *BriefMessage {
 type UploadOpts struct {
 	IgnoreErr bool `json:"ignore_err" form:"ignore_err"`
 }
+
+type UploadMachine struct {
+	ID           int    `json:"-" form:"-"`
+	IpAddr       string `json:"ipaddr" form:"ipaddr"`
+	ImportInPool bool   `json:"import_in_pool" form:"import_in_pool"`
+	ImportInJob  bool   `json:"import_in_job" form:"import_in_job"`
+	ImportError  string `json:"import_error" form:"import_error"`
+}
 type UploadMachinesInfo struct {
-	Opts     UploadOpts `json:"opts" form:"opts"`
-	JobsID   []int      `json:"jobs_id" form:"jobs_id"`
-	Machines []string   `json:"machines" form:"machines"`
+	Opts     UploadOpts      `json:"opts" form:"opts"`
+	JobsID   []int           `json:"jobs_id" form:"jobs_id"`
+	Machines []UploadMachine `json:"machines" form:"machines"`
 }
 
 func UploadMachines(uploadInfo *UploadMachinesInfo) *BriefMessage {
@@ -382,7 +390,48 @@ func UploadMachines(uploadInfo *UploadMachinesInfo) *BriefMessage {
 		return ErrDataBase
 	}
 	db.Transaction(func(tx *gorm.DB) error {
-		tx.Table("")
+		for _, ipInfo := range uploadInfo.Machines {
+			m := Machine{
+				ID:       0,
+				IpAddr:   ipInfo.IpAddr,
+				Enabled:  true,
+				UpdateAt: time.Now(),
+			}
+			if err := tx.Table("machines").Create(&m).Error; err != nil {
+				ipInfo.ImportInPool = false
+				ipInfo.ImportError = err.Error()
+				config.Log.Error(err)
+				if !uploadInfo.Opts.IgnoreErr {
+					return err
+				}
+			} else {
+				ipInfo.ImportInPool = true
+				ipInfo.ID = m.ID
+			}
+		}
+		if len(uploadInfo.JobsID) == 0 {
+			return nil
+		}
+		jobMachines := []*TableJobMachines{}
+		for _, jID := range uploadInfo.JobsID {
+			for _, ipInfo := range uploadInfo.Machines {
+				if !ipInfo.ImportInPool {
+					ipInfo.ImportInJob = false
+					continue
+				}
+				ipInfo.ImportInJob = true
+				jobMachines = append(jobMachines, &TableJobMachines{
+					JobID:     jID,
+					MachineID: ipInfo.ID,
+				})
+			}
+			if err := tx.Table("job_machines").Create(&jobMachines).Error; err != nil {
+				config.Log.Error(err)
+				if !uploadInfo.Opts.IgnoreErr {
+					return err
+				}
+			}
+		}
 		return nil
 	})
 	return Success
