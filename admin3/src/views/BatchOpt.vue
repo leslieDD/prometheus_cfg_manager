@@ -58,7 +58,7 @@
         <el-card class="box-card" shadow="never">
           <template #header>
             <div class="card-header">
-              <span>导入格式说明：</span>
+              <span>导入表格格式如下：</span>
             </div>
           </template>
           <table class="pure-table">
