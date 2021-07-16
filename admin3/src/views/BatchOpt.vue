@@ -258,7 +258,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[15, 20, 30, 50]"
+          :page-sizes="[17, 30, 50, 100]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="pageTotal"
@@ -297,7 +297,7 @@ export default {
       uploadIPsSplit: [],
       deleteVisible: {},
       currentPage: 1,
-      pageSize: 15,
+      pageSize: 17,
       pageTotal: 0,
       searchContent: '',
       multipleSelection: [],
