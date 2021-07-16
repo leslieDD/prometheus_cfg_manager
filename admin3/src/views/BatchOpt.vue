@@ -3,7 +3,7 @@
     <div class="batch-box-desc">
       <div class="return-back">
         <el-button size="small" type="primary" @click="goBack" plain
-          >返回</el-button
+          >返回之前页面</el-button
         >
       </div>
       <div class="push-options">
@@ -140,6 +140,30 @@
             </el-input>
           </div>
         </div>
+      </div>
+      <div class="descriptions-display">
+        <el-descriptions :column="4" size="mini">
+          <el-descriptions-item label="IP总数："
+            ><el-tag size="mini" type="success">{{
+              ipTongJi.total
+            }}</el-tag></el-descriptions-item
+          >
+          <el-descriptions-item label="导入成功数："
+            ><el-tag size="mini" type="success">{{
+              ipTongJi.success
+            }}</el-tag></el-descriptions-item
+          >
+          <el-descriptions-item label="导入失败数："
+            ><el-tag size="mini" type="danger">{{
+              ipTongJi.fail
+            }}</el-tag></el-descriptions-item
+          >
+          <el-descriptions-item label="未操作数："
+            ><el-tag size="mini" type="info">{{
+              ipTongJi.noaction
+            }}</el-tag></el-descriptions-item
+          >
+        </el-descriptions>
       </div>
       <el-table
         size="mini"
@@ -296,7 +320,13 @@ export default {
         ''
       ],
       jobs: [],
-      selectTypeValue: []
+      selectTypeValue: [],
+      ipTongJi: {
+        total: 0,
+        success: 0,
+        fail: 0,
+        noaction: 0
+      }
     }
   },
   mounted () {
@@ -367,6 +397,7 @@ export default {
           this.deleteVisible = deleteVisible
           this.uploadIPsSplit = uploadIPs.slice(0, this.pageSize)
           this.pageTotal = uploadIPs.length
+          this.ipTongJi.total = this.uploadIPs.length
           this.doGetJobs()
         }
       });
@@ -427,6 +458,7 @@ export default {
       } else {
         currPage -= 1
       }
+      this.ipTongJi.total = this.uploadIPs.length
       if (this.searchContent === '') {
         this.uploadIPsSplit = this.uploadIPs.slice(currPage * pageSize, currPage * pageSize + pageSize)
         this.pageTotal = this.uploadIPs.length
@@ -515,6 +547,7 @@ export default {
       }
       uploadMachines(uploadData).then(r => {
         this.uploadIPs = r.data.machines
+        this.ipTongJi = r.data.tongji
         this.tableData()
         this.$notify({
           title: '警告',

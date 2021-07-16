@@ -377,10 +377,18 @@ type UploadMachine struct {
 	ImportInJobNum int    `json:"import_in_job_num" form:"import_in_job_num"`
 	ImportError    string `json:"import_error" form:"import_error"`
 }
+
+type UploadResult struct {
+	Total    int `json:"total"`
+	Success  int `json:"success"`
+	Fail     int `json:"fail"`
+	NoAction int `json:"noaction"`
+}
 type UploadMachinesInfo struct {
 	Opts     UploadOpts       `json:"opts" form:"opts"`
 	JobsID   []int            `json:"jobs_id" form:"jobs_id"`
 	Machines []*UploadMachine `json:"machines" form:"machines"`
+	TongJi   UploadResult     `json:"tongji" form:"-"`
 }
 
 func UploadMachines(uploadInfo *UploadMachinesInfo) (*UploadMachinesInfo, *BriefMessage) {
@@ -389,6 +397,7 @@ func UploadMachines(uploadInfo *UploadMachinesInfo) (*UploadMachinesInfo, *Brief
 		config.Log.Error(InternalGetBDInstanceErr)
 		return uploadInfo, ErrDataBase
 	}
+	uploadInfo.TongJi.Total = len(uploadInfo.Machines)
 	db.Transaction(func(tx *gorm.DB) error {
 		for _, ipInfo := range uploadInfo.Machines {
 			m := Machine{
@@ -400,11 +409,13 @@ func UploadMachines(uploadInfo *UploadMachinesInfo) (*UploadMachinesInfo, *Brief
 			if err := tx.Table("machines").Create(&m).Error; err != nil {
 				ipInfo.ImportInPool = false
 				ipInfo.ImportError = err.Error()
+				uploadInfo.TongJi.Fail += 1
 				config.Log.Error(err)
 				if !uploadInfo.Opts.IgnoreErr {
 					return err
 				}
 			} else {
+				uploadInfo.TongJi.Success += 1
 				ipInfo.ImportInPool = true
 				ipInfo.ImportError = "成功导入IP池"
 				ipInfo.ID = m.ID
@@ -434,5 +445,6 @@ func UploadMachines(uploadInfo *UploadMachinesInfo) (*UploadMachinesInfo, *Brief
 		}
 		return nil
 	})
+	uploadInfo.TongJi.NoAction = uploadInfo.TongJi.Total - (uploadInfo.TongJi.Success + uploadInfo.TongJi.Fail)
 	return uploadInfo, Success
 }

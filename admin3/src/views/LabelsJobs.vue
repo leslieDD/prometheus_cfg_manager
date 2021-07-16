@@ -7,7 +7,7 @@
         >
         <span class="go-back"
           ><el-button size="small" type="primary" plain @click="goBack"
-            >返回</el-button
+            >返回之前页面</el-button
           ></span
         >
       </div>
