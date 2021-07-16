@@ -105,6 +105,23 @@
         </el-tab-pane>
       </el-tabs>
     </div>
+    <el-backtop>
+      <div
+        style="
+           {
+            height: 100%;
+            width: 100%;
+            background-color: #f2f5f6;
+            box-shadow: 0 0 6px rgba(0, 0, 0, 0.12);
+            text-align: center;
+            line-height: 40px;
+            color: #1989fa;
+          }
+        "
+      >
+        UP
+      </div>
+    </el-backtop>
   </div>
 </template>
 
@@ -114,7 +131,8 @@ export default {
   data () {
     return {
       activeTabName: 'ipManager',
-      transitionName: 'slide-left'
+      transitionName: 'slide-left',
+      scrollBackShow: false
     }
   },
   watch: {
@@ -126,7 +144,11 @@ export default {
     }
   },
   mounted () {
+    window.addEventListener('scroll', this.scrollToTop)
     this.$router.push({ name: 'ipManager' })
+  },
+  destroyed () {
+    window.removeEventListener('scroll', this.scrollToTop);
   },
   methods: {
     handleTabClick (tab, event) {
@@ -145,6 +167,15 @@ export default {
       } else if (tab.instance.props.name === 'baseConfig') {
         this.$router.push({ name: 'baseConfig' })
       }
+    },
+    scrollToTop () {
+      let scrollTop = window.pageYOffset || document.documentElement.scrollTop || document.body.scrollTop;
+      let browserHeight = window.outerHeight;
+      if (scrollTop > browserHeight) {
+        this.scrollBackShow = true
+      } else {
+        this.scrollBackShow = false
+      }
     }
   }
 }
@@ -159,6 +190,7 @@ export default {
 el-tabs {
   padding: 0px;
 }
+
 .slide-fade-enter-active {
   transition: all 0.3s ease-out;
 }

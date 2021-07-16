@@ -377,6 +377,9 @@ export default {
     if (this.$route.params.currentPage) {
       this.currentPage = parseInt(this.$route.params.currentPage)
     }
+    if (this.$route.params.pageSize) {
+      this.pageSize = parseInt(this.$route.params.pageSize)
+    }
     this.doGetJobs()
   },
   methods: {
@@ -396,7 +399,11 @@ export default {
       })
     },
     doEditLabelsJob (scope) {
-      const jobInfo = { ...scope.row, currentPage: this.currentPage }
+      const jobInfo = {
+        ...scope.row,
+        currentPage: this.currentPage,
+        pageSize: this.pageSize
+      }
       this.$router.push({ name: 'labelsJobs', params: jobInfo })
     },
     doGetJobs (getInfo) {

@@ -925,7 +925,8 @@ export default {
       this.doGetGroupLabels()
     },
     clickElTag (checked) {
-      this.$router.push({ name: 'jobs' })
+      this.goBack()
+      // this.$router.push({ name: 'jobs' })
     },
     expandChange (row, expandRows) {
       if (!expandRows || expandRows.length === 0) {
@@ -980,10 +981,14 @@ export default {
     },
     goBack () {
       let queryInfo = {
-        currentPage: 0
+        currentPage: 0,
+        pageSize: 0
       }
       if (this.jobInfo.currentPage) {
         queryInfo.currentPage = this.jobInfo.currentPage
+      }
+      if (this.$route.params.pageSize) {
+        queryInfo.pageSize = this.$route.params.pageSize
       }
       this.$router.push({ name: 'jobs', params: queryInfo })
     }

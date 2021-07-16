@@ -369,8 +369,9 @@ export default {
   mounted () {
     if (this.$route.params.currentPage) {
       this.currentPage = parseInt(this.$route.params.currentPage)
-    } else {
-      this.currentPage = 1
+    }
+    if (this.$route.params.pageSize) {
+      this.pageSize = parseInt(this.$route.params.pageSize)
     }
     this.doGetMechines()
   },
@@ -657,7 +658,10 @@ export default {
       }).catch(e => console.log(e))
     },
     doBatchAdd () {
-      const params = { currentPage: this.currentPage }
+      const params = {
+        currentPage: this.currentPage,
+        pageSize: this.pageSize
+      }
       this.$router.push({ name: 'BatchOpt', params: params })
     },
     doBatchDel () {
