@@ -112,10 +112,20 @@
                 <el-button size="small" type="primary">导入文件</el-button>
               </template>
               <el-button
+                v-if="pushing === false"
                 style="margin-left: 10px"
                 size="small"
                 type="success"
+                icon="el-icon-upload"
                 @click="submitUpload"
+                >上传数据到服务器</el-button
+              >
+              <el-button
+                v-if="pushing === true"
+                style="margin-left: 10px"
+                size="small"
+                type="success"
+                icon="el-icon-loading"
                 >上传数据到服务器</el-button
               >
               <template #tip>
@@ -326,7 +336,8 @@ export default {
         success: 0,
         fail: 0,
         noaction: 0
-      }
+      },
+      pushing: false
     }
   },
   mounted () {
@@ -523,6 +534,7 @@ export default {
       if (this.uploadIPs.length === 0) {
         return false
       }
+      this.pushing = true
       let uploadIPs = []
       this.uploadIPs.forEach(i => {
         if (i.import_in_pool) {
@@ -546,15 +558,28 @@ export default {
         machines: uploadIPs
       }
       uploadMachines(uploadData).then(r => {
+        let n = 0
+        let deleteVisible = {}
+        // let machines = []
+        r.data.machines.forEach(each => {
+          each.id = n
+          deleteVisible[n] = false
+          n += 1
+        })
         this.uploadIPs = r.data.machines
         this.ipTongJi = r.data.tongji
+        this.deleteVisible = deleteVisible
         this.tableData()
         this.$notify({
           title: '警告',
           message: 'IP列表已提交，请参考表格中显示的结果！',
           type: 'warning'
         })
-      }).catch(e => console.log(e))
+        this.pushing = false
+      }).catch(e => {
+        this.pushing = false
+        console.log(e)
+      })
     }
   }
 }
