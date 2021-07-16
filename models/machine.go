@@ -371,23 +371,23 @@ type UploadOpts struct {
 }
 
 type UploadMachine struct {
-	ID           int    `json:"-" form:"-"`
-	IpAddr       string `json:"ipaddr" form:"ipaddr"`
-	ImportInPool bool   `json:"import_in_pool" form:"import_in_pool"`
-	ImportInJob  bool   `json:"import_in_job" form:"import_in_job"`
-	ImportError  string `json:"import_error" form:"import_error"`
+	ID             int    `json:"-" form:"-"`
+	IpAddr         string `json:"ipaddr" form:"ipaddr"`
+	ImportInPool   bool   `json:"import_in_pool" form:"import_in_pool"`
+	ImportInJobNum int    `json:"import_in_job_num" form:"import_in_job_num"`
+	ImportError    string `json:"import_error" form:"import_error"`
 }
 type UploadMachinesInfo struct {
-	Opts     UploadOpts      `json:"opts" form:"opts"`
-	JobsID   []int           `json:"jobs_id" form:"jobs_id"`
-	Machines []UploadMachine `json:"machines" form:"machines"`
+	Opts     UploadOpts       `json:"opts" form:"opts"`
+	JobsID   []int            `json:"jobs_id" form:"jobs_id"`
+	Machines []*UploadMachine `json:"machines" form:"machines"`
 }
 
-func UploadMachines(uploadInfo *UploadMachinesInfo) *BriefMessage {
+func UploadMachines(uploadInfo *UploadMachinesInfo) (*UploadMachinesInfo, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
-		return ErrDataBase
+		return uploadInfo, ErrDataBase
 	}
 	db.Transaction(func(tx *gorm.DB) error {
 		for _, ipInfo := range uploadInfo.Machines {
@@ -406,6 +406,7 @@ func UploadMachines(uploadInfo *UploadMachinesInfo) *BriefMessage {
 				}
 			} else {
 				ipInfo.ImportInPool = true
+				ipInfo.ImportError = "成功导入IP池"
 				ipInfo.ID = m.ID
 			}
 		}
@@ -416,10 +417,9 @@ func UploadMachines(uploadInfo *UploadMachinesInfo) *BriefMessage {
 		for _, jID := range uploadInfo.JobsID {
 			for _, ipInfo := range uploadInfo.Machines {
 				if !ipInfo.ImportInPool {
-					ipInfo.ImportInJob = false
 					continue
 				}
-				ipInfo.ImportInJob = true
+				ipInfo.ImportInJobNum += 1
 				jobMachines = append(jobMachines, &TableJobMachines{
 					JobID:     jID,
 					MachineID: ipInfo.ID,
@@ -434,5 +434,5 @@ func UploadMachines(uploadInfo *UploadMachinesInfo) *BriefMessage {
 		}
 		return nil
 	})
-	return Success
+	return uploadInfo, Success
 }

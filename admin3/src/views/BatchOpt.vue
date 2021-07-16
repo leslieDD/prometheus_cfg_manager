@@ -109,7 +109,7 @@
               type="file"
             >
               <template #trigger>
-                <el-button size="small" type="primary">选取文件</el-button>
+                <el-button size="small" type="primary">导入文件</el-button>
               </template>
               <el-button
                 style="margin-left: 10px"
@@ -168,13 +168,38 @@
           prop="ipaddr"
           align="center"
           header-align="center"
+          width="140px"
+        >
+        </el-table-column>
+        <el-table-column
+          label="IP池"
+          prop="import_in_pool"
+          align="center"
+          header-align="center"
+          width="50px"
+        >
+        </el-table-column>
+        <el-table-column
+          label="JOB数"
+          prop="import_in_job_num"
+          align="center"
+          header-align="center"
+          width="60px"
+        >
+        </el-table-column>
+        <el-table-column
+          label="错误信息"
+          prop="import_error"
+          align="center"
+          header-align="center"
+          show-overflow-tooltip
         >
         </el-table-column>
         <el-table-column
           label="操作"
           align="center"
           header-align="center"
-          width="180px"
+          width="80px"
         >
           <template v-slot="scope">
             <el-popover
@@ -313,7 +338,10 @@ export default {
           sets.forEach(each => {
             uploadIPs.push({
               id: n,
-              ipaddr: each
+              ipaddr: each,
+              import_in_pool: false,
+              import_in_job_num: 0,
+              import_error: ''
             })
             deleteVisible[n] = false
             n += 1
@@ -439,12 +467,24 @@ export default {
       this.$router.push({ name: 'ipManager', params: queryInfo })
     },
     doUploadMachines () {
+      if (this.uploadIPs.length === 0) {
+        return false
+      }
       let uploadIPs = []
-      this.uploadIPs.forEach(
-        e => {
-          uploadIPs.push(e.ipaddr)
+      this.uploadIPs.forEach(i => {
+        if (i.import_in_pool) {
+          return
         }
-      )
+        uploadIPs.push(i)
+      })
+      if (uploadIPs.length === 0) {
+        this.$notify({
+          title: '警告',
+          message: '列表中已经没有可提交的IP地址！',
+          type: 'warning'
+        })
+        return false
+      }
       let uploadData = {
         opts: {
           ignore_err: this.pushOption.ignoreErr,
@@ -453,10 +493,12 @@ export default {
         machines: uploadIPs
       }
       uploadMachines(uploadData).then(r => {
+        this.uploadIPs = r.data.machines
+        this.tableData()
         this.$notify({
-          title: '成功',
-          message: '提交成功！',
-          type: 'success'
+          title: '警告',
+          message: 'IP列表已提交，请参考表格中显示的结果！',
+          type: 'warning'
         })
       }).catch(e => console.log(e))
     }

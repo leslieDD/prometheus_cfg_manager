@@ -533,8 +533,8 @@ func uploadMachines(c *gin.Context) {
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
-	bf := models.UploadMachines(&info)
-	resComm(c, bf, nil)
+	result, bf := models.UploadMachines(&info)
+	resComm(c, bf, result)
 }
 
 func publish(c *gin.Context) {
