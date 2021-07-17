@@ -1,5 +1,9 @@
 <template>
-  <el-card class="box-card" :body-style="{ padding: '0px 0px 0px 0px' }">
+  <el-card
+    class="box-card"
+    :body-style="{ padding: '10px 0px 0px 0px' }"
+    shadow="never"
+  >
     <div class="box-member">
       <el-form
         label-position="right"
@@ -67,6 +71,7 @@
               <el-card
                 class="box-card-two"
                 :body-style="{ padding: '0px 0px 0px 0px' }"
+                shadow="never"
               >
                 <el-select
                   v-model="data.key"
@@ -135,6 +140,7 @@
               <el-card
                 class="box-card-two"
                 :body-style="{ padding: '0px 0px 0px 0px' }"
+                shadow="never"
               >
                 <div class="annotations-move">
                   <div class="annotations-left">

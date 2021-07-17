@@ -14,10 +14,18 @@
       <div class="do_action">
         <div style="padding-right: 15px">
           <el-button
+            v-if="pushing === false"
             size="small"
             icon="el-icon-upload"
             type="primary"
             @click="onPublish()"
+            >发布【file_sd_configs】</el-button
+          >
+          <el-button
+            v-if="pushing === true"
+            size="small"
+            icon="el-icon-loading"
+            type="primary"
             >发布【file_sd_configs】</el-button
           >
           <el-button size="small" type="warning" plain @click="doBatchAdd()"
@@ -360,7 +368,8 @@ export default {
         // ]
       },
       multipleSelection: [],
-      pageshow: false
+      pageshow: false,
+      pushing: false
     }
   },
   created () {
@@ -559,6 +568,7 @@ export default {
       this.doGetMechines()
     },
     onPublish () {
+      this.pushing = true
       publish().then(
         r => {
           this.$notify({
@@ -566,10 +576,12 @@ export default {
             message: '发布成功！',
             type: 'success'
           });
+          this.pushing = false
         }
       ).catch(
         e => {
           console.log(e)
+          this.pushing = false
         }
       )
     },

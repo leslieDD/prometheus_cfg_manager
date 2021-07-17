@@ -84,10 +84,22 @@
           >
         </span>
         <span
-          ><el-button type="primary" size="mini" @click="doRulesPublish"
+          ><el-button
+            v-if="pushing === false"
+            type="primary"
+            icon="el-icon-upload"
+            size="mini"
+            @click="doRulesPublish"
             >发布</el-button
-          ></span
-        >
+          >
+          <el-button
+            v-if="pushing === true"
+            type="primary"
+            icon="el-icon-loading"
+            size="mini"
+            >发布</el-button
+          >
+        </span>
       </div>
       <div class="node-content-edit">
         <el-scrollbar class="card-scrollbar-right">
@@ -172,7 +184,8 @@ export default {
       menuRenameDisabled: true,
       labelPath: [],
       expandedList: [],
-      currentMode: ''
+      currentMode: '',
+      pushing: false
     }
   },
   mounted () {
@@ -451,6 +464,7 @@ export default {
       this.visible = false
     },
     doRulesPublish () {
+      this.pushing = true
       rulesPublish().then(
         r => {
           this.$notify({
@@ -458,9 +472,13 @@ export default {
             message: '发布成功！',
             type: 'success'
           })
+          this.pushing = false
         }
       ).catch(
-        e => { console.log(e) }
+        e => {
+          console.log(e)
+          this.pushing = true
+        }
       )
     },
     nodeExpand (data) {
@@ -484,7 +502,7 @@ export default {
   border: 1px dashed burlywood;
 }
 .node-content {
-  width: 100%;
+  width: 770px;
   display: flex;
   flex-direction: column;
 }
@@ -492,17 +510,18 @@ export default {
   min-height: 150vh;
 }
 .rule-edit-box {
-  min-height: 90vh;
+  min-height: 82vh;
 }
 .node-content-top {
   display: flex;
 }
 .node-content-path {
   display: flex;
+  margin-bottom: 8px;
   flex-direction: row;
 }
 .path-list {
-  width: 650px;
+  width: 630px;
   margin-right: 10px;
   overflow: hidden;
   text-overflow: ellipsis;

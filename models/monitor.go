@@ -246,6 +246,7 @@ func CreateTreeNode(t *TreeNodeFromCli) *BriefMessage {
 		writeData["alert"] = t.Lable
 		writeData["for"] = ""
 		writeData["expr"] = ""
+		writeData["enabled"] = true
 		tx = db.Table("monitor_rules")
 	} else {
 		return ErrUnSupport
