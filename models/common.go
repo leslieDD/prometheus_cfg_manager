@@ -105,6 +105,7 @@ func BatchSaveToTableAnnotations(db *gorm.DB, node *TreeNodeInfo) *BriefMessage 
 	}
 	for _, item := range node.Annotations {
 		if item.IsNew {
+			item.ID = 0
 			item.MonitorRulesID = node.ID
 			tx := db.Table("annotations").Create(&item)
 			if tx.Error != nil {

@@ -118,7 +118,7 @@
                 plain
                 size="mini"
                 icon="el-icon-circle-plus"
-                @click="addLables(formData, 'labels')"
+                @click="addLables('labels')"
                 >增加</el-button
               >
             </div>
@@ -199,7 +199,7 @@
                 type="success"
                 size="mini"
                 plain
-                @click="addLables(formData, 'annotations')"
+                @click="addLables('annotations')"
                 icon="el-icon-circle-plus"
                 >增加</el-button
               >
@@ -236,7 +236,13 @@
 
 <script>
 // import KeyValue from '@/components/KeyValue.vue'
-import { getRuleDetail, getDefaultLabels, putNodeInfo, postNodeInfo, deleteNodeLable } from '@/api/monitor.js'
+import {
+  getRuleDetail,
+  getDefaultLabels,
+  putNodeInfo,
+  postNodeInfo,
+  deleteNodeLable
+} from '@/api/monitor.js'
 
 export default ({
   props: {
@@ -310,7 +316,8 @@ export default ({
       )
     },
     onSubmit () {
-      const nodeData = this.formData.valueOf()
+      const nodeData = this.formData
+      console.log('this.formData =>', this.formData)
       if (this.submitType === 'put') {
         putNodeInfo(nodeData).then(
           r => {
@@ -349,23 +356,24 @@ export default ({
         });
       }
     },
-    addLables (label, witch) {
+    addLables (witch) {
       getDefaultLabels().then(
         r => {
           this.defaultLabels = r.data
           let newID = 0
           if (witch === 'annotations') {
             if (this.formData.annotations.length !== 0) {
-              newID = this.formData.annotations[(this.formData.annotations.length - 1)].id + 1
+              newID = this.formData.annotations[this.formData.annotations.length - 1].id + 1
             }
             this.formData.annotations.push({ id: newID, key: '', value: '', is_new: true })
           } else if (witch === 'labels') {
             if (this.formData.annotations.length !== 0) {
-              newID = this.formData.labels[(this.formData.labels.length - 1)].id + 1
+              newID = this.formData.labels[this.formData.labels.length - 1].id + 1
             }
             this.formData.labels.push({ id: newID, key: '', value: '', is_new: true })
           }
           this.formData = { ...this.formData }
+          console.log('this.formData =>', this.formData)
         }
       ).catch(
         e => { console.log(e) }

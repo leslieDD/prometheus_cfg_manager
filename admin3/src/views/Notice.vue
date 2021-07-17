@@ -477,7 +477,7 @@ export default {
       ).catch(
         e => {
           console.log(e)
-          this.pushing = true
+          this.pushing = false
         }
       )
     },
