@@ -223,19 +223,65 @@
           <el-button
             style="margin-right: 10px"
             icon="el-icon-upload"
+            type="info"
+            size="mini"
+            @click="importData"
+            >导入</el-button
+          >
+          <el-button
+            style="margin-right: 10px"
+            icon="el-icon-upload"
             type="primary"
-            size="medium"
+            size="mini"
             @click="onSubmit"
-            >提交数据</el-button
+            >提交</el-button
           >
         </el-form-item>
       </el-form>
+    </div>
+    <div class="dialog-area">
+      <el-dialog title="导入规则数据-yaml格式" v-model="dialogFormVisible">
+        <el-descriptions class="margin-top" :column="1" size="mini" border>
+          <el-descriptions-item>
+            <template #label>
+              <!-- <i class="el-icon-user"></i> -->
+              说明
+            </template>
+            导入的数据，必须是符合yaml语法，格式可以参考以下样式
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>样例</template>
+            <pre v-highlight="code"><code></code></pre>
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>输入内容</template>
+            <el-input
+              type="textarea"
+              placeholder="请输入内容"
+              v-model="textarea"
+              rows="10"
+              multiple
+              wrap="off"
+              maxlength="300"
+            >
+            </el-input>
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>结果</template>
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <div class="dialog-action">
+              <el-button size="mini" type="info">取消</el-button>
+              <el-button size="mini" type="primary">导入</el-button>
+            </div>
+          </el-descriptions-item>
+        </el-descriptions>
+      </el-dialog>
     </div>
   </el-card>
 </template>
 
 <script>
-// import KeyValue from '@/components/KeyValue.vue'
 import {
   getRuleDetail,
   getDefaultLabels,
@@ -243,6 +289,8 @@ import {
   postNodeInfo,
   deleteNodeLable
 } from '@/api/monitor.js'
+
+// import 'js-yaml'
 
 export default ({
   props: {
@@ -266,7 +314,18 @@ export default ({
       defaultLabels: [],
       submitType: '',
       formDisabled: true,
-      switchValue: false
+      switchValue: false,
+      dialogFormVisible: false,
+      code: `- alert: PrometheusJobMissing
+    expr: absent(up{job="prometheus"})
+    for: 0m
+    labels:
+      severity: warning
+    annotations:
+      description: A Prometheus job has disappeared VALUE = {{ $value }} LABELS = {{ $labels }}
+      summary: Prometheus job missing (instance {{ $labels.instance }})
+`,
+      textarea: ''
     }
   },
   methods: {
@@ -280,27 +339,6 @@ export default ({
       getDefaultLabels().then(
         r => {
           this.defaultLabels = r.data
-          //   if (info.is_new) {
-          //     this.formData = {
-          //       "id": 0,
-          //       "alert": info.label,
-          //       "expr": "",
-          //       "for": "",
-          //       "sub_group_id": info.parent,
-          //       "labels": [],
-          //       "annotations": []
-          //     }
-          //     this.submitType = 'post'
-          //   } else {
-          //     getRuleDetail(info).then(
-          //       r => {
-          //         this.formData = r.data
-          //         this.submitType = 'put'
-          //       }
-          //     ).catch(
-          //       e => { console.log(e) }
-          //     )
-          //   }
           getRuleDetail(info).then(
             r => {
               this.formData = r.data
@@ -309,7 +347,6 @@ export default ({
           ).catch(
             e => { console.log(e) }
           )
-          //   this.doGetRuleDetail(info)
         }
       ).catch(
         e => { console.log(e) }
@@ -328,7 +365,6 @@ export default ({
               message: '更新成功！',
               type: 'success'
             });
-            // this.doGetRuleDetail(this.storeInfo)
           }
         ).catch(
           e => { console.log(e) }
@@ -343,7 +379,6 @@ export default ({
               message: '创建成功！',
               type: 'success'
             });
-            // this.doGetRuleDetail(this.storeInfo)
           }
         ).catch(
           e => { console.log(e) }
@@ -421,6 +456,15 @@ export default ({
     resetForm () {
       this.formData = {}
       this.$refs['formRef'].resetFields();
+    },
+    cancelImport () {
+      this.dialogFormVisible = false
+    },
+    importData () {
+      this.dialogFormVisible = true
+    },
+    parseYaml () {
+      this.dialogFormVisible = false
     }
   }
 })
@@ -438,6 +482,13 @@ export default ({
 }
 .annotations-right {
   width: 79%;
+}
+.dialog-action {
+  align-content: right;
+  text-align: right;
+}
+.dialog-area :deep() .el-dialog {
+  margin: 50px auto !important;
 }
 .box-member :deep() .annotations-labels {
   display: flex !important;

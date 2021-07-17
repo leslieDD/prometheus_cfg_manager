@@ -7,7 +7,7 @@
             :default-expanded-keys="expandedList"
             node-key="code"
             class="tree"
-            :data="data"
+            :data="treeData"
             :indent="0"
             :expand-on-click-node="false"
             @node-click="handleNodeClick"
@@ -113,42 +113,54 @@
         </el-scrollbar>
       </div>
     </div>
-    <ul
-      v-show="visible"
-      :style="{ left: left + 'px', top: top + 'px' }"
-      class="contextmenu"
-    >
-      <li>
-        <el-button
-          v-bind:disabled="menuAddDisabled"
-          size="mini"
-          type="text"
-          icon="el-icon-plus"
-          @click="append(null)"
-          >添加子节点</el-button
-        >
-      </li>
-      <li>
-        <el-button
-          v-bind:disabled="menuRenameDisabled"
-          size="mini"
-          type="text"
-          icon="el-icon-edit-outline"
-          @click="edit(null, null)"
-          >重命名此节点</el-button
-        >
-      </li>
-      <li>
-        <el-button
-          v-bind:disabled="menuDelDisabled"
-          size="mini"
-          type="text"
-          icon="el-icon-delete"
-          @click="remove(null, null)"
-          >删除此节点</el-button
-        >
-      </li>
-    </ul>
+    <div>
+      <ul
+        v-show="visible"
+        :style="{ left: left + 'px', top: top + 'px' }"
+        class="contextmenu"
+      >
+        <li>
+          <el-button
+            v-bind:disabled="menuAddDisabled"
+            size="mini"
+            type="text"
+            icon="el-icon-plus"
+            @click="append(null)"
+            >添加子节点</el-button
+          >
+        </li>
+        <li>
+          <el-button
+            v-bind:disabled="menuAddDisabled"
+            size="mini"
+            type="text"
+            icon="el-icon-notebook-2"
+            @click="expand(null)"
+            >展开所有节点</el-button
+          >
+        </li>
+        <li>
+          <el-button
+            v-bind:disabled="menuRenameDisabled"
+            size="mini"
+            type="text"
+            icon="el-icon-edit-outline"
+            @click="edit(null, null)"
+            >重命名此节点</el-button
+          >
+        </li>
+        <li>
+          <el-button
+            v-bind:disabled="menuDelDisabled"
+            size="mini"
+            type="text"
+            icon="el-icon-delete"
+            @click="remove(null, null)"
+            >删除此节点</el-button
+          >
+        </li>
+      </ul>
+    </div>
   </div>
 </template>
 
@@ -171,7 +183,7 @@ export default {
   },
   data () {
     return {
-      data: [],
+      treeData: [],
       queryInfo: {},
       visible: false,
       top: 0,
@@ -204,7 +216,7 @@ export default {
     doGetTree () {
       getTree().then(
         r => {
-          this.data = [...r.data]
+          this.treeData = [...r.data]
         }
       ).catch(
         e => { console.log(e) }
@@ -248,7 +260,7 @@ export default {
         data.children = []
       }
       data.children.push(newChild);
-      this.data = [...this.data]
+      this.treeData = [...this.treeData]
     },
 
     remove (node, data) {
@@ -268,7 +280,7 @@ export default {
           const children = parent.data.children || parent.data;
           const index = children.findIndex(d => d.id === data.id);
           children.splice(index, 1);
-          this.data = [...this.data]
+          this.treeData = [...this.treeData]
           return true
         }
         const nodeInfo = {
@@ -288,7 +300,7 @@ export default {
             const children = parent.data.children || parent.data;
             const index = children.findIndex(d => d.id === data.id);
             children.splice(index, 1);
-            this.data = [...this.data]
+            this.treeData = [...this.treeData]
           }
         ).catch(
           e => { console.log(e) }
@@ -314,9 +326,28 @@ export default {
       data.display = true
       this.currentMode = 'rename'
       this.titleFromShowMe = data.label
-      //   this.data = [...this.data]
+      //   this.treeData = [...this.treeData]
     },
-
+    expand (nodes) {
+      const expandedList = []
+      this.expandRecycle(null, expandedList)
+      this.expandedList = expandedList
+    },
+    expandRecycle (nodes, expandedList) {
+      if (!nodes) {
+        nodes = this.treeData
+      }
+      if (nodes.length === 0) {
+        return
+      }
+      nodes.forEach(x => {
+        if (x.children && x.children.length !== 0) {
+          this.expandRecycle(x.children, expandedList)
+        } else {
+          expandedList.push(x.code)
+        }
+      })
+    },
     renderContent (h, { node, data, store }) {
       return h("span", {
         class: "custom-tree-node"
@@ -331,7 +362,7 @@ export default {
         this.labelPath = data.path
       }
       this.doGetTree()
-      //   this.data.forEach(element => {
+      //   this.treeData.forEach(element => {
       //     if (!element.children || element.children.length === 0) {
       //       return
       //     }
@@ -346,7 +377,7 @@ export default {
       //       })
       //     })
       //   })
-      //   this.data = [...this.data]
+      //   this.treeData = [...this.treeData]
     },
     openMenu (e, data, node) {
       if (this.currentMode === 'rename') {
@@ -405,7 +436,7 @@ export default {
       this.titleFromShowMe = ''
       this.menuData.display = false
       this.currentMode = 'normal'
-      this.data = [...this.data]
+      this.treeData = [...this.treeData]
     },
     receiveEnter () {
       if (this.titleFromShowMe === '[must rename me]') {
@@ -434,7 +465,7 @@ export default {
             this.titleFromShowMe = ''
             this.menuData.display = false
             this.currentMode = 'normal'
-            // this.data = [...this.data]
+            // this.treeData = [...this.treeData]
             this.doGetTree()
             // this.handleNodeClick()
           }
