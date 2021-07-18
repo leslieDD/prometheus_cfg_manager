@@ -222,8 +222,8 @@
         <el-form-item align="right">
           <el-button
             style="margin-right: 10px"
-            icon="el-icon-upload"
-            type="info"
+            icon="el-icon-edit"
+            type="warning"
             size="mini"
             @click="importData"
             >导入</el-button
@@ -240,7 +240,11 @@
       </el-form>
     </div>
     <div class="dialog-area">
-      <el-dialog title="导入规则数据-yaml格式" v-model="dialogFormVisible">
+      <el-dialog
+        title="导入规则数据-yaml格式"
+        v-model="dialogFormVisible"
+        custom-class="dialog-custom-class"
+      >
         <el-descriptions class="margin-top" :column="1" size="mini" border>
           <el-descriptions-item>
             <template #label>
@@ -259,20 +263,28 @@
               type="textarea"
               placeholder="请输入内容"
               v-model="textarea"
-              rows="10"
+              rows="8"
               multiple
               wrap="off"
-              maxlength="300"
             >
             </el-input>
           </el-descriptions-item>
           <el-descriptions-item>
             <template #label>结果</template>
+            <el-scrollbar height="80px">
+              <div v-if="showError">
+                <pre v-highlight="error"><code></code></pre>
+              </div>
+            </el-scrollbar>
           </el-descriptions-item>
           <el-descriptions-item>
             <div class="dialog-action">
-              <el-button size="mini" type="info">取消</el-button>
-              <el-button size="mini" type="primary">导入</el-button>
+              <el-button size="mini" type="info" @click="closeImport"
+                >关闭</el-button
+              >
+              <el-button size="mini" type="primary" @click="parseYaml"
+                >导入</el-button
+              >
             </div>
           </el-descriptions-item>
         </el-descriptions>
@@ -290,7 +302,7 @@ import {
   deleteNodeLable
 } from '@/api/monitor.js'
 
-// import 'js-yaml'
+import * as yaml from 'js-yaml'
 
 export default ({
   props: {
@@ -316,16 +328,18 @@ export default ({
       formDisabled: true,
       switchValue: false,
       dialogFormVisible: false,
-      code: `- alert: PrometheusJobMissing
-    expr: absent(up{job="prometheus"})
-    for: 0m
-    labels:
-      severity: warning
-    annotations:
-      description: A Prometheus job has disappeared VALUE = {{ $value }} LABELS = {{ $labels }}
-      summary: Prometheus job missing (instance {{ $labels.instance }})
+      code: `alert: PrometheusJobMissing
+expr: absent(up{job="prometheus"})
+for: 0m
+labels:
+  severity: warning
+annotations:
+  description: A Prometheus job has disappeared VALUE = {{ $value }} LABELS = {{ $labels }}
+  summary: Prometheus job missing (instance {{ $labels.instance }})
 `,
-      textarea: ''
+      textarea: '',
+      error: '',
+      showError: false
     }
   },
   methods: {
@@ -354,7 +368,6 @@ export default ({
     },
     onSubmit () {
       const nodeData = this.formData
-      console.log('this.formData =>', this.formData)
       if (this.submitType === 'put') {
         putNodeInfo(nodeData).then(
           r => {
@@ -457,14 +470,112 @@ export default ({
       this.formData = {}
       this.$refs['formRef'].resetFields();
     },
-    cancelImport () {
+    closeImport () {
+      this.textarea = ''
+      this.error = ''
+      this.showError = false
       this.dialogFormVisible = false
     },
     importData () {
+      this.showError = false
+      this.error = ''
+      let textarea = []
+      textarea.push(`alert: ${this.formData.alert}`)
+      textarea.push(`expr: ${this.formData.expr}`)
+      textarea.push(`for: ${this.formData.for}`)
+      textarea.push(`labels:`)
+      this.formData.labels.forEach(item => {
+        const value = item.value.replace(/\n/g, '\\n')
+        textarea.push(`  ${item.key}: ${value}`)
+      })
+      textarea.push(`annotations:`)
+      this.formData.annotations.forEach(item => {
+        const value = item.value.replace(/\n/g, '\\n')
+        textarea.push(`  ${item.key}: ${value}`)
+      })
+      this.textarea = textarea.join('\n')
       this.dialogFormVisible = true
     },
     parseYaml () {
-      this.dialogFormVisible = false
+      this.error = ''
+      this.showError = false
+      try {
+        let yamlContext = yaml.load(this.textarea)
+        const message = '数据格式正确，解析正常。分析到的字段有：'
+        let fields = []
+        if (yamlContext.alert) {
+          this.formData.alert = yamlContext.alert
+          fields.push('alert')
+        }
+        if (yamlContext.expr) {
+          this.formData.expr = yamlContext.expr
+          fields.push('expr')
+        }
+        if (yamlContext.for) {
+          this.formData.for = yamlContext.for
+          fields.push('for')
+        }
+        // { id: newID, key: '', value: '', is_new: true }
+        let genID = 0
+        if (yamlContext.labels) {
+          fields.push('labels')
+          for (const key in yamlContext.labels) {
+            let haveData = false
+            this.formData.labels.map(item => {
+              if (item.key === key) {
+                item.value = yamlContext.labels[key].replace(/\n/g, '\\n')
+                haveData = true
+              }
+              if (genID !== 0 && item.id < genID) {
+                genID = item.id
+              }
+            })
+            if (haveData === false) {
+              this.formData.labels.push({
+                id: genID,
+                key: key,
+                value: yamlContext.labels[key].replace(/\n/g, '\\n'),
+                is_new: true
+              })
+              genID += 1
+            }
+          }
+        }
+        genID = 0
+        if (yamlContext.annotations) {
+          fields.push('annotations')
+          for (const key in yamlContext.annotations) {
+            let haveData = false
+            this.formData.annotations.map(item => {
+              if (item.key === key) {
+                item.value = yamlContext.annotations[key].replace(/\n/g, '\\n')
+                haveData = true
+              }
+              if (genID !== 0 && item.id < genID) {
+                genID = item.id
+              }
+            })
+            if (haveData === false) {
+              this.formData.annotations.push({
+                id: genID,
+                key: key,
+                value: yamlContext.annotations[key].replace(/\n/g, '\\n'),
+                is_new: true
+              })
+              genID += 1
+            }
+          }
+        }
+        this.error = message + fields.join(",")
+        this.showError = true
+      } catch (e) {
+        this.error = e.toString()
+        this.showError = true
+        // this.$nextTick(() => {//重新渲染分页
+        //   this.showError = true
+        // });
+        console.log(e)
+      }
     }
   }
 })
@@ -488,7 +599,10 @@ export default ({
   text-align: right;
 }
 .dialog-area :deep() .el-dialog {
-  margin: 50px auto !important;
+  margin: 20px auto !important;
+}
+.dialog-area :deep() .el-dialog__body {
+  padding-top: 5px;
 }
 .box-member :deep() .annotations-labels {
   display: flex !important;
