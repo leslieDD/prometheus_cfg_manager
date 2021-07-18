@@ -1,150 +1,163 @@
 <template>
   <div class="monitor-board">
-    <div class="tree-container">
-      <el-scrollbar class="card-scrollbar">
-        <div class="tree-box">
-          <el-tree
-            :default-expanded-keys="expandedList"
-            node-key="code"
-            class="tree"
-            :data="treeData"
-            :indent="0"
-            :expand-on-click-node="true"
-            highlight-current
-            icon-class="none"
-            @node-click="handleNodeClick"
-            @node-contextmenu="handleNodeRightClick"
-            @node-expand="nodeExpand"
-            @node-collapse="nodeCollapse"
-            @keyup.esc="closeMenu"
-          >
-            <template #default="{ node, data }">
-              <div>
-                <single-svg v-if="data.level === 1" icon-class="root" />
-                <single-svg v-if="data.level === 2" icon-class="xiongmao" />
-                <single-svg v-if="data.level === 3" icon-class="daxiang" />
-                <single-svg v-if="data.level === 4" icon-class="dog" />
-                <span class="custom-tree-node">
-                  <el-input
-                    size="mini"
-                    v-if="data.display === true"
-                    placeholder="输入名称"
-                    v-model="titleFromShowMe"
-                    @keyup.enter="receiveEnter"
-                    @keyup.esc="receiveEsc"
-                    clearable
-                  ></el-input>
-                  <el-badge
-                    v-show="data.showMe !== true"
-                    v-if="data.level === 1 && data.display !== true"
-                    type="warning"
-                    :value="data.children ? data.children.length : 0"
-                    class="item"
-                  >
-                    <el-tag
-                      size="small"
-                      type="success"
-                      effect="plain"
-                      @click="closeMenu"
-                      @keyup.esc="closeMenu"
-                      @contextmenu.prevent.native="openMenu($event, data, node)"
-                      >{{ node.label }}</el-tag
-                    >
-                  </el-badge>
-                  <el-badge
-                    v-show="data.showMe !== true && data.display !== true"
-                    v-if="data.level === 2"
-                    type="warning"
-                    :value="data.children ? data.children.length : 0"
-                    class="item"
-                  >
-                    <el-tag
-                      size="small"
-                      type="warning"
-                      effect="plain"
-                      @click="closeMenu"
-                      @keyup.esc="closeMenu"
-                      @contextmenu.prevent.native="openMenu($event, data, node)"
-                      >{{ node.label }}</el-tag
-                    >
-                  </el-badge>
-                  <el-badge
-                    v-show="data.showMe !== true && data.display !== true"
-                    v-if="data.level === 3"
-                    type="warning"
-                    :value="data.children ? data.children.length : 0"
-                    class="item"
-                  >
-                    <el-tag
-                      size="small"
-                      type="info"
-                      effect="plain"
-                      @click="closeMenu"
-                      @keyup.esc="closeMenu"
-                      @contextmenu.prevent.native="openMenu($event, data, node)"
-                      >{{ node.label }}</el-tag
-                    >
-                  </el-badge>
-                  <el-tag
-                    v-show="data.showMe !== true && data.display !== true"
-                    v-if="data.level === 4"
-                    size="small"
-                    type="info"
-                    effect="plain"
-                    @click="closeMenu"
-                    @keyup.esc="closeMenu"
-                    @contextmenu.prevent.native="openMenu($event, data, node)"
-                    >{{ node.label }}</el-tag
-                  >
-                </span>
-              </div>
-            </template>
-          </el-tree>
-        </div>
-      </el-scrollbar>
-    </div>
-    <div class="node-content">
-      <div class="node-content-top">
-        <span class="node-content-path">
-          <el-tag size="small" class="path-all" type="success">路径：</el-tag>
-          <el-tag
-            class="path-list path-all"
-            size="small"
-            type="warning"
-            effect="plain"
-            >{{ labelPath.join(" > ") }}</el-tag
-          >
-        </span>
-        <span
-          ><el-button
-            v-if="pushing === false"
-            type="primary"
-            icon="el-icon-upload"
-            size="mini"
-            @click="doRulesPublish"
-            >发布</el-button
-          >
-          <el-button
-            v-if="pushing === true"
-            type="primary"
-            icon="el-icon-loading"
-            size="mini"
-            >发布</el-button
-          >
-        </span>
-      </div>
-      <div class="node-content-edit">
-        <el-scrollbar class="card-scrollbar-right">
-          <div class="rule-edit-box">
-            <RuleEdit
-              ref="ruleEditRef"
-              @fatherMethod="fatherMethod"
-              :query="queryInfo"
-            ></RuleEdit>
+    <el-card class="box-card" shadow="never">
+      <template #header>
+        <div class="card-header">
+          <div class="node-content-top">
+            <div class="node-content-path">
+              <el-breadcrumb separator="/">
+                <el-breadcrumb-item
+                  v-for="(pName, index) in labelPath"
+                  :key="index"
+                  >{{ pName }}</el-breadcrumb-item
+                >
+              </el-breadcrumb>
+            </div>
+            <div>
+              <el-button
+                v-if="pushing === false"
+                type="primary"
+                icon="el-icon-upload"
+                size="mini"
+                @click="doRulesPublish"
+                >发布</el-button
+              >
+              <el-button
+                v-if="pushing === true"
+                type="primary"
+                icon="el-icon-loading"
+                size="mini"
+                >发布</el-button
+              >
+            </div>
           </div>
-        </el-scrollbar>
+        </div>
+      </template>
+      <div class="node-content">
+        <div class="tree-container">
+          <el-scrollbar noresize class="card-scrollbar flex-content">
+            <div class="tree-box">
+              <el-tree
+                :default-expanded-keys="expandedList"
+                node-key="code"
+                class="tree"
+                :data="treeData"
+                :indent="0"
+                :expand-on-click-node="true"
+                highlight-current
+                icon-class="none"
+                @node-click="handleNodeClick"
+                @node-contextmenu="handleNodeRightClick"
+                @node-expand="nodeExpand"
+                @node-collapse="nodeCollapse"
+                @keyup.esc="closeMenu"
+              >
+                <template #default="{ node, data }">
+                  <div>
+                    <single-svg v-if="data.level === 1" icon-class="root" />
+                    <single-svg v-if="data.level === 2" icon-class="xiongmao" />
+                    <single-svg v-if="data.level === 3" icon-class="daxiang" />
+                    <single-svg v-if="data.level === 4" icon-class="dog" />
+                    <span class="custom-tree-node">
+                      <el-input
+                        size="mini"
+                        v-if="data.display === true"
+                        placeholder="输入名称"
+                        v-model="titleFromShowMe"
+                        @keyup.enter="receiveEnter"
+                        @keyup.esc="receiveEsc"
+                        clearable
+                      ></el-input>
+                      <el-badge
+                        v-show="data.showMe !== true"
+                        v-if="data.level === 1 && data.display !== true"
+                        type="warning"
+                        :value="data.children ? data.children.length : 0"
+                        class="item"
+                      >
+                        <el-tag
+                          size="small"
+                          type="success"
+                          effect="plain"
+                          @click="closeMenu"
+                          @keyup.esc="closeMenu"
+                          @contextmenu.prevent.native="
+                            openMenu($event, data, node)
+                          "
+                          >{{ node.label }}</el-tag
+                        >
+                      </el-badge>
+                      <el-badge
+                        v-show="data.showMe !== true && data.display !== true"
+                        v-if="data.level === 2"
+                        type="warning"
+                        :value="data.children ? data.children.length : 0"
+                        class="item"
+                      >
+                        <el-tag
+                          size="small"
+                          type="warning"
+                          effect="plain"
+                          @click="closeMenu"
+                          @keyup.esc="closeMenu"
+                          @contextmenu.prevent.native="
+                            openMenu($event, data, node)
+                          "
+                          >{{ node.label }}</el-tag
+                        >
+                      </el-badge>
+                      <el-badge
+                        v-show="data.showMe !== true && data.display !== true"
+                        v-if="data.level === 3"
+                        type="warning"
+                        :value="data.children ? data.children.length : 0"
+                        class="item"
+                      >
+                        <el-tag
+                          size="small"
+                          type="info"
+                          effect="plain"
+                          @click="closeMenu"
+                          @keyup.esc="closeMenu"
+                          @contextmenu.prevent.native="
+                            openMenu($event, data, node)
+                          "
+                          >{{ node.label }}</el-tag
+                        >
+                      </el-badge>
+                      <el-tag
+                        v-show="data.showMe !== true && data.display !== true"
+                        v-if="data.level === 4"
+                        size="small"
+                        type="info"
+                        effect="plain"
+                        @click="closeMenu"
+                        @keyup.esc="closeMenu"
+                        @contextmenu.prevent.native="
+                          openMenu($event, data, node)
+                        "
+                        >{{ node.label }}</el-tag
+                      >
+                    </span>
+                  </div>
+                </template>
+              </el-tree>
+            </div>
+          </el-scrollbar>
+        </div>
+        <div class="node-content-edit">
+          <el-scrollbar class="card-scrollbar-right">
+            <div class="rule-edit-box">
+              <RuleEdit
+                ref="ruleEditRef"
+                @fatherMethod="fatherMethod"
+                :query="queryInfo"
+              ></RuleEdit>
+            </div>
+          </el-scrollbar>
+        </div>
       </div>
-    </div>
+    </el-card>
     <div>
       <ul
         v-show="visible"
@@ -567,47 +580,53 @@ export default {
 <style scoped>
 .monitor-board {
   display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
+  flex-direction: column;
   height: 85vh;
   width: 100%;
-  border: 1px dashed burlywood;
+  /* border: 1px dashed burlywood; */
+}
+.monitor-board :deep() .el-card__header {
+  padding: 5px 10px 5px 10px;
 }
 .node-content {
-  width: 770px;
+  width: 900px;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  z-index: 99;
 }
-.tree-box {
-  min-height: 150vh;
+.node-content-edit {
+  z-index: 98;
 }
 .rule-edit-box {
   min-height: 82vh;
 }
 .node-content-top {
   display: flex;
+  justify-content: space-between;
+  flex-direction: row;
+  flex-wrap: nowrap;
+  align-items: center;
 }
 .node-content-path {
-  display: flex;
-  margin-bottom: 8px;
-  flex-direction: row;
-}
-.path-list {
-  width: 630px;
-  margin-right: 10px;
+  widows: 950px;
+  max-width: 950px;
   overflow: hidden;
   text-overflow: ellipsis;
+  overflow-block: hidden;
   white-space: nowrap;
 }
-.path-all {
-  height: 28px;
-}
 .card-scrollbar {
-  height: 85vh;
+  height: 76vh;
   width: 300px;
 }
+.tree-box {
+  overflow: none;
+  min-height: 150vh;
+  min-width: 150%;
+}
 .card-scrollbar-right {
-  height: 83vh;
+  height: 75vh;
   width: 100%;
 }
 .icon-action {
@@ -615,10 +634,6 @@ export default {
   margin-left: 5px;
   color: green;
 }
-/* .tree-container {
-  overflow: hidden;
-  border: 1px solid rgb(222, 222, 224);
-} */
 .tree :deep() .el-tree-node {
   position: relative;
   padding-left: 0;

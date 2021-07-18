@@ -1,9 +1,5 @@
 <template>
-  <el-card
-    class="box-card"
-    :body-style="{ padding: '10px 0px 0px 0px' }"
-    shadow="never"
-  >
+  <div class="box-card">
     <div class="box-member">
       <el-form
         label-position="right"
@@ -169,7 +165,7 @@
                   <div class="annotations-right">
                     <el-input
                       type="textarea"
-                      :rows="2"
+                      :rows="4"
                       maxlength="500"
                       show-word-limit
                       style="width: 100%"
@@ -290,7 +286,7 @@
         </el-descriptions>
       </el-dialog>
     </div>
-  </el-card>
+  </div>
 </template>
 
 <script>
@@ -616,6 +612,7 @@ annotations:
 }
 .box-card {
   /* width: 98%; */
+  width: 745px;
   padding: 0px 0px;
 }
 .box-member :deep() .el-form-item__label {
