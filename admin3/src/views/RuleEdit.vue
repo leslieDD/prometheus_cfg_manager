@@ -1,15 +1,8 @@
 <template>
   <div class="box-card">
     <div class="box-member">
-      <el-form
-        label-position="right"
-        ref="formRef"
-        :model="formData"
-        label-width="170px"
-        size="small"
-        :disabled="formDisabled"
-      >
-        <el-form-item>
+      <el-descriptions :column="1" size="mini" border>
+        <el-descriptions-item>
           <template #label>
             <span>告警名称(alert)：</span>
             <el-tooltip
@@ -19,9 +12,9 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <el-input v-model="formData.alert"></el-input>
-        </el-form-item>
-        <el-form-item>
+          <el-input size="mini" v-model="formData.alert"></el-input>
+        </el-descriptions-item>
+        <el-descriptions-item>
           <template #label>
             <span>表达式(expr)：</span>
             <el-tooltip
@@ -33,13 +26,14 @@
           </template>
           <el-input
             type="textarea"
+            size="mini"
             :rows="6"
             maxlength="5000"
             show-word-limit
             v-model="formData.expr"
           ></el-input>
-        </el-form-item>
-        <el-form-item>
+        </el-descriptions-item>
+        <el-descriptions-item>
           <template #label>
             <span>等待时间(for)：</span>
             <el-tooltip
@@ -50,9 +44,9 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <el-input v-model="formData.for"></el-input>
-        </el-form-item>
-        <el-form-item>
+          <el-input size="mini" v-model="formData.for"></el-input>
+        </el-descriptions-item>
+        <el-descriptions-item>
           <template #label>
             <span>标签(labels)：</span>
             <el-tooltip
@@ -72,6 +66,7 @@
                 <el-select
                   v-model="data.key"
                   :key="data.id"
+                  size="mini"
                   filterable
                   allow-create
                   default-first-option
@@ -88,6 +83,7 @@
                   </el-option>
                 </el-select>
                 <el-input
+                  size="mini"
                   style="width: 77%"
                   v-model="data.value"
                   maxlength="100"
@@ -119,8 +115,8 @@
               >
             </div>
           </div>
-        </el-form-item>
-        <el-form-item>
+        </el-descriptions-item>
+        <el-descriptions-item>
           <template #label>
             <span>注释(annotations)：</span>
             <el-tooltip
@@ -144,6 +140,7 @@
                       v-model="data.key"
                       :key="data.id"
                       allow-create
+                      size="mini"
                       filterable
                       default-first-option
                       placeholder="请选择"
@@ -166,6 +163,7 @@
                     <el-input
                       type="textarea"
                       :rows="4"
+                      size="mini"
                       maxlength="500"
                       show-word-limit
                       style="width: 100%"
@@ -201,8 +199,8 @@
               >
             </div>
           </div>
-        </el-form-item>
-        <el-form-item>
+        </el-descriptions-item>
+        <el-descriptions-item>
           <template #label>
             <span>是否启用</span>
             <el-tooltip content="是否启用" placement="top">
@@ -214,26 +212,28 @@
             active-color="#13ce66"
             inactive-color="#ff4949"
           ></el-switch>
-        </el-form-item>
-        <el-form-item align="right">
-          <el-button
-            style="margin-right: 10px"
-            icon="el-icon-edit"
-            type="warning"
-            size="mini"
-            @click="importData"
-            >导入</el-button
-          >
-          <el-button
-            style="margin-right: 10px"
-            icon="el-icon-upload"
-            type="primary"
-            size="mini"
-            @click="onSubmit"
-            >提交</el-button
-          >
-        </el-form-item>
-      </el-form>
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <div class="dialog-action">
+            <el-button
+              style="margin-right: 10px"
+              icon="el-icon-edit"
+              type="warning"
+              size="mini"
+              @click="importData"
+              >导入</el-button
+            >
+            <el-button
+              style="margin-right: 10px"
+              icon="el-icon-upload"
+              type="primary"
+              size="mini"
+              @click="onSubmit"
+              >提交</el-button
+            >
+          </div>
+        </el-descriptions-item>
+      </el-descriptions>
     </div>
     <div class="dialog-area">
       <el-dialog
@@ -464,7 +464,7 @@ annotations:
     },
     resetForm () {
       this.formData = {}
-      this.$refs['formRef'].resetFields();
+      // this.$refs['formRef'].resetFields();
     },
     closeImport () {
       this.textarea = ''
@@ -612,6 +612,7 @@ annotations:
 }
 .box-card {
   /* width: 98%; */
+  margin-left: 5px;
   width: 745px;
   padding: 0px 0px;
 }

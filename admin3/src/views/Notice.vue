@@ -146,7 +146,10 @@
           </el-scrollbar>
         </div>
         <div class="node-content-edit">
-          <el-scrollbar class="card-scrollbar-right">
+          <el-scrollbar
+            v-show="showEditArea === true"
+            class="card-scrollbar-right"
+          >
             <div class="rule-edit-box">
               <RuleEdit
                 ref="ruleEditRef"
@@ -155,6 +158,9 @@
               ></RuleEdit>
             </div>
           </el-scrollbar>
+          <div class="empty-board" v-show="showEditArea !== true">
+            <el-empty description="请选择一个规则（叶子节点）"></el-empty>
+          </div>
         </div>
       </div>
     </el-card>
@@ -247,7 +253,8 @@ export default {
       expandedList: [],
       currentMode: '',
       pushing: false,
-      btnTitleAppend: ''
+      btnTitleAppend: '',
+      showEditArea: false
     }
   },
   mounted () {
@@ -277,12 +284,15 @@ export default {
       if (data.level !== 4) {
         this.$refs.ruleEditRef.resetForm()
         this.$refs.ruleEditRef.setFormDisable()
+        this.showEditArea = false
         return false
       }
       this.$refs.ruleEditRef.setFormEnable()
       if (data.label === '[must rename me]') {
+        this.showEditArea = false
         return false
       }
+      this.showEditArea = true
       const queryInfo = {
         id: data.id,
         label: data.label,
@@ -597,6 +607,17 @@ export default {
 }
 .node-content-edit {
   z-index: 98;
+  align-content: center;
+  text-align: center;
+}
+.empty-board {
+  width: 800px;
+  height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  align-content: center;
 }
 .rule-edit-box {
   min-height: 82vh;
