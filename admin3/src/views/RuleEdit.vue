@@ -4,6 +4,15 @@
       <el-descriptions :column="1" size="mini" border>
         <el-descriptions-item>
           <template #label>
+            <span>规则功能描述：</span>
+            <el-tooltip content="规则此规则的功能或者作用" placement="top">
+              <i class="el-icon-info"></i>
+            </el-tooltip>
+          </template>
+          <el-input size="mini" v-model="formData.description"></el-input>
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
             <span>告警名称(alert)：</span>
             <el-tooltip
               content="警报规则的名称。alert: <string>"
@@ -214,7 +223,7 @@
           ></el-switch>
         </el-descriptions-item>
         <el-descriptions-item>
-          <div class="dialog-action">
+          <div class="rule-edit-area">
             <el-button
               style="margin-right: 10px"
               icon="el-icon-edit"
@@ -317,14 +326,16 @@ export default ({
         for: '',
         labels: [],
         annotations: [],
-        enabled: false
+        enabled: false,
+        description: ''
       },
       defaultLabels: [],
       submitType: '',
       formDisabled: true,
       switchValue: false,
       dialogFormVisible: false,
-      code: `alert: PrometheusJobMissing
+      code: `description: 功能描述
+alert: PrometheusJobMissing
 expr: absent(up{job="prometheus"})
 for: 0m
 labels:
@@ -417,7 +428,6 @@ annotations:
             this.formData.labels.push({ id: newID, key: '', value: '', is_new: true })
           }
           this.formData = { ...this.formData }
-          console.log('this.formData =>', this.formData)
         }
       ).catch(
         e => { console.log(e) }
@@ -476,6 +486,7 @@ annotations:
       this.showError = false
       this.error = ''
       let textarea = []
+      textarea.push(`description: ${this.formData.description}`)
       textarea.push(`alert: ${this.formData.alert}`)
       textarea.push(`expr: ${this.formData.expr}`)
       textarea.push(`for: ${this.formData.for}`)
@@ -499,6 +510,10 @@ annotations:
         let yamlContext = yaml.load(this.textarea)
         const message = '数据格式正确，解析正常。分析到的字段有：'
         let fields = []
+        if (yamlContext.description) {
+          this.formData.description = yamlContext.description
+          fields.push('description')
+        }
         if (yamlContext.alert) {
           this.formData.alert = yamlContext.alert
           fields.push('alert')
@@ -589,6 +604,11 @@ annotations:
 }
 .annotations-right {
   width: 79%;
+}
+.rule-edit-area {
+  width: 570px;
+  align-content: right;
+  text-align: right;
 }
 .dialog-action {
   align-content: right;

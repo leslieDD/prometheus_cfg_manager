@@ -222,12 +222,13 @@ func GetSubGroup(rulesGroupsID int) ([]SubGroup, *BriefMessage) {
 }
 
 type MonitorRule struct {
-	ID         int    `json:"id" gorm:"column:id"`
-	Alert      string `json:"alert" gorm:"column:alert"`
-	Expr       string `json:"expr" gorm:"column:expr"`
-	For        string `json:"for" gorm:"column:for"`
-	SubGroupID int    `json:"sub_group_id" gorm:"column:sub_group_id"`
-	Enabled    bool   `json:"enabled" gorm:"enabled"`
+	ID          int    `json:"id" gorm:"column:id"`
+	Alert       string `json:"alert" gorm:"column:alert"`
+	Expr        string `json:"expr" gorm:"column:expr"`
+	For         string `json:"for" gorm:"column:for"`
+	SubGroupID  int    `json:"sub_group_id" gorm:"column:sub_group_id"`
+	Enabled     bool   `json:"enabled" gorm:"column:enabled"`
+	Description string `json:"description" gorm:"column:description"`
 }
 
 func GetMonitorRules(subGroupID int, isPublish bool) ([]MonitorRule, *BriefMessage) {
@@ -287,7 +288,8 @@ type TreeNodeInfo struct {
 	SubGroupID  int     `json:"sub_group_id" gorm:"column:sub_group_id"`
 	Labels      []Label `json:"labels" gorm:"column:labels"`
 	Annotations []Label `json:"annotations" gorm:"column:annotations"`
-	Enabled     bool    `json:"enabled" gorm:"enabled"`
+	Enabled     bool    `json:"enabled" gorm:"column:enabled"`
+	Description string  `json:"description" gorm:"column:description"`
 }
 
 func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
@@ -296,12 +298,13 @@ func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
 		return nil, bf
 	}
 	tni := TreeNodeInfo{
-		ID:         mr.ID,
-		Alert:      mr.Alert,
-		Expr:       mr.Expr,
-		For:        mr.For,
-		SubGroupID: mr.SubGroupID,
-		Enabled:    mr.Enabled,
+		ID:          mr.ID,
+		Alert:       mr.Alert,
+		Expr:        mr.Expr,
+		For:         mr.For,
+		SubGroupID:  mr.SubGroupID,
+		Enabled:     mr.Enabled,
+		Description: mr.Description,
 	}
 
 	tni.Labels, bf = SearchLabelsByMonitorID(tni.ID)
@@ -353,7 +356,8 @@ func PutNode(nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
 		Update("expr", nodeInfo.Expr).
 		Update("for", nodeInfo.For).
 		Update("sub_group_id", nodeInfo.SubGroupID).
-		Update("enabled", nodeInfo.Enabled)
+		Update("enabled", nodeInfo.Enabled).
+		Update("description", nodeInfo.Description)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrCreateDBData
