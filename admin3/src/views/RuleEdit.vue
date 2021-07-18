@@ -229,7 +229,8 @@
             <el-button
               style="margin-right: 10px"
               icon="el-icon-edit"
-              type="warning"
+              type="primary"
+              plain
               size="mini"
               @click="viewData"
               >预览</el-button
@@ -322,7 +323,7 @@
           </el-descriptions-item>
           <el-descriptions-item>
             <div class="dialog-action">
-              <el-button size="mini" type="info" @click="closeViewDialog"
+              <el-button size="mini" type="primary" @click="closeViewDialog"
                 >关闭</el-button
               >
             </div>
