@@ -9,63 +9,95 @@
             class="tree"
             :data="treeData"
             :indent="0"
-            :expand-on-click-node="false"
+            :expand-on-click-node="true"
+            highlight-current
+            icon-class="none"
             @node-click="handleNodeClick"
+            @node-contextmenu="handleNodeRightClick"
             @node-expand="nodeExpand"
             @node-collapse="nodeCollapse"
+            @keyup.esc="closeMenu"
           >
             <template #default="{ node, data }">
-              <span class="custom-tree-node">
-                <el-input
-                  size="mini"
-                  v-if="data.display === true"
-                  placeholder="输入名称"
-                  v-model="titleFromShowMe"
-                  @keyup.enter="receiveEnter"
-                  @keyup.esc="receiveEsc"
-                  clearable
-                ></el-input>
-                <el-tag
-                  v-show="data.showMe !== true"
-                  v-if="data.level === 1 && data.display !== true"
-                  size="small"
-                  type="success"
-                  effect="plain"
-                  @click="closeMenu"
-                  @contextmenu.prevent.native="openMenu($event, data, node)"
-                  >{{ node.label }}</el-tag
-                >
-                <el-tag
-                  v-show="data.showMe !== true && data.display !== true"
-                  v-if="data.level === 2"
-                  size="small"
-                  type="warning"
-                  effect="plain"
-                  @click="closeMenu"
-                  @contextmenu.prevent.native="openMenu($event, data, node)"
-                  >{{ node.label }}</el-tag
-                >
-                <el-tag
-                  v-show="data.showMe !== true && data.display !== true"
-                  v-if="data.level === 3"
-                  size="small"
-                  type="info"
-                  effect="plain"
-                  @click="closeMenu"
-                  @contextmenu.prevent.native="openMenu($event, data, node)"
-                  >{{ node.label }}</el-tag
-                >
-                <el-tag
-                  v-show="data.showMe !== true && data.display !== true"
-                  v-if="data.level === 4"
-                  size="small"
-                  type="info"
-                  effect="plain"
-                  @click="closeMenu"
-                  @contextmenu.prevent.native="openMenu($event, data, node)"
-                  >{{ node.label }}</el-tag
-                >
-              </span>
+              <div>
+                <single-svg v-if="data.level === 1" icon-class="root" />
+                <single-svg v-if="data.level === 2" icon-class="xiongmao" />
+                <single-svg v-if="data.level === 3" icon-class="daxiang" />
+                <single-svg v-if="data.level === 4" icon-class="dog" />
+                <span class="custom-tree-node">
+                  <el-input
+                    size="mini"
+                    v-if="data.display === true"
+                    placeholder="输入名称"
+                    v-model="titleFromShowMe"
+                    @keyup.enter="receiveEnter"
+                    @keyup.esc="receiveEsc"
+                    clearable
+                  ></el-input>
+                  <el-badge
+                    v-show="data.showMe !== true"
+                    v-if="data.level === 1 && data.display !== true"
+                    type="warning"
+                    :value="data.children ? data.children.length : 0"
+                    class="item"
+                  >
+                    <el-tag
+                      size="small"
+                      type="success"
+                      effect="plain"
+                      @click="closeMenu"
+                      @keyup.esc="closeMenu"
+                      @contextmenu.prevent.native="openMenu($event, data, node)"
+                      >{{ node.label }}</el-tag
+                    >
+                  </el-badge>
+                  <el-badge
+                    v-show="data.showMe !== true && data.display !== true"
+                    v-if="data.level === 2"
+                    type="warning"
+                    :value="data.children ? data.children.length : 0"
+                    class="item"
+                  >
+                    <el-tag
+                      size="small"
+                      type="warning"
+                      effect="plain"
+                      @click="closeMenu"
+                      @keyup.esc="closeMenu"
+                      @contextmenu.prevent.native="openMenu($event, data, node)"
+                      >{{ node.label }}</el-tag
+                    >
+                  </el-badge>
+                  <el-badge
+                    v-show="data.showMe !== true && data.display !== true"
+                    v-if="data.level === 3"
+                    type="warning"
+                    :value="data.children ? data.children.length : 0"
+                    class="item"
+                  >
+                    <el-tag
+                      size="small"
+                      type="info"
+                      effect="plain"
+                      @click="closeMenu"
+                      @keyup.esc="closeMenu"
+                      @contextmenu.prevent.native="openMenu($event, data, node)"
+                      >{{ node.label }}</el-tag
+                    >
+                  </el-badge>
+                  <el-tag
+                    v-show="data.showMe !== true && data.display !== true"
+                    v-if="data.level === 4"
+                    size="small"
+                    type="info"
+                    effect="plain"
+                    @click="closeMenu"
+                    @keyup.esc="closeMenu"
+                    @contextmenu.prevent.native="openMenu($event, data, node)"
+                    >{{ node.label }}</el-tag
+                  >
+                </span>
+              </div>
             </template>
           </el-tree>
         </div>
@@ -118,6 +150,7 @@
         v-show="visible"
         :style="{ left: left + 'px', top: top + 'px' }"
         class="contextmenu"
+        @keyup.esc="closeMenu"
       >
         <li>
           <el-button
@@ -126,7 +159,8 @@
             type="text"
             icon="el-icon-plus"
             @click="append(null)"
-            >添加子节点</el-button
+            @keyup.esc="closeMenu"
+            >{{ btnTitleAppend }}</el-button
           >
         </li>
         <li>
@@ -136,6 +170,7 @@
             type="text"
             icon="el-icon-notebook-2"
             @click="expand(null)"
+            @keyup.esc="closeMenu"
             >展开所有节点</el-button
           >
         </li>
@@ -146,6 +181,7 @@
             type="text"
             icon="el-icon-edit-outline"
             @click="edit(null, null)"
+            @keyup.esc="closeMenu"
             >重命名此节点</el-button
           >
         </li>
@@ -156,6 +192,7 @@
             type="text"
             icon="el-icon-delete"
             @click="remove(null, null)"
+            @keyup.esc="closeMenu"
             >删除此节点</el-button
           >
         </li>
@@ -166,7 +203,6 @@
 
 <script>
 import RuleEdit from '@/views/RuleEdit.vue'
-// import Leslie from '@/views/Leslie.vue'
 import {
   getTree,
   createTreeNode,
@@ -197,7 +233,8 @@ export default {
       labelPath: [],
       expandedList: [],
       currentMode: '',
-      pushing: false
+      pushing: false,
+      btnTitleAppend: ''
     }
   },
   mounted () {
@@ -242,7 +279,11 @@ export default {
       }
       this.$refs.ruleEditRef.doGetRuleDetail(queryInfo)
     },
+    handleNodeRightClick (event, data, node, nodeComp) {
+      this.handleNodeClick(data)
+    },
     append (data) {
+      console.log('append [start]=>', data)
       if (!data) {
         data = this.menuData
       }
@@ -261,6 +302,7 @@ export default {
       }
       data.children.push(newChild);
       this.treeData = [...this.treeData]
+      console.log('append [done]=>', data)
     },
 
     remove (node, data) {
@@ -362,22 +404,6 @@ export default {
         this.labelPath = data.path
       }
       this.doGetTree()
-      //   this.treeData.forEach(element => {
-      //     if (!element.children || element.children.length === 0) {
-      //       return
-      //     }
-      //     element.children.forEach(children => {
-      //       if (!children.children || children.children.length === 0) {
-      //         return
-      //       }
-      //       children.children.forEach(final => {
-      //         if (final.id === data.id) {
-      //           final.label = data.alert
-      //         }
-      //       })
-      //     })
-      //   })
-      //   this.treeData = [...this.treeData]
     },
     openMenu (e, data, node) {
       if (this.currentMode === 'rename') {
@@ -392,7 +418,8 @@ export default {
         this.menuDelDisabled = true
         this.menuRenameDisabled = true
         this.menuAddDisabled = false
-      } else if (data.level === 2 || data.level === 3) {
+        this.btnTitleAppend = '添加文件'
+      } else if (data.level === 2) {
         if (data.label === '[must rename me]') {
           this.menuAddDisabled = true
         } else {
@@ -400,6 +427,16 @@ export default {
         }
         this.menuDelDisabled = false
         this.menuRenameDisabled = false
+        this.btnTitleAppend = '添加组'
+      } else if (data.level === 3) {
+        if (data.label === '[must rename me]') {
+          this.menuAddDisabled = true
+        } else {
+          this.menuAddDisabled = false
+        }
+        this.menuDelDisabled = false
+        this.menuRenameDisabled = false
+        this.btnTitleAppend = '添加规则'
       } else if (data.level === 4) {
         if (data.label === '[must rename me]') {
           this.menuRenameDisabled = false
@@ -408,10 +445,14 @@ export default {
         }
         this.menuDelDisabled = false
         this.menuAddDisabled = true
+        this.btnTitleAppend = '添加规则'
       } else {
-        this.menuDelDisabled = true
-        this.menuRenameDisabled = true
-        this.menuAddDisabled = true
+        this.$notify({
+          title: '错误',
+          message: '未选中节点，请重试',
+          type: 'error'
+        })
+        return false
       }
       const menuMinWidth = 105
       const offsetLeft = this.$el.getBoundingClientRect().left // container margin left
@@ -428,8 +469,8 @@ export default {
       this.top = e.clientY - 40 // fix 位置bug
       this.left = this.left + 20
       //   this.top = e.clientY - 60 // fix 位置bug
-      this.menuData = data.valueOf()
-      this.menuNode = node.valueOf()
+      this.menuData = data
+      this.menuNode = node
       this.visible = true
     },
     receiveEsc () {
@@ -639,8 +680,18 @@ export default {
 }
 .contextmenu > li {
   margin: 0;
-  padding: 5px 15px;
+  padding: 0px 0px 0px 0px;
   cursor: pointer;
+  align-content: left;
+  text-align: left;
+}
+.contextmenu :deep() .el-button {
+  padding: 5px 10px 5px 10px;
+  width: 150px;
+  text-align: left;
+}
+.custom-tree-node :deep() .el-badge__content {
+  margin-top: 11px;
 }
 .contextmenu > li:hover {
   background: #eee;
