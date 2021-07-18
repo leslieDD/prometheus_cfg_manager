@@ -36,7 +36,8 @@
           <el-input
             type="textarea"
             size="mini"
-            :rows="6"
+            wrap="off"
+            :rows="2"
             maxlength="5000"
             show-word-limit
             v-model="formData.expr"
@@ -94,6 +95,7 @@
                 <el-input
                   size="mini"
                   style="width: 77%"
+                  wrap="off"
                   v-model="data.value"
                   maxlength="100"
                   show-word-limit
@@ -171,9 +173,9 @@
                   <div class="annotations-right">
                     <el-input
                       type="textarea"
-                      :rows="4"
+                      :rows="2"
+                      wrap="off"
                       size="mini"
-                      maxlength="500"
                       show-word-limit
                       style="width: 100%"
                       v-model="data.value"
