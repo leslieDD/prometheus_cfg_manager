@@ -231,6 +231,14 @@
               icon="el-icon-edit"
               type="warning"
               size="mini"
+              @click="viewData"
+              >预览</el-button
+            >
+            <el-button
+              style="margin-right: 10px"
+              icon="el-icon-edit"
+              type="warning"
+              size="mini"
               @click="importData"
               >导入</el-button
             >
@@ -297,6 +305,31 @@
         </el-descriptions>
       </el-dialog>
     </div>
+    <div class="viewer-area">
+      <el-dialog
+        title="预览规则-yaml格式"
+        v-model="viewDialogVisible"
+        custom-class="dialog-custom-class"
+      >
+        <el-descriptions class="margin-top" :column="1" size="mini" border>
+          <el-descriptions-item>
+            <template #label>YAML格式数据</template>
+            <div style="width: 630px">
+              <el-scrollbar height="200px" class="flex-content">
+                <pre v-highlight="viweCode"><code></code></pre>
+              </el-scrollbar>
+            </div>
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <div class="dialog-action">
+              <el-button size="mini" type="info" @click="closeViewDialog"
+                >关闭</el-button
+              >
+            </div>
+          </el-descriptions-item>
+        </el-descriptions>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -348,7 +381,9 @@ annotations:
 `,
       textarea: '',
       error: '',
-      showError: false
+      showError: false,
+      viewDialogVisible: false,
+      viweCode: ''
     }
   },
   methods: {
@@ -484,6 +519,28 @@ annotations:
       this.showError = false
       this.dialogFormVisible = false
     },
+    closeViewDialog () {
+      this.viweCode = ''
+      this.viewDialogVisible = false
+    },
+    viewData () {
+      let textarea = []
+      textarea.push(`alert: ${this.formData.alert}`)
+      textarea.push(`expr: ${this.formData.expr}`)
+      textarea.push(`for: ${this.formData.for}`)
+      textarea.push(`labels:`)
+      this.formData.labels.forEach(item => {
+        const value = item.value //.replace(/\n/g, '\\n')
+        textarea.push(`  ${item.key}: ${value}`)
+      })
+      textarea.push(`annotations:`)
+      this.formData.annotations.forEach(item => {
+        const value = item.value //.replace(/\n/g, '\\n')
+        textarea.push(`  ${item.key}: ${value}`)
+      })
+      this.viweCode = textarea.join('\n')
+      this.viewDialogVisible = true
+    },
     importData () {
       this.showError = false
       this.error = ''
@@ -494,12 +551,12 @@ annotations:
       textarea.push(`for: ${this.formData.for}`)
       textarea.push(`labels:`)
       this.formData.labels.forEach(item => {
-        const value = item.value.replace(/\n/g, '\\n')
+        const value = item.value //.replace(/\n/g, '\\n')
         textarea.push(`  ${item.key}: ${value}`)
       })
       textarea.push(`annotations:`)
       this.formData.annotations.forEach(item => {
-        const value = item.value.replace(/\n/g, '\\n')
+        const value = item.value //.replace(/\n/g, '\\n')
         textarea.push(`  ${item.key}: ${value}`)
       })
       this.textarea = textarea.join('\n')
@@ -536,7 +593,7 @@ annotations:
             let haveData = false
             this.formData.labels.map(item => {
               if (item.key === key) {
-                item.value = yamlContext.labels[key].replace(/\n/g, '\\n')
+                item.value = yamlContext.labels[key] //.replace(/\n/g, '\\n')
                 haveData = true
               }
               if (genID !== 0 && item.id < genID) {
@@ -547,7 +604,7 @@ annotations:
               this.formData.labels.push({
                 id: genID,
                 key: key,
-                value: yamlContext.labels[key].replace(/\n/g, '\\n'),
+                value: yamlContext.labels[key], //.replace(/\n/g, '\\n'),
                 is_new: true
               })
               genID += 1
@@ -561,7 +618,7 @@ annotations:
             let haveData = false
             this.formData.annotations.map(item => {
               if (item.key === key) {
-                item.value = yamlContext.annotations[key].replace(/\n/g, '\\n')
+                item.value = yamlContext.annotations[key] //.replace(/\n/g, '\\n')
                 haveData = true
               }
               if (genID !== 0 && item.id < genID) {
@@ -572,7 +629,7 @@ annotations:
               this.formData.annotations.push({
                 id: genID,
                 key: key,
-                value: yamlContext.annotations[key].replace(/\n/g, '\\n'),
+                value: yamlContext.annotations[key], //.replace(/\n/g, '\\n'),
                 is_new: true
               })
               genID += 1
