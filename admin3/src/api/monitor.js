@@ -79,3 +79,11 @@ return request({
     method: 'post'
 })
 }
+
+export function disableTreeNode(disableData) {
+  return request({
+      url: '/v1/tree/node/status',
+      method: 'put',
+      data: disableData
+  })
+  }

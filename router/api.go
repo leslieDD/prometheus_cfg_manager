@@ -72,6 +72,7 @@ func initApiRouter() {
 	v1.PUT("/tree/update/node", updateTreeNode)
 	v1.DELETE("/tree/remove/node", deleteTreeNode)
 	v1.POST("/rules/publish", rulePublish)
+	v1.PUT("/tree/node/status", putTreeNodeStatus)
 
 	v1.GET("/base/labels", getBaseLabels)
 	v1.POST("/base/labels", postBaseLabels)
@@ -669,6 +670,16 @@ func deleteTreeNode(c *gin.Context) {
 
 func rulePublish(c *gin.Context) {
 	bf := models.RulePublish()
+	resComm(c, bf, nil)
+}
+
+func putTreeNodeStatus(c *gin.Context) {
+	upInfo := models.TreeNodeStatus{}
+	if err := c.BindJSON(&upInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutTreeNodeStatus(&upInfo)
 	resComm(c, bf, nil)
 }
 

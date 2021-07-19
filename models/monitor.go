@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -247,6 +248,7 @@ func CreateTreeNode(t *TreeNodeFromCli) *BriefMessage {
 		writeData["for"] = ""
 		writeData["expr"] = ""
 		writeData["enabled"] = true
+		writeData["description"] = ""
 		tx = db.Table("monitor_rules")
 	} else {
 		return ErrUnSupport
@@ -363,6 +365,71 @@ func DeleteLabelsByMID(mid int) *BriefMessage {
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrDelData
+	}
+	return Success
+}
+
+type TreeNodeStatus struct {
+	ID      int  `json:"id" form:"id"`
+	Level   int  `json:"level" form:"level"`
+	Enabled bool `json:"enabled" form:"enabled"`
+}
+
+func PutTreeNodeStatus(tns *TreeNodeStatus) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if tns.Level == 1 {
+			tx.Table("monitor_rules").Where("1=1").Update("enabled", tns.Enabled)
+		} else if tns.Level == 2 {
+			ids := []OnlyID{}
+			if err := tx.Table("monitor_rules").
+				Raw(fmt.Sprintf("SELECT monitor_rules.id FROM monitor_rules "+
+					"LEFT JOIN sub_group "+
+					"ON monitor_rules.sub_group_id=sub_group.id "+
+					"WHERE sub_group.rules_groups_id=%d ", tns.ID)).
+				Scan(&ids).
+				Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			idsSlice := []int{}
+			for _, id := range ids {
+				idsSlice = append(idsSlice, id.ID)
+			}
+			if err := tx.Table("monitor_rules").
+				Where("id in (?)", idsSlice).
+				Update("enabled", tns.Enabled).
+				Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+		} else if tns.Level == 3 {
+			if err := tx.Table("monitor_rules").
+				Where("sub_group_id=?", tns.ID).
+				Update("enabled", tns.Enabled).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+		} else if tns.Level == 4 {
+			if err := tx.Table("monitor_rules").
+				Where("id=?", tns.ID).
+				Update("enabled", tns.Enabled).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+		} else {
+			err := errors.New("未支持的level")
+			config.Log.Error(err)
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return ErrUpdateData
 	}
 	return Success
 }

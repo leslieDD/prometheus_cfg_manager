@@ -206,6 +206,26 @@
         </li>
         <li>
           <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-open"
+            @click="enabled(null, null)"
+            @keyup.esc="closeMenu"
+            >启用此分支</el-button
+          >
+        </li>
+        <li>
+          <el-button
+            size="mini"
+            type="text"
+            icon="el-icon-turn-off"
+            @click="disabled(null, null)"
+            @keyup.esc="closeMenu"
+            >禁用此分支</el-button
+          >
+        </li>
+        <li>
+          <el-button
             v-bind:disabled="menuDelDisabled"
             size="mini"
             type="text"
@@ -227,7 +247,8 @@ import {
   createTreeNode,
   updateTreeNode,
   removeTreeNode,
-  rulesPublish
+  rulesPublish,
+  disableTreeNode
 } from '@/api/monitor.js'
 let id = 1000;
 
@@ -326,6 +347,54 @@ export default {
       data.children.push(newChild);
       this.treeData = [...this.treeData]
       console.log('append [done]=>', data)
+    },
+
+    disabled (data) {
+      if (!data) {
+        data = this.menuData
+      }
+      const disableData = {
+        enabled: false,
+        id: data.id,
+        level: data.level
+      }
+      this.$confirm('是否确定禁用此分支以下的所有规则？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '放弃'
+      }).then(() => {
+        disableTreeNode(disableData).then(r => {
+          this.$notify({
+            title: '成功',
+            message: '禁用成功！',
+            type: 'success'
+          })
+        })
+      }).catch(e => console.log(e))
+    },
+
+    enabled (data) {
+      if (!data) {
+        data = this.menuData
+      }
+      const disableData = {
+        enabled: true,
+        id: data.id,
+        level: data.level
+      }
+      this.$confirm('是否确定启用此分支以下的所有规则？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '放弃'
+      }).then(() => {
+        disableTreeNode(disableData).then(r => {
+          this.$notify({
+            title: '成功',
+            message: '启用成功！',
+            type: 'success'
+          })
+        })
+      }).catch(e => console.log(e))
     },
 
     remove (node, data) {
