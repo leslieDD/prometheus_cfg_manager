@@ -517,3 +517,7 @@ func PutTreeNodeStatus(tns *TreeNodeStatus) *BriefMessage {
 	}
 	return Success
 }
+
+func PostTreeUploadFileYaml() *BriefMessage {
+	return Success
+}

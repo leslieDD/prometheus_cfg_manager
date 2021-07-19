@@ -73,6 +73,7 @@ func initApiRouter() {
 	v1.DELETE("/tree/remove/node", deleteTreeNode)
 	v1.POST("/rules/publish", rulePublish)
 	v1.PUT("/tree/node/status", putTreeNodeStatus)
+	v1.POST("/tree/upload/file/yaml", postTreeUploadFileYaml)
 
 	v1.GET("/base/labels", getBaseLabels)
 	v1.POST("/base/labels", postBaseLabels)
@@ -680,6 +681,11 @@ func putTreeNodeStatus(c *gin.Context) {
 		return
 	}
 	bf := models.PutTreeNodeStatus(&upInfo)
+	resComm(c, bf, nil)
+}
+
+func postTreeUploadFileYaml(c *gin.Context) {
+	bf := models.PostTreeUploadFileYaml()
 	resComm(c, bf, nil)
 }
 

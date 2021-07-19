@@ -86,4 +86,12 @@ export function disableTreeNode(disableData) {
       method: 'put',
       data: disableData
   })
-  }
+}
+
+export function uploadYamlFile(formData) {
+  return request({
+    url: '/v1/tree/upload/file/yaml',
+    method: 'post',
+    data: formData
+  })
+}

@@ -201,6 +201,16 @@
             >重命名此节点</el-button
           >
         </li>
+        <li>
+          <el-button
+            v-bind:disabled="menuImportFromFile"
+            size="mini"
+            icon="el-icon-document-add"
+            @click="importRules(null, null)"
+            @keyup.esc="closeMenu"
+            >从文件导入规则</el-button
+          >
+        </li>
         <!-- <el-divider class="divider-class"></el-divider> -->
         <li>
           <el-button
@@ -244,6 +254,90 @@
         </li>
       </ul>
     </div>
+    <div class="dialog-area">
+      <el-dialog
+        :title="'为组：' + ruleGroupName + ' 导入规则'"
+        v-model="importDialogDisplay"
+        width="800px"
+        :before-close="handleDialogClose"
+      >
+        <el-descriptions class="margin-top" :column="1" size="mini" border>
+          <el-descriptions-item>
+            <template #label>
+              <!-- <i class="el-icon-user"></i> -->
+              说明
+            </template>
+            导入的数据，必须是符合yaml语法，文件必须是如下“样例”展示的格式，
+            顶层为数组格式，数组元素个数不限制
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>样例</template>
+            <div style="width: 650px">
+              <el-scrollbar height="300px" class="flex-content">
+                <pre v-highlight="importCodeExample"><code></code></pre>
+              </el-scrollbar>
+            </div>
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>选择文件</template>
+            <el-upload
+              class="upload-demo"
+              ref="upload"
+              action="/v1/tree/upload/file/yaml"
+              :auto-upload="false"
+              accept="text/plain,text/yml,text/yaml"
+              :file-list="fileList"
+              :show-file-list="true"
+              :on-change="importFileChange"
+              :http-request="submitUpload"
+              type="file"
+            >
+              <template #trigger>
+                <el-button size="small" type="primary">导入文件</el-button>
+              </template>
+              <el-button
+                v-if="importPushing === false"
+                style="margin-left: 10px"
+                size="small"
+                type="success"
+                icon="el-icon-upload"
+                @click="doSubmitUpload"
+                >上传文件到服务器</el-button
+              >
+              <el-button
+                v-if="importPushing === true"
+                style="margin-left: 10px"
+                size="small"
+                type="success"
+                icon="el-icon-loading"
+                >上传文件到服务器</el-button
+              >
+              <template #tip>
+                <div class="el-upload__tip">文件格式：*.txt, *.yml, *.yaml</div>
+              </template>
+            </el-upload>
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>结果</template>
+            <el-scrollbar height="60px">
+              <div v-if="showError">
+                <pre v-highlight="error"><code></code></pre>
+              </div>
+            </el-scrollbar>
+          </el-descriptions-item>
+          <!-- <el-descriptions-item>
+            <div class="dialog-action">
+              <el-button size="mini" type="info" @click="doImportCancel"
+                >关闭</el-button
+              >
+              <el-button size="mini" type="primary" @click="doImportSubmit"
+                >导入</el-button
+              >
+            </div>
+          </el-descriptions-item> -->
+        </el-descriptions>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -256,7 +350,8 @@ import {
   updateTreeNode,
   removeTreeNode,
   rulesPublish,
-  disableTreeNode
+  disableTreeNode,
+  uploadYamlFile
 } from '@/api/monitor.js'
 let menuid = 1000;
 
@@ -278,6 +373,31 @@ export default {
       menuAddDisabled: true,
       menuDelDisabled: true,
       menuRenameDisabled: true,
+      menuImportFromFile: true,
+      importDialogDisplay: false,
+      importCodeExample: `  - alert: PrometheusTargetScrapingSlow
+    expr: prometheus_target_interval_length_seconds{quantile="0.9"} > 60
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: Prometheus target scraping slow (instance {{ $labels.instance }})
+      description: "Prometheus is scraping exporters slowly\\n  VALUE = {{ $value }}\\n  LABELS = {{ $labels }}"
+
+  - alert: PrometheusLargeScrape
+    expr: increase(prometheus_target_scrapes_exceeded_sample_limit_total[10m]) > 10
+    for: 5m
+    labels:
+      severity: warning
+    annotations:
+      summary: Prometheus large scrape (instance {{ $labels.instance }})
+      description: "Prometheus has many scrapes that exceed the sample limit\\n  VALUE = {{ $value }}\\n  LABELS = {{ $labels }}"`,
+      fileList: [],
+      importPushing: false,
+      error: '',
+      showError: true,
+      yamlRawObj: null,
+      ruleGroupName: '',
       labelPath: [],
       expandedList: [],
       currentMode: '',
@@ -487,6 +607,59 @@ export default {
       this.titleFromShowMe = data.label
       //   this.treeData = [...this.treeData]
     },
+    importRules () {
+      this.ruleGroupName = this.menuData.label
+      this.importDialogDisplay = true
+    },
+    handleDialogClose () {
+      this.importDialogDisplay = false
+    },
+    doImportCancel () {
+      this.importDialogDisplay = false
+    },
+    doImportSubmit () {
+      this.importDialogDisplay = false
+    },
+    importBefore () {
+      const isLt10M = file.size / 1024 / 1024 < 10
+      if (!isLt10M) {
+        this.error = '导入的文件不能超过10m'
+        return false
+      }
+      return true
+    },
+    importFileChange (file) {
+      //清除文件对象
+      this.$refs.upload.clearFiles()
+      // 取出上传文件的对象，在其它地方也可以使用
+      this.yamlRawObj = file.raw
+      // 重新手动赋值filstList， 免得自定义上传成功了, 
+      // 而fileList并没有动态改变， 这样每次都是上传一个对象
+      this.fileList = [{ name: file.name, url: file.url }]
+    },
+    doSubmitUpload () {
+      this.$refs.upload.submit();
+    },
+    submitUpload (param) {
+      this.importPushing = true
+      const formData = new FormData()
+      formData.append('file', param.file)
+      uploadYamlFile(formData).then(r => {
+        // console.log('上传图片成功')
+        this.error = '文件上传成功，并且已经被服务正确解析'
+        // this.$refs.upload.onSuccess()
+        param.onSuccess()  // 上传成功的图片会显示绿色的对勾
+        // 但是我们上传成功了图片， fileList 里面的值却没有改变，还好有on-change指令可以使用
+        this.importPushing = false
+      }).catch(e => {
+        this.error = e.toString()
+        // console.log('图片上传失败')
+        // this.$refs.upload.onError()
+        param.onError()
+        this.importPushing = false
+      })
+      // this.$refs.upload.submit();
+    },
     expand (nodes) {
       const expandedList = []
       this.expandRecycle(null, expandedList)
@@ -535,6 +708,7 @@ export default {
         this.menuDelDisabled = false
         this.menuRenameDisabled = true
         this.menuAddDisabled = false
+        this.menuImportFromFile = true
         this.btnTitleAppend = '添加文件'
       } else if (data.level === 2) {
         if (data.label === '[must rename me]') {
@@ -544,6 +718,7 @@ export default {
         }
         this.menuDelDisabled = false
         this.menuRenameDisabled = false
+        this.menuImportFromFile = true
         this.btnTitleAppend = '添加组'
       } else if (data.level === 3) {
         if (data.label === '[must rename me]') {
@@ -553,6 +728,7 @@ export default {
         }
         this.menuDelDisabled = false
         this.menuRenameDisabled = false
+        this.menuImportFromFile = false
         this.btnTitleAppend = '添加规则'
       } else if (data.level === 4) {
         if (data.label === '[must rename me]') {
@@ -562,6 +738,7 @@ export default {
         }
         this.menuDelDisabled = false
         this.menuAddDisabled = true
+        this.menuImportFromFile = true
         this.btnTitleAppend = '添加规则'
       } else {
         this.$notify({
@@ -752,6 +929,19 @@ export default {
 .divider-class {
   margin: 0px 0px 0px 0px;
 }
+
+.dialog-action {
+  align-content: right;
+  text-align: right;
+}
+
+.dialog-area :deep() .el-dialog {
+  margin: 20px auto !important;
+}
+.dialog-area :deep() .el-dialog__body {
+  padding-top: 5px;
+}
+
 .tree :deep() .el-tree-node {
   position: relative;
   padding-left: 0;
