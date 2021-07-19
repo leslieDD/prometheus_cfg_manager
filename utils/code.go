@@ -5,6 +5,7 @@ import (
 	"crypto/md5"
 	"fmt"
 	"io/ioutil"
+	"strings"
 
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
@@ -30,7 +31,7 @@ func Utf8ToGbk(s []byte) ([]byte, error) {
 	return d, nil
 }
 
-func Getmd5(s string) string {
-	has := md5.Sum([]byte(s))
+func Getmd5(level int, nId int, s ...string) string {
+	has := md5.Sum([]byte(fmt.Sprintf("%d_%d_%s", level, nId, strings.Join(s, "_"))))
 	return fmt.Sprintf("%x", has)
 }

@@ -14,6 +14,7 @@
     "element-plus": "^1.0.2-beta.48",
     "highlight.js": "^11.1.0",
     "js-json": "^0.1.4",
+    "js-md5": "^0.7.3",
     "js-yaml": "^4.1.0",
     "jsonlint": "^1.6.3",
     "jsonlint-mod": "^1.7.6",

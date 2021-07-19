@@ -30,7 +30,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 		Path:     []string{},
 		Children: []*TreeNode{},
 	}
-	root.Code = utils.Getmd5(root.Label)
+	root.Code = utils.Getmd5(1, 0, root.Label)
 	root.Path = append(root.Path, root.Label)
 	tns := []*TreeNode{
 		root,
@@ -44,7 +44,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 			Label:    rg.Name,
 			Parent:   -1,
 			Path:     []string{root.Label, rg.Name},
-			Code:     utils.Getmd5(rg.Name),
+			Code:     utils.Getmd5(2, rg.ID, root.Label, rg.Name),
 			Children: []*TreeNode{}}
 		subGroup, bf := GetSubGroup(rg.ID)
 		if bf != Success {
@@ -58,7 +58,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 				Label:    sub.Name,
 				Parent:   rg.ID,
 				Path:     []string{root.Label, rg.Name, sub.Name},
-				Code:     utils.Getmd5(sub.Name),
+				Code:     utils.Getmd5(3, sub.ID, root.Label, rg.Name, sub.Name),
 				Children: []*TreeNode{},
 			}
 			mrs, bf := GetMonitorRules(sub.ID, false)
@@ -71,7 +71,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 					Level:    4,
 					Label:    mr.Alert,
 					Parent:   sub.ID,
-					Code:     utils.Getmd5(mr.Alert),
+					Code:     utils.Getmd5(4, mr.ID, root.Label, rg.Name, sub.Name, mr.Alert),
 					Path:     []string{root.Label, rg.Name, sub.Name, mr.Alert},
 					Children: nil,
 				})

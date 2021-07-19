@@ -294,25 +294,109 @@ func DeleteTreeNode(t *TreeNodeFromCli) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	if bf := CheckNodeHaveChildren(t); bf != Success {
-		return bf
-	}
-	var tx *gorm.DB
-	if t.Level == 2 { // table rules_groups
-		tx = db.Table("rules_groups").Where("id=?", t.ID).Delete(nil)
-	} else if t.Level == 3 {
-		tx = db.Table("sub_group").Where("id=?", t.ID).Delete(nil)
-	} else if t.Level == 4 {
-		// 删除相关联标签等
-		if bf := DeleteLabelsByMID(t.ID); bf != Success {
-			return bf
+	// if bf := CheckNodeHaveChildren(t); bf != Success {
+	// 	return bf
+	// }
+	tErr := db.Transaction(func(tx *gorm.DB) error {
+		switch t.Level {
+		case 1:
+			if err := tx.Table("rules_groups").Where("1=1").Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("sub_group").Where("1=1").Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("monitor_rules").Where("1=1").Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("annotations").Where("1=1").Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("monitor_labels").Where("1=1").Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+		case 2:
+			subGroupIDs := []OnlyID{}
+			if err := tx.Table("sub_group").Where("rules_groups_id=?", t.ID).Find(&subGroupIDs).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			sgIDs := ConvertOnlyIdToIntSlice(subGroupIDs)
+			monitorRulesIDs := []OnlyID{}
+			if err := tx.Table("monitor_rules").Where("sub_group_id in (?)", sgIDs).Find(&monitorRulesIDs).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("rules_groups").Where("id=?", t.ID).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("sub_group").Where("rules_groups_id=?", t.ID).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("monitor_rules").Where("sub_group_id in (?)", sgIDs).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			mIds := ConvertOnlyIdToIntSlice(monitorRulesIDs)
+			if err := tx.Table("annotations").Where("monitor_rules_id in (?)", mIds).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("monitor_labels").Where("monitor_rules_id in (?)", mIds).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+		case 3:
+			monitorRulesIDs := []OnlyID{}
+			if err := tx.Table("monitor_rules").Where("sub_group_id=?", t.ID).Find(&monitorRulesIDs).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("sub_group").Where("id=?", t.ID).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("monitor_rules").Where("sub_group_id=?", t.ID).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			mIds := ConvertOnlyIdToIntSlice(monitorRulesIDs)
+			if err := tx.Table("annotations").Where("monitor_rules_id in (?)", mIds).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("monitor_labels").Where("monitor_rules_id in (?)", mIds).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+		case 4:
+			if err := tx.Table("monitor_rules").Where("id=?", t.ID).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("annotations").Where("monitor_rules_id=?", t.ID).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := tx.Table("monitor_labels").Where("monitor_rules_id=?", t.ID).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+		default:
+			err := fmt.Errorf("no support level: %d", t.Level)
+			config.Log.Error(err.Error())
+			return err
 		}
-		tx = db.Table("monitor_rules").Where("id=?", t.ID).Delete(nil)
-	} else {
-		return ErrUnSupport
-	}
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
+		return nil
+	})
+	if tErr != nil {
 		return ErrDelData
 	}
 	return Success

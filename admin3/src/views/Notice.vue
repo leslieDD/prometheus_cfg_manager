@@ -55,9 +55,18 @@
                 <template #default="{ node, data }">
                   <div>
                     <single-svg v-if="data.level === 1" icon-class="root" />
-                    <single-svg v-if="data.level === 2" icon-class="xiongmao" />
-                    <single-svg v-if="data.level === 3" icon-class="daxiang" />
-                    <single-svg v-if="data.level === 4" icon-class="dog" />
+                    <single-svg
+                      v-if="data.level === 2"
+                      icon-class="footprint_unknow"
+                    />
+                    <single-svg
+                      v-if="data.level === 3"
+                      icon-class="footprint_chongwu"
+                    />
+                    <single-svg
+                      v-if="data.level === 4"
+                      icon-class="footprint_person"
+                    />
                     <span class="custom-tree-node">
                       <el-input
                         size="mini"
@@ -71,7 +80,7 @@
                       <el-badge
                         v-show="data.showMe !== true"
                         v-if="data.level === 1 && data.display !== true"
-                        type="warning"
+                        type="success"
                         :value="data.children ? data.children.length : 0"
                         class="item"
                       >
@@ -90,7 +99,7 @@
                       <el-badge
                         v-show="data.showMe !== true && data.display !== true"
                         v-if="data.level === 2"
-                        type="warning"
+                        type="success"
                         :value="data.children ? data.children.length : 0"
                         class="item"
                       >
@@ -109,7 +118,7 @@
                       <el-badge
                         v-show="data.showMe !== true && data.display !== true"
                         v-if="data.level === 3"
-                        type="warning"
+                        type="success"
                         :value="data.children ? data.children.length : 0"
                         class="item"
                       >
@@ -240,6 +249,7 @@
 
 <script>
 import RuleEdit from '@/views/RuleEdit.vue'
+import md5 from 'js-md5';
 import {
   getTree,
   createTreeNode,
@@ -248,7 +258,7 @@ import {
   rulesPublish,
   disableTreeNode
 } from '@/api/monitor.js'
-let id = 1000;
+let menuid = 1000;
 
 export default {
   name: "Notice",
@@ -329,8 +339,8 @@ export default {
       if (!data) {
         data = this.menuData
       }
-      const newChild = {
-        id: id++,
+      let newChild = {
+        id: menuid++,
         level: data.level + 1,
         label: '[must rename me]',
         children: [],
@@ -339,14 +349,16 @@ export default {
         path: [...data.path]
       }
       newChild.path.push(newChild.label)
+      const newPathStr = newChild.path.join('_')
+      newChild.code = md5(`${newChild.level}_${newChild.id}_${newPathStr}`)
+
       if (!data.children) {
         data.children = []
       }
       data.children.push(newChild);
       this.treeData = [...this.treeData]
-      console.log('append [done]=>', data)
+      // console.log('append [done]=>', data)
     },
-
     disabled (data) {
       if (!data) {
         data = this.menuData
@@ -370,7 +382,6 @@ export default {
         })
       }).catch(e => console.log(e))
     },
-
     enabled (data) {
       if (!data) {
         data = this.menuData
@@ -394,7 +405,6 @@ export default {
         })
       }).catch(e => console.log(e))
     },
-
     remove (node, data) {
       if (!node) {
         node = this.menuNode
@@ -402,15 +412,30 @@ export default {
       if (!data) {
         data = this.menuData
       }
-      this.$confirm('是否确定删除？', '确认信息', {
+      let remindTxt = ''
+      if (data.level === 1) {
+        remindTxt = '将会清空所有监控规则，包括文件、监控组、规则。是否确定删除？'
+      } else if (data.level === 2) {
+        remindTxt = `删除文件为: ${data.label}，及此文件内的所有监控规则。是否确定删除？`
+      } else if (data.level === 3) {
+        remindTxt = `删除监控组为: ${data.label}，及此组内的所有监控规则。是否确定删除？`
+      } else if (data.level === 4) {
+        remindTxt = `删除监控规则项为: ${data.label}。是否确定删除？`
+      } else {
+        return false
+      }
+      this.$confirm(remindTxt, '确认信息', {
         distinguishCancelAndClose: true,
         confirmButtonText: '确定',
         cancelButtonText: '放弃'
       }).then(() => {
+        // console.log('data and node is: ', data, node)
+        // return false
         if (data.is_new) {
           const parent = node.parent;
           const children = parent.data.children || parent.data;
-          const index = children.findIndex(d => d.id === data.id);
+          // const index = children.findIndex(d => d.id === data.id);
+          const index = children.findIndex(d => d.code === data.code);
           children.splice(index, 1);
           this.treeData = [...this.treeData]
           return true
@@ -430,8 +455,13 @@ export default {
             })
             const parent = node.parent;
             const children = parent.data.children || parent.data;
-            const index = children.findIndex(d => d.id === data.id);
-            children.splice(index, 1);
+            // const index = children.findIndex(d => d.id === data.id);
+            const index = children.findIndex(d => d.code === data.code);
+            if (children[index].level !== 1) {
+              children.splice(index, 1);
+            } else {
+              children[index].children = []
+            }
             this.treeData = [...this.treeData]
           }
         ).catch(
@@ -439,7 +469,6 @@ export default {
         )
       }).catch(() => { })
     },
-
     edit (node, data) {
       if (this.currentMode === 'rename') {
         this.$notify({
@@ -505,7 +534,7 @@ export default {
         return false
       }
       if (data.level === 1) {
-        this.menuDelDisabled = true
+        this.menuDelDisabled = false
         this.menuRenameDisabled = true
         this.menuAddDisabled = false
         this.btnTitleAppend = '添加文件'

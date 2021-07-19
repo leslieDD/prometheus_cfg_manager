@@ -180,3 +180,11 @@ func ConvertStrToIntSlice(s string) ([]int, error) {
 	}
 	return ints, nil
 }
+
+func ConvertOnlyIdToIntSlice(oi []OnlyID) []int {
+	s := make([]int, len(oi))
+	for _, o := range oi {
+		s = append(s, o.ID)
+	}
+	return s
+}
