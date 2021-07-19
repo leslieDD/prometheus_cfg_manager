@@ -335,7 +335,6 @@ export default {
       this.handleNodeClick(data)
     },
     append (data) {
-      console.log('append [start]=>', data)
       if (!data) {
         data = this.menuData
       }
@@ -357,7 +356,6 @@ export default {
       }
       data.children.push(newChild);
       this.treeData = [...this.treeData]
-      // console.log('append [done]=>', data)
     },
     disabled (data) {
       if (!data) {
