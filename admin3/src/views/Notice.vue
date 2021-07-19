@@ -175,39 +175,38 @@
           <el-button
             v-bind:disabled="menuAddDisabled"
             size="mini"
-            type="text"
             icon="el-icon-plus"
             @click="append(null)"
             @keyup.esc="closeMenu"
             >{{ btnTitleAppend }}</el-button
           >
         </li>
-        <li>
-          <el-button
-            v-bind:disabled="menuAddDisabled"
-            size="mini"
-            type="text"
-            icon="el-icon-notebook-2"
-            @click="expand(null)"
-            @keyup.esc="closeMenu"
-            >展开所有节点</el-button
-          >
-        </li>
+        <!-- <el-divider class="divider-class"></el-divider> -->
         <li>
           <el-button
             v-bind:disabled="menuRenameDisabled"
             size="mini"
-            type="text"
             icon="el-icon-edit-outline"
             @click="edit(null, null)"
             @keyup.esc="closeMenu"
             >重命名此节点</el-button
           >
         </li>
+        <!-- <el-divider class="divider-class"></el-divider> -->
+        <li>
+          <el-button
+            v-bind:disabled="menuAddDisabled"
+            size="mini"
+            icon="el-icon-notebook-2"
+            @click="expand(null)"
+            @keyup.esc="closeMenu"
+            >展开所有节点</el-button
+          >
+        </li>
+        <!-- <el-divider class="divider-class"></el-divider> -->
         <li>
           <el-button
             size="mini"
-            type="text"
             icon="el-icon-open"
             @click="enabled(null, null)"
             @keyup.esc="closeMenu"
@@ -217,18 +216,17 @@
         <li>
           <el-button
             size="mini"
-            type="text"
             icon="el-icon-turn-off"
             @click="disabled(null, null)"
             @keyup.esc="closeMenu"
             >禁用此分支</el-button
           >
         </li>
+        <!-- <el-divider class="divider-class"></el-divider> -->
         <li>
           <el-button
             v-bind:disabled="menuDelDisabled"
             size="mini"
-            type="text"
             icon="el-icon-delete"
             @click="remove(null, null)"
             @keyup.esc="closeMenu"
@@ -724,6 +722,9 @@ export default {
   margin-left: 5px;
   color: green;
 }
+.divider-class {
+  margin: 0px 0px 0px 0px;
+}
 .tree :deep() .el-tree-node {
   position: relative;
   padding-left: 0;
@@ -772,11 +773,11 @@ export default {
 
 .contextmenu {
   margin: 0;
-  background: #fff;
+  background: rgb(241, 236, 238);
   z-index: 3000;
   position: absolute;
   list-style-type: none;
-  padding: 5px 0;
+  padding: 0px 0;
   border-radius: 4px;
   font-size: 12px;
   font-weight: 400;
@@ -799,6 +800,6 @@ export default {
   margin-top: 11px;
 }
 .contextmenu > li:hover {
-  background: #eee;
+  background: rgb(224, 212, 185);
 }
 </style>
