@@ -5,7 +5,7 @@
         <el-descriptions-item>
           <template #label>
             <span>规则功能描述：</span>
-            <el-tooltip content="规则此规则的功能或者作用" placement="top">
+            <el-tooltip content="描述此规则的功能或者作用" placement="top">
               <i class="el-icon-info"></i>
             </el-tooltip>
           </template>
