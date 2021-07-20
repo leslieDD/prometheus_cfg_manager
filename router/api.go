@@ -685,8 +685,19 @@ func putTreeNodeStatus(c *gin.Context) {
 }
 
 func postTreeUploadFileYaml(c *gin.Context) {
-	bf := models.PostTreeUploadFileYaml()
-	resComm(c, bf, nil)
+	gidStr, ok := c.GetQuery("gid")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	gid, err := strconv.ParseInt(gidStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	r, bf := models.PostTreeUploadFileYaml(c, gid)
+	resComm(c, bf, r)
 }
 
 func getBaseLabels(c *gin.Context) {

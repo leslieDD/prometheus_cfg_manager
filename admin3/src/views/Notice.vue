@@ -317,40 +317,17 @@
                 <div class="el-upload__tip">文件格式：*.txt, *.yml, *.yaml</div>
               </template>
             </el-upload>
-            <!-- <el-upload
-              class="upload-demo"
-              ref="upload"
-              action="/v1/update/ssss"
-              accept="text/plain"
-              :file-list="fileList"
-              :auto-upload="false"
-              :before-upload="importBefore"
-              :http-request="submitUpload"
-            >
-              <template #trigger>
-                <el-button size="small" type="primary">选取文件</el-button>
-              </template>
-              <el-button
-                style="margin-left: 10px"
-                size="small"
-                type="success"
-                @click="doSubmitUpload"
-                >上传到服务器</el-button
-              >
-              <template #tip>
-                <div class="el-upload__tip">
-                  只能上传 jpg/png 文件，且不超过 500kb
-                </div>
-              </template>
-            </el-upload> -->
           </el-descriptions-item>
           <el-descriptions-item>
             <template #label>结果</template>
-            <el-scrollbar height="60px">
-              <div v-if="showError">
-                <!-- <pre v-highlight="error"><code></code></pre> -->
-              </div>
-            </el-scrollbar>
+            <div style="width: 650px">
+              <el-scrollbar height="300px">
+                <!-- <div v-if="showError">
+                <pre v-highlight="error"><code></code></pre>
+              </div> -->
+                <JsonView :json="jsonError"></JsonView>
+              </el-scrollbar>
+            </div>
           </el-descriptions-item>
         </el-descriptions>
       </el-dialog>
@@ -370,12 +347,17 @@ import {
   disableTreeNode,
   uploadYamlFile
 } from '@/api/monitor.js'
+import JsonView from '@/components/JsonView.vue'
+// import JsonViewer from 'vue-json-viewer'
+// import JsonView from "vue3-json-view"
+// import 'vue3-json-view/lib/style.css'
 let menuid = 1000;
 
 export default {
   name: "Notice",
   components: {
-    RuleEdit: RuleEdit
+    RuleEdit: RuleEdit,
+    JsonView: JsonView
   },
   data () {
     return {
@@ -415,6 +397,7 @@ export default {
       showError: true,
       yamlRawObj: null,
       ruleGroupName: '',
+      ruleGroupId: 0,
       labelPath: [],
       expandedList: [],
       currentMode: '',
@@ -433,6 +416,17 @@ export default {
       } else {
         document.body.removeEventListener('click', this.closeMenu)
       }
+    }
+  },
+  computed: {
+    jsonError: function () {
+      if (this.error === '') {
+        return ['正常']
+      }
+      if (!this.error) {
+        return ['错误消息不正常']
+      }
+      return this.error
     }
   },
   methods: {
@@ -564,8 +558,6 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '放弃'
       }).then(() => {
-        // console.log('data and node is: ', data, node)
-        // return false
         if (data.is_new) {
           const parent = node.parent;
           const children = parent.data.children || parent.data;
@@ -626,6 +618,7 @@ export default {
     },
     importRules () {
       this.ruleGroupName = this.menuData.label
+      this.ruleGroupId = this.menuData.id
       this.importDialogDisplay = true
     },
     handleDialogClose () {
@@ -638,7 +631,6 @@ export default {
       this.importDialogDisplay = false
     },
     importBefore (file) {
-      console.log('before-upload importBefore')
       const isLt10M = file.size / 1024 / 1024 < 10
       if (!isLt10M) {
         this.error = '导入的文件不能超过10m'
@@ -646,42 +638,23 @@ export default {
       }
       return true
     },
-    // importFileChange (file) {
-    //   //清除文件对象
-    //   this.$refs.upload.clearFiles()
-    //   // 取出上传文件的对象，在其它地方也可以使用
-    //   this.yamlRawObj = file.raw
-    //   // 重新手动赋值filstList， 免得自定义上传成功了, 
-    //   // 而fileList并没有动态改变， 这样每次都是上传一个对象
-    //   this.fileList = [{ name: file.name, url: file.url }]
-    // },
     doSubmitUpload () {
-      // console.log('this.$refs.upload.submit()', 'this.$refs.upload.submit()')
-      // console.log('ref =>', this.$refs.upload)
       this.$refs.uploadYamlRef.submit();
-      // this.$refs.uploadYamlRef.onSuccess()
-      // this.$refs.uploadYamlRef.onError()
     },
     submitUpload (param) {
-      console.log('submitUpload', 'submitUpload')
       this.importPushing = true
       const formData = new FormData()
       formData.append('file', param.file)
-      uploadYamlFile(formData).then(r => {
-        // console.log('上传图片成功')
-        this.error = '文件上传成功，并且已经被服务正确解析'
-        // this.$refs.upload.onSuccess()
-        // param.onSuccess()  // 上传成功的图片会显示绿色的对勾
-        // 但是我们上传成功了图片， fileList 里面的值却没有改变，还好有on-change指令可以使用
+      const gInfo = { gid: this.ruleGroupId }
+      uploadYamlFile(formData, gInfo).then(r => {
+        this.$refs.uploadYamlRef.clearFiles()
+        // this.error = '文件上传成功，并且已经被服务正确解析。清空上传列表'
+        this.error = r.data
         this.importPushing = false
       }).catch(e => {
         this.error = e.toString()
-        // console.log('图片上传失败')
-        // this.$refs.upload.onError()
-        // param.onError()
         this.importPushing = false
       })
-      // this.$refs.upload.submit();
     },
     expand (nodes) {
       const expandedList = []

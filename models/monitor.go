@@ -14,6 +14,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/gin-gonic/gin"
+	"gopkg.in/yaml.v2"
 	"gorm.io/gorm"
 )
 
@@ -518,6 +520,131 @@ func PutTreeNodeStatus(tns *TreeNodeStatus) *BriefMessage {
 	return Success
 }
 
-func PostTreeUploadFileYaml() *BriefMessage {
-	return Success
+type UploadMonitorRule struct {
+	Labels      map[string]string `json:"labels"`
+	Annotations map[string]string `json:"annotations"`
+	// MonitorRule
+	ID          int    `json:"id" gorm:"column:id"`
+	Alert       string `json:"alert" gorm:"column:alert"`
+	Expr        string `json:"expr" gorm:"column:expr"`
+	For         string `json:"for" gorm:"column:for"`
+	SubGroupID  int    `json:"sub_group_id" gorm:"column:sub_group_id"`
+	Enabled     bool   `json:"enabled" gorm:"column:enabled"`
+	Description string `json:"description" gorm:"column:description"`
+}
+
+type TongJiUploadRule struct {
+	Success int `json:"success"`
+	Fail    int `json:"fail"`
+}
+
+type ImportRuleErr struct {
+	Success                bool   `json:"success"`
+	Alert                  string `json:"alert"`
+	ImportRuleError        string `json:"import_rule_error"`
+	ImportLableError       string `json:"import_label_error"`
+	ImportAnnotationsError string `json:"import_annotations_error"`
+}
+
+type RespImportResult struct {
+	Info   []*ImportRuleErr `json:"info"`
+	Result TongJiUploadRule `json:"result"`
+}
+
+func PostTreeUploadFileYaml(c *gin.Context, gid int64) (*RespImportResult, *BriefMessage) {
+	rFile, err := c.FormFile("file")
+	if err != nil {
+		config.Log.Error(err)
+		return nil, ErrUploadFileFormName
+	}
+	if rFile.Size > 1024*1024*10 {
+		config.Log.Errorf("upload size: %d", rFile.Size)
+		return nil, ErrTooLarge
+	}
+
+	fd, err := rFile.Open()
+	if err != nil {
+		config.Log.Error(err)
+		return nil, ErrFileFormat
+	}
+	defer fd.Close()
+	uploadData := []*UploadMonitorRule{}
+	if err := yaml.NewDecoder(fd).Decode(&uploadData); err != nil {
+		config.Log.Error(err)
+		return nil, ErrParseFileToYaml.Append(err.Error())
+	}
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	errSlice := []*ImportRuleErr{}
+	tongji := TongJiUploadRule{}
+	for _, r := range uploadData {
+		tErr := db.Transaction(func(tx *gorm.DB) error {
+			errItem := ImportRuleErr{Alert: r.Alert, Success: true}
+			defer func() {
+				if !errItem.Success {
+					tongji.Fail += 1
+					errSlice = append(errSlice, &errItem)
+				} else {
+					tongji.Success += 1
+				}
+			}()
+			// r.ID = 0
+			// r.SubGroupID = int(gid)
+			mr := MonitorRule{
+				ID:          0,
+				Alert:       r.Alert,
+				Expr:        r.Expr,
+				For:         r.For,
+				Enabled:     r.Enabled,
+				Description: r.Description,
+				SubGroupID:  int(gid),
+			}
+			if err := tx.Table("monitor_rules").Create(&mr).Error; err != nil {
+				errItem.Success = false
+				errItem.ImportRuleError = err.Error()
+				config.Log.Error(err)
+				return err
+			}
+			labels := []*Label{}
+			for key, value := range r.Labels {
+				labels = append(labels, &Label{
+					ID:             0,
+					Key:            key,
+					Value:          value,
+					MonitorRulesID: mr.ID,
+				})
+			}
+			if err := tx.Table("monitor_labels").Create(&labels).Error; err != nil {
+				config.Log.Error(err)
+				errItem.ImportLableError = err.Error()
+				return err
+			}
+			annotations := []*Label{}
+			for key, value := range r.Labels {
+				annotations = append(annotations, &Label{
+					ID:             0,
+					Key:            key,
+					Value:          value,
+					MonitorRulesID: mr.ID,
+				})
+			}
+			if err := tx.Table("annotations").Create(&labels).Error; err != nil {
+				config.Log.Error(err)
+				errItem.ImportAnnotationsError = err.Error()
+				return err
+			}
+			return nil
+		})
+		if tErr != nil {
+			config.Log.Error("transaction error")
+		}
+	}
+	resp := RespImportResult{
+		Info:   errSlice,
+		Result: tongji,
+	}
+	return &resp, Success
 }

@@ -88,10 +88,11 @@ export function disableTreeNode(disableData) {
   })
 }
 
-export function uploadYamlFile(formData) {
+export function uploadYamlFile(formData, gInfo) {
   return request({
     url: '/v1/tree/upload/file/yaml',
     method: 'post',
-    data: formData
+    data: formData,
+    params: gInfo,
   })
 }

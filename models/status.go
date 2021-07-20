@@ -1,9 +1,18 @@
 package models
 
+import "fmt"
+
 // BriefMessage 摘要信息
 type BriefMessage struct {
 	Code    int
 	Message string
+}
+
+func (bf *BriefMessage) Append(s string) *BriefMessage {
+	return &BriefMessage{
+		Code:    bf.Code,
+		Message: fmt.Sprintf("%s: %s", bf.Message, s),
+	}
 }
 
 // --------------------------------------------------------------
@@ -46,6 +55,7 @@ var ErrUpGrader = &BriefMessage{500000, "提升GET请求为webSocket协议时出
 var ErrGetControlField = &BriefMessage{500000, "获取控制参数时出错"}
 var ErrHaveTaskRunning = &BriefMessage{500000, "有命令正在运行，请稍后重试"}
 var ErrConvertDataType = &BriefMessage{500000, "转换数据类型出错"}
+var ErrHaveInstanceRunning = &BriefMessage{500000, "有一个实例正在运行，请稍后重试"}
 
 // --------------------------------------------------------------
 // ---------------- 400xxx 客户端错误 ----------------------------
@@ -77,7 +87,10 @@ var ErrOrderIDExist = &BriefMessage{400000, "排序号已经存在"}
 var ErrUnSupport = &BriefMessage{400000, "不支持的操作类型"}
 var ErrHaveDataNoAllowToDel = &BriefMessage{400000, "因存在相关联数据，不允许删除"}
 var ErrHaveDataNoAllowToDisabled = &BriefMessage{400000, "因存在相关联数据，不允许禁用"}
-var ErrHaveInstanceRunning = &BriefMessage{500000, "有一个实例正在运行，请稍后重试"}
+var ErrUploadFile = &BriefMessage{400000, "未找到上传文件的实例"}
+var ErrTooLarge = &BriefMessage{400000, "文件超过限定大小"}
+var ErrFileFormat = &BriefMessage{400000, "文件格式错误"}
+var ErrParseFileToYaml = &BriefMessage{400000, "解析文件成Yaml格式数据时，出现错误"}
 
 // --------------------------------------------------------------
 // ---------------- 300xxx 链接错误 ------------------------------
