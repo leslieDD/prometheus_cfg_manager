@@ -6,6 +6,7 @@ import (
 	"path/filepath"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/utils"
+	"strings"
 	"sync"
 
 	"gopkg.in/yaml.v2"
@@ -84,14 +85,14 @@ func (pr *PrometheusRule) GetDate() *BriefMessage {
 					return bf
 				}
 				for _, l := range labels {
-					at.Labels[l.Key] = l.Value
+					at.Labels[l.Key] = strings.ReplaceAll(l.Value, "\n", `\n`)
 				}
 				annotations, bf := SearchAnnotationsByMonitorID(m.ID)
 				if bf != Success {
 					return bf
 				}
 				for _, a := range annotations {
-					at.Annotations[a.Key] = a.Value
+					at.Annotations[a.Key] = strings.ReplaceAll(a.Value, "\n", `\n`)
 				}
 				mg.Rules = append(mg.Rules, at)
 			}
