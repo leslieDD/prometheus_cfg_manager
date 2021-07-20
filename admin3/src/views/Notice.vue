@@ -590,7 +590,7 @@ export default {
             const index = children.findIndex(d => d.code === data.code);
             children.splice(index, 1);
           }
-          // this.treeData = [...this.treeData]
+          this.treeData = [...this.treeData]
           return true
         }
         const nodeInfo = {
@@ -619,7 +619,7 @@ export default {
                 children[index].children = []
               }
             }
-            // this.treeData = [...this.treeData]
+            this.treeData = [...this.treeData]
           }
         ).catch(
           e => { console.log(e) }
@@ -652,13 +652,16 @@ export default {
       this.importDialogDisplay = true
     },
     handleDialogClose () {
+      this.error = ''
       this.doGetTree()
       this.importDialogDisplay = false
     },
     doImportCancel () {
+      this.error = ''
       this.importDialogDisplay = false
     },
     doImportSubmit () {
+      this.error = ''
       this.importDialogDisplay = false
     },
     importBefore (file) {
