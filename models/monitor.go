@@ -595,8 +595,6 @@ func PostTreeUploadFileYaml(c *gin.Context, gid int64) (*RespImportResult, *Brie
 					tongji.Success += 1
 				}
 			}()
-			// r.ID = 0
-			// r.SubGroupID = int(gid)
 			mr := MonitorRule{
 				ID:          0,
 				Alert:       r.Alert,
@@ -635,7 +633,7 @@ func PostTreeUploadFileYaml(c *gin.Context, gid int64) (*RespImportResult, *Brie
 					MonitorRulesID: mr.ID,
 				})
 			}
-			if err := tx.Table("annotations").Create(&labels).Error; err != nil {
+			if err := tx.Table("annotations").Create(&annotations).Error; err != nil {
 				config.Log.Error(err)
 				errItem.ImportAnnotationsError = err.Error()
 				return err
