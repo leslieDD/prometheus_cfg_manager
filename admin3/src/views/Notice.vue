@@ -335,6 +335,14 @@
                 @click="doSubmitUpload"
                 >上传文件到服务器</el-button
               >
+              <el-button
+                style="margin-left: 10px"
+                size="small"
+                type="warning"
+                icon="el-icon-circle-close"
+                @click="handleDialogClose"
+                >关闭</el-button
+              >
               <template #tip>
                 <div class="el-upload__tip">文件格式：*.txt, *.yml, *.yaml</div>
               </template>
@@ -573,6 +581,10 @@ export default {
       let remindTxt = ''
       if (options.skip_self === true) {
         remindTxt = `删除节点: ${data.label} 以下所有内容。是否确定删除？`
+        if (data.level !== 1 && data.level !== 2 && data.level !== 3 && data.level !== 4) {
+          console.log("error level: ", data.level)
+          return false
+        }
       } else {
         if (data.level === 1) {
           remindTxt = '将会清空所有监控规则，包括文件、监控组、规则。是否确定删除？'
@@ -619,6 +631,7 @@ export default {
             })
             if (options.skip_self) {
               node.children = []
+              data.children = []
             } else {
               const parent = node.parent;
               const children = parent.data.children || parent.data;

@@ -23,7 +23,7 @@
           <span v-if="!length">{{ isArray ? "[]" : "{}" }}</span>
         </p>
         <div v-if="!innerclosed && length" class="json-body">
-          <template v-for="(item, index2) in items" :key="index2 + ''">
+          <template v-for="(item, index) in items" :key="index + ''">
             <json-view
               :closed="closed"
               v-if="item.isJSON"
