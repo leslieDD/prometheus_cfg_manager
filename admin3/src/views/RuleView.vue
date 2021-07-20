@@ -162,7 +162,7 @@ export default {
     }))
     this.yamlViewer.refresh()
     // editor.setSize('width','height');
-    this.yamlViewer.setSize('835px', '83vh');
+    // this.yamlViewer.setSize('835px', '83vh');
     this.yamlViewer.setValue(this.value)
     this.yamlViewer.on('change', (cm) => {
       this.$emit('changed', cm.getValue())

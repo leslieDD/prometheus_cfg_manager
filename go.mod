@@ -15,7 +15,7 @@ require (
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/sirupsen/logrus v1.7.0
 	golang.org/x/text v0.3.3
-	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	gorm.io/datatypes v1.0.1
 	gorm.io/driver/mysql v1.0.5
 	gorm.io/gorm v1.21.6

@@ -1,0 +1,1 @@
+{"id":416,"key":"description","value":"The node is under heavy memory pressure. High rate of major page faults\n  VALUE = {{ $value }}\n  LABELS = {{ $labels }}","monitor_rules_id":560,"is_new":false}

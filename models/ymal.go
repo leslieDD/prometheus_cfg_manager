@@ -6,10 +6,9 @@ import (
 	"path/filepath"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/utils"
-	"strings"
 	"sync"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 type MonitorFile struct {
@@ -85,14 +84,14 @@ func (pr *PrometheusRule) GetDate() *BriefMessage {
 					return bf
 				}
 				for _, l := range labels {
-					at.Labels[l.Key] = strings.ReplaceAll(l.Value, "\n", `\n`)
+					at.Labels[l.Key] = utils.ClearCrLR(l.Value)
 				}
 				annotations, bf := SearchAnnotationsByMonitorID(m.ID)
 				if bf != Success {
 					return bf
 				}
 				for _, a := range annotations {
-					at.Annotations[a.Key] = strings.ReplaceAll(a.Value, "\n", `\n`)
+					at.Annotations[a.Key] = utils.ClearCrLR(a.Value)
 				}
 				mg.Rules = append(mg.Rules, at)
 			}
