@@ -23,6 +23,13 @@ export function getDefaultLabels() {
   })
 }
 
+export function getDefaultEnableLables() {
+  return request({
+    url: '/v1/tree/default/enable/lables',
+    method: 'get'
+  })
+}
+
 export function postNodeInfo(nodeInfo) {
   return request({
     url: '/v1/tree/node',

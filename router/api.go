@@ -67,6 +67,7 @@ func initApiRouter() {
 	v1.POST("/tree/node", postNode)
 	v1.PUT("/tree/node", putNode)
 	v1.GET("/tree/default/lables", getDefLabels)
+	v1.GET("/tree/default/enable/lables", getDefEnableLabels)
 	v1.DELETE("/tree/node/label", delLabel)
 	v1.POST("/tree/create/node", createTreeNode)
 	v1.PUT("/tree/update/node", updateTreeNode)
@@ -621,6 +622,11 @@ func putNode(c *gin.Context) {
 
 func getDefLabels(c *gin.Context) {
 	data, bf := models.GetDefLabels()
+	resComm(c, bf, data)
+}
+
+func getDefEnableLabels(c *gin.Context) {
+	data, bf := models.GetDefEnableLabels()
 	resComm(c, bf, data)
 }
 

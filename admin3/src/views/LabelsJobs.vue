@@ -465,7 +465,7 @@ import {
   enabledJobGroup,
   enabledJobGroupLables
 } from '@/api/labelsJob.js'
-import { getDefaultLabels } from '@/api/monitor.js'
+import { getDefaultEnableLables } from '@/api/monitor.js'
 import { restartSrv } from '@/api/srv'
 
 export default {
@@ -635,7 +635,7 @@ export default {
         'search': this.glSearchContent,
         id: gid
       }
-      getDefaultLabels().then(r => {
+      getDefaultEnableLables().then(r => {
         this.defaultLabels = r.data
         getGroupLabels(getInfo).then(r => {
           // 有两个一样的地方要更新

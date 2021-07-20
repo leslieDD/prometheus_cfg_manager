@@ -406,17 +406,32 @@ type DefaultLables struct {
 	Lable string `json:"label" gorm:"column:label"`
 }
 
-func GetDefLabels() ([]DefaultLables, *BriefMessage) {
+func GetDefLabels() ([]*DefaultLables, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return nil, ErrDataBase
 	}
-	defLables := []DefaultLables{}
+	defLables := []*DefaultLables{}
 	tx := db.Table("labels").Find(&defLables)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
+	}
+	return defLables, Success
+}
+
+func GetDefEnableLabels() ([]*DefaultLables, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	defLables := []*DefaultLables{}
+	tx := db.Table("labels").Where("enabled=1").Find(&defLables)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return defLables, Success
 	}
 	return defLables, Success
 }

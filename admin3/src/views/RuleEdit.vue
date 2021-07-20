@@ -337,7 +337,7 @@
 <script>
 import {
   getRuleDetail,
-  getDefaultLabels,
+  getDefaultEnableLables,
   putNodeInfo,
   postNodeInfo,
   deleteNodeLable
@@ -395,7 +395,7 @@ annotations:
       if (info.label === '[must rename me]') {
         return false
       }
-      getDefaultLabels().then(
+      getDefaultEnableLables().then(
         r => {
           this.defaultLabels = r.data
           getRuleDetail(info).then(
@@ -450,7 +450,7 @@ annotations:
       }
     },
     addLables (witch) {
-      getDefaultLabels().then(
+      getDefaultEnableLables().then(
         r => {
           this.defaultLabels = r.data
           let newID = 0
