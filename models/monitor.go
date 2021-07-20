@@ -625,7 +625,7 @@ func PostTreeUploadFileYaml(c *gin.Context, gid int64) (*RespImportResult, *Brie
 				return err
 			}
 			annotations := []*Label{}
-			for key, value := range r.Labels {
+			for key, value := range r.Annotations {
 				annotations = append(annotations, &Label{
 					ID:             0,
 					Key:            key,
