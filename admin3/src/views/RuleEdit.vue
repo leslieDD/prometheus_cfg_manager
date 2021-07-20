@@ -384,7 +384,8 @@ annotations:
       error: '',
       showError: false,
       viewDialogVisible: false,
-      viweCode: ''
+      viweCode: '',
+      nodeInfo: null
     }
   },
   methods: {
@@ -395,6 +396,7 @@ annotations:
       if (info.label === '[must rename me]') {
         return false
       }
+      this.nodeInfo = info
       getDefaultEnableLables().then(
         r => {
           this.defaultLabels = r.data
@@ -410,6 +412,9 @@ annotations:
       ).catch(
         e => { console.log(e) }
       )
+    },
+    flush () {
+      this.doGetRuleDetail(this.nodeInfo)
     },
     onSubmit () {
       const nodeData = this.formData

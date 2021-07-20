@@ -539,6 +539,9 @@ export default {
             message: '禁用成功！',
             type: 'success'
           })
+          if (data.level === 4) {
+            this.$refs.ruleEditRef.flush()
+          }
         })
       }).catch(e => console.log(e))
     },
@@ -562,6 +565,9 @@ export default {
             message: '启用成功！',
             type: 'success'
           })
+          if (data.level === 4) {
+            this.$refs.ruleEditRef.flush()
+          }
         })
       }).catch(e => console.log(e))
     },
