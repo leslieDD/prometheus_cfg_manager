@@ -290,7 +290,7 @@ func UpdateTreeNode(t *TreeNodeFromCli) *BriefMessage {
 	return Success
 }
 
-func DeleteTreeNode(t *TreeNodeFromCli) *BriefMessage {
+func DeleteTreeNode(t *TreeNodeFromCli, skipSelf bool) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -334,9 +334,11 @@ func DeleteTreeNode(t *TreeNodeFromCli) *BriefMessage {
 				config.Log.Error(err)
 				return err
 			}
-			if err := tx.Table("rules_groups").Where("id=?", t.ID).Delete(nil).Error; err != nil {
-				config.Log.Error(err)
-				return err
+			if !skipSelf {
+				if err := tx.Table("rules_groups").Where("id=?", t.ID).Delete(nil).Error; err != nil {
+					config.Log.Error(err)
+					return err
+				}
 			}
 			if err := tx.Table("sub_group").Where("rules_groups_id=?", t.ID).Delete(nil).Error; err != nil {
 				config.Log.Error(err)
@@ -361,9 +363,11 @@ func DeleteTreeNode(t *TreeNodeFromCli) *BriefMessage {
 				config.Log.Error(err)
 				return err
 			}
-			if err := tx.Table("sub_group").Where("id=?", t.ID).Delete(nil).Error; err != nil {
-				config.Log.Error(err)
-				return err
+			if !skipSelf {
+				if err := tx.Table("sub_group").Where("id=?", t.ID).Delete(nil).Error; err != nil {
+					config.Log.Error(err)
+					return err
+				}
 			}
 			if err := tx.Table("monitor_rules").Where("sub_group_id=?", t.ID).Delete(nil).Error; err != nil {
 				config.Log.Error(err)

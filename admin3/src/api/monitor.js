@@ -71,11 +71,12 @@ export function updateTreeNode(nodeInfo) {
   })
 }
 
-export function removeTreeNode(nodeInfo) {
+export function removeTreeNode(nodeInfo, skipSelf) {
 return request({
     url: '/v1/tree/remove/node',
     method: 'delete',
-    data: nodeInfo
+    data: nodeInfo,
+    params: skipSelf
 })
 }
 

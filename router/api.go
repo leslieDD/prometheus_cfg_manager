@@ -4,6 +4,7 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/models"
 	"strconv"
+	"strings"
 
 	"github.com/gin-gonic/gin"
 )
@@ -666,12 +667,16 @@ func updateTreeNode(c *gin.Context) {
 }
 
 func deleteTreeNode(c *gin.Context) {
+	var skipSelf bool
+	if strings.ToLower(c.Query("skip_self")) == "true" {
+		skipSelf = true
+	}
 	tnc := models.TreeNodeFromCli{}
 	if err := c.BindJSON(&tnc); err != nil {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.DeleteTreeNode(&tnc)
+	bf := models.DeleteTreeNode(&tnc, skipSelf)
 	resComm(c, bf, nil)
 }
 

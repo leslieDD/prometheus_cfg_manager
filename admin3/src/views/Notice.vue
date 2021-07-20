@@ -244,9 +244,20 @@
         <!-- <el-divider class="divider-class"></el-divider> -->
         <li>
           <el-button
-            v-bind:disabled="menuDelDisabled"
+            v-bind:disabled="menuDelChildrenDisabled"
             size="mini"
             icon="el-icon-delete"
+            @click="removeChildren(null, null)"
+            @keyup.esc="closeMenu"
+            >删除所有子节点</el-button
+          >
+        </li>
+        <!-- <el-divider class="divider-class"></el-divider> -->
+        <li>
+          <el-button
+            v-bind:disabled="menuDelDisabled"
+            size="mini"
+            icon="el-icon-delete-solid"
             @click="remove(null, null)"
             @keyup.esc="closeMenu"
             >删除此节点</el-button
@@ -371,6 +382,7 @@ export default {
       titleFromShowMe: '',
       menuAddDisabled: true,
       menuDelDisabled: true,
+      menuDelChildrenDisabled: true,
       menuRenameDisabled: true,
       menuImportFromFile: true,
       importDialogDisplay: false,
@@ -534,24 +546,34 @@ export default {
         })
       }).catch(e => console.log(e))
     },
-    remove (node, data) {
+    removeChildren () {
+      this.remove(null, null, { skip_self: true })
+    },
+    remove (node, data, options) {
       if (!node) {
         node = this.menuNode
       }
       if (!data) {
         data = this.menuData
       }
+      if (!options) {
+        options = { skip_self: false }
+      }
       let remindTxt = ''
-      if (data.level === 1) {
-        remindTxt = '将会清空所有监控规则，包括文件、监控组、规则。是否确定删除？'
-      } else if (data.level === 2) {
-        remindTxt = `删除文件为: ${data.label}，及此文件内的所有监控规则。是否确定删除？`
-      } else if (data.level === 3) {
-        remindTxt = `删除监控组为: ${data.label}，及此组内的所有监控规则。是否确定删除？`
-      } else if (data.level === 4) {
-        remindTxt = `删除监控规则项为: ${data.label}。是否确定删除？`
+      if (options.skip_self === true) {
+        remindTxt = `删除节点: ${data.label} 以下所有内容。是否确定删除？`
       } else {
-        return false
+        if (data.level === 1) {
+          remindTxt = '将会清空所有监控规则，包括文件、监控组、规则。是否确定删除？'
+        } else if (data.level === 2) {
+          remindTxt = `删除文件为: ${data.label}，及此文件内的所有监控规则。是否确定删除？`
+        } else if (data.level === 3) {
+          remindTxt = `删除监控组为: ${data.label}，及此组内的所有监控规则。是否确定删除？`
+        } else if (data.level === 4) {
+          remindTxt = `删除监控规则项为: ${data.label}。是否确定删除？`
+        } else {
+          return false
+        }
       }
       this.$confirm(remindTxt, '确认信息', {
         distinguishCancelAndClose: true,
@@ -559,12 +581,16 @@ export default {
         cancelButtonText: '放弃'
       }).then(() => {
         if (data.is_new) {
-          const parent = node.parent;
-          const children = parent.data.children || parent.data;
-          // const index = children.findIndex(d => d.id === data.id);
-          const index = children.findIndex(d => d.code === data.code);
-          children.splice(index, 1);
-          this.treeData = [...this.treeData]
+          if (options.skip_self) {
+            node.children = []
+          } else {
+            const parent = node.parent;
+            const children = parent.data.children || parent.data;
+            // const index = children.findIndex(d => d.id === data.id);
+            const index = children.findIndex(d => d.code === data.code);
+            children.splice(index, 1);
+          }
+          // this.treeData = [...this.treeData]
           return true
         }
         const nodeInfo = {
@@ -573,23 +599,27 @@ export default {
           level: this.menuData.level,
           parent: this.menuData.parent
         }
-        removeTreeNode(nodeInfo).then(
+        removeTreeNode(nodeInfo, options).then(
           r => {
             this.$notify({
               title: '成功',
               message: '删除节点成功！',
               type: 'success'
             })
-            const parent = node.parent;
-            const children = parent.data.children || parent.data;
-            // const index = children.findIndex(d => d.id === data.id);
-            const index = children.findIndex(d => d.code === data.code);
-            if (children[index].level !== 1) {
-              children.splice(index, 1);
+            if (options.skip_self) {
+              node.children = []
             } else {
-              children[index].children = []
+              const parent = node.parent;
+              const children = parent.data.children || parent.data;
+              // const index = children.findIndex(d => d.id === data.id);
+              const index = children.findIndex(d => d.code === data.code);
+              if (children[index].level !== 1) {
+                children.splice(index, 1);
+              } else {
+                children[index].children = []
+              }
             }
-            this.treeData = [...this.treeData]
+            // this.treeData = [...this.treeData]
           }
         ).catch(
           e => { console.log(e) }
@@ -622,6 +652,7 @@ export default {
       this.importDialogDisplay = true
     },
     handleDialogClose () {
+      this.doGetTree()
       this.importDialogDisplay = false
     },
     doImportCancel () {
@@ -702,6 +733,7 @@ export default {
       }
       if (data.level === 1) {
         this.menuDelDisabled = false
+        this.menuDelChildrenDisabled = false
         this.menuRenameDisabled = true
         this.menuAddDisabled = false
         this.menuImportFromFile = true
@@ -713,6 +745,7 @@ export default {
           this.menuAddDisabled = false
         }
         this.menuDelDisabled = false
+        this.menuDelChildrenDisabled = false
         this.menuRenameDisabled = false
         this.menuImportFromFile = true
         this.btnTitleAppend = '添加组'
@@ -723,6 +756,7 @@ export default {
           this.menuAddDisabled = false
         }
         this.menuDelDisabled = false
+        this.menuDelChildrenDisabled = false
         this.menuRenameDisabled = false
         this.menuImportFromFile = false
         this.btnTitleAppend = '添加规则'
@@ -733,6 +767,7 @@ export default {
           this.menuRenameDisabled = true
         }
         this.menuDelDisabled = false
+        this.menuDelChildrenDisabled = true
         this.menuAddDisabled = true
         this.menuImportFromFile = true
         this.btnTitleAppend = '添加规则'

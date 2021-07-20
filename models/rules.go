@@ -24,10 +24,11 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 		return nil, bf
 	}
 	root := &TreeNode{
-		ID:       0,
+		ID:       -1,
 		Level:    1,
 		Label:    "监控规则列表",
 		Path:     []string{},
+		Parent:   -1,
 		Children: []*TreeNode{},
 	}
 	root.Code = utils.Getmd5(1, 0, root.Label)
@@ -42,7 +43,7 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 			ID:       rg.ID,
 			Level:    2,
 			Label:    rg.Name,
-			Parent:   -1,
+			Parent:   root.ID,
 			Path:     []string{root.Label, rg.Name},
 			Code:     utils.Getmd5(2, rg.ID, root.Label, rg.Name),
 			Children: []*TreeNode{}}
