@@ -216,10 +216,21 @@
           <el-button
             v-bind:disabled="menuAddDisabled"
             size="mini"
-            icon="el-icon-notebook-2"
+            icon="el-icon-remove"
             @click="expand(null)"
             @keyup.esc="closeMenu"
             >展开所有节点</el-button
+          >
+        </li>
+        <!-- <el-divider class="divider-class"></el-divider> -->
+        <li>
+          <el-button
+            v-bind:disabled="menuAddDisabled"
+            size="mini"
+            icon="el-icon-circle-plus"
+            @click="flod(null)"
+            @keyup.esc="closeMenu"
+            >折叠此节点</el-button
           >
         </li>
         <!-- <el-divider class="divider-class"></el-divider> -->
@@ -686,7 +697,7 @@ export default {
         this.error = r.data
         this.importPushing = false
       }).catch(e => {
-        this.error = e.toString()
+        this.error = { error: e.toString() }
         this.importPushing = false
       })
     },
@@ -694,6 +705,20 @@ export default {
       const expandedList = []
       this.expandRecycle(null, expandedList)
       this.expandedList = expandedList
+    },
+    flod () {
+      this.expandedList = []
+      this.changeTreeNodeStatus(this.menuNode, false)
+    },
+    changeTreeNodeStatus (val, flag) {
+      const node = val
+      node.expanded = flag;
+      for (let i = 0; i < node.childNodes.length; i++) {
+        node.childNodes[i].expanded = flag;
+        if (node.childNodes[i].childNodes.length > 0) {
+          this.changeTreeNodeStatus(node.childNodes[i], flag);
+        }
+      }
     },
     expandRecycle (nodes, expandedList) {
       if (!nodes) {
