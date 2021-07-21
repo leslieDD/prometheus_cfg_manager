@@ -123,6 +123,24 @@ const routes = [
               name: 'options',
               title: '选项编辑',
               component: () => import('@/views/Options.vue')
+            },
+            {
+              path: '/user',
+              name: 'user',
+              title: '用户管理',
+              component: () => import('@/views/User.vue')
+            },
+            {
+              path: '/group',
+              name: 'group',
+              title: '组管理',
+              component: () => import('@/views/Group.vue')
+            },
+            {
+              path: '/privileges',
+              name: 'privileges',
+              title: '权限管理',
+              component: () => import('@/views/Privileges.vue')
             }
           ]
         }
