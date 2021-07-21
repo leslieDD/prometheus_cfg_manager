@@ -98,6 +98,10 @@ func initApiRouter() {
 
 	v1.GET("/options", getOptions)
 	v1.PUT("/options", putOptions)
+
+	v1.GET("/operate/log", getOperateLog)
+	v1.POST("/operate/reset/secret", preOptResetSystem)
+	v1.POST("/operate/reset/system", optResetSystem)
 }
 
 func getTest(c *gin.Context) {
@@ -875,5 +879,30 @@ func putOptions(c *gin.Context) {
 		return
 	}
 	bf := models.PutOptions(opts)
+	resComm(c, bf, nil)
+}
+
+func getOperateLog(c *gin.Context) {
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.GetOperateLog(sp)
+	resComm(c, bf, data)
+}
+
+func preOptResetSystem(c *gin.Context) {
+	bf := models.PreOptResetSystem()
+	resComm(c, bf, nil)
+}
+
+func optResetSystem(c *gin.Context) {
+	code := models.ResetCode{}
+	if err := c.BindJSON(&code); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.OptResetSystem(&code, c.Request.RemoteAddr)
 	resComm(c, bf, nil)
 }

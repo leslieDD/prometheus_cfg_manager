@@ -15,6 +15,10 @@ func (bf *BriefMessage) Append(s string) *BriefMessage {
 	}
 }
 
+func (bf *BriefMessage) String() string {
+	return bf.Message
+}
+
 // --------------------------------------------------------------
 // ---------------- 500xxx 服务端错误 ----------------------------
 // --------------------------------------------------------------
@@ -56,6 +60,7 @@ var ErrGetControlField = &BriefMessage{500000, "获取控制参数时出错"}
 var ErrHaveTaskRunning = &BriefMessage{500000, "有命令正在运行，请稍后重试"}
 var ErrConvertDataType = &BriefMessage{500000, "转换数据类型出错"}
 var ErrHaveInstanceRunning = &BriefMessage{500000, "有一个实例正在运行，请稍后重试"}
+var ErrReset = &BriefMessage{500000, "重置出现错误"}
 
 // --------------------------------------------------------------
 // ---------------- 400xxx 客户端错误 ----------------------------
@@ -91,6 +96,9 @@ var ErrUploadFile = &BriefMessage{400000, "未找到上传文件的实例"}
 var ErrTooLarge = &BriefMessage{400000, "文件超过限定大小"}
 var ErrFileFormat = &BriefMessage{400000, "文件格式错误"}
 var ErrParseFileToYaml = &BriefMessage{400000, "解析文件成Yaml格式数据时，出现错误"}
+var ErrNoResetKey = &BriefMessage{400000, "重置KEY还没有生成"}
+var ErrResetKeyDiff = &BriefMessage{400000, "重置KEY不匹配"}
+var ErrAlreadyRunning = &BriefMessage{400000, "服务正在运行，请稍后重试"}
 
 // --------------------------------------------------------------
 // ---------------- 300xxx 链接错误 ------------------------------

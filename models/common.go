@@ -46,11 +46,11 @@ func CalSplitPage(sp *SplitPage, total int64, data interface{}) *ResSplitPage {
 	if pageSize <= 0 {
 		pageSize = 1
 	}
-	nt := total % int64(sp.PageSize)
+	nt := total % int64(pageSize)
 	if nt == 0 {
-		rsp.TotalPage = total / int64(sp.PageSize)
+		rsp.TotalPage = total / int64(pageSize)
 	} else {
-		rsp.TotalPage = total/int64(sp.PageSize) + 1
+		rsp.TotalPage = total/int64(pageSize) + 1
 	}
 	rsp.Data = data
 	return &rsp
