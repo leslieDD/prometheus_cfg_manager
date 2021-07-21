@@ -1,14 +1,11 @@
 import { createRouter, createWebHashHistory } from "vue-router";
 
-// import Manager from '@/views/Manager.vue'
-import Menu from '@/views/Menu.vue'
-
 const routes = [
     {
-      path: '/',
-      name: 'index',
+      path: '/menu',
+      name: 'menu',
       // director: ''
-      component: Menu,
+      component: () => import('@/views/Menu.vue'),
       children: [
         {
           path: '/ip-manager',
@@ -145,6 +142,12 @@ const routes = [
           ]
         }
       ]
+    },
+    {
+      path: '/',
+      name: 'login',
+      title: '登录',
+      component: () => import('@/views/Login.vue')
     }
 ]
 
