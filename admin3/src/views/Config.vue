@@ -33,8 +33,8 @@
           <template #title>模板编辑</template>
         </el-menu-item>
         <el-menu-item index="99">
-          <i class="el-icon-orange"></i>
-          <template #title>空状态</template>
+          <i class="el-icon-lollipop"></i>
+          <template #title>默认设置</template>
         </el-menu-item>
       </el-menu>
     </div>
