@@ -26,106 +26,115 @@
           </div>
         </div>
         <div class="table-show">
-          <el-table
-            size="mini"
-            highlight-current-row
-            border
-            :data="ManagerGroup"
-            stripe
-            :row-style="rowStyle"
-            :cell-style="cellStyle"
-          >
-            <el-table-column label="序号" width="50px">
-              <template v-slot="scope">
-                {{ scope.$index + 1 }}
-              </template>
-            </el-table-column>
-            <el-table-column label="组名" prop="name"> </el-table-column>
-            <el-table-column label="用户数" prop="user_count">
-            </el-table-column>
-            <el-table-column label="最后更新时间" prop="update_at">
-              <template v-slot="{ row }">
-                <span>{{ parseTimeSelf(row.update_at) }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" align="center" width="200px">
-              <template v-slot="scope" align="center">
-                <div class="actioneara">
-                  <div>
-                    <el-button
-                      size="mini"
-                      type="primary"
-                      @click="doEdit(scope)"
-                      plain
-                      :disabled="editCodeButVisable[scope.row.id]"
-                      >编辑</el-button
-                    >
-                  </div>
-                  <div>
-                    <el-button
-                      size="mini"
-                      type="info"
-                      v-if="scope.row.enabled === true"
-                      @click="invocate(scope)"
-                      plain
-                      :disabled="editCodeButVisable[scope.row.id]"
-                      >禁用</el-button
-                    >
-                    <el-button
-                      size="mini"
-                      type="warning"
-                      v-if="scope.row.enabled === false"
-                      @click="invocate(scope)"
-                      plain
-                      :disabled="editCodeButVisable[scope.row.id]"
-                      >启用</el-button
-                    >
-                  </div>
-                  <div>
-                    <el-popover
-                      :visible="deleteVisible[scope.$index]"
-                      placement="top"
-                    >
-                      <p>确定删除吗？</p>
-                      <div style="text-align: right; margin: 0">
-                        <el-button size="mini" type="text" @click="doNo(scope)"
-                          >取消</el-button
-                        >
-                        <el-button
-                          type="primary"
-                          size="mini"
-                          @click="doYes(scope)"
-                          >确定</el-button
-                        >
-                      </div>
-                      <template #reference>
-                        <el-button
-                          size="mini"
-                          type="danger"
-                          plain
-                          @click="doDelete(scope)"
-                          :disabled="editCodeButVisable[scope.row.id]"
-                          >删除</el-button
-                        >
-                      </template>
-                    </el-popover>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="block" v-if="paginationShow">
-            <el-pagination
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="currentPage"
-              :page-sizes="[20, 30, 50]"
-              :page-size="pageSize"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="pageTotal"
+          <el-scrollbar height="75vh" class="flex-content">
+            <el-table
+              size="mini"
+              highlight-current-row
+              border
+              :data="ManagerGroup"
+              stripe
+              :row-style="rowStyle"
+              :cell-style="cellStyle"
             >
-            </el-pagination>
-          </div>
+              <el-table-column label="序号" width="50px">
+                <template v-slot="scope">
+                  {{ scope.$index + 1 }}
+                </template>
+              </el-table-column>
+              <el-table-column label="组名" prop="name"> </el-table-column>
+              <el-table-column label="用户数" prop="user_count" width="150px">
+              </el-table-column>
+              <el-table-column
+                label="最后更新时间"
+                width="150px"
+                prop="update_at"
+              >
+                <template v-slot="{ row }">
+                  <span>{{ parseTimeSelf(row.update_at) }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" align="center" width="200px">
+                <template v-slot="scope" align="center">
+                  <div class="actioneara">
+                    <div>
+                      <el-button
+                        size="mini"
+                        type="primary"
+                        @click="doEdit(scope)"
+                        plain
+                        :disabled="editCodeButVisable[scope.row.id]"
+                        >编辑</el-button
+                      >
+                    </div>
+                    <div>
+                      <el-button
+                        size="mini"
+                        type="info"
+                        v-if="scope.row.enabled === true"
+                        @click="invocate(scope)"
+                        plain
+                        :disabled="editCodeButVisable[scope.row.id]"
+                        >禁用</el-button
+                      >
+                      <el-button
+                        size="mini"
+                        type="warning"
+                        v-if="scope.row.enabled === false"
+                        @click="invocate(scope)"
+                        plain
+                        :disabled="editCodeButVisable[scope.row.id]"
+                        >启用</el-button
+                      >
+                    </div>
+                    <div>
+                      <el-popover
+                        :visible="deleteVisible[scope.$index]"
+                        placement="top"
+                      >
+                        <p>确定删除吗？</p>
+                        <div style="text-align: right; margin: 0">
+                          <el-button
+                            size="mini"
+                            type="text"
+                            @click="doNo(scope)"
+                            >取消</el-button
+                          >
+                          <el-button
+                            type="primary"
+                            size="mini"
+                            @click="doYes(scope)"
+                            >确定</el-button
+                          >
+                        </div>
+                        <template #reference>
+                          <el-button
+                            size="mini"
+                            type="danger"
+                            plain
+                            @click="doDelete(scope)"
+                            :disabled="editCodeButVisable[scope.row.id]"
+                            >删除</el-button
+                          >
+                        </template>
+                      </el-popover>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
+            <div class="block" v-if="paginationShow">
+              <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage"
+                :page-sizes="[20, 30, 50]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="pageTotal"
+              >
+              </el-pagination>
+            </div>
+          </el-scrollbar>
         </div>
       </div>
     </div>

@@ -18,6 +18,11 @@ type ManagerGroup struct {
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 }
 
+type ManagerGroupList struct {
+	UserCount int `json:"user_count" gorm:"column:user_count"`
+	ManagerGroup
+}
+
 type ManagerUser struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	UserName string    `json:"username" gorm:"column:username"`
@@ -51,12 +56,15 @@ func GetManagerGroups(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrCount
 	}
-	mgs := []*ManagerGroup{}
-	tx = db.Table("manager_group")
+	mgs := []*ManagerGroupList{}
+	tx = db.Table("manager_group").
+		Select(" manager_group.*, COUNT(manager_user.username) as user_count ").
+		Joins("LEFT JOIN manager_user ON manager_group.id=manager_user.group_id")
 	if sp.Search != "" {
 		tx = tx.Where("name like ?", fmt.Sprint("%", sp.Search, "%"))
 	}
-	tx = tx.Order("update_at desc").
+	tx = tx.Group("manager_group.id").
+		Order("manager_group.update_at desc ").
 		Offset((sp.PageNo - 1) * sp.PageSize).
 		Limit(sp.PageSize).
 		Find(&mgs)
