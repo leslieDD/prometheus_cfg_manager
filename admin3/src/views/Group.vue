@@ -30,7 +30,7 @@
             size="mini"
             highlight-current-row
             border
-            :data="UserGroup"
+            :data="ManagerGroup"
             stripe
             :row-style="rowStyle"
             :cell-style="cellStyle"
@@ -140,28 +140,28 @@
         <el-form
           label-position="right"
           :rules="rules"
-          ref="userGroupRef"
-          :model="userGroupRef"
+          ref="ManagerGroupRef"
+          :model="ManagerGroupRef"
           label-width="auto"
           size="small"
         >
           <el-form-item label="组名：" prop="name">
             <el-input
               style="width: 280px"
-              v-model="userGroupRef.name"
+              v-model="ManagerGroupRef.name"
             ></el-input>
           </el-form-item>
           <el-form-item size="small">
             <el-button
               size="small"
               type="primary"
-              @click="onSubmit('userGroupRef')"
+              @click="onSubmit('ManagerGroupRef')"
               >{{ buttonTitle }}</el-button
             >
             <el-button
               size="small"
               type="info"
-              @click="onCancel('userGroupRef')"
+              @click="onCancel('ManagerGroupRef')"
               >取消</el-button
             >
           </el-form-item>
@@ -174,15 +174,15 @@
 <script>
 
 import {
-  getUserGroup,
-  putUserGroup,
-  postUserGroup,
-  deleteUserGroup,
-  enabledUserGroup
-} from '@/api/usergroup.js'
+  getManagerGroup,
+  putManagerGroup,
+  postManagerGroup,
+  deleteManagerGroup,
+  enabledManagerGroup
+} from '@/api/manager.js'
 
 export default {
-  name: 'UserGroup',
+  name: 'ManagerGroup',
   data () {
     function validateStr (rule, value, callback) {
       if (value === '' || typeof value === 'undefined' || value == null) {
@@ -198,8 +198,8 @@ export default {
     }
     return {
       value: '',
-      UserGroup: [],
-      userGroupRef: {
+      ManagerGroup: [],
+      ManagerGroupRef: {
         'id': 0,
         'name': '',
         'user_count': 0
@@ -222,11 +222,11 @@ export default {
     }
   },
   mounted () {
-    this.doGetUserGroup()
+    this.doGetManagerGroup()
   },
   methods: {
     doAdd () {
-      this.userGroupRef = {
+      this.ManagerGroupRef = {
         'id': 0,
         'name': ''
       }
@@ -234,7 +234,7 @@ export default {
       this.dialogTitle = '增加组'
       this.dialogVisible = true
     },
-    doGetUserGroup (getInfo) {
+    doGetManagerGroup (getInfo) {
       if (!getInfo) {
         getInfo = {
           'pageNo': this.currentPage,
@@ -242,9 +242,9 @@ export default {
           'search': this.searchContent
         }
       }
-      getUserGroup(getInfo).then(
+      getManagerGroup(getInfo).then(
         r => {
-          this.UserGroup = r.data.data
+          this.ManagerGroup = r.data.data
           this.pageTotal = r.data.totalCount
           this.currentPage = r.data.pageNo
           this.pageSize = r.data.pageSize
@@ -262,8 +262,8 @@ export default {
     doEdit (data) {
       this.buttonTitle = '更新'
       this.dialogTitle = '编辑组名'
-      this.userGroupRef.id = data.row.id
-      this.userGroupRef.name = data.row.name
+      this.ManagerGroupRef.id = data.row.id
+      this.ManagerGroupRef.name = data.row.name
       this.dialogVisible = true
     },
     handleSizeChange (val) {
@@ -272,7 +272,7 @@ export default {
         'pageSize': val,
         'search': this.searchContent
       }
-      this.doGetUserGroup(getInfo)
+      this.doGetManagerGroup(getInfo)
     },
     handleCurrentChange (val) {
       let getInfo = {
@@ -280,7 +280,7 @@ export default {
         'pageSize': this.pageSize,
         'search': this.searchContent
       }
-      this.doGetUserGroup(getInfo)
+      this.doGetManagerGroup(getInfo)
     },
     handleClose (done) {
       this.dialogVisible = false
@@ -289,16 +289,16 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           let postData = {}
-          postData['name'] = this.userGroupRef.name
+          postData['name'] = this.ManagerGroupRef.name
           if (this.buttonTitle === '创建' || this.buttonTitle === 'create') {
-            postUserGroup(postData).then(
+            postManagerGroup(postData).then(
               r => {
                 this.$notify({
                   title: '成功',
                   message: '创建成功！',
                   type: 'success'
                 });
-                this.doGetUserGroup()
+                this.doGetManagerGroup()
                 this.dialogVisible = false
                 this.$refs[formName].resetFields()
               }
@@ -306,15 +306,15 @@ export default {
               e => { console.log(e) }
             )
           } else {
-            postData['id'] = this.userGroupRef.id
-            putUserGroup(postData).then(
+            postData['id'] = this.ManagerGroupRef.id
+            putManagerGroup(postData).then(
               r => {
                 this.$notify({
                   title: '成功',
                   message: '更新成功！',
                   type: 'success'
                 });
-                this.doGetUserGroup()
+                this.doGetManagerGroup()
                 this.dialogVisible = false
                 this.$refs[formName].resetFields()
               }
@@ -332,21 +332,21 @@ export default {
       this.$refs[formName].resetFields()
     },
     onSearch () {
-      this.doGetUserGroup()
+      this.doGetManagerGroup()
     },
     parseTimeSelf (t) {
       var time = new Date(Date.parse(t))
       return time.toLocaleDateString() + ' ' + time.toTimeString().split(' ')[0]
     },
     doYes (scope) {
-      deleteUserGroup({ id: scope.row.id }).then(
+      deleteManagerGroup({ id: scope.row.id }).then(
         r => {
           this.$notify({
             title: '成功',
             message: '删除成功！',
             type: 'success'
           });
-          this.doGetUserGroup()
+          this.doGetManagerGroup()
         }
       ).catch(
         e => {
@@ -374,19 +374,19 @@ export default {
       return cs
     },
     invocate (scope) {
-      const newStatus = !this.UserGroup[scope.$index].enabled
+      const newStatus = !this.ManagerGroup[scope.$index].enabled
       const rInfo = {
         id: scope.row.id,
         enabled: newStatus
       }
-      enabledUserGroup(rInfo).then(r => {
+      enabledManagerGroup(rInfo).then(r => {
         this.$notify({
           title: '成功',
           message: '更新状态成功！',
           type: 'success'
         });
-        this.UserGroup[scope.$index].enabled = newStatus
-        this.UserGroup = [...this.UserGroup]
+        this.ManagerGroup[scope.$index].enabled = newStatus
+        this.ManagerGroup = [...this.ManagerGroup]
       }).catch(e => console.log(e))
     }
   }

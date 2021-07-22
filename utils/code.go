@@ -35,3 +35,8 @@ func Getmd5(level int, nId int, s ...string) string {
 	has := md5.Sum([]byte(fmt.Sprintf("%d_%d_%s", level, nId, strings.Join(s, "_"))))
 	return fmt.Sprintf("%x", has)
 }
+
+func CreateHashword(s ...string) string {
+	has := md5.Sum([]byte(strings.Join(s, "_")))
+	return fmt.Sprintf("%x", has)
+}
