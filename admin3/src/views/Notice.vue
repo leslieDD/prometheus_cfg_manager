@@ -90,9 +90,7 @@
                           effect="plain"
                           @click="closeMenu"
                           @keyup.esc="closeMenu"
-                          @contextmenu.prevent.native="
-                            openMenu($event, data, node)
-                          "
+                          @contextmenu.prevent="openMenu($event, data, node)"
                           >{{ node.label }}</el-tag
                         >
                       </el-badge>
@@ -109,9 +107,7 @@
                           effect="plain"
                           @click="closeMenu"
                           @keyup.esc="closeMenu"
-                          @contextmenu.prevent.native="
-                            openMenu($event, data, node)
-                          "
+                          @contextmenu.prevent="openMenu($event, data, node)"
                           >{{ node.label }}</el-tag
                         >
                       </el-badge>
@@ -128,9 +124,7 @@
                           effect="plain"
                           @click="closeMenu"
                           @keyup.esc="closeMenu"
-                          @contextmenu.prevent.native="
-                            openMenu($event, data, node)
-                          "
+                          @contextmenu.prevent="openMenu($event, data, node)"
                           >{{ node.label }}</el-tag
                         >
                       </el-badge>
@@ -142,9 +136,7 @@
                         effect="plain"
                         @click="closeMenu"
                         @keyup.esc="closeMenu"
-                        @contextmenu.prevent.native="
-                          openMenu($event, data, node)
-                        "
+                        @contextmenu.prevent="openMenu($event, data, node)"
                         >{{ node.label }}</el-tag
                       >
                     </span>

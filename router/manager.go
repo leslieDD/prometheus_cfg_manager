@@ -9,6 +9,10 @@ import (
 )
 
 func initManagerApi() {
+
+	v1.POST("/login", login)
+	v1.POST("/logout", logout)
+
 	v1.GET("/manager/groups", getManagerGroups)
 	v1.GET("/manager/groups/enabled", getMGEnabled)
 	v1.POST("/manager/group", postManagerGroup)
@@ -21,6 +25,21 @@ func initManagerApi() {
 	v1.PUT("/manager/user", putManagerUser)
 	v1.DELETE("/manager/user", deleteManagerUser)
 	v1.PUT("/manager/user/status", putManagerUserStatus)
+}
+
+func login(c *gin.Context) {
+	ui := models.UserLogInfo{}
+	if err := c.BindJSON(&ui); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	data, bf := models.Login(&ui)
+	resComm(c, bf, data)
+}
+
+func logout(c *gin.Context) {
+	bf := models.Logout()
+	resComm(c, bf, nil)
 }
 
 func getManagerGroups(c *gin.Context) {

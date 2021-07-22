@@ -39,6 +39,11 @@ type ManagerUserList struct {
 	ManagerUser
 }
 
+type UserLogInfo struct {
+	Username string `json:"username" form:"username"`
+	Password string `json:"password" form:"password"`
+}
+
 func GetManagerGroups(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -272,5 +277,13 @@ func PutManagerUserStatus(info *EnabledInfo) *BriefMessage {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
 	}
+	return Success
+}
+
+func Login(ui *UserLogInfo) *BriefMessage {
+	return Success
+}
+
+func Logout(ui *UserLogInfo) *BriefMessage {
 	return Success
 }
