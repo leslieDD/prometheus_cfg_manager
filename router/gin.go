@@ -30,6 +30,7 @@ func init() {
 	v1 = GinDefault.Group("/v1")
 	initCommonRouter()
 	initApiRouter()
+	initManagerApi()
 }
 
 // ListenAndServer ListenAndServer

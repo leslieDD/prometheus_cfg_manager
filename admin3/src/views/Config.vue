@@ -34,7 +34,7 @@
         </el-menu-item>
         <el-menu-item index="7">
           <i class="el-icon-lollipop"></i>
-          <template #title>默认设置</template>
+          <template #title>重置</template>
         </el-menu-item>
         <el-menu-item index="8">
           <i class="el-icon-potato-strips"></i>
