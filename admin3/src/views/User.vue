@@ -52,6 +52,14 @@
               </el-table-column>
               <el-table-column label="手机" prop="phone"> </el-table-column>
               <el-table-column label="所属组" prop="group_name">
+                <template v-slot="{ row }">
+                  <el-button
+                    size="mini"
+                    @click="routeToGroup(row)"
+                    type="text"
+                    >{{ row.group_name }}</el-button
+                  >
+                </template>
               </el-table-column>
               <el-table-column
                 label="最后更新时间"
@@ -283,6 +291,9 @@ export default {
     }
   },
   mounted () {
+    if (this.$route.params.group_name) {
+      this.searchContent = this.$route.params.group_name
+    }
     this.doGetManagerUser()
   },
   methods: {
@@ -457,6 +468,9 @@ export default {
         this.ManagerUser[scope.$index].enabled = newStatus
         this.ManagerUser = [...this.ManagerUser]
       }).catch(e => console.log(e))
+    },
+    routeToGroup (row) {
+      this.$router.push({ name: 'group', params: { group_name: row.group_name } })
     }
   }
 };

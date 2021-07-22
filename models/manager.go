@@ -164,10 +164,13 @@ func GetManagerUsers(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	}
 	var count int64
 	var tx *gorm.DB
-	tx = db.Table("manager_user")
+	tx = db.Table("manager_user").Select("count(*) as count")
 	if sp.Search != "" {
-		tx = tx.Where("username like ?", fmt.Sprint("%", sp.Search, "%"))
+		tx = tx.Where("manager_user.username like ? or manager_group.name like ?",
+			fmt.Sprint("%", sp.Search, "%"),
+			fmt.Sprint("%", sp.Search, "%"))
 	}
+	tx = tx.Joins("LEFT JOIN manager_group ON manager_user.group_id=manager_group.id")
 	tx = tx.Count(&count)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -176,7 +179,9 @@ func GetManagerUsers(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	mus := []*ManagerUserList{}
 	tx = db.Table("manager_user").Select("manager_user.*, manager_group.name AS group_name")
 	if sp.Search != "" {
-		tx = tx.Where("username like ?", fmt.Sprint("%", sp.Search, "%"))
+		tx = tx.Where("manager_user.username like ? or manager_group.name like ?",
+			fmt.Sprint("%", sp.Search, "%"),
+			fmt.Sprint("%", sp.Search, "%"))
 	}
 	tx = tx.Joins("LEFT JOIN manager_group ON manager_user.group_id=manager_group.id").
 		Order("update_at desc").

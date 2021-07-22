@@ -43,6 +43,14 @@
               </el-table-column>
               <el-table-column label="组名" prop="name"> </el-table-column>
               <el-table-column label="用户数" prop="user_count" width="150px">
+                <template v-slot="{ row }">
+                  <el-button
+                    size="mini"
+                    @click="routeToUser(row)"
+                    type="text"
+                    >{{ row.user_count }}</el-button
+                  >
+                </template>
               </el-table-column>
               <el-table-column
                 label="最后更新时间"
@@ -231,6 +239,9 @@ export default {
     }
   },
   mounted () {
+    if (this.$route.params.group_name) {
+      this.searchContent = this.$route.params.group_name
+    }
     this.doGetManagerGroup()
   },
   methods: {
@@ -397,6 +408,9 @@ export default {
         this.ManagerGroup[scope.$index].enabled = newStatus
         this.ManagerGroup = [...this.ManagerGroup]
       }).catch(e => console.log(e))
+    },
+    routeToUser (row) {
+      this.$router.push({ name: 'user', params: { group_name: row.name } })
     }
   }
 };
