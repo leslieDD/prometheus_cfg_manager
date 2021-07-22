@@ -63,7 +63,9 @@ export default {
     }
   },
   methods: {
-    login () { }
+    login () {
+      
+     }
   }
 }
 </script>
