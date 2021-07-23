@@ -2,6 +2,12 @@ import { createRouter, createWebHashHistory } from "vue-router";
 
 const routes = [
     {
+      path: '/',
+      name: 'login',
+      title: '登录',
+      component: () => import('@/views/Login.vue')
+    },
+    {
       path: '/menu',
       name: 'menu',
       // director: ''
@@ -142,12 +148,6 @@ const routes = [
           ]
         }
       ]
-    },
-    {
-      path: '/',
-      name: 'login',
-      title: '登录',
-      component: () => import('@/views/Login.vue')
     }
 ]
 
