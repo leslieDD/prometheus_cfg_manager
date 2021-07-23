@@ -1,6 +1,7 @@
 package router
 
 import (
+	"pro_cfg_manager/config"
 	"pro_cfg_manager/models"
 	"time"
 
@@ -38,9 +39,13 @@ func Auth() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		token := c.GetHeader("Authorization")
 		if token == "" {
-			c.Abort()
-			resComm(c, models.ErrTokenIsNull, nil)
-			return
+			token = c.GetHeader("Sec-WebSocket-Protocol")
+			config.Log.Errorf("ws token is %s", token)
+			if token == "" {
+				c.Abort()
+				resComm(c, models.ErrTokenIsNull, nil)
+				return
+			}
 		}
 		ss := models.SSObj.Get(token)
 		if ss == nil {

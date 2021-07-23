@@ -111,7 +111,16 @@ export default {
     initWebSocket () { //初始化weosocket
       const protocol = document.location.protocol === 'https:' ? 'wss://' : 'ws://'
       let wsuri = `${protocol}${document.location.host}/v1/ws`
-      this.websock = new WebSocket(wsuri)
+      if (!this.$store.getters.token) {
+        this.$notify({
+          title: '失败',
+          message: 'token验证失败，需要重新登录！',
+          type: 'error'
+        });
+        this.$router.push({ name: 'login' })
+        return false
+      }
+      this.websock = new WebSocket(wsuri, [this.$store.getters.token])
       this.websock.onmessage = this.webSocketOnMessage
       this.websock.onopen = this.webSocketOnOpen
       this.websock.onerror = this.webSocketOnError

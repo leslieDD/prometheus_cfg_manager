@@ -13,18 +13,20 @@ import (
 	"github.com/gorilla/websocket"
 )
 
-var upGrader = websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
-
 type wsCommand struct {
 	Cmd    string
 	Result chan string
 }
 
 func WS(c *gin.Context) *BriefMessage {
+	var upGrader = websocket.Upgrader{
+		CheckOrigin: func(r *http.Request) bool {
+			return true
+		},
+		Subprotocols: []string{
+			c.Request.Header.Get("Sec-WebSocket-Protocol"),
+		},
+	}
 	ws, err := upGrader.Upgrade(c.Writer, c.Request, nil)
 	if err != nil {
 		return ErrUpGrader
