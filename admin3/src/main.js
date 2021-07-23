@@ -2,6 +2,8 @@ import { createApp } from 'vue'
 import App from './App.vue'
 
 import router from './router/index'
+import store from './store/index.js'
+import './permission.js'
 
 import ElementPlus from 'element-plus'
 import 'element-plus/lib/theme-chalk/index.css'
@@ -19,6 +21,7 @@ import Highlight from './directive/highlight.js' // 这里是你项目highlight.
 const app = createApp(App)
 app.use(ElementPlus, { locale })
 app.use(router)
+app.use(store)
 app.use(Highlight)
 app.component('icon-svg', IconSvg)
 app.component('single-svg', singleSvg)

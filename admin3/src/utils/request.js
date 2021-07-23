@@ -1,7 +1,8 @@
 import axios from 'axios'
 // import { ElMessageBox } from 'element-plus'
 import {ElNotification} from 'element-plus'
-// import store from '@/store'
+import store from '@/store/index.js'
+// import route from '@/router/index.js'
 // import { getToken } from '@/utils/auth'
 
 // create an axios instance
@@ -14,6 +15,9 @@ const service = axios.create({
 // request interceptor
 service.interceptors.request.use(
   config => {
+    if (store.getters.token) {
+      config.headers.Authorization = store.getters.token;
+    }
     return config
   },
   error => {
@@ -26,16 +30,21 @@ service.interceptors.response.use(
   response => {
     const res = response.data
     if (res.code !== 200000) {
-    //   ElMessageBox({
-    //     message: res.msg || 'Error',
-    //     type: 'error',
-    //     duration: 5 * 1000
-    //   })
-    ElNotification({
-        title: '错误',
-        message: res.msg || 'Error',
-        type: 'error'
-      })
+      if (res.code === 401000) {
+        ElNotification({
+          title: '错误',
+          message: res.msg || 'Error',
+          type: 'error'
+        })
+        store.dispatch('resetToken')
+        // location.reload()
+      } else {
+        ElNotification({
+          title: '错误',
+          message: res.msg || 'Error',
+          type: 'error'
+        })
+      }
       return Promise.reject(new Error(res.msg || 'Error'))
     } else {
       return res
@@ -43,15 +52,19 @@ service.interceptors.response.use(
   },
   error => {
     console.log('err' + error) // for debug
-    // ElMessageBox({
-    //   message: error.message,
-    //   type: 'error',
-    //   duration: 5 * 1000
-    // })
-    ElNotification({
+    if (error.data && error.data.code === "401000") {
+      ElNotification({
         title: '错误',
-        message: error.message,
+        message: res.msg || 'Error',
         type: 'error'
+      })
+      store.dispatch('resetToken')
+      // location.reload()
+    }
+    ElNotification({
+      title: '错误',
+      message: error.message,
+      type: 'error'
     })
     return Promise.reject(error)
   }

@@ -154,7 +154,14 @@ const routes = [
           ]
         }
       ]
-    }
+    },
+    {
+      path: '/:catchAll(.*)',
+      name: 'redirect',
+      title: 'redirect',
+      hidden: true,
+      redirect: {name: 'login'}
+    },
 ]
 
 export default  createRouter({

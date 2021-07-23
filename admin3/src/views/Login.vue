@@ -63,8 +63,7 @@ export default {
         password: [
           { required: true, message: '请输入密码', trigger: ['blur'] }
         ]
-      },
-      userInfo: null,
+      }
     }
   },
   methods: {
@@ -73,7 +72,8 @@ export default {
         const logInfo = { ...this.ruleForm }
         if (valid) {
           login(logInfo).then(r => {
-            this.userInfo = r.data
+            this.$store.dispatch('setUserInfo', r.data)
+            // console.log('token is ', this.$store.getters.token)
             this.$router.push({ name: 'menu' })
           }).catch(e => console.log(e))
         }
