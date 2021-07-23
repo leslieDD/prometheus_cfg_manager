@@ -280,10 +280,106 @@ func PutManagerUserStatus(info *EnabledInfo) *BriefMessage {
 	return Success
 }
 
-func Login(ui *UserLogInfo) *BriefMessage {
+func Login(ui *UserLogInfo) (*ManagerUserDetail, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	u := ManagerUserDetail{}
+	if err := db.Table("manager_user").
+		Select("manager_user.*, manager_group.enabled AS group_enabled ").
+		Joins("LEFT JOIN manager_group ON manager_user.group_id=manager_group.id").
+		Where("username=?", ui.Username).
+		First(&u).
+		Error; err != nil {
+		return nil, ErrUserNotExist
+	}
+	if !u.Enabled {
+		return nil, ErrUserDisabled
+	}
+	if !u.GroupEnabled {
+		return nil, ErrGroupDisabled
+	}
+	password := utils.CreateHashword(ui.Password, u.Salt)
+	if u.Password != password {
+		return nil, ErrPassword
+	}
+	ss := &Session{
+		Token:    uuid.NewString(),
+		UserID:   u.ID,
+		UpdateAt: time.Now(),
+	}
+	u.Session = ss
+	UpdateSession(ss)
+	SSObj.Set(ss.Token, &u)
+	return &u, Success
+}
+
+func LoadUserEnabled() ([]*ManagerUserDetail, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	us := []*ManagerUserDetail{}
+	if err := db.Table("manager_user").
+		Select("manager_user.*, manager_group.enabled AS group_enabled ").
+		Joins("LEFT JOIN manager_group ON manager_user.group_id=manager_group.id").
+		Where("manager_user.enabled=1 and manager_group.enabled=1").
+		Find(&us).
+		Error; err != nil {
+		return nil, ErrSearchDBData
+	}
+	return us, Success
+}
+
+func LoadSession(uids []int) ([]*Session, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	ss := []*Session{}
+	tx := db.Table("session").Where("user_id in (?)", uids).Find(&ss)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return ss, Success
+}
+
+func UpdateSession(s *Session) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("session").Raw("INSERT INTO session (`id`, `token`, `user_id`, `update_at`) VALUES " +
+		fmt.Sprintf("(%d, %s, %d, %s)", s.ID, s.Token, s.UserID, s.UpdateAt) +
+		" ON DUPLICATE KEY UPDATE `token`=VALUES(token),`user_id`=VALUES(user_id), `update_at`=VALUES(update_at) ")
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrCreateDBData
+	}
 	return Success
 }
 
-func Logout(ui *UserLogInfo) *BriefMessage {
+func DeleteSession(id int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("session").Where("id=?", id).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	return Success
+}
+
+func Logout(token string) *BriefMessage {
+	SSObj.Del(token)
 	return Success
 }

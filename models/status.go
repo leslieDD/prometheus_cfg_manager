@@ -68,6 +68,9 @@ var ErrReset = &BriefMessage{500000, "重置出现错误"}
 
 var ErrPwdNotMatch = &BriefMessage{400000, "输入的用户密码不正确"}
 var ErrUserNotExist = &BriefMessage{400000, "用户名不存在"}
+var ErrUserDisabled = &BriefMessage{400000, "账号已经被禁用"}
+var ErrGroupDisabled = &BriefMessage{400000, "账号所属用户组已经被禁用"}
+var ErrPassword = &BriefMessage{400000, "密码错误"}
 var ErrRoleNotExist = &BriefMessage{400000, "角色不存在"}
 var ErrTokenIsNull = &BriefMessage{401000, "token验证失败"}
 var ErrTokenNoFound = &BriefMessage{401000, "不存在的token"}

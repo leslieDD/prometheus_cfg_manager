@@ -1,9 +1,11 @@
 package router
 
 import (
+	"pro_cfg_manager/models"
 	"time"
 
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/gin"
 )
 
 // cros
@@ -30,4 +32,24 @@ func crosMw() {
 		},
 		MaxAge: 12 * time.Hour,
 	}))
+}
+
+func Auth() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.GetHeader("Authorization")
+		if token == "" {
+			c.Abort()
+			resComm(c, models.ErrTokenIsNull, nil)
+			return
+		}
+		ss := models.SSObj.Get(token)
+		if ss == nil {
+			c.Abort()
+			resComm(c, models.ErrTokenIsNull, nil)
+			return
+		}
+		c.Keys = models.Authentication{
+			"userInfo": ss,
+		}
+	}
 }

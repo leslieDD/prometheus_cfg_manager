@@ -28,6 +28,7 @@ func init() {
 	GinDefault.StaticFile("/index.html", "static/index.html")
 	// GinDefault.Use(cors.Default())
 	v1 = GinDefault.Group("/v1")
+	v1.Use(Auth())
 	initCommonRouter()
 	initApiRouter()
 	initManagerApi()

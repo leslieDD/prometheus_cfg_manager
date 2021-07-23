@@ -7,7 +7,7 @@
       <template #header>
         <div class="card-header">
           <single-svg icon-class="earch" />
-          <span> 登录</span>
+          <span> 登 录</span>
         </div>
       </template>
       <el-form
@@ -35,7 +35,9 @@
         </el-form-item>
         <el-form-item>
           <div class="action-area">
-            <el-button @click="login" type="primary">登录</el-button>
+            <el-button @click="doLogin('ruleForm')" type="primary" width="300px"
+              >登录</el-button
+            >
           </div>
         </el-form-item>
       </el-form>
@@ -44,6 +46,8 @@
 </template>
 
 <script>
+
+import { login } from '@/api/login.js'
 
 export default {
   data () {
@@ -59,13 +63,22 @@ export default {
         password: [
           { required: true, message: '请输入密码', trigger: ['blur'] }
         ]
-      }
+      },
+      userInfo: null,
     }
   },
   methods: {
-    login () {
-      
-     }
+    doLogin (formName) {
+      this.$refs[formName].validate((valid) => {
+        const logInfo = { ...this.ruleForm }
+        if (valid) {
+          login(logInfo).then(r => {
+            this.userInfo = r.data
+            this.$router.push({ name: 'menu' })
+          }).catch(e => console.log(e))
+        }
+      })
+    }
   }
 }
 </script>
@@ -86,7 +99,7 @@ export default {
   margin-bottom: 30px;
 }
 .action-area {
-  align-items: right;
-  text-align: right;
+  display: flex;
+  justify-content: space-between;
 }
 </style>
