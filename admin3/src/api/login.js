@@ -15,3 +15,12 @@ export function logout (userInfo) {
     data: userInfo
   })
 }
+
+export function register (regInfo) {
+  return request({
+    url: '/register',
+    method: 'post',
+    data: regInfo
+  })
+}
+

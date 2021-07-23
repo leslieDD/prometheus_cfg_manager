@@ -8,6 +8,12 @@ const routes = [
       component: () => import('@/views/Login.vue')
     },
     {
+      path: '/register',
+      name: 'register',
+      title: '注册',
+      component: () => import('@/views/Register.vue')
+    },
+    {
       path: '/menu',
       name: 'menu',
       // director: ''

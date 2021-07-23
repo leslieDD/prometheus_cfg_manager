@@ -10,6 +10,7 @@ import (
 func initCommonRouter() {
 	GinDefault.GET("/", index)
 	GinDefault.POST("/login", login)
+	GinDefault.POST("/register", register)
 }
 
 func index(c *gin.Context) {
@@ -24,4 +25,14 @@ func login(c *gin.Context) {
 	}
 	data, bf := models.Login(&ui)
 	resComm(c, bf, data)
+}
+
+func register(c *gin.Context) {
+	r := models.RegisterInfo{}
+	if err := c.BindJSON(&r); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.Register(&r)
+	resComm(c, bf, nil)
 }

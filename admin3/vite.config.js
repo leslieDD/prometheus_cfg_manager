@@ -92,6 +92,16 @@ export default defineConfig({
         secure: false,
         ws: true
         // rewrite: (path) => path.replace(/^\/admin/, '')
+      },
+      '/login': {
+        target: 'http://127.0.0.1:8200',
+        changeOrigin: true,
+        secure: false
+      },
+      '/register': {
+        target: 'http://127.0.0.1:8200',
+        changeOrigin: true,
+        secure: false
       }
     },
     //proxy: {

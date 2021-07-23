@@ -44,6 +44,13 @@ type UserLogInfo struct {
 	Password string `json:"password" form:"password"`
 }
 
+type RegisterInfo struct {
+	Username string `json:"username" form:"username"`
+	Password string `json:"password" form:"password"`
+	Phone    string `json:"phone" form:"phone"`
+	GroupID  int    `json:"group_id" form:"group_id"`
+}
+
 func GetManagerGroups(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -314,6 +321,16 @@ func Login(ui *UserLogInfo) (*ManagerUserDetail, *BriefMessage) {
 	UpdateSession(ss)
 	SSObj.Set(ss.Token, &u)
 	return &u, Success
+}
+
+func Register(r *RegisterInfo) *BriefMessage {
+	u := ManagerUser{
+		UserName: r.Username,
+		Password: r.Password,
+		Phone:    r.Phone,
+		GroupID:  r.GroupID,
+	}
+	return PostManagerUser(&u)
 }
 
 func LoadUserEnabled() ([]*ManagerUserDetail, *BriefMessage) {
