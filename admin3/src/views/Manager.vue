@@ -369,7 +369,8 @@ export default {
       },
       multipleSelection: [],
       pageshow: false,
-      pushing: false
+      pushing: false,
+      editObj: null
     }
   },
   created () {
@@ -550,6 +551,8 @@ export default {
                 this.selectTypeValue[this.addMechineInfo.id] = this.addMechineInfo.jobId
                 this.selectTypeValue = { ...this.selectTypeValue }
                 this.dialogVisible = false
+                this.editObj.row.jobs_id = this.addMechineInfo.jobId
+                this.editObj.row.ipaddr = this.addMechineInfo.ipAddr
                 this.$refs[formName].resetFields()
                 this.expandChange({ id: this.addMechineInfo.id }, { id: this.addMechineInfo.id })
               }
@@ -629,6 +632,7 @@ export default {
       return cs
     },
     edit (scope) {
+      this.editObj = scope
       this.enterBtnTitle = '更新'
       this.dialogTitle = '编辑IP地址'
       this.addAndContinueDisabled = true
