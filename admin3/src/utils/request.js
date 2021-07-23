@@ -3,7 +3,7 @@ import axios from 'axios'
 import {ElNotification} from 'element-plus'
 import store from '@/store/index.js'
 // import route from '@/router/index.js'
-// import { getToken } from '@/utils/auth'
+import { getToken } from '@/utils/auth.js'
 
 // create an axios instance
 const service = axios.create({
@@ -17,6 +17,9 @@ service.interceptors.request.use(
   config => {
     if (store.getters.token) {
       config.headers.Authorization = store.getters.token;
+    }
+    if (getToken()) {
+      config.headers.Authorization = getToken()
     }
     return config
   },

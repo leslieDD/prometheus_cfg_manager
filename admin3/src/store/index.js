@@ -1,6 +1,7 @@
 import { createStore } from 'vuex'
+import { getUserInfo } from '@/utils/auth.js'
 
-export default createStore({
+const store = createStore({
   state() {
     return {
       userinfo: null,
@@ -31,3 +32,14 @@ export default createStore({
     }
   },
 });
+
+function loadUserInfoFromCookie() {
+  const userInfo = getUserInfo()
+  if (userInfo) {
+    store.dispatch('setUserInfo', userInfo)
+  }
+}
+
+loadUserInfoFromCookie()
+
+export default store
