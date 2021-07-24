@@ -156,12 +156,12 @@ const routes = [
       ]
     },
     {
-      path: '/:catchAll(.*)',
-      name: 'redirect',
-      title: 'redirect',
-      hidden: true,
-      redirect: {name: 'login'}
-    },
+      path: "/:catchAll(.*)",
+      name: '404',
+      title: '404',
+      component: () => import('@/views/404.vue')
+      // redirect: {name: 'login'}
+    }
 ]
 
 export default  createRouter({
