@@ -5,7 +5,11 @@ const whiteList = ['/', '/register'] // no redirect whitelist
 
 router.beforeEach(async(to, from, next) => {
   if (store.getters.token) {
-    next()
+    if (to.path === '/') {
+      next({name: 'person'})
+    } else {
+      next()
+    }
   } else {
     if (whiteList.indexOf(to.path) !== -1) {
       next()

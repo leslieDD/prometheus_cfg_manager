@@ -74,6 +74,9 @@ func (p *PublishResolve) formatData() (map[string]*[]*TargetList, *BriefMessage)
 	for _, j := range jobs {
 		jobsMap[j.ID] = j
 	}
+	if len(jobsMap) == 0 {
+		config.Log.Warn("no job found")
+	}
 	//          map[分组ID]map[子组ID]
 	jobGpAndLb := map[int]map[int]*TargetList{}
 	for _, obj := range jobGp {

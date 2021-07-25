@@ -8,6 +8,12 @@ const routes = [
       component: () => import('@/views/Login.vue')
     },
     {
+      path: '/person',
+      name: 'person',
+      title: '个人中心',
+      component: () => import('@/views/Person.vue')
+    },
+    {
       path: '/register',
       name: 'register',
       title: '注册',
