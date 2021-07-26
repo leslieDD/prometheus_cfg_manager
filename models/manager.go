@@ -308,6 +308,15 @@ func PostUserPassword(cpi *ChangePasswordInfo) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
+	user := ManagerUser{}
+	if err := db.Table("manager_user").Where("id=?", cpi.ID).Find(&user).Error; err != nil {
+		config.Log.Error(err)
+		return ErrUserNotExist
+	}
+	checkPassword := utils.CreateHashword(cpi.OldPwd, user.Salt)
+	if checkPassword != user.Password {
+		return ErrPwdNotMatch
+	}
 	salt := uuid.NewString()
 	newPassword := utils.CreateHashword(cpi.NewPwd1, salt)
 	tx := db.Table("manager_user").
