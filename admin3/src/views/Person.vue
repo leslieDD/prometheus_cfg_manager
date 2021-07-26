@@ -34,7 +34,7 @@
         <!-- 两个按钮 -->
         <div class="meBox-Button">
           <a href="javascript:void(0)" @click="changePassword()">更改密码</a>
-          <a href="javascript:void(0)" @click="changeImgs()">更换头像</a>
+          <a href="javascript:void(0)" @click="quitLog()">退出登录</a>
         </div>
       </div>
       <!-- 伪终端介绍 -->
@@ -160,6 +160,7 @@
 </template>
 
 <script>
+import { removeToken } from '@/utils/auth.js'
 import store from '@/store/index.js'
 import '@/assets/css/term.css'
 import { loadTxt, chgPasswd } from '@/api/person.js'
@@ -272,7 +273,12 @@ export default {
     changePassword () {
       this.dialogVisible = true
     },
-    changeImgs () { },
+    quitLog () {
+      store.dispatch('resetToken')
+      removeToken()
+      // location.reload()
+      this.$router.push({ name: 'login' })
+    },
     handleClose () {
       this.dialogVisible = false
     },
