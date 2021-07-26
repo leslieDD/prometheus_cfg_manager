@@ -289,6 +289,39 @@ func PutManagerUserStatus(info *EnabledInfo) *BriefMessage {
 	return Success
 }
 
+type ChangePasswordInfo struct {
+	ID      int    `json:"id" form:"id"`
+	OldPwd  string `json:"old_pwd" form:"old_pwd"`
+	NewPwd1 string `json:"new_pwd1" form:"new_pwd1"`
+	NewPwd2 string `json:"new_pwd2" form:"new_pwd2"`
+}
+
+func PostUserPassword(cpi *ChangePasswordInfo) *BriefMessage {
+	if cpi.OldPwd == "" {
+		return ErrPostData
+	}
+	if cpi.NewPwd1 != cpi.NewPwd2 {
+		return ErrPasswordSame
+	}
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	salt := uuid.NewString()
+	newPassword := utils.CreateHashword(cpi.NewPwd1, salt)
+	tx := db.Table("manager_user").
+		Where("id=?", cpi.ID).
+		Update("password", newPassword).
+		Update("salt", salt).
+		Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
 func Login(ui *UserLogInfo) (*ManagerUserDetail, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -297,7 +330,7 @@ func Login(ui *UserLogInfo) (*ManagerUserDetail, *BriefMessage) {
 	}
 	u := ManagerUserDetail{}
 	if err := db.Table("manager_user").
-		Select("manager_user.*, manager_group.enabled AS group_enabled,  manager_group.name as group_name ").
+		Select("manager_user.*, manager_group.enabled AS group_enabled, manager_group.name as group_name ").
 		Joins("LEFT JOIN manager_group ON manager_user.group_id=manager_group.id").
 		Where("username=?", ui.Username).
 		First(&u).

@@ -6,3 +6,11 @@ export function loadTxt () {
     method: 'get'
   })
 }
+
+export function chgPasswd(pwdInfo){
+  return request({
+    url: '/v1/manager/user/password',
+    method: 'post',
+    data: pwdInfo
+  })
+}

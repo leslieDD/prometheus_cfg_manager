@@ -5,7 +5,6 @@
       <div class="meBox">
         <!-- 头像 -->
         <!-- <div class="headPhoto">
-
         </div> -->
         <div class="headPhoto">
           <!-- <el-image :src="src"></el-image> -->
@@ -34,11 +33,10 @@
         </div>
         <!-- 两个按钮 -->
         <div class="meBox-Button">
-          <a href="http://www.bootstrapmb.com">更改密码</a>
-          <a href="http://www.bootstrapmb.com">更换头像</a>
+          <a href="javascript:void(0)" @click="changePassword()">更改密码</a>
+          <a href="javascript:void(0)" @click="changeImgs()">更换头像</a>
         </div>
       </div>
-
       <!-- 伪终端介绍 -->
       <div id="cmdBox">
         <!-- 第一个终端 -->
@@ -118,15 +116,64 @@
         </div>
       </div>
     </div>
+    <el-dialog
+      title="更新我的密码"
+      v-model="dialogVisible"
+      width="450px"
+      :before-close="handleClose"
+    >
+      <el-form
+        :model="ruleForm"
+        :rules="rules"
+        ref="ruleForm"
+        label-width="auto"
+        class="demo-ruleForm"
+        size="small"
+      >
+        <el-form-item label="请输出旧密码" prop="old_pwd">
+          <el-input
+            placeholder="请输入旧密码"
+            v-model="ruleForm.old_pwd"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="新密码" prop="new_pwd1">
+          <el-input
+            placeholder="请输入新密码"
+            v-model="ruleForm.new_pwd1"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="再次输入新密码" prop="new_pwd2">
+          <el-input
+            placeholder="请输入新密码"
+            v-model="ruleForm.new_pwd2"
+          ></el-input>
+        </el-form-item>
+        <el-form-item>
+          <el-button @click="handleClose">取 消</el-button>
+          <el-button type="primary" @click="submitChangePassword('ruleForm')"
+            >确 定</el-button
+          >
+        </el-form-item>
+      </el-form>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import store from '@/store/index.js'
 import '@/assets/css/term.css'
-import { loadTxt } from '@/api/person.js'
+import { loadTxt, chgPasswd } from '@/api/person.js'
 export default {
   data () {
+    var validatePass2 = (rule, value, callback) => {
+      if (value === '') {
+        callback(new Error('请再次输入密码'))
+      } else if (value !== this.info.password) {
+        callback(new Error('两次输入密码不一致!'))
+      } else {
+        callback()
+      }
+    }
     return {
       src: '/imgs/xiaohei.jpg',
       uname: 'Linux 4.15.0-150-generic Unknow SMP Sat Jul 3 13:37:31 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux',
@@ -138,6 +185,24 @@ export default {
         group_name: '',
         register_time: '',
         login_time: ''
+      },
+      dialogVisible: false,
+      ruleForm: {
+        old_pwd: '',
+        new_pwd1: '',
+        new_pwd2: ''
+      },
+      rules: {
+        old_pwd: [
+          { required: true, message: '请输入旧密码', trigger: 'blur' }
+        ],
+        new_pwd1: [
+          { required: true, message: '请输入新密码', trigger: 'blur' },
+          { pattern: /^(?![a-zA-Z]+$)(?![A-Z0-9]+$)(?![A-Z\W_]+$)(?![a-z0-9]+$)(?![a-z\W_]+$)(?![0-9\W_]+$)[a-zA-Z0-9\W_]{8,30}$/, message: '密码为数字，小写字母，大写字母，特殊符号 至少包含三种，长度为 8 - 30位' }
+        ],
+        new_pwd2: [
+          { required: true, validator: validatePass2, trigger: 'blur' }
+        ],
       }
     }
   },
@@ -157,7 +222,6 @@ export default {
     initUserInfo () {
       if (store.getters.userInfo) {
         const userInfo = store.getters.userInfo
-        console.log('userInfo', userInfo)
         this.userInfo = {
           phone: userInfo.phone,
           group_name: userInfo.group_name,
@@ -169,7 +233,6 @@ export default {
     goToConfig () {
       this.$router.push({ name: 'menu' })
     },
-
     loadProgramerSay () {
       loadTxt().then(r => {
         this.programmer_said = r.data.programer_say
@@ -206,6 +269,27 @@ export default {
       var time = new Date(Date.parse(t))
       return time.toLocaleDateString() + ' ' + time.toTimeString().split(' ')[0]
     },
+    changePassword () {
+      this.dialogVisible = true
+    },
+    changeImgs () { },
+    handleClose () {
+      this.dialogVisible = false
+    },
+    submitChangePassword (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          const postData = { ...ruleForm }
+          chgPasswd(postData).then(r => {
+            this.$message({
+              showClose: true,
+              message: '密码更新成功！',
+              type: 'success'
+            })
+          }).catch(e => console.log(e))
+        }
+      })
+    }
   }
 }
 </script>

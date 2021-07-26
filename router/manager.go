@@ -24,6 +24,7 @@ func initManagerApi() {
 	v1.PUT("/manager/user", putManagerUser)
 	v1.DELETE("/manager/user", deleteManagerUser)
 	v1.PUT("/manager/user/status", putManagerUserStatus)
+	v1.POST("/manager/user/password", postUserPassword)
 
 	v1.GET("/txt/programer/say", getProgramerSay)
 }
@@ -156,6 +157,16 @@ func putManagerUserStatus(c *gin.Context) {
 		return
 	}
 	bf := models.PutManagerUserStatus(&enabledInfo)
+	resComm(c, bf, nil)
+}
+
+func postUserPassword(c *gin.Context) {
+	pInfo := models.ChangePasswordInfo{}
+	if err := c.BindJSON(&pInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostUserPassword(&pInfo)
 	resComm(c, bf, nil)
 }
 
