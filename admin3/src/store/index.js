@@ -24,6 +24,9 @@ const store = createStore({
     },
     userInfo(state) {
       return state.userinfo
+    },
+    userID(state) {
+      return state.userinfo.id
     }
   },
   actions: {

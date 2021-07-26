@@ -134,18 +134,21 @@
           <el-input
             placeholder="请输入旧密码"
             v-model="ruleForm.old_pwd"
+            type="password"
           ></el-input>
         </el-form-item>
         <el-form-item label="新密码" prop="new_pwd1">
           <el-input
             placeholder="请输入新密码"
             v-model="ruleForm.new_pwd1"
+            type="password"
           ></el-input>
         </el-form-item>
         <el-form-item label="再次输入新密码" prop="new_pwd2">
           <el-input
             placeholder="请输入新密码"
             v-model="ruleForm.new_pwd2"
+            type="password"
           ></el-input>
         </el-form-item>
         <el-form-item>
@@ -161,7 +164,7 @@
 
 <script>
 import { removeToken } from '@/utils/auth.js'
-import store from '@/store/index.js'
+// import store from '@/store/index.js'
 import '@/assets/css/term.css'
 import { loadTxt, chgPasswd } from '@/api/person.js'
 export default {
@@ -169,7 +172,7 @@ export default {
     var validatePass2 = (rule, value, callback) => {
       if (value === '') {
         callback(new Error('请再次输入密码'))
-      } else if (value !== this.info.password) {
+      } else if (value !== this.ruleForm.new_pwd1) {
         callback(new Error('两次输入密码不一致!'))
       } else {
         callback()
@@ -199,12 +202,13 @@ export default {
         ],
         new_pwd1: [
           { required: true, message: '请输入新密码', trigger: 'blur' },
-          { pattern: /^(?![a-zA-Z]+$)(?![A-Z0-9]+$)(?![A-Z\W_]+$)(?![a-z0-9]+$)(?![a-z\W_]+$)(?![0-9\W_]+$)[a-zA-Z0-9\W_]{8,30}$/, message: '密码为数字，小写字母，大写字母，特殊符号 至少包含三种，长度为 8 - 30位' }
+          // { pattern: /^(?![a-zA-Z]+$)(?![A-Z0-9]+$)(?![A-Z\W_]+$)(?![a-z0-9]+$)(?![a-z\W_]+$)(?![0-9\W_]+$)[a-zA-Z0-9\W_]{8,30}$/, message: '密码为数字，小写字母，大写字母，特殊符号 至少包含三种，长度为 8 - 30位' }
         ],
         new_pwd2: [
           { required: true, validator: validatePass2, trigger: 'blur' }
         ],
-      }
+      },
+      userID: 0
     }
   },
   mounted () {
@@ -221,9 +225,11 @@ export default {
   },
   methods: {
     initUserInfo () {
-      if (store.getters.userInfo) {
-        const userInfo = store.getters.userInfo
+      if (this.$store.getters.userInfo) {
+        this.userID = this.$store.getters.userID
+        const userInfo = this.$store.getters.userInfo
         this.userInfo = {
+          id: this.$store.getters.userID,
           phone: userInfo.phone,
           group_name: userInfo.group_name,
           register_time: userInfo.create_at,
@@ -274,7 +280,7 @@ export default {
       this.dialogVisible = true
     },
     quitLog () {
-      store.dispatch('resetToken')
+      this.$store.dispatch('resetToken')
       removeToken()
       // location.reload()
       this.$router.push({ name: 'login' })
@@ -285,13 +291,14 @@ export default {
     submitChangePassword (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          const postData = { ...ruleForm }
+          const postData = { ...this.ruleForm }
           chgPasswd(postData).then(r => {
             this.$message({
               showClose: true,
               message: '密码更新成功！',
               type: 'success'
             })
+            this.dialogVisible = false
           }).catch(e => console.log(e))
         }
       })
