@@ -1,7 +1,35 @@
 package models
 
-func GetProgramerSay() ([]string, *BriefMessage) {
-	return ProgramerSay, Success
+import (
+	"fmt"
+	"pro_cfg_manager/config"
+	"pro_cfg_manager/utils"
+	"runtime"
+)
+
+type PersonCommonInfo struct {
+	ProgramerSay []string `json:"programer_say"`
+	Uname        string   `json:"uname"`
+}
+
+func GetProgramerSay() (*PersonCommonInfo, *BriefMessage) {
+	pci := PersonCommonInfo{
+		ProgramerSay: ProgramerSay,
+	}
+	if runtime.GOOS == "windows" {
+		hostInfo := utils.HostInfo()
+		pci.Uname = fmt.Sprintf("%s %s", hostInfo.Platform, hostInfo.PlatformFamily)
+	} else {
+		_, output, err := utils.ExecCmd("uname", "-a")
+		if err != nil {
+			config.Log.Error(err)
+			hostInfo := utils.HostInfo()
+			pci.Uname = fmt.Sprintf("%s %s", hostInfo.Platform, hostInfo.PlatformFamily)
+		} else {
+			pci.Uname = output
+		}
+	}
+	return &pci, Success
 }
 
 var ProgramerSay = []string{

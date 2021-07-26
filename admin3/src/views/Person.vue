@@ -76,7 +76,8 @@
             <span style="color: rgb(39, 39, 39)"
               >cat ./quotes_by_famous_people.txt</span
             >
-            <p></p>
+            <p v-for="(words, index) in sayWhat" :key="index">{{ words }}</p>
+            <br />
             <span style="color: rgb(0, 190, 0)">root@monitor</span>
             <span style="color: blue">~</span>
             <span style="color: rgb(39, 39, 39)"
@@ -132,11 +133,14 @@ export default {
     }
   },
   mounted () {
-    this.setTimeer()
+    if (this.timer === null) {
+      this.setTimeer()
+    }
     this.loadProgramerSay(this)
   },
   beforeUnmount () {
     clearInterval(this.timer)
+    this.timer = null
   },
   methods: {
     goToConfig () {
@@ -145,21 +149,21 @@ export default {
 
     loadProgramerSay () {
       loadTxt().then(r => {
-        this.programmer_said = r.data
-        this.setTimeer()
+        this.programmer_said = r.data.programer_say
+        this.uname = r.data.uname
+        this.switchSay()
       }).catch(e => console.log(e))
     },
     setTimeer () {
       this.timer = setInterval(() => {
         this.switchSay();//你所加载数据的方法
-      }, 5000)
+      }, 1000 * 15)
     },
     switchSay () {
-      if (this.programmer_said.length === 0) {
-        return
-      }
-      const sayWhat = Math.floor(Math.random() * this.programmer_said.length)
-      this.sayWhat = this.fixedLengthFormatString(sayWhat, 28)
+      const sayWhat = this.programmer_said[Math.floor(Math.random() * this.programmer_said.length)]
+      // this.sayWhat = this.fixedLengthFormatString(sayWhat, 28)
+      // console.log('sayWhat', sayWhat, this.sayWhat)
+      this.sayWhat = [sayWhat]
     },
     fixedLengthFormatString (str, num) {
       if (str == null || str == undefined) return null;
