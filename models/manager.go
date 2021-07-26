@@ -32,6 +32,7 @@ type ManagerUser struct {
 	GroupID  int       `json:"group_id" gorm:"column:group_id"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	CreateAt time.Time `json:"create_at" gorm:"column:create_at"`
 }
 
 type ManagerUserList struct {
@@ -217,6 +218,7 @@ func PostManagerUser(mu *ManagerUser) *BriefMessage {
 	mu.UpdateAt = time.Now()
 	mu.Salt = uuid.NewString()
 	mu.Password = utils.CreateHashword(mu.Password, mu.Salt)
+	mu.CreateAt = time.Now()
 	tx := db.Table("manager_user").Create(&mu)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -295,7 +297,7 @@ func Login(ui *UserLogInfo) (*ManagerUserDetail, *BriefMessage) {
 	}
 	u := ManagerUserDetail{}
 	if err := db.Table("manager_user").
-		Select("manager_user.*, manager_group.enabled AS group_enabled ").
+		Select("manager_user.*, manager_group.enabled AS group_enabled,  manager_group.name as group_name ").
 		Joins("LEFT JOIN manager_group ON manager_user.group_id=manager_group.id").
 		Where("username=?", ui.Username).
 		First(&u).

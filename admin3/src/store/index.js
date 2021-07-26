@@ -21,6 +21,9 @@ const store = createStore({
         return ''
       }
       return state.userinfo.session.token
+    },
+    userInfo(state) {
+      return state.userinfo
     }
   },
   actions: {

@@ -16,6 +16,7 @@ type Session struct {
 
 type ManagerUserDetail struct {
 	GroupEnabled bool     `json:"group_enabled" gorm:"group_enabled"`
+	GroupName    string   `json:"group_name" gorm:"group_name"`
 	Session      *Session `json:"session" gorm:"-"`
 	ManagerUser
 }

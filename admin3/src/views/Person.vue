@@ -18,16 +18,18 @@
         </div>
         <div class="meBox-text">
           <el-descriptions title="" :column="1" size="">
-            <el-descriptions-item label="手机号"
-              >18100000000</el-descriptions-item
-            >
-            <el-descriptions-item label="所属组">苏州市</el-descriptions-item>
-            <el-descriptions-item label="注册时间"
-              >1986.09.24</el-descriptions-item
-            >
-            <el-descriptions-item label="登录时间"
-              >1986.09.24</el-descriptions-item
-            >
+            <el-descriptions-item label="手机号">{{
+              userInfo.phone
+            }}</el-descriptions-item>
+            <el-descriptions-item label="所属组">{{
+              userInfo.group_name
+            }}</el-descriptions-item>
+            <el-descriptions-item label="注册时间">{{
+              parseTimeSelf(userInfo.register_time)
+            }}</el-descriptions-item>
+            <el-descriptions-item label="登录时间">{{
+              parseTimeSelf(userInfo.login_time)
+            }}</el-descriptions-item>
           </el-descriptions>
         </div>
         <!-- 两个按钮 -->
@@ -120,6 +122,7 @@
 </template>
 
 <script>
+import store from '@/store/index.js'
 import '@/assets/css/term.css'
 import { loadTxt } from '@/api/person.js'
 export default {
@@ -127,12 +130,20 @@ export default {
     return {
       src: '/imgs/xiaohei.jpg',
       uname: 'Linux 4.15.0-150-generic Unknow SMP Sat Jul 3 13:37:31 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux',
-      programmer_said: [],
+      programmer_said: ['选择你能够承担的，承担你已经选择的'],
       sayWhat: [],
-      timer: null
+      timer: null,
+      userInfo: {
+        phone: '',
+        group_name: '',
+        register_time: '',
+        login_time: ''
+      }
     }
   },
   mounted () {
+    this.initUserInfo()
+    this.switchSay()
     if (this.timer === null) {
       this.setTimeer()
     }
@@ -143,6 +154,18 @@ export default {
     this.timer = null
   },
   methods: {
+    initUserInfo () {
+      if (store.getters.userInfo) {
+        const userInfo = store.getters.userInfo
+        console.log('userInfo', userInfo)
+        this.userInfo = {
+          phone: userInfo.phone,
+          group_name: userInfo.group_name,
+          register_time: userInfo.create_at,
+          login_time: userInfo.update_at
+        }
+      }
+    },
     goToConfig () {
       this.$router.push({ name: 'menu' })
     },
@@ -178,7 +201,11 @@ export default {
         }
       }
       return array;
-    }
+    },
+    parseTimeSelf (t) {
+      var time = new Date(Date.parse(t))
+      return time.toLocaleDateString() + ' ' + time.toTimeString().split(' ')[0]
+    },
   }
 }
 </script>
