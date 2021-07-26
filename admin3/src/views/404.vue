@@ -28,7 +28,7 @@ export default {
       this.$router.go(-1)
     },
     goBackMainPage () {
-      this.$router.push({ name: "menu" })
+      this.$router.push({ name: "person" })
     }
   }
 }

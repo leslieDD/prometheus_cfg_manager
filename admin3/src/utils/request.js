@@ -3,7 +3,7 @@ import axios from 'axios'
 import {ElNotification} from 'element-plus'
 import store from '@/store/index.js'
 // import route from '@/router/index.js'
-import { getToken } from '@/utils/auth.js'
+import { getToken, removeToken } from '@/utils/auth.js'
 
 // create an axios instance
 const service = axios.create({
@@ -40,7 +40,8 @@ service.interceptors.response.use(
           type: 'error'
         })
         store.dispatch('resetToken')
-        // location.reload()
+        removeToken()
+        location.reload()
       } else {
         ElNotification({
           title: '错误',
@@ -54,21 +55,26 @@ service.interceptors.response.use(
     }
   },
   error => {
-    console.log('err' + error) // for debug
-    if (error.data && error.data.code === "401000") {
+    ElNotification({
+      title: '错误',
+      message: error.message,
+      type: 'error'
+    })
+    if (error.response.status === 401) {
+      store.dispatch('resetToken')
+      removeToken()
+      location.reload()
+    }
+    if (error.response.data && error.response.data.code === "401000") {
       ElNotification({
         title: '错误',
         message: res.msg || 'Error',
         type: 'error'
       })
       store.dispatch('resetToken')
-      // location.reload()
+      removeToken()
+      location.reload()
     }
-    ElNotification({
-      title: '错误',
-      message: error.message,
-      type: 'error'
-    })
     return Promise.reject(error)
   }
 )

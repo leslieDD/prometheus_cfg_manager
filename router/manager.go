@@ -24,6 +24,8 @@ func initManagerApi() {
 	v1.PUT("/manager/user", putManagerUser)
 	v1.DELETE("/manager/user", deleteManagerUser)
 	v1.PUT("/manager/user/status", putManagerUserStatus)
+
+	v1.GET("/txt/programer/say", getProgramerSay)
 }
 
 func logout(c *gin.Context) {
@@ -155,4 +157,9 @@ func putManagerUserStatus(c *gin.Context) {
 	}
 	bf := models.PutManagerUserStatus(&enabledInfo)
 	resComm(c, bf, nil)
+}
+
+func getProgramerSay(c *gin.Context) {
+	data, bf := models.GetProgramerSay()
+	resComm(c, bf, data)
 }

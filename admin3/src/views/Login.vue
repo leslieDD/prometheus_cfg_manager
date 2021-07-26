@@ -76,7 +76,7 @@ export default {
             setToken(r.data)
             this.$store.dispatch('setUserInfo', r.data)
             // console.log('token is ', this.$store.getters.token)
-            this.$router.push({ name: 'menu' })
+            this.$router.push({ name: 'person' })
           }).catch(e => console.log(e))
         }
       })
