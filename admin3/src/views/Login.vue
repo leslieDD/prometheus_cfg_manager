@@ -48,7 +48,8 @@
 <script>
 
 import { login } from '@/api/login.js'
-import { setToken } from '@/utils/auth.js'
+// import { setToken } from '@/utils/auth.js'
+import { saveStorageUserInfo } from '@/utils/localStorage.js'
 
 export default {
   data () {
@@ -73,7 +74,8 @@ export default {
         const logInfo = { ...this.ruleForm }
         if (valid) {
           login(logInfo).then(r => {
-            setToken(r.data)
+            // setToken(r.data)
+            saveStorageUserInfo(r.data)
             this.$store.dispatch('setUserInfo', r.data)
             // console.log('token is ', this.$store.getters.token)
             this.$router.push({ name: 'person' })

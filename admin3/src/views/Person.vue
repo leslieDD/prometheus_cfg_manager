@@ -163,7 +163,8 @@
 </template>
 
 <script>
-import { removeToken } from '@/utils/auth.js'
+// import { removeToken } from '@/utils/auth.js'
+import { removeStorageUserInfo } from '@/utils/localStorage.js'
 // import store from '@/store/index.js'
 import '@/assets/css/term.css'
 import { loadTxt, chgPasswd } from '@/api/person.js'
@@ -281,7 +282,8 @@ export default {
     },
     quitLog () {
       this.$store.dispatch('resetToken')
-      removeToken()
+      // removeToken()
+      removeStorageUserInfo()
       // location.reload()
       this.$router.push({ name: 'login' })
     },
