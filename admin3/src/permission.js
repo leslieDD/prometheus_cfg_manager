@@ -7,6 +7,8 @@ router.beforeEach(async(to, from, next) => {
   if (store.getters.token) {
     if (to.path === '/') {
       next({name: 'person'})
+    } else if (to.path==='/menu'){
+      next({name: 'ipManager'})
     } else {
       next()
     }

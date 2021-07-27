@@ -147,6 +147,13 @@ export default {
     window.addEventListener('scroll', this.scrollToTop)
     this.$router.push({ name: 'ipManager' })
   },
+  activated () {
+    console.log('activated')
+    this.$router.push({ name: 'ipManager' })
+  },
+  deactivated () {
+    console.log('deactivated')
+  },
   destroyed () {
     window.removeEventListener('scroll', this.scrollToTop);
   },
