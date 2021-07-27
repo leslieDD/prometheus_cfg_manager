@@ -1,7 +1,7 @@
 <template>
   <div class="login-board">
     <div class="login-title">
-      <h2>Prometheus配置管理平台</h2>
+      <h2 class="platform-title">Prometheus配置管理平台</h2>
     </div>
     <el-card class="box-card">
       <template #header>
@@ -31,6 +31,7 @@
             type="password"
             placeholder="请输入密码"
             v-model="ruleForm.password"
+            @keyup.enter="doLogin('ruleForm')"
           ></el-input>
         </el-form-item>
         <el-form-item>
@@ -105,5 +106,8 @@ export default {
 .action-area {
   display: flex;
   justify-content: space-between;
+}
+.platform-title {
+  color: wheat;
 }
 </style>
