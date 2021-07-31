@@ -1,5 +1,12 @@
 <template>
   <div class="main-board">
+    <div class="person-center-btn">
+      <div>
+        <el-button size="mini" type="warning" @click="goBackPerson">
+          <single-svg icon-class="pig" />个人中心</el-button
+        >
+      </div>
+    </div>
     <div class="base-config-menu">
       <el-tabs
         type="border-card"
@@ -183,6 +190,9 @@ export default {
       } else {
         this.scrollBackShow = false
       }
+    },
+    goBackPerson () {
+      this.$router.push({ name: 'person' })
     }
   }
 }
@@ -190,6 +200,7 @@ export default {
 
 <style scoped>
 .main-board {
+  /* position: absolute; */
   padding: 0;
   max-width: 1100px;
   margin: 0 auto;
@@ -211,5 +222,16 @@ el-tabs {
   /* transition: all 0.5s ease-out; */
   transform: translateX(30px);
   opacity: 0;
+}
+.person-center-btn {
+  position: relative;
+  align-items: center;
+  text-align: center;
+  display: flex;
+  justify-content: center;
+  height: 38px;
+  top: 0;
+  float: right;
+  z-index: 100;
 }
 </style>
