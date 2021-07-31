@@ -109,6 +109,9 @@
                   >Prometheus配置</el-button
                 >
               </li>
+              <li>
+                <el-button type="text" @click="goToAdmin">权限管理</el-button>
+              </li>
             </ul>
             <span style="color: rgb(0, 190, 0)">root@monitor</span>
             <span style="color: blue">~</span>
@@ -240,6 +243,9 @@ export default {
     },
     goToConfig () {
       this.$router.push({ name: 'menu' })
+    },
+    goToAdmin () {
+      this.$router.push({ name: 'admin' })
     },
     loadProgramerSay () {
       loadTxt().then(r => {

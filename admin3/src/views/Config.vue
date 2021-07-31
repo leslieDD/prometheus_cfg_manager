@@ -36,18 +36,6 @@
           <i class="el-icon-lollipop"></i>
           <template #title>重置</template>
         </el-menu-item>
-        <el-menu-item index="8">
-          <i class="el-icon-potato-strips"></i>
-          <template #title>用户管理</template>
-        </el-menu-item>
-        <el-menu-item index="9">
-          <i class="el-icon-milk-tea"></i>
-          <template #title>组管理</template>
-        </el-menu-item>
-        <el-menu-item index="10">
-          <i class="el-icon-ice-drink"></i>
-          <template #title>权限管理</template>
-        </el-menu-item>
       </el-menu>
     </div>
     <div class="base-config-router">
@@ -94,12 +82,6 @@ export default {
         this.$router.push({ name: 'editPrometheusYml' })
       } else if (key === '7') {
         this.$router.push({ name: 'empty' })
-      } else if (key === '8') {
-        this.$router.push({ name: 'user' })
-      } else if (key === '9') {
-        this.$router.push({ name: 'group' })
-      } else if (key === '10') {
-        this.$router.push({ name: 'privileges' })
       }
     }
   }

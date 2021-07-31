@@ -162,6 +162,31 @@ const routes = [
       ]
     },
     {
+      path: '/admin',
+      name: 'admin',
+      component: () => import('@/views/Admin.vue'),
+      children: [
+        {
+          path: '/user',
+          name: 'user',
+          title: '用户管理',
+          component: () => import('@/views/User.vue')
+        },
+        {
+          path: '/group',
+          name: 'group',
+          title: '组管理',
+          component: () => import('@/views/Group.vue')
+        },
+        {
+          path: '/privileges',
+          name: 'privileges',
+          title: '权限管理',
+          component: () => import('@/views/Privileges.vue')
+        }
+      ]
+    },
+    {
       path: "/:catchAll(.*)",
       name: '404',
       title: '404',
