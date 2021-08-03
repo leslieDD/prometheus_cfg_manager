@@ -27,6 +27,8 @@ func initManagerApi() {
 	v1.POST("/manager/user/password", postUserPassword)
 
 	v1.GET("/txt/programer/say", getProgramerSay)
+
+	v1.GET("/manager/user/priv", getUserPriv)
 }
 
 func logout(c *gin.Context) {
@@ -172,5 +174,22 @@ func postUserPassword(c *gin.Context) {
 
 func getProgramerSay(c *gin.Context) {
 	data, bf := models.GetProgramerSay()
+	resComm(c, bf, data)
+}
+
+func getUserPriv(c *gin.Context) {
+	// u := c.Keys["userInfo"].(*models.ManagerUserDetail)
+	gIDStr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	gID, err := strconv.ParseInt(gIDStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	data, bf := models.GetGroupPriv(gID)
 	resComm(c, bf, data)
 }

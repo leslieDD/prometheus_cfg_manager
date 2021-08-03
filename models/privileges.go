@@ -1,5 +1,97 @@
 package models
 
+import (
+	"fmt"
+	"pro_cfg_manager/config"
+	"pro_cfg_manager/dbs"
+	"sort"
+)
+
+type Priv struct {
+	ID              int    `json:"id" gorm:"column:id"`
+	PageName        string `json:"page_name" gorm:"column:page_name"`
+	PageNiceName    string `json:"page_nice_name" gorm:"column:page_nice_name"`
+	SubPageName     string `json:"sub_page_name" gorm:"column:sub_page_name"`
+	SubPageNiceName string `json:"sub_page_nice_name" gorm:"column:sub_page_nice_name"`
+	FuncName        string `json:"func_name" gorm:"column:func_name"`
+	FuncNiceName    string `json:"func_nice_name" gorm:"column:func_nice_name"`
+}
+
+type GroupPriv struct {
+	GroupID   int    `json:"group_id" gorm:"column:group_id"`
+	GroupName string `json:"group_name" gorm:"column:group_name"`
+	Priv
+}
+
+type FuncInfo struct {
+	ID           int    `json:"id"`
+	FuncName     string `json:"func_name"`
+	FuncNiceName string `json:"func_nice_name"`
+	Checked      bool   `json:"checked"`
+}
+
+type ItemPriv struct {
+	PageName        string      `json:"page_name"`
+	PageNiceName    string      `json:"page_nice_name"`
+	SubPageName     string      `json:"sub_page_name"`
+	SubPageNiceName string      `json:"sub_page_nice_name"`
+	FuncList        []*FuncInfo `json:"func_list" `
+}
+
 func CheckPriv(u *ManagerUser) {
 
+}
+
+func GetGroupPriv(gID int64) ([]*ItemPriv, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	gps := []*GroupPriv{}
+	tx := db.Table("page_function").
+		Select("page_function.*, manager_group.id AS group_id, manager_group.name AS group_name").
+		Joins("LEFT JOIN group_priv ON page_function.id=group_priv.func_id").
+		Joins("LEFT JOIN manager_group ON group_priv.group_id=manager_group.id").
+		Order("page_function.page_name, page_function.sub_page_name").
+		Find(&gps)
+	if tx.Error != nil {
+		return nil, ErrSearchDBData
+	}
+	ipm := map[string]*ItemPriv{}
+	for _, gp := range gps {
+		page_join_name := fmt.Sprintf("%s_%s", gp.PageName, gp.SubPageName)
+		obj, ok := ipm[page_join_name]
+		if !ok {
+			ipm[page_join_name] = &ItemPriv{
+				PageName:        gp.PageName,
+				PageNiceName:    gp.PageNiceName,
+				SubPageName:     gp.SubPageName,
+				SubPageNiceName: gp.SubPageNiceName,
+				FuncList:        []*FuncInfo{},
+			}
+			obj = ipm[page_join_name]
+		}
+		fi := &FuncInfo{
+			ID:           gp.ID,
+			FuncName:     gp.FuncName,
+			FuncNiceName: gp.FuncNiceName,
+		}
+		if gp.GroupName == "" {
+			fi.Checked = false
+		} else {
+			fi.Checked = true
+		}
+		obj.FuncList = append(obj.FuncList, fi)
+	}
+	pageJoinNameSlice := sort.StringSlice{}
+	for key, _ := range ipm {
+		pageJoinNameSlice = append(pageJoinNameSlice, key)
+	}
+	sort.Strings(pageJoinNameSlice)
+	ips := []*ItemPriv{}
+	for _, ipName := range pageJoinNameSlice {
+		ips = append(ips, ipm[ipName])
+	}
+	return ips, Success
 }
