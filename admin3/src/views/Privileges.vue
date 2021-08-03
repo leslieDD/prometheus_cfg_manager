@@ -13,8 +13,10 @@
         </el-table-column>
         <el-table-column prop="sub_page_nice_name" label="子页面" width="120px">
           <template #default="{ row }">
-            {{ row.sub_page_nice_name + " "
-            }}<el-checkbox @change="checkboxChange($event, row)"></el-checkbox>
+            <div class="sub-page-class">
+              <span>{{ row.sub_page_nice_name + " " }}</span
+              ><el-checkbox @change="checkboxChange($event, row)"></el-checkbox>
+            </div>
           </template>
         </el-table-column>
         <el-table-column label="权限列表" scoped-slot>
@@ -48,6 +50,7 @@ import { getPriv } from '@/api/priv.js'
 import { h } from "vue"
 
 export default {
+
   data () {
     return {
       privTableData: [],
@@ -160,5 +163,11 @@ export default {
 <style scoped>
 .priv-board {
   height: 100%;
+}
+.sub-page-class {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: nowrap;
+  flex-direction: row;
 }
 </style>
