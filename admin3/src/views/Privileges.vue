@@ -12,8 +12,22 @@
         <el-table-column prop="page_nice_name" label="页面" width="120px">
         </el-table-column>
         <el-table-column prop="sub_page_nice_name" label="子页面" width="120px">
+          <template #default="{ row }">
+            {{ row.sub_page_nice_name + " "
+            }}<el-checkbox @change="checkboxChange($event, row)"></el-checkbox>
+          </template>
         </el-table-column>
-        <el-table-column label="权限选项">
+        <el-table-column label="权限列表" scoped-slot>
+          <template #header>
+            <span>{{ "权限列表" }}</span>
+            <el-divider direction="vertical"></el-divider>
+            <el-radio v-model="radioSelect" label="1" @change="radioChange"
+              >全选</el-radio
+            >
+            <el-radio v-model="radioSelect" label="2" @change="radioChange"
+              >全不选</el-radio
+            >
+          </template>
           <template #default="{ row }">
             <el-checkbox
               v-for="item in row.func_list"
@@ -31,13 +45,15 @@
 <script>
 
 import { getPriv } from '@/api/priv.js'
+import { h } from "vue"
 
 export default {
   data () {
     return {
       privTableData: [],
       tableRowSpan: {},
-      groupInfo: {}
+      groupInfo: {},
+      radioSelect: '0'
     };
   },
   mounted () {
@@ -83,16 +99,60 @@ export default {
     },
     rowStyle (row) {
       let rs = {
-        'padding': '1px'
+        'padding': '2px'
       }
       return rs
     },
     cellStyle (column) {
       let cs = {
-        'padding': '1px'
+        'padding': '2px'
+      }
+      if (column.columnIndex === 0) {
+        cs['background-color'] = '#F1FAFA'
+      } else if (column.columnIndex === 1) {
+        cs['background-color'] = '#F1FAFA'
       }
       return cs
     },
+    checkboxChange (event, row) {
+      if (event) {
+        row.func_list.forEach(r => {
+          r.checked = true
+        })
+      } else {
+        row.func_list.forEach(r => {
+          r.checked = false
+        })
+      }
+    },
+    allCheckBoxChange () {
+      console.log('allCheckBoxChange')
+    },
+    renderHeader ({ column, $index }) { // h即为cerateElement的简写，具体可看vue官方文档
+      return (
+        h('span', [
+          h('el-checkbox', {
+            props: {
+
+            }
+          }),
+          h('span', column.label)
+        ])
+      )
+    },
+    radioChange (value) {
+      let checked
+      if (value === '1') {
+        checked = true
+      } else {
+        checked = false
+      }
+      this.privTableData.forEach(d => {
+        d.func_list.forEach(l => {
+          l.checked = checked
+        })
+      })
+    }
   }
 };
 </script>
