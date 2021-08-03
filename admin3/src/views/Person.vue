@@ -102,7 +102,7 @@
             <span style="color: rgb(0, 190, 0)">root@monitor</span>
             <span style="color: blue">~</span>
             <span style="color: rgb(39, 39, 39)">vim ./prometheus.yml</span>
-            <p>点我进入Prometheus的配置管理：</p>
+            <p>点击下面菜单进入：</p>
             <ul class="ul">
               <li>
                 <el-button type="text" @click="goToConfig"
