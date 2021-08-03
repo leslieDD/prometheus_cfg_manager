@@ -15,7 +15,12 @@
           <template #default="{ row }">
             <div class="sub-page-class">
               <span>{{ row.sub_page_nice_name + " " }}</span
-              ><el-checkbox @change="checkboxChange($event, row)"></el-checkbox>
+              ><el-checkbox
+                v-model="
+                  checkBoxSelect[`${row.page_name}_${row.sub_page_name}`]
+                "
+                @change="checkboxChange($event, row)"
+              ></el-checkbox>
             </div>
           </template>
         </el-table-column>
@@ -23,11 +28,11 @@
           <template #header>
             <span>{{ "权限列表" }}</span>
             <el-divider direction="vertical"></el-divider>
-            <el-radio v-model="radioSelect" label="1" @change="radioChange"
-              >全选</el-radio
+            <el-button size="mini" label="1" @click="selectAll(true)"
+              >全选</el-button
             >
-            <el-radio v-model="radioSelect" label="2" @change="radioChange"
-              >全不选</el-radio
+            <el-button size="mini" label="2" @click="selectAll(false)"
+              >全不选</el-button
             >
           </template>
           <template #default="{ row }">
@@ -56,7 +61,7 @@ export default {
       privTableData: [],
       tableRowSpan: {},
       groupInfo: {},
-      radioSelect: '0'
+      checkBoxSelect: {}
     };
   },
   mounted () {
@@ -95,6 +100,7 @@ export default {
           } else {
             tableRowSpan[item.page_name] = 1
           }
+          this.checkBoxSelect[`${item.page_name}_${item.sub_page_name}`] = undefined
         })
         this.tableRowSpan = tableRowSpan
         this.privTableData = r.data
@@ -143,9 +149,9 @@ export default {
         ])
       )
     },
-    radioChange (value) {
+    selectAll (value) {
       let checked
-      if (value === '1') {
+      if (value) {
         checked = true
       } else {
         checked = false
@@ -155,6 +161,9 @@ export default {
           l.checked = checked
         })
       })
+      for (const key in this.checkBoxSelect) {
+        this.checkBoxSelect[key] = checked
+      }
     }
   }
 };
