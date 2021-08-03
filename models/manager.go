@@ -143,10 +143,18 @@ func DeleteManagerGroup(mgID int64) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("manager_group").
-		Where("id=?", mgID).Delete(nil)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
+	tErr := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("manager_group").Where("id=?", mgID).Delete(nil).Error; err != nil {
+			config.Log.Error(tx.Error)
+			return err
+		}
+		if err := tx.Table("group_priv").Where("group_id=?", mgID).Delete(nil).Error; err != nil {
+			config.Log.Error(tx.Error)
+			return err
+		}
+		return nil
+	})
+	if tErr != nil {
 		return ErrDelData
 	}
 	return Success
