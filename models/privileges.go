@@ -5,6 +5,8 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"sort"
+
+	"gorm.io/gorm"
 )
 
 type Priv struct {
@@ -38,11 +40,22 @@ type ItemPriv struct {
 	FuncList        []*FuncInfo `json:"func_list" `
 }
 
+type GetPrivInfo struct {
+	GroupName string `json:"group_name" form:"group_name"`
+	GroupID   int    `json:"group_id" form:"group_id"`
+}
+
+type TableGroupPriv struct {
+	ID      int `json:"id" gorm:"column:id"`
+	GroupID int `json:"group_id" gorm:"column:group_id"`
+	FuncID  int `json:"func_id" gorm:"column:func_id"`
+}
+
 func CheckPriv(u *ManagerUser) {
 
 }
 
-func GetGroupPriv(gID int64) ([]*ItemPriv, *BriefMessage) {
+func GetGroupPriv(gInfo *GetPrivInfo) ([]*ItemPriv, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -51,7 +64,7 @@ func GetGroupPriv(gID int64) ([]*ItemPriv, *BriefMessage) {
 	gps := []*GroupPriv{}
 	tx := db.Table("page_function").
 		Select("page_function.*, manager_group.id AS group_id, manager_group.name AS group_name").
-		Joins("LEFT JOIN group_priv ON page_function.id=group_priv.func_id").
+		Joins("LEFT JOIN (SELECT * FROM group_priv WHERE group_id=?) AS group_priv ON page_function.id=group_priv.func_id ", gInfo.GroupID).
 		Joins("LEFT JOIN manager_group ON group_priv.group_id=manager_group.id").
 		Order("page_function.page_name, page_function.sub_page_name").
 		Find(&gps)
@@ -94,4 +107,39 @@ func GetGroupPriv(gID int64) ([]*ItemPriv, *BriefMessage) {
 		ips = append(ips, ipm[ipName])
 	}
 	return ips, Success
+}
+
+func PutGroupPriv(privInfo []*ItemPriv, gInfo *GetPrivInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tgp := []*TableGroupPriv{}
+	for _, p := range privInfo {
+		for _, f := range p.FuncList {
+			if !f.Checked {
+				continue
+			}
+			tgp = append(tgp, &TableGroupPriv{
+				GroupID: gInfo.GroupID,
+				FuncID:  f.ID,
+			})
+		}
+	}
+	tErr := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("group_priv").Where("group_id=?", gInfo.GroupID).Delete(nil).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		if err := tx.Table("group_priv").Create(tgp).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		return nil
+	})
+	if tErr != nil {
+		return ErrUpdateData
+	}
+	return Success
 }

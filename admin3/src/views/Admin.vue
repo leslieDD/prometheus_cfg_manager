@@ -33,10 +33,10 @@
                 <i class="el-icon-milk-tea"></i>
                 <template #title>组管理</template>
               </el-menu-item>
-              <el-menu-item index="10">
+              <!-- <el-menu-item index="10">
                 <i class="el-icon-ice-drink"></i>
                 <template #title>权限管理</template>
-              </el-menu-item>
+              </el-menu-item> -->
             </el-menu>
           </div>
           <div class="base-config-router">

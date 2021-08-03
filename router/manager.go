@@ -29,6 +29,7 @@ func initManagerApi() {
 	v1.GET("/txt/programer/say", getProgramerSay)
 
 	v1.GET("/manager/user/priv", getUserPriv)
+	v1.PUT("/manager/user/priv", putUserPriv)
 }
 
 func logout(c *gin.Context) {
@@ -179,17 +180,26 @@ func getProgramerSay(c *gin.Context) {
 
 func getUserPriv(c *gin.Context) {
 	// u := c.Keys["userInfo"].(*models.ManagerUserDetail)
-	gIDStr, ok := c.GetQuery("id")
-	if !ok {
-		resComm(c, models.ErrQueryData, nil)
+	gInfo := models.GetPrivInfo{}
+	if err := c.BindQuery(&gInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	gID, err := strconv.ParseInt(gIDStr, 10, 0)
-	if err != nil {
-		config.Log.Error(err)
-		resComm(c, models.ErrQueryData, nil)
-		return
-	}
-	data, bf := models.GetGroupPriv(gID)
+	data, bf := models.GetGroupPriv(&gInfo)
 	resComm(c, bf, data)
+}
+
+func putUserPriv(c *gin.Context) {
+	privInfo := []*models.ItemPriv{}
+	if err := c.BindJSON(&privInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	gInfo := models.GetPrivInfo{}
+	if err := c.BindQuery(&gInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutGroupPriv(privInfo, &gInfo)
+	resComm(c, bf, nil)
 }

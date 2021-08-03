@@ -2,6 +2,7 @@
   <div class="priv-board">
     <el-scrollbar>
       <el-table
+        size="mini"
         :data="privTableData"
         :span-method="objectSpanMethod"
         border
@@ -28,11 +29,15 @@
           <template #header>
             <span>{{ "权限列表" }}</span>
             <el-divider direction="vertical"></el-divider>
-            <el-button size="mini" label="1" @click="selectAll(true)"
-              >全选</el-button
+            <el-button size="mini" @click="selectAll(true)">全选</el-button>
+            <el-button size="mini" @click="selectAll(false)">全不选</el-button>
+            <el-button size="mini" type="primary" @click="save()"
+              >保存</el-button
             >
-            <el-button size="mini" label="2" @click="selectAll(false)"
-              >全不选</el-button
+            <span class="show-group-name"
+              ><el-tag size="small"
+                >当前组名：{{ groupInfo.group_name }}</el-tag
+              ></span
             >
           </template>
           <template #default="{ row }">
@@ -51,7 +56,7 @@
 
 <script>
 
-import { getPriv } from '@/api/priv.js'
+import { getPriv, savePriv } from '@/api/priv.js'
 import { h } from "vue"
 
 export default {
@@ -66,6 +71,12 @@ export default {
   },
   mounted () {
     this.current = ''
+    if (this.$route.params.group_name) {
+      this.groupInfo.group_name = this.$route.params.group_name
+    }
+    if (this.$route.params.group_name) {
+      this.groupInfo.group_id = parseInt(this.$route.params.group_id)
+    }
     this.getPriv()
   },
   methods: {
@@ -89,7 +100,7 @@ export default {
 
     getPriv () {
       const groupInfo = {
-        id: 1
+        ...this.groupInfo
       }
       getPriv(groupInfo).then(r => {
         let tableRowSpan = {}
@@ -164,6 +175,18 @@ export default {
       for (const key in this.checkBoxSelect) {
         this.checkBoxSelect[key] = checked
       }
+    },
+    save () {
+      const groupInfo = {
+        ...this.groupInfo
+      }
+      savePriv(groupInfo, [...this.privTableData]).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新成功！',
+          type: 'success'
+        });
+      }).catch(e => console.log(e))
     }
   }
 };
@@ -178,5 +201,8 @@ export default {
   justify-content: space-between;
   flex-wrap: nowrap;
   flex-direction: row;
+}
+.show-group-name {
+  float: right;
 }
 </style>

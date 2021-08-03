@@ -7,3 +7,12 @@ export function getPriv (groupInfo) {
     params: groupInfo
   })
 }
+
+export function savePriv (groupInfo, privInfo) {
+  return request({
+    url: '/v1/manager/user/priv',
+    method: 'put',
+    params: groupInfo,
+    data: privInfo
+  })
+}

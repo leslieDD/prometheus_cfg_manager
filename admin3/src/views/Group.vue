@@ -61,7 +61,7 @@
                   <span>{{ parseTimeSelf(row.update_at) }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="操作" align="center" width="200px">
+              <el-table-column label="操作" align="center" width="260px">
                 <template v-slot="scope" align="center">
                   <div class="actioneara">
                     <div>
@@ -92,6 +92,15 @@
                         plain
                         :disabled="editCodeButVisable[scope.row.id]"
                         >启用</el-button
+                      >
+                    </div>
+                    <div>
+                      <el-button
+                        size="mini"
+                        type="primary"
+                        @click="doPriv(scope)"
+                        plain
+                        >权限</el-button
                       >
                     </div>
                     <div>
@@ -408,6 +417,14 @@ export default {
         this.ManagerGroup[scope.$index].enabled = newStatus
         this.ManagerGroup = [...this.ManagerGroup]
       }).catch(e => console.log(e))
+    },
+    doPriv (scape) {
+      this.$router.push({
+        name: 'privileges', params: {
+          group_name: scape.row.name,
+          group_id: scape.row.id
+        }
+      })
     },
     routeToUser (row) {
       this.$router.push({ name: 'user', params: { group_name: row.name } })
