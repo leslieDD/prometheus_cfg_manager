@@ -393,7 +393,7 @@ func LoadUserEnabled() ([]*ManagerUserDetail, *BriefMessage) {
 	}
 	us := []*ManagerUserDetail{}
 	if err := db.Table("manager_user").
-		Select("manager_user.*, manager_group.enabled AS group_enabled ").
+		Select("manager_user.*, manager_group.enabled AS group_enabled, manager_group.name as group_name ").
 		Joins("LEFT JOIN manager_group ON manager_user.group_id=manager_group.id").
 		Where("manager_user.enabled=1 and manager_group.enabled=1").
 		Find(&us).
@@ -424,8 +424,8 @@ func UpdateSession(s *Session) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("session").Raw("INSERT INTO session (`id`, `token`, `user_id`, `update_at`) VALUES " +
-		fmt.Sprintf("(%d, %s, %d, %s)", s.ID, s.Token, s.UserID, s.UpdateAt) +
+	tx := db.Table("session").Exec("INSERT INTO session (`id`, `token`, `user_id`, `update_at`) VALUES " +
+		fmt.Sprintf("(%d, '%s', %d, '%s')", s.ID, s.Token, s.UserID, s.UpdateAt.UTC().Format("2006-01-02 15:04:05")) +
 		" ON DUPLICATE KEY UPDATE `token`=VALUES(token),`user_id`=VALUES(user_id), `update_at`=VALUES(update_at) ")
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)

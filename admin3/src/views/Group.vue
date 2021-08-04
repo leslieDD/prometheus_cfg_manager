@@ -61,7 +61,7 @@
                   <span>{{ parseTimeSelf(row.update_at) }}</span>
                 </template>
               </el-table-column>
-              <el-table-column label="操作" align="center" width="260px">
+              <el-table-column label="操作" align="center" width="350px">
                 <template v-slot="scope" align="center">
                   <div class="actioneara">
                     <div>
@@ -72,6 +72,15 @@
                         plain
                         :disabled="editCodeButVisable[scope.row.id]"
                         >编辑</el-button
+                      >
+                    </div>
+                    <div>
+                      <el-button
+                        size="mini"
+                        type="primary"
+                        @click="doUserList(scope)"
+                        plain
+                        >用户列表</el-button
                       >
                     </div>
                     <div>
@@ -194,6 +203,42 @@
         </el-form>
       </span>
     </el-dialog>
+    <el-dialog
+      :title="'编辑组成员：' + editObject"
+      v-model="editUserVisible"
+      width="700px"
+      modal
+      :before-close="editUserClose"
+    >
+      <el-row type="flex" align="middle" justify="center">
+        <el-transfer
+          v-model="usersListValue"
+          filterable
+          :filter-method="filterUserMethod"
+          filter-placeholder="请输入关键字"
+          :data="usersListData"
+          @change="transferChange"
+          :titles="['用户列表', '组成员']"
+        >
+        </el-transfer>
+      </el-row>
+      <div class="user-list-push-box">
+        <el-button
+          class="user-list-close-btn"
+          type="info"
+          size="small"
+          @click="editUserClose"
+          >关闭</el-button
+        >
+        <el-button
+          class="user-list-push-btn"
+          type="warning"
+          size="small"
+          @click="pushNewUserList"
+          >提交</el-button
+        >
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -204,7 +249,10 @@ import {
   putManagerGroup,
   postManagerGroup,
   deleteManagerGroup,
-  enabledManagerGroup
+  enabledManagerGroup,
+  getAllUserList,
+  getAllUserForGroup,
+  updateGroupMember
 } from '@/api/manager.js'
 
 export default {
@@ -244,7 +292,13 @@ export default {
           { required: true, message: '请输入正确的名称', validator: validateStr, trigger: ['blur'] }
         ]
       },
-      paginationShow: true
+      paginationShow: true,
+      editObject: '',
+      editUserVisible: false,
+      usersListData: [],
+      transferChanged: false,
+      usersListValue: [],
+      groupInfo: {}
     }
   },
   mounted () {
@@ -294,6 +348,35 @@ export default {
       this.ManagerGroupRef.id = data.row.id
       this.ManagerGroupRef.name = data.row.name
       this.dialogVisible = true
+    },
+    doUserList (scope) {
+      this.editObject = scope.row.name
+      let usersListData = []
+      // usersListData
+      getAllUserList().then(r => {
+        r.data.forEach(u => {
+          usersListData.push({
+            label: u.username,
+            key: u.id,
+            spell: u.username,
+            disabled: false
+          })
+        })
+        let usersListValue = []
+        this.groupInfo = {
+          group_name: scope.row.name,
+          group_id: scope.row.id
+        }
+        getAllUserForGroup(this.groupInfo).then(r => {
+          r.data.forEach(u => {
+            usersListValue.push(u.id)
+          })
+          this.usersListData = usersListData
+          this.usersListValue = usersListValue
+          this.transferChanged = false
+          this.editUserVisible = true
+        }).catch(e => console.log(e))
+      }).catch(e => console.log(e))
     },
     handleSizeChange (val) {
       let getInfo = {
@@ -428,6 +511,27 @@ export default {
     },
     routeToUser (row) {
       this.$router.push({ name: 'user', params: { group_name: row.name } })
+    },
+    editUserClose () {
+      this.editUserVisible = false
+      this.transferChanged = false
+    },
+    pushNewUserList () {
+      const selectUserIDs = [...this.usersListValue]
+      updateGroupMember(this.groupInfo, selectUserIDs).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新组成员成功！',
+          type: 'success'
+        })
+        this.doGetManagerGroup()
+      }).catch(e => console.log(e))
+    },
+    filterUserMethod (query, item) {
+      return item.spell.indexOf(query) > -1
+    },
+    transferChange (value, direction, movedKeys) {
+      this.transferChanged = true
     }
   }
 };
@@ -460,5 +564,37 @@ export default {
 }
 .cm-s-monokai {
   height: 100%;
+}
+.group-board :deep() .el-transfer {
+  margin-top: -15px;
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: nowrap;
+}
+.group-board :deep() .el-transfer-panel {
+  width: 250px;
+}
+.group-board :deep() .el-transfer__buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+.group-board :deep() .el-transfer__button {
+  padding: 10px 15px;
+}
+.group-board :deep() .el-transfer__button {
+  margin-left: 0px;
+}
+.user-list-push-box {
+  display: float;
+  text-align: right;
+}
+.user-list-push-btn {
+  margin-right: 26px;
+}
+.user-list-close-btn {
+  margin-right: 8px;
 }
 </style>

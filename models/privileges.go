@@ -51,8 +51,27 @@ type TableGroupPriv struct {
 	FuncID  int `json:"func_id" gorm:"column:func_id"`
 }
 
-func CheckPriv(u *ManagerUser) {
-
+// 接口即使返回一样的数据，在前端使用的时候也用不一样的请求地址
+func CheckPriv(u *ManagerUser, pageName, subPageName, funcName string) (bool, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return false, ErrDataBase
+	}
+	var count int64
+	tx := db.Table("group_priv").
+		Select("COUNT(*) AS count").
+		Joins("LEFT JOIN page_function ON group_priv.func_id=page_function.id").
+		Where("group_priv.group_id=? AND (page_function.page_name=? AND page_function.sub_page_name=? AND page_function.func_name=?)",
+			u.GroupID, pageName, subPageName, funcName).Count(&count)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return false, ErrSearchDBData
+	}
+	if count <= 0 {
+		return false, ErrNoPrivRequest
+	}
+	return true, Success
 }
 
 func GetGroupPriv(gInfo *GetPrivInfo) ([]*ItemPriv, *BriefMessage) {
@@ -139,6 +158,55 @@ func PutGroupPriv(privInfo []*ItemPriv, gInfo *GetPrivInfo) *BriefMessage {
 		return nil
 	})
 	if tErr != nil {
+		return ErrUpdateData
+	}
+	return Success
+}
+
+type UserGroupMember struct {
+	ID   int    `json:"id" gorm:"column:id"`
+	Name string `json:"username" gorm:"column:username"`
+}
+
+func GetManagerUsersList() ([]*UserGroupMember, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	ugm := []*UserGroupMember{}
+	tx := db.Table("manager_user").Select("`id`, `username`").Find(&ugm)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return ugm, Success
+}
+
+func GetManagerGroupMember(gInfo *GetPrivInfo) ([]*UserGroupMember, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	ugm := []*UserGroupMember{}
+	tx := db.Table("manager_user").Select("`id`, `username`").Where("group_id=?", gInfo.GroupID).Find(&ugm)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return ugm, Success
+}
+
+func PutManagerGroupMember(gInfo *GetPrivInfo, userList []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("manager_user").Where("id in (?)", userList).Update("group_id", gInfo.GroupID)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
 		return ErrUpdateData
 	}
 	return Success

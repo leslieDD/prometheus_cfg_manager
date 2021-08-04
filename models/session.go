@@ -8,15 +8,15 @@ import (
 type Authentication map[string]interface{}
 
 type Session struct {
-	ID       int       `json:"id" gorm:"id"`
-	Token    string    `json:"token" gorm:"token"`
-	UserID   int       `json:"user_id" gorm:"user_id"`
-	UpdateAt time.Time `json:"update_at" gorm:"update_at"`
+	ID       int       `json:"id" gorm:"column:id"`
+	Token    string    `json:"token" gorm:"column:token"`
+	UserID   int       `json:"user_id" gorm:"column:user_id"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 }
 
 type ManagerUserDetail struct {
-	GroupEnabled bool     `json:"group_enabled" gorm:"group_enabled"`
-	GroupName    string   `json:"group_name" gorm:"group_name"`
+	GroupEnabled bool     `json:"group_enabled" gorm:"column:group_enabled"`
+	GroupName    string   `json:"group_name" gorm:"column:group_name"`
 	Session      *Session `json:"session" gorm:"-"`
 	ManagerUser
 }
@@ -38,6 +38,9 @@ func NewSessionCache() *SessionCache {
 }
 
 func (s *SessionCache) init() {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
 	us, bf := LoadUserEnabled()
 	if bf != Success {
 		return
@@ -55,7 +58,7 @@ func (s *SessionCache) init() {
 	}
 	ssMap := map[int]*Session{}
 	for _, s := range ss {
-		ssMap[s.ID] = s
+		ssMap[s.UserID] = s
 	}
 	for _, u := range us {
 		ss, ok := ssMap[u.ID]
@@ -93,4 +96,8 @@ func (s *SessionCache) Del(token string) {
 	}
 	go DeleteSession(d.ID)
 	delete(s.sessionsDetail, token)
+}
+
+func (s *SessionCache) Flush() {
+	s.init()
 }

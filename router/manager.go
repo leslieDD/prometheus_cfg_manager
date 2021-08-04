@@ -26,6 +26,10 @@ func initManagerApi() {
 	v1.PUT("/manager/user/status", putManagerUserStatus)
 	v1.POST("/manager/user/password", postUserPassword)
 
+	v1.GET("/manager/users/list", getManagerUsersList)
+	v1.GET("/manager/group/member", getManagerGroupMember)
+	v1.PUT("/manager/group/member", putManagerGroupMember)
+
 	v1.GET("/txt/programer/say", getProgramerSay)
 
 	v1.GET("/manager/user/priv", getUserPriv)
@@ -170,6 +174,36 @@ func postUserPassword(c *gin.Context) {
 		return
 	}
 	bf := models.PostUserPassword(&pInfo)
+	resComm(c, bf, nil)
+}
+
+func getManagerUsersList(c *gin.Context) {
+	data, bf := models.GetManagerUsersList()
+	resComm(c, bf, data)
+}
+
+func getManagerGroupMember(c *gin.Context) {
+	gInfo := models.GetPrivInfo{}
+	if err := c.BindQuery(&gInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	data, bf := models.GetManagerGroupMember(&gInfo)
+	resComm(c, bf, data)
+}
+
+func putManagerGroupMember(c *gin.Context) {
+	gInfo := models.GetPrivInfo{}
+	if err := c.BindQuery(&gInfo); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	uIDs := []int{}
+	if err := c.BindJSON(&uIDs); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutManagerGroupMember(&gInfo, uIDs)
 	resComm(c, bf, nil)
 }
 

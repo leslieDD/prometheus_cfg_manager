@@ -87,3 +87,28 @@ export function enabledManagerUser (info) {
     data: info
   })
 }
+
+export function getAllUserList () {
+  return request({
+    url: '/v1/manager/users/list',
+    method: 'get'
+    // data: info
+  })
+}
+
+export function updateGroupMember (groupInfo, memberInfo) {
+  return request({
+    url: '/v1/manager/group/member',
+    method: 'put',
+    data: memberInfo,
+    params: groupInfo
+  })
+}
+
+export function getAllUserForGroup(groupInfo){
+  return request({
+    url: '/v1/manager/group/member',
+    method: 'get',
+    params: groupInfo
+  })
+}
