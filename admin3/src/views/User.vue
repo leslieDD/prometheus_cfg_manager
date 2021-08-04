@@ -343,7 +343,6 @@ export default {
         this.buttonTitle = '更新'
         this.dialogTitle = '编辑用户'
         this.ManagerUserRef = { ...scope.row }
-        console.log(this.ManagerUserRef)
         this.dialogVisible = true
       }).catch(e => console.log(e))
     },
