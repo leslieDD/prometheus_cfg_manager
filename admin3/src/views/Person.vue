@@ -287,18 +287,34 @@ export default {
       this.dialogVisible = true
     },
     quitLog () {
-      logout().then(r => {
+      this.$confirm('退出账号, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        logout().then(r => {
+          this.$notify({
+            title: '成功',
+            message: '更新成功！',
+            type: 'success'
+          });
+          this.$store.dispatch('resetToken')
+          // removeToken()
+          removeStorageUserInfo()
+          // location.reload()
+          this.$router.push({ name: 'login' })
+        })
+      }).catch(() => {
         this.$notify({
-          title: '成功',
-          message: '更新成功！',
-          type: 'success'
+          title: '消息',
+          message: '取消退出',
+          type: 'info'
         });
-        this.$store.dispatch('resetToken')
-        // removeToken()
-        removeStorageUserInfo()
-        // location.reload()
-        this.$router.push({ name: 'login' })
-      })
+        // this.$message({
+        //   type: 'info',
+        //   message: '取消退出'
+        // });
+      });
     },
     handleClose () {
       this.dialogVisible = false
