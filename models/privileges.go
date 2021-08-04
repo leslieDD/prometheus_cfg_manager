@@ -204,9 +204,22 @@ func PutManagerGroupMember(gInfo *GetPrivInfo, userList []int) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("manager_user").Where("id in (?)", userList).Update("group_id", gInfo.GroupID)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
+	tErr := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("manager_user").
+			Where("group_id=?", gInfo.GroupID).
+			Update("group_id", 0).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		if err := tx.Table("manager_user").
+			Where("id in (?)", userList).
+			Update("group_id", gInfo.GroupID).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		return nil
+	})
+	if tErr != nil {
 		return ErrUpdateData
 	}
 	return Success
