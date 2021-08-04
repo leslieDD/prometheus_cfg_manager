@@ -47,14 +47,20 @@ func Auth() gin.HandlerFunc {
 				return
 			}
 		}
-		ss := models.SSObj.Get(token)
-		if ss == nil {
+		bf := models.CheckUserSession(c, token)
+		if bf != models.Success {
 			c.Abort()
 			resComm(c, models.ErrTokenIsNull, nil)
 			return
 		}
-		c.Keys = models.Authentication{
-			"userInfo": ss,
-		}
+		// ss := models.SSObj.Get(token)
+		// if ss == nil {
+		// 	c.Abort()
+		// 	resComm(c, models.ErrTokenIsNull, nil)
+		// 	return
+		// }
+		// c.Keys = models.Authentication{
+		// 	"userInfo": ss,
+		// }
 	}
 }

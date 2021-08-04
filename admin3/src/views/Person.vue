@@ -170,7 +170,7 @@
 import { removeStorageUserInfo } from '@/utils/localStorage.js'
 // import store from '@/store/index.js'
 import '@/assets/css/term.css'
-import { loadTxt, chgPasswd } from '@/api/person.js'
+import { loadTxt, chgPasswd, logout } from '@/api/person.js'
 export default {
   data () {
     var validatePass2 = (rule, value, callback) => {
@@ -287,11 +287,18 @@ export default {
       this.dialogVisible = true
     },
     quitLog () {
-      this.$store.dispatch('resetToken')
-      // removeToken()
-      removeStorageUserInfo()
-      // location.reload()
-      this.$router.push({ name: 'login' })
+      logout().then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新成功！',
+          type: 'success'
+        });
+        this.$store.dispatch('resetToken')
+        // removeToken()
+        removeStorageUserInfo()
+        // location.reload()
+        this.$router.push({ name: 'login' })
+      })
     },
     handleClose () {
       this.dialogVisible = false

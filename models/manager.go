@@ -371,7 +371,7 @@ func Login(ui *UserLogInfo) (*ManagerUserDetail, *BriefMessage) {
 	}
 	u.Session = ss
 	UpdateSession(ss)
-	SSObj.Set(ss.Token, &u)
+	// SSObj.Set(ss.Token, &u)
 	return &u, Success
 }
 
@@ -418,6 +418,21 @@ func LoadSession(uids []int) ([]*Session, *BriefMessage) {
 	return ss, Success
 }
 
+func LoadSessionByToken(s string) (*Session, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	userSession := Session{}
+	tx := db.Table("session").Where("token=?", s).Find(&userSession)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return &userSession, Success
+}
+
 func UpdateSession(s *Session) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -434,13 +449,13 @@ func UpdateSession(s *Session) *BriefMessage {
 	return Success
 }
 
-func DeleteSession(id int) *BriefMessage {
+func DeleteSession(user *UserSessionInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("session").Where("id=?", id).Delete(nil)
+	tx := db.Table("session").Where("user_id=?", user.UserID).Delete(nil)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrDelData
@@ -448,7 +463,8 @@ func DeleteSession(id int) *BriefMessage {
 	return Success
 }
 
-func Logout(token string) *BriefMessage {
-	SSObj.Del(token)
+func Logout(user *UserSessionInfo) *BriefMessage {
+	DeleteSession(user)
+	// SSObj.Del(token)
 	return Success
 }

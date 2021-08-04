@@ -14,3 +14,10 @@ export function chgPasswd(pwdInfo){
     data: pwdInfo
   })
 }
+
+export function logout(){
+  return request({
+    url: '/v1/logout',
+    method: 'post'
+  })
+}

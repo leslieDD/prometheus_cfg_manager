@@ -42,7 +42,8 @@ func logout(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.Logout("")
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	bf := models.Logout(user)
 	resComm(c, bf, nil)
 }
 
