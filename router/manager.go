@@ -34,6 +34,8 @@ func initManagerApi() {
 
 	v1.GET("/manager/user/priv", getUserPriv)
 	v1.PUT("/manager/user/priv", putUserPriv)
+
+	v1.GET("/manager/user/menu/priv", getUserMenuPriv)
 }
 
 func logout(c *gin.Context) {
@@ -339,4 +341,10 @@ func putUserPriv(c *gin.Context) {
 	}
 	bf := models.PutGroupPriv(privInfo, &gInfo)
 	resComm(c, bf, nil)
+}
+
+func getUserMenuPriv(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	result, bf := models.GetUserMenuPriv(user)
+	resComm(c, bf, result)
 }

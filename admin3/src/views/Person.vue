@@ -1,7 +1,6 @@
 <template>
   <div class="person-board">
     <div id="box">
-      <!-- 个人资料卡片 -->
       <div class="meBox">
         <!-- 头像 -->
         <!-- <div class="headPhoto">
@@ -10,7 +9,6 @@
           <!-- <el-image :src="src"></el-image> -->
           <!-- <img src="/imgs/xiaohei.jpg" /> -->
         </div>
-        <!-- 介绍 -->
         <div class="meBox-title">
           <p>I'm DianDian</p>
           <div class="fg"></div>
@@ -31,30 +29,24 @@
             }}</el-descriptions-item>
           </el-descriptions>
         </div>
-        <!-- 两个按钮 -->
         <div class="meBox-Button">
           <a href="javascript:void(0)" @click="changePassword()">更改密码</a>
           <a href="javascript:void(0)" @click="quitLog()">退出登录</a>
         </div>
       </div>
-      <!-- 伪终端介绍 -->
       <div id="cmdBox">
-        <!-- 第一个终端 -->
         <div class="cmd">
-          <!-- 三个按钮 -->
           <div class="click">
             <div class="red"></div>
             <div class="yellow"></div>
             <div class="green"></div>
           </div>
-          <!-- 顶部标题 -->
           <div class="title">
             <span>root - bash</span>
           </div>
-          <!-- 终端内文字 -->
           <div class="cmdText">
-            <span style="color: rgb(0, 190, 0)">root@monitor</span>
-            <span style="color: blue">~</span>
+            <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
+            <span style="color: blue"># </span>
             <span style="color: rgb(39, 39, 39)">./tianqi.sh</span>
             <br />
             <iframe
@@ -66,20 +58,20 @@
               allowtransparency="true"
             ></iframe>
             <br />
-            <span style="color: rgb(0, 190, 0)">root@monitor</span>
-            <span style="color: blue">~</span>
+            <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
+            <span style="color: blue"># </span>
             <span style="color: rgb(39, 39, 39)">uname</span>
             <p>{{ uname }}</p>
             <br />
-            <span style="color: rgb(0, 190, 0)">root@monitor</span>
-            <span style="color: blue">~</span>
+            <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
+            <span style="color: blue"># </span>
             <span style="color: rgb(39, 39, 39)"
               >cat ./quotes_by_famous_people.txt</span
             >
             <p v-for="(words, index) in sayWhat" :key="index">{{ words }}</p>
             <br />
-            <span style="color: rgb(0, 190, 0)">root@monitor</span>
-            <span style="color: blue">~</span>
+            <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
+            <span style="color: blue"># </span>
             <span style="color: rgb(39, 39, 39)"
               >sudo rm -rf /过去的自己/*</span
             >
@@ -99,22 +91,36 @@
           </div>
           <!-- 终端内文字 -->
           <div class="cmdText">
-            <span style="color: rgb(0, 190, 0)">root@monitor</span>
-            <span style="color: blue">~</span>
-            <span style="color: rgb(39, 39, 39)">vim ./prometheus.yml</span>
-            <p>点击下面菜单进入：</p>
+            <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
+            <span style="color: blue"># </span>
+            <span style="color: rgb(39, 39, 39)"
+              >awk '/menu/' ./prometheus.yml</span
+            >
+            <p class="prompt-text">点击下面菜单进入：</p>
             <ul class="ul">
-              <li>
+              <li v-if="menuShow.show_menu_prometheus_cfg_manager === true">
                 <el-button type="text" @click="goToConfig"
                   >Prometheus配置</el-button
                 >
               </li>
-              <li>
-                <el-button type="text" @click="goToAdmin">权限管理</el-button>
+              <li
+                class="menu_zero_padding"
+                v-if="menuShow.show_menu_administrator_cfg_manager === true"
+              >
+                <el-button type="text" @click="goToAdmin"
+                  >用户及权限管理</el-button
+                >
+              </li>
+              <li v-if="Object.keys(menuShow).length === 0">
+                <div class="no_menu_show">
+                  <el-tag type="warning" size="small"
+                    >没有可供显示的菜单</el-tag
+                  >
+                </div>
               </li>
             </ul>
-            <span style="color: rgb(0, 190, 0)">root@monitor</span>
-            <span style="color: blue">~</span>
+            <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
+            <span style="color: blue"># </span>
           </div>
         </div>
       </div>
@@ -170,7 +176,7 @@
 import { removeStorageUserInfo } from '@/utils/localStorage.js'
 // import store from '@/store/index.js'
 import '@/assets/css/term.css'
-import { loadTxt, chgPasswd, logout } from '@/api/person.js'
+import { loadTxt, chgPasswd, logout, getMenuPriv } from '@/api/person.js'
 export default {
   data () {
     var validatePass2 = (rule, value, callback) => {
@@ -212,11 +218,16 @@ export default {
           { required: true, validator: validatePass2, trigger: 'blur' }
         ],
       },
-      userID: 0
+      userID: 0,
+      menuShow: {
+        show_menu_prometheus_cfg_manager: false,
+        show_menu_administrator_cfg_manager: false
+      }
     }
   },
   mounted () {
     this.initUserInfo()
+    this.goMenu()
     this.switchSay()
     if (this.timer === null) {
       this.setTimeer()
@@ -240,6 +251,13 @@ export default {
           login_time: userInfo.update_at
         }
       }
+    },
+    goMenu () {
+      getMenuPriv().then(r => {
+        this.menuShow = r.data
+      }).catch(e => {
+        console.log(e)
+      })
     },
     goToConfig () {
       this.$router.push({ name: 'menu' })
@@ -354,6 +372,16 @@ export default {
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
+}
+.menu_zero_padding :deep() .el-button--text {
+  padding-top: 0px;
+}
+.no_menu_show {
+  padding: 10px;
+}
+.prompt-text {
+  /* font-size: 14px; */
+  font-weight: bold;
 }
 .person-info {
   width: 40%;

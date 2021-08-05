@@ -224,3 +224,30 @@ func PutManagerGroupMember(gInfo *GetPrivInfo, userList []int) *BriefMessage {
 	}
 	return Success
 }
+
+type UserMenu struct {
+	FuncName string `json:"func_name" gorm:"column:func_name"`
+}
+
+func GetUserMenuPriv(user *UserSessionInfo) (map[string]bool, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	ums := []*UserMenu{}
+	tx := db.Table("group_priv").
+		Select("func_name").
+		Joins("LEFT JOIN page_function ON group_priv.func_id=page_function.id").
+		Where("group_priv.group_id=? AND page_function.page_name='person' AND page_function.func_name IN ('show_menu_prometheus_cfg_manager', 'show_menu_administrator_cfg_manager')",
+			user.GroupID).Find(&ums)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	menuDataResp := map[string]bool{}
+	for _, um := range ums {
+		menuDataResp[um.FuncName] = true
+	}
+	return menuDataResp, Success
+}

@@ -15,6 +15,14 @@ export function chgPasswd(pwdInfo){
   })
 }
 
+export function getMenuPriv(userInfo){
+  return request({
+    url: '/v1/manager/user/menu/priv',
+    method: 'get',
+    params: userInfo
+  })
+}
+
 export function logout(){
   return request({
     url: '/v1/logout',
