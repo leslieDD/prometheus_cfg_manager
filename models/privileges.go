@@ -5,6 +5,7 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"sort"
+	"strconv"
 
 	"gorm.io/gorm"
 )
@@ -205,9 +206,24 @@ func PutManagerGroupMember(gInfo *GetPrivInfo, userList []int) *BriefMessage {
 		return ErrDataBase
 	}
 	tErr := db.Transaction(func(tx *gorm.DB) error {
+		param := AdminParams{}
+		if err := tx.Table("manager_set aaa").Where("param_name='default_group'").Find(&param).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		defaultGroupValue := int64(0)
+		if param.ParamName == "default_group" {
+			value, err := strconv.ParseInt(param.ParamValue, 10, 0)
+			if err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			defaultGroupValue = value
+		}
+		config.Log.Warnf("defaultGroupValue => %v", defaultGroupValue)
 		if err := tx.Table("manager_user").
 			Where("group_id=?", gInfo.GroupID).
-			Update("group_id", 0).Error; err != nil {
+			Update("group_id", defaultGroupValue).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}

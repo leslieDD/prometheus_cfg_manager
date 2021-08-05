@@ -88,6 +88,21 @@ func GetManagerGroups(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	return CalSplitPage(sp, count, mgs), Success
 }
 
+func GetManagerGroupList(user *UserSessionInfo) ([]*ManagerGroup, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	mgs := []*ManagerGroup{}
+	tx := db.Table("manager_group").Find(&mgs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return mgs, Success
+}
+
 func GetManagerGroupEnabled() ([]*ManagerGroup, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -466,5 +481,47 @@ func DeleteSession(user *UserSessionInfo) *BriefMessage {
 func Logout(user *UserSessionInfo) *BriefMessage {
 	DeleteSession(user)
 	// SSObj.Del(token)
+	return Success
+}
+
+type AdminParams struct {
+	ParamName  string `json:"param_name" gorm:"column:param_name"`
+	ParamValue string `json:"param_value" gorm:"column:param_value"`
+}
+
+func GetManagerSetting() (map[string]string, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	params := []AdminParams{}
+	tx := db.Table("manager_set").Find(&params)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrDelData
+	}
+	result := map[string]string{}
+	for _, o := range params {
+		result[o.ParamName] = o.ParamValue
+	}
+	return result, Success
+}
+
+func PutManagerSetting(params map[string]string) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	for key, value := range params {
+		tx := db.Table("manager_set").
+			Where("param_name", key).
+			Update("param_value", value)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrUpdateData
+		}
+	}
 	return Success
 }

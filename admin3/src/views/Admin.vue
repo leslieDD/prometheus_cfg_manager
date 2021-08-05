@@ -33,6 +33,10 @@
                 <i class="el-icon-milk-tea"></i>
                 <template #title>组管理</template>
               </el-menu-item>
+              <el-menu-item index="10">
+                <i class="el-icon-lollipop"></i>
+                <template #title>设置</template>
+              </el-menu-item>
               <!-- <el-menu-item index="10">
                 <i class="el-icon-ice-drink"></i>
                 <template #title>权限管理</template>
@@ -77,6 +81,8 @@ export default {
       } else if (key === '9') {
         this.$router.push({ name: 'group' })
       } else if (key === '10') {
+        this.$router.push({ name: 'adminSet' })
+      } else if (key === '11') {
         this.$router.push({ name: 'privileges' })
       }
     },

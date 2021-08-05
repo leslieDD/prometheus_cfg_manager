@@ -112,3 +112,25 @@ export function getAllUserForGroup(groupInfo){
     params: groupInfo
   })
 }
+
+export function getGroupList(){
+  return request({
+    url: '/v1/manager/groups/list',
+    method: 'get'
+  })
+}
+
+export function getAdminSetting(){
+  return request({
+    url: '/v1/manager/setting',
+    method: 'get'
+  })
+}
+
+export function putAdminSetting(paramsInfo){
+  return request({
+    url: '/v1/manager/setting',
+    method: 'put',
+    data: paramsInfo
+  })
+}

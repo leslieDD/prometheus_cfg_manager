@@ -179,6 +179,12 @@ const routes = [
           component: () => import('@/views/Group.vue')
         },
         {
+          path: '/admin-set',
+          name: 'adminSet',
+          title: '设置',
+          component: () => import('@/views/AdminSet.vue')
+        },
+        {
           path: '/privileges',
           name: 'privileges',
           title: '权限管理',

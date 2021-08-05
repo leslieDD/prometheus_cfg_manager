@@ -13,6 +13,7 @@ func initManagerApi() {
 	v1.POST("/logout", logout)
 
 	v1.GET("/manager/groups", getManagerGroups)
+	v1.GET("/manager/groups/list", getManagerGroupList)
 	v1.GET("/manager/groups/enabled", getMGEnabled)
 	v1.POST("/manager/group", postManagerGroup)
 	v1.PUT("/manager/group", putManagerGroup)
@@ -36,6 +37,9 @@ func initManagerApi() {
 	v1.PUT("/manager/user/priv", putUserPriv)
 
 	v1.GET("/manager/user/menu/priv", getUserMenuPriv)
+
+	v1.GET("/manager/setting", getManagerSetting)
+	v1.PUT("/manager/setting", putManagerSetting)
 }
 
 func logout(c *gin.Context) {
@@ -62,6 +66,17 @@ func getManagerGroups(c *gin.Context) {
 		return
 	}
 	result, bf := models.GetManagerGroups(sp)
+	resComm(c, bf, result)
+}
+
+func getManagerGroupList(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "group", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	result, bf := models.GetManagerGroupList(user)
 	resComm(c, bf, result)
 }
 
@@ -347,4 +362,31 @@ func getUserMenuPriv(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	result, bf := models.GetUserMenuPriv(user)
 	resComm(c, bf, result)
+}
+
+func getManagerSetting(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "setting", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	data, bf := models.GetManagerSetting()
+	resComm(c, bf, data)
+}
+
+func putManagerSetting(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "setting", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	params := map[string]string{}
+	if err := c.BindJSON(&params); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutManagerSetting(params)
+	resComm(c, bf, nil)
 }
