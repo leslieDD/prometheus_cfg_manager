@@ -48,6 +48,12 @@ func logout(c *gin.Context) {
 }
 
 func getManagerGroups(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "group", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -58,11 +64,23 @@ func getManagerGroups(c *gin.Context) {
 }
 
 func getMGEnabled(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "group", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	data, bf := models.GetManagerGroupEnabled()
 	resComm(c, bf, data)
 }
 
 func postManagerGroup(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "group", "add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	mg := models.ManagerGroup{}
 	if err := c.BindJSON(&mg); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -73,6 +91,12 @@ func postManagerGroup(c *gin.Context) {
 }
 
 func putManagerGroup(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "group", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	mg := models.ManagerGroup{}
 	if err := c.BindJSON(&mg); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -83,6 +107,12 @@ func putManagerGroup(c *gin.Context) {
 }
 
 func deleteManagerGroup(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "group", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	gIDStr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -99,6 +129,12 @@ func deleteManagerGroup(c *gin.Context) {
 }
 
 func putManagerGroupStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "group", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	enabledInfo := models.EnabledInfo{}
 	if err := c.BindJSON(&enabledInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -111,6 +147,12 @@ func putManagerGroupStatus(c *gin.Context) {
 ///
 
 func getManagerUsers(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "user", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -121,6 +163,12 @@ func getManagerUsers(c *gin.Context) {
 }
 
 func postManagerUser(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "user", "add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	mu := models.ManagerUser{}
 	if err := c.BindJSON(&mu); err != nil {
 		config.Log.Error(err)
@@ -132,6 +180,12 @@ func postManagerUser(c *gin.Context) {
 }
 
 func putManagerUser(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "user", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	mu := models.ManagerUser{}
 	if err := c.BindJSON(&mu); err != nil {
 		config.Log.Error(err)
@@ -143,6 +197,12 @@ func putManagerUser(c *gin.Context) {
 }
 
 func deleteManagerUser(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "user", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	gIDStr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -159,6 +219,12 @@ func deleteManagerUser(c *gin.Context) {
 }
 
 func putManagerUserStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "user", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	enabledInfo := models.EnabledInfo{}
 	if err := c.BindJSON(&enabledInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -169,6 +235,12 @@ func putManagerUserStatus(c *gin.Context) {
 }
 
 func postUserPassword(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "person", "", "update_password")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	pInfo := models.ChangePasswordInfo{}
 	if err := c.BindJSON(&pInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -179,11 +251,23 @@ func postUserPassword(c *gin.Context) {
 }
 
 func getManagerUsersList(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "user", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	data, bf := models.GetManagerUsersList()
 	resComm(c, bf, data)
 }
 
 func getManagerGroupMember(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "group", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	gInfo := models.GetPrivInfo{}
 	if err := c.BindQuery(&gInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -194,6 +278,12 @@ func getManagerGroupMember(c *gin.Context) {
 }
 
 func putManagerGroupMember(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "group", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	gInfo := models.GetPrivInfo{}
 	if err := c.BindQuery(&gInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -214,6 +304,12 @@ func getProgramerSay(c *gin.Context) {
 }
 
 func getUserPriv(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "privileges", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	// u := c.Keys["userInfo"].(*models.ManagerUserDetail)
 	gInfo := models.GetPrivInfo{}
 	if err := c.BindQuery(&gInfo); err != nil {
@@ -225,6 +321,12 @@ func getUserPriv(c *gin.Context) {
 }
 
 func putUserPriv(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "privileges", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	privInfo := []*models.ItemPriv{}
 	if err := c.BindJSON(&privInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)

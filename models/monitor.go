@@ -229,7 +229,7 @@ type TreeNodeFromCli struct {
 	Parent int    `json:"parent" gorm:"parent"`
 }
 
-func CreateTreeNode(t *TreeNodeFromCli) *BriefMessage {
+func CreateTreeNode(user *UserSessionInfo, t *TreeNodeFromCli) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -238,13 +238,25 @@ func CreateTreeNode(t *TreeNodeFromCli) *BriefMessage {
 	writeData := map[string]interface{}{}
 	var tx *gorm.DB
 	if t.Level == 2 { // table rules_groups
+		pass := CheckPriv(user, "noticeManager", "", "add_file")
+		if pass != Success {
+			return pass
+		}
 		writeData["name"] = t.Lable
 		tx = db.Table("rules_groups")
 	} else if t.Level == 3 {
+		pass := CheckPriv(user, "noticeManager", "", "add_group")
+		if pass != Success {
+			return pass
+		}
 		writeData["name"] = t.Lable
 		writeData["rules_groups_id"] = t.Parent
 		tx = db.Table("sub_group")
 	} else if t.Level == 4 {
+		pass := CheckPriv(user, "noticeManager", "", "add_rule")
+		if pass != Success {
+			return pass
+		}
 		writeData["sub_group_id"] = t.Parent
 		writeData["alert"] = t.Lable
 		writeData["for"] = ""

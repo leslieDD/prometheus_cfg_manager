@@ -80,6 +80,7 @@ func initApiRouter() {
 	v1.GET("/base/labels", getBaseLabels)
 	v1.POST("/base/labels", postBaseLabels)
 	v1.PUT("/base/labels", putBaseLabels)
+	v1.PUT("/base/labels/status", putBaseLabelsStatus)
 	v1.DELETE("/base/labels", delBaseLabels)
 	v1.GET("/base/relabels", getReLabels)
 	v1.GET("/base/relabels/all", getAllRelabels)
@@ -87,7 +88,6 @@ func initApiRouter() {
 	v1.PUT("/base/relabels", putReLabels)
 	v1.DELETE("/base/relabels", delReLabels)
 	v1.PUT("base/relabels/code", putRelabelsCode)
-	v1.PUT("/base/labels/status", putBaseLabelsStatus)
 	v1.PUT("/base/relabels/status", putBaseRelabelsStatus)
 
 	v1.GET("/prometheus/tmpl", getProTmpl)
@@ -110,11 +110,23 @@ func getTest(c *gin.Context) {
 }
 
 func getJobs(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	result, bf := models.GetJobs()
 	resComm(c, bf, result)
 }
 
 func getJobsSplit(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -125,6 +137,12 @@ func getJobsSplit(c *gin.Context) {
 }
 
 func getDefJobsSplit(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "defaultJobs", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -135,6 +153,12 @@ func getDefJobsSplit(c *gin.Context) {
 }
 
 func getJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	jIDstr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -151,6 +175,12 @@ func getJob(c *gin.Context) {
 }
 
 func postJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	jInfo := &models.Jobs{}
 	if err := c.BindJSON(jInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -161,6 +191,12 @@ func postJob(c *gin.Context) {
 }
 
 func postDefJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "defaultJobs", "add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	jInfo := &models.Jobs{}
 	if err := c.BindJSON(jInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -172,6 +208,12 @@ func postDefJob(c *gin.Context) {
 }
 
 func putJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	jInfo := &models.Jobs{}
 	if err := c.BindJSON(jInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -183,6 +225,12 @@ func putJob(c *gin.Context) {
 }
 
 func putDefJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "defaultJobs", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	jInfo := &models.Jobs{}
 	if err := c.BindJSON(jInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -194,6 +242,12 @@ func putDefJob(c *gin.Context) {
 }
 
 func deleteJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	jIDstr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -210,6 +264,12 @@ func deleteJob(c *gin.Context) {
 }
 
 func deleteDefJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "defaultJobs", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	jIDstr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -226,6 +286,12 @@ func deleteDefJob(c *gin.Context) {
 }
 
 func putJobDefaultStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "defaultJobs", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -236,6 +302,12 @@ func putJobDefaultStatus(c *gin.Context) {
 }
 
 func getJobGroup(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "search_sub_group")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -246,6 +318,12 @@ func getJobGroup(c *gin.Context) {
 }
 
 func postJobGroup(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "add_sub_group")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	info := &models.JobGroup{}
 	if err := c.BindJSON(info); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -256,6 +334,12 @@ func postJobGroup(c *gin.Context) {
 }
 
 func putJobGroup(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "update_sub_group")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	info := &models.JobGroup{}
 	if err := c.BindJSON(info); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -266,6 +350,12 @@ func putJobGroup(c *gin.Context) {
 }
 
 func delJobGroup(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "delete_sub_group")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	info := &models.DelJobGroupInfo{}
 	if err := c.BindQuery(info); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -276,6 +366,12 @@ func delJobGroup(c *gin.Context) {
 }
 
 func getJobMachines(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -292,6 +388,12 @@ func getJobMachines(c *gin.Context) {
 }
 
 func getJobGroupMachines(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "search_sub_group_ip_pool")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -308,6 +410,12 @@ func getJobGroupMachines(c *gin.Context) {
 }
 
 func putJobGroupMachines(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "update_sub_group_ip_pool")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -329,28 +437,28 @@ func putJobGroupMachines(c *gin.Context) {
 }
 
 func getGroupLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "search_sub_group_label")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
-	// idStr, ok := c.GetQuery("id")
-	// if !ok {
-	// 	resComm(c, models.ErrQueryData, nil)
-	// 	return
-	// }
-	// jID, err := strconv.ParseInt(idStr, 10, 0)
-	// if err != nil {
-	// 	config.Log.Error(err)
-	// 	resComm(c, models.ErrQueryData, nil)
-	// 	return
-	// }
-	// data, bf := models.GetGroupLabels(jID)
 	data, bf := models.GetJobGroupWithSplitPage(sp)
 	resComm(c, bf, data)
 }
 
 func putGroupLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "update_sub_group_label")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -372,6 +480,12 @@ func putGroupLabels(c *gin.Context) {
 }
 
 func delGroupLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "delete_sub_group_label")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	dinfo := models.DelGroupLables{}
 	if err := c.BindQuery(&dinfo); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -382,6 +496,12 @@ func delGroupLabels(c *gin.Context) {
 }
 
 func getAllMachinesLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	info := models.JobGroupID{}
 	if err := c.BindQuery(&info); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -392,6 +512,12 @@ func getAllMachinesLabels(c *gin.Context) {
 }
 
 func putJobGroupStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "dis.enable_sub_group")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -402,6 +528,12 @@ func putJobGroupStatus(c *gin.Context) {
 }
 
 func putJobGroupLabelsStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "dis.enable_sub_group_label")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -412,6 +544,12 @@ func putJobGroupLabelsStatus(c *gin.Context) {
 }
 
 func swapJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "swap")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	sInfo := &models.SwapInfo{}
 	if err := c.BindJSON(sInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -422,12 +560,23 @@ func swapJob(c *gin.Context) {
 }
 
 func publishJobs(c *gin.Context) {
-	// bf := models.DoPublishJobs()
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "publish")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	bf := models.AllowOneObj.DoPublishJobs()
 	resComm(c, bf, nil)
 }
 
 func putJobsStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -438,6 +587,12 @@ func putJobsStatus(c *gin.Context) {
 }
 
 func postUpdateJobIPs(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	cInfo := models.UpdateIPForJob{}
 	if err := c.BindJSON(&cInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -448,6 +603,12 @@ func postUpdateJobIPs(c *gin.Context) {
 }
 
 func getMachine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	mIDstr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -464,6 +625,12 @@ func getMachine(c *gin.Context) {
 }
 
 func getMachines(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -475,6 +642,12 @@ func getMachines(c *gin.Context) {
 }
 
 func postMachine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	mInfo := &models.Machine{}
 	if err := c.BindJSON(mInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -485,6 +658,12 @@ func postMachine(c *gin.Context) {
 }
 
 func putMachine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	mInfo := &models.Machine{}
 	if err := c.BindJSON(mInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -495,6 +674,12 @@ func putMachine(c *gin.Context) {
 }
 
 func deleteMachine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	mIDstr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -511,6 +696,12 @@ func deleteMachine(c *gin.Context) {
 }
 
 func putMachineStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -521,11 +712,23 @@ func putMachineStatus(c *gin.Context) {
 }
 
 func getAllMachines(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	data, bf := models.GetAllMachine()
 	resComm(c, bf, data)
 }
 
 func batchDeleteMachine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	ids := []int{}
 	if err := c.BindJSON(&ids); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -536,6 +739,12 @@ func batchDeleteMachine(c *gin.Context) {
 }
 
 func uploadMachines(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "import")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	info := models.UploadMachinesInfo{}
 	if err := c.BindJSON(&info); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -546,26 +755,56 @@ func uploadMachines(c *gin.Context) {
 }
 
 func publish(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "publish")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	bf := models.Publish()
 	resComm(c, bf, nil)
 }
 
 func preview(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "preview", "", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	data, bf := models.Preview()
 	resComm(c, bf, data)
 }
 
 func reload(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "reload")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	bf := models.Reload()
 	resComm(c, bf, nil)
 }
 
 func allFileList(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ftree", "", "list_all_file")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	data, bf := models.AllFileList()
 	resComm(c, bf, data)
 }
 
 func fileContent(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ftree", "", "view_file")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	child := models.Child{}
 	if err := c.BindJSON(&child); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -576,11 +815,23 @@ func fileContent(c *gin.Context) {
 }
 
 func allRulesFileList(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ruleView", "", "list_all_file")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	data, bf := models.AllRulesFileList()
 	resComm(c, bf, data)
 }
 
 func ruleFileContent(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ruleView", "", "view_file")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	child := models.Child{}
 	if err := c.BindJSON(&child); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -591,11 +842,23 @@ func ruleFileContent(c *gin.Context) {
 }
 
 func getTree(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "noticeManager", "", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	data, bf := models.GetNodesFromDB()
 	resComm(c, bf, data)
 }
 
 func getNode(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "noticeManager", "", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	qni := models.QueryGetNode{}
 	if err := c.BindQuery(&qni); err != nil {
 		resComm(c, models.ErrQueryData, nil)
@@ -606,6 +869,12 @@ func getNode(c *gin.Context) {
 }
 
 func postNode(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "noticeManager", "", "update_rule")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	nodeInfo := models.TreeNodeInfo{}
 	if err := c.BindJSON(&nodeInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -616,6 +885,12 @@ func postNode(c *gin.Context) {
 }
 
 func putNode(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "noticeManager", "", "update_rule")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	nodeInfo := models.TreeNodeInfo{}
 	if err := c.BindJSON(&nodeInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -626,16 +901,34 @@ func putNode(c *gin.Context) {
 }
 
 func getDefLabels(c *gin.Context) {
+	// user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	// pass := models.CheckPriv(user, "baseConfig", "baseLabels", "search")
+	// if pass != models.Success {
+	// 	resComm(c, pass, nil)
+	// 	return
+	// }
 	data, bf := models.GetDefLabels()
 	resComm(c, bf, data)
 }
 
 func getDefEnableLabels(c *gin.Context) {
+	// user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	// pass := models.CheckPriv(user, "baseConfig", "baseLabels", "search")
+	// if pass != models.Success {
+	// 	resComm(c, pass, nil)
+	// 	return
+	// }
 	data, bf := models.GetDefEnableLabels()
 	resComm(c, bf, data)
 }
 
 func delLabel(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "noticeManager", "", "update_rule")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	labelType, ok := c.GetQuery("type")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -651,16 +944,23 @@ func delLabel(c *gin.Context) {
 }
 
 func createTreeNode(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	tnc := models.TreeNodeFromCli{}
 	if err := c.BindJSON(&tnc); err != nil {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.CreateTreeNode(&tnc)
+	bf := models.CreateTreeNode(user, &tnc)
 	resComm(c, bf, nil)
 }
 
 func updateTreeNode(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "noticeManager", "", "rename_node")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	tnc := models.TreeNodeFromCli{}
 	if err := c.BindJSON(&tnc); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -671,9 +971,21 @@ func updateTreeNode(c *gin.Context) {
 }
 
 func deleteTreeNode(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	var skipSelf bool
 	if strings.ToLower(c.Query("skip_self")) == "true" {
+		pass := models.CheckPriv(user, "noticeManager", "", "delete_tree_node")
+		if pass != models.Success {
+			resComm(c, pass, nil)
+			return
+		}
 		skipSelf = true
+	} else {
+		pass := models.CheckPriv(user, "noticeManager", "", "delete_node")
+		if pass != models.Success {
+			resComm(c, pass, nil)
+			return
+		}
 	}
 	tnc := models.TreeNodeFromCli{}
 	if err := c.BindJSON(&tnc); err != nil {
@@ -685,11 +997,23 @@ func deleteTreeNode(c *gin.Context) {
 }
 
 func rulePublish(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "noticeManager", "", "publish_rule")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	bf := models.RulePublish()
 	resComm(c, bf, nil)
 }
 
 func putTreeNodeStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "noticeManager", "", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	upInfo := models.TreeNodeStatus{}
 	if err := c.BindJSON(&upInfo); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -700,6 +1024,12 @@ func putTreeNodeStatus(c *gin.Context) {
 }
 
 func postTreeUploadFileYaml(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "noticeManager", "", "import_rule_from_file")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	gidStr, ok := c.GetQuery("gid")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -716,6 +1046,12 @@ func postTreeUploadFileYaml(c *gin.Context) {
 }
 
 func getBaseLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "baseLabels", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -726,6 +1062,12 @@ func getBaseLabels(c *gin.Context) {
 }
 
 func postBaseLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "baseLabels", "add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	newLabel := models.BaseLabels{}
 	if err := c.BindJSON(&newLabel); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -736,6 +1078,12 @@ func postBaseLabels(c *gin.Context) {
 }
 
 func putBaseLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "baseLabels", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	label := models.BaseLabels{}
 	if err := c.BindJSON(&label); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -746,6 +1094,12 @@ func putBaseLabels(c *gin.Context) {
 }
 
 func delBaseLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "baseLabels", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -762,6 +1116,12 @@ func delBaseLabels(c *gin.Context) {
 }
 
 func getReLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "reLabels", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
 		resComm(c, models.ErrSplitParma, nil)
@@ -772,11 +1132,23 @@ func getReLabels(c *gin.Context) {
 }
 
 func getAllRelabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "reLabels", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	data, bf := models.GetAllReLabels()
 	resComm(c, bf, data)
 }
 
 func postReLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "reLabels", "add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	reLabel := models.ReLabels{}
 	if err := c.BindJSON(&reLabel); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -787,6 +1159,12 @@ func postReLabels(c *gin.Context) {
 }
 
 func putReLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "reLabels", "edit_name")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	reLabel := models.ReLabels{}
 	if err := c.BindJSON(&reLabel); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -797,6 +1175,12 @@ func putReLabels(c *gin.Context) {
 }
 
 func delReLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "reLabels", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
@@ -813,6 +1197,12 @@ func delReLabels(c *gin.Context) {
 }
 
 func putRelabelsCode(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "reLabels", "update_rule")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	reLabel := models.ReLabels{}
 	if err := c.BindJSON(&reLabel); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -823,6 +1213,12 @@ func putRelabelsCode(c *gin.Context) {
 }
 
 func putBaseLabelsStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "baseLabels", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -833,6 +1229,12 @@ func putBaseLabelsStatus(c *gin.Context) {
 }
 
 func putBaseRelabelsStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "reLabels", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -843,11 +1245,23 @@ func putBaseRelabelsStatus(c *gin.Context) {
 }
 
 func getProTmpl(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "editPrometheusYml", "load_tmpl")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	tmpl, bf := models.GetProTmpl()
 	resComm(c, bf, tmpl)
 }
 
 func putProTmpl(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "editPrometheusYml", "save_tmpl")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	tp := models.ProTmpl{}
 	if err := c.BindJSON(&tp); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -868,11 +1282,23 @@ func ws(c *gin.Context) {
 }
 
 func getOptions(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "options", "search_options")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	data, bf := models.GetOptions()
 	resComm(c, bf, data)
 }
 
 func putOptions(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "options", "update_options")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	opts := map[string]string{}
 	if err := c.BindJSON(&opts); err != nil {
 		resComm(c, models.ErrPostData, nil)
@@ -893,11 +1319,23 @@ func getOperateLog(c *gin.Context) {
 }
 
 func preOptResetSystem(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "empty", "reset")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	bf := models.PreOptResetSystem()
 	resComm(c, bf, nil)
 }
 
 func optResetSystem(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "empty", "reset")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	code := models.ResetCode{}
 	if err := c.BindJSON(&code); err != nil {
 		resComm(c, models.ErrPostData, nil)

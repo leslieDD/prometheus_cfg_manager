@@ -52,11 +52,11 @@ type TableGroupPriv struct {
 }
 
 // 接口即使返回一样的数据，在前端使用的时候也用不一样的请求地址
-func CheckPriv(u *ManagerUser, pageName, subPageName, funcName string) (bool, *BriefMessage) {
+func CheckPriv(u *UserSessionInfo, pageName, subPageName, funcName string) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
-		return false, ErrDataBase
+		return ErrDataBase
 	}
 	var count int64
 	tx := db.Table("group_priv").
@@ -66,12 +66,12 @@ func CheckPriv(u *ManagerUser, pageName, subPageName, funcName string) (bool, *B
 			u.GroupID, pageName, subPageName, funcName).Count(&count)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
-		return false, ErrSearchDBData
+		return ErrSearchDBData
 	}
 	if count <= 0 {
-		return false, ErrNoPrivRequest
+		return ErrNoPrivRequest
 	}
-	return true, Success
+	return Success
 }
 
 func GetGroupPriv(gInfo *GetPrivInfo) ([]*ItemPriv, *BriefMessage) {

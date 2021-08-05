@@ -16,6 +16,7 @@ import (
 type wsCommand struct {
 	Cmd    string
 	Result chan string
+	C      *gin.Context
 }
 
 func WS(c *gin.Context) *BriefMessage {
@@ -38,7 +39,7 @@ func WS(c *gin.Context) *BriefMessage {
 			config.Log.Error(err)
 			break
 		}
-		wsc := &wsCommand{Cmd: string(message), Result: make(chan string)}
+		wsc := &wsCommand{C: c, Cmd: string(message), Result: make(chan string)}
 		bf := cmdArea.RecvFromWS(wsc)
 		if bf != Success {
 			err = ws.WriteMessage(mt, []byte(bf.Message))
@@ -91,6 +92,12 @@ func (c *CmdAreaT) RecvFromWS(wsc *wsCommand) *BriefMessage {
 
 func (c *CmdAreaT) Work() {
 	for message := range c.messRecv {
+		user := message.C.Keys["userInfo"].(*UserSessionInfo)
+		pass := CheckPriv(user, "baseConfig", "checkYml", message.Cmd)
+		if pass != Success {
+			c.RespError(message, pass)
+			continue
+		}
 		switch message.Cmd {
 		case "restart":
 			c.Restart(message)
@@ -100,6 +107,11 @@ func (c *CmdAreaT) Work() {
 			config.Log.Error("unsupport cmd: %s", message.Cmd)
 		}
 	}
+}
+
+func (c *CmdAreaT) RespError(wsc *wsCommand, bf *BriefMessage) {
+	wsc.Result <- bf.String()
+	close(wsc.Result)
 }
 
 func (c *CmdAreaT) Restart(wsc *wsCommand) {
