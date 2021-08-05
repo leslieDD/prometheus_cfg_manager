@@ -97,28 +97,31 @@
               >awk '/menu/' ./prometheus.yml</span
             >
             <p class="prompt-text">点击下面菜单进入：</p>
-            <ul class="ul">
-              <li v-if="menuShow.show_menu_prometheus_cfg_manager === true">
+            <dl>
+              <dt v-if="menuShow.show_menu_prometheus_cfg_manager === true">
                 <el-button type="text" @click="goToConfig"
+                  ><single-svg icon-class="xianrenzhang"></single-svg
                   >Prometheus配置</el-button
                 >
-              </li>
-              <li
+              </dt>
+              <dt
                 class="menu_zero_padding"
                 v-if="menuShow.show_menu_administrator_cfg_manager === true"
               >
-                <el-button type="text" @click="goToAdmin"
+                <single-svg icon-class="yezhi"></single-svg
+                ><el-button type="text" @click="goToAdmin"
                   >用户及权限管理</el-button
                 >
-              </li>
-              <li v-if="Object.keys(menuShow).length === 0">
+              </dt>
+              <dt v-if="Object.keys(menuShow).length === 0">
                 <div class="no_menu_show">
                   <el-tag type="warning" size="small"
+                    ><single-svg icon-class="shuzhi"></single-svg
                     >没有可供显示的菜单</el-tag
                   >
                 </div>
-              </li>
-            </ul>
+              </dt>
+            </dl>
             <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
             <span style="color: blue"># </span>
           </div>
