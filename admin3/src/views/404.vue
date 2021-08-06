@@ -1,7 +1,7 @@
 <template>
   <div class="image-area">
     <div>
-      <span class="vintage">是 不 是 偷 偷 改 URL 了 呢</span>
+      <span class="vintage">是 不 是 偷 偷 改 URL 了 呢 ！</span>
     </div>
     <div>
       <img src="/imgs/404.png" alt="404, page no found" />
