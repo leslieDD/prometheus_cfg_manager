@@ -53,4 +53,4 @@ var RuleDir = "rules"
 var PrometheusConfigName = "prometheus.yml"
 
 //
-var configFileName = "pro_cfg_manager.yml"
+var configFileName = "config.yml"
