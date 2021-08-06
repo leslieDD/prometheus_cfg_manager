@@ -38,11 +38,13 @@ func initApiRouter() {
 	v1.GET("/job/group/machines", getJobGroupMachines)
 	v1.PUT("/job/group/machines", putJobGroupMachines)
 	v1.GET("/job/group/labels", getGroupLabels)
+	v1.POST("/job/group/labels", postGroupLabels)
 	v1.PUT("/job/group/labels", putGroupLabels)
 	v1.DELETE("/job/group/labels", delGroupLabels)
 	v1.GET("/job/group/machines-and-labels", getAllMachinesLabels)
 	v1.PUT("/job/group/status", putJobGroupStatus)
 	v1.PUT("/job/group/labels/status", putJobGroupLabelsStatus)
+	v1.GET("/job/relabels/all", getJobAllRelabels)
 
 	v1.GET("/machine", getMachine)
 	v1.GET("/machines", getMachines)
@@ -452,6 +454,33 @@ func getGroupLabels(c *gin.Context) {
 	resComm(c, bf, data)
 }
 
+func postGroupLabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "add_sub_group_label")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	jID, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	gls := models.GroupLabels{}
+	if err := c.BindJSON(&gls); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostGroupLabels(jID, &gls)
+	resComm(c, bf, nil)
+}
+
 func putGroupLabels(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "jobs", "labelsJobs", "update_sub_group_label")
@@ -543,6 +572,17 @@ func putJobGroupLabelsStatus(c *gin.Context) {
 	resComm(c, bf, nil)
 }
 
+func getJobAllRelabels(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	data, bf := models.GetAllReLabels()
+	resComm(c, bf, data)
+}
+
 func swapJob(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "jobs", "jobs", "swap")
@@ -588,7 +628,7 @@ func putJobsStatus(c *gin.Context) {
 
 func postUpdateJobIPs(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
-	pass := models.CheckPriv(user, "jobs", "jobs", "job_update")
+	pass := models.CheckPriv(user, "jobs", "jobs", "ip_pool")
 	if pass != models.Success {
 		resComm(c, pass, nil)
 		return

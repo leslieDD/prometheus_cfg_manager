@@ -3,7 +3,7 @@
     <div class="do_action">
       <div style="padding-right: 15px">
         <el-button size="small" type="warning" @click="restartServer()"
-          >重新加载配置（Reload）</el-button
+          >让Prometheus服务重新加载配置</el-button
         >
         <el-button
           v-if="publishMode === false"
@@ -22,7 +22,7 @@
           >发布</el-button
         >
         <el-button size="small" type="success" plain @click="doAdd()"
-          >添加</el-button
+          >添加组</el-button
         >
       </div>
       <div>
@@ -305,10 +305,10 @@ import {
   swapJob,
   publishJobs,
   enabledJob,
-  updateIPForJob
+  updateIPForJob,
+  getAllReLabels
 } from '@/api/jobs.js'
 import { allIPList } from '@/api/machines.js'
-import { getAllReLabels } from '@/api/relabel.js'
 import { restartSrv } from '@/api/srv'
 import { getJobMachines } from '@/api/labelsJob.js'
 

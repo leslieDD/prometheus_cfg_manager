@@ -371,6 +371,21 @@ func GetGroupLabels(gID int64) ([]*GroupLabels, *BriefMessage) {
 	return gls, Success
 }
 
+func PostGroupLabels(gID int64, gls *GroupLabels) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	gls.UpdateAt = time.Now()
+	tx := db.Table("group_labels").Create(gls)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrCreateDBData
+	}
+	return Success
+}
+
 func PutGroupLabels(gID int64, gls *GroupLabels) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -378,14 +393,6 @@ func PutGroupLabels(gID int64, gls *GroupLabels) *BriefMessage {
 		return ErrDataBase
 	}
 	gls.UpdateAt = time.Now()
-	if gls.ID == 0 {
-		tx := db.Table("group_labels").Create(gls)
-		if tx.Error != nil {
-			config.Log.Error(tx.Error)
-			return ErrCreateDBData
-		}
-		return Success
-	}
 	tx := db.Table("group_labels").
 		Where("id=?", gls.ID).
 		Update("job_group_id", gls.JobGroupID).

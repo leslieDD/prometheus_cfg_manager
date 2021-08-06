@@ -78,3 +78,10 @@ export function updateIPForJob (uInfo) {
     data: uInfo
   })
 }
+
+export function getAllReLabels () {
+  return request({
+    url: '/v1/job/relabels/all',
+    method: 'get'
+  })
+}

@@ -460,6 +460,7 @@ import {
   putJobMachinesForGroup,
   delJobGroup,
   getGroupLabels,
+  postGroupLabels,
   putGroupLabels,
   delGroupLabels,
   getAllIPAndLabels,
@@ -467,7 +468,7 @@ import {
   enabledJobGroupLables
 } from '@/api/labelsJob.js'
 import { getDefaultEnableLables } from '@/api/monitor.js'
-import { restartSrv } from '@/api/srv'
+// import { restartSrv } from '@/api/srv'
 
 export default {
   name: 'JobsLabels',
@@ -705,17 +706,31 @@ export default {
         if (valid) {
           const gid = this.jobGroupIDCurrent
           let newGroupLabels = { ...this.addNewGroupLabels, job_group_id: this.jobGroupIDCurrent }
-          putGroupLabels(gid, newGroupLabels).then(
-            r => {
-              this.$notify({
-                title: '成功',
-                message: '创建标签成功！',
-                type: 'success'
-              })
-              this.doGetGroupLabels()
-              this.needtoUpdate = true
-            }
-          ).catch(e => console.log(e))
+          if (!newGroupLabels.id) {
+            postGroupLabels(gid, newGroupLabels).then(
+              r => {
+                this.$notify({
+                  title: '成功',
+                  message: '创建标签成功！',
+                  type: 'success'
+                })
+                this.doGetGroupLabels()
+                this.needtoUpdate = true
+              }
+            ).catch(e => console.log(e))
+          } else {
+            putGroupLabels(gid, newGroupLabels).then(
+              r => {
+                this.$notify({
+                  title: '成功',
+                  message: '创建标签成功！',
+                  type: 'success'
+                })
+                this.doGetGroupLabels()
+                this.needtoUpdate = true
+              }
+            ).catch(e => console.log(e))
+          }
         }
       })
     },

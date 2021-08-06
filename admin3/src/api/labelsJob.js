@@ -65,6 +65,15 @@ export function getGroupLabels (gInfo) {
   })
 }
 
+export function postGroupLabels (gID, jobGroupLablesInfo) {
+  return request({
+    url: '/v1/job/group/labels',
+    method: 'post',
+    params: {id: gID},
+    data: jobGroupLablesInfo
+  })
+}
+
 export function putGroupLabels (gID, jobGroupLablesInfo) {
   return request({
     url: '/v1/job/group/labels',

@@ -32,7 +32,7 @@
             >批量添加</el-button
           >
           <el-button size="small" type="success" plain @click="doAdd()"
-            >添加</el-button
+            >添加IP</el-button
           >
         </div>
         <div>
