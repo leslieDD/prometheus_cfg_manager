@@ -345,11 +345,11 @@ export default {
         if (valid) {
           const postData = { ...this.ruleForm }
           chgPasswd(postData).then(r => {
-            this.$message({
-              showClose: true,
+            this.$notify({
+              title: '成功',
               message: '密码更新成功！',
               type: 'success'
-            })
+            });
             this.dialogVisible = false
           }).catch(e => console.log(e))
         }

@@ -587,7 +587,7 @@ el-dialog {
 }
 .main-board {
   padding: 0;
-  max-width: 900px;
+  /* max-width: 1200px; */
   margin: 0 auto;
 }
 .searchSelect {

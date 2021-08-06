@@ -760,5 +760,6 @@ el-dialog {
 .borderNone :deep() .el-input__inner {
   border: none;
   background: transparent;
+  width: 300px;
 }
 </style>

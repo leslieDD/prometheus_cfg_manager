@@ -980,7 +980,7 @@ export default {
 }
 .card-scrollbar {
   height: 76vh;
-  width: 300px;
+  width: 500px;
 }
 .tree-box {
   overflow: none;

@@ -71,23 +71,18 @@
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column
-        label="JOB组名称"
-        prop="name"
-        width="130px"
-        show-overflow-tooltip
-      >
+      <el-table-column label="JOB组名称" prop="name" show-overflow-tooltip>
       </el-table-column>
-      <el-table-column label="端口号" width="70px" prop="port">
+      <el-table-column label="端口号" width="100px" prop="port">
       </el-table-column>
-      <el-table-column label="IP数" width="45px">
+      <el-table-column label="IP数" width="75px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
             scope.row.ip_count
           }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column label="子组数" width="60px">
+      <el-table-column label="子组数" width="90px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
             scope.row.group_count
@@ -100,7 +95,7 @@
         show-overflow-tooltip
       >
       </el-table-column>
-      <el-table-column label="排序" width="45px" prop="display_order">
+      <el-table-column label="排序" width="75px" prop="display_order">
       </el-table-column>
       <el-table-column label="调整排序" width="70px">
         <template v-slot="scope">
@@ -122,7 +117,7 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="最后更新时间" prop="update_at" width="140px">
+      <el-table-column label="最后更新时间" prop="update_at" width="180px">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>

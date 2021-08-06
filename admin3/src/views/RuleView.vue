@@ -163,6 +163,7 @@ export default {
     this.yamlViewer.refresh()
     // editor.setSize('width','height');
     // this.yamlViewer.setSize('835px', '83vh');
+    this.yamlViewer.setSize('1120px', '83vh');
     this.yamlViewer.setValue(this.value)
     this.yamlViewer.on('change', (cm) => {
       this.$emit('changed', cm.getValue())
@@ -193,26 +194,9 @@ export default {
   height: 84vh;
   width: 250px;
 } */
-.yaml-viewer {
-  /* position: relative; */
-  width: 820px;
-}
-.yaml-viewer :deep() .CodeMirror {
-  height: 100%;
-  min-height: 300px;
-  width: 100%;
-}
-.yaml-viewer :deep() .CodeMirror-scroll {
-  min-height: 300px;
-}
-.yaml-viewer :deep() .cm-s-rubyblue span.cm-string {
-  color: #f08047;
-}
-.cm-s-monokai {
-  height: 100%;
-}
-/* .tree-container {
-  overflow: hidden;
+/* .yaml-viewer {
+  position: relative;
+  width: 1200px;
 } */
 .tree :deep() .el-tree-node {
   position: relative;

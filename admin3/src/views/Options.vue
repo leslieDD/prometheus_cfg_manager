@@ -1,136 +1,138 @@
 <template>
-  <el-descriptions
-    class="margin-top"
-    title="选项编辑"
-    :column="1"
-    size="medium"
-    border
-  >
-    <!-- <template #extra>
+  <div class="option-board">
+    <el-descriptions
+      class="margin-top"
+      title="选项编辑"
+      :column="1"
+      size="medium"
+      border
+    >
+      <!-- <template #extra>
       <el-button type="primary" size="small">操作</el-button>
     </template> -->
-    <el-descriptions-item>
-      <template #label>
-        <!-- <i class="el-icon-user"></i> -->
-        1）在发布JOB组时，针对没有配置任何子组的JOB组，是否为此JOB组的所有IP生成无标签子组
-      </template>
-      <el-tooltip
-        :content="'当前:' + titles.publish_at_null_subgroup"
-        placement="top"
-      >
-        <el-switch
-          v-model="options.publish_at_null_subgroup"
-          active-color="#13ce66"
-          inactive-color="#ff4949"
-          @change="doPutOptions($event, 'publish_at_null_subgroup')"
-          active-value="true"
-          inactive-value="false"
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-user"></i> -->
+          1）在发布JOB组时，针对没有配置任何子组的JOB组，是否为此JOB组的所有IP生成无标签子组
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.publish_at_null_subgroup"
+          placement="top"
         >
-        </el-switch>
-      </el-tooltip>
-    </el-descriptions-item>
-    <el-descriptions-item>
-      <template #label>
-        <!-- <i class="el-icon-mobile-phone"></i> -->
-        2）在发布JOB组时，针对有配置子组的JOB组，是否为此JOB组的未分组IP生成无标签子组
-      </template>
-      <el-tooltip
-        :content="'当前:' + titles.publish_at_remain_subgroup"
-        placement="top"
-      >
-        <el-switch
-          v-model="options.publish_at_remain_subgroup"
-          active-color="#13ce66"
-          inactive-color="#ff4949"
-          @change="doPutOptions($event, 'publish_at_remain_subgroup')"
-          active-value="true"
-          inactive-value="false"
+          <el-switch
+            v-model="options.publish_at_null_subgroup"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'publish_at_null_subgroup')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          2）在发布JOB组时，针对有配置子组的JOB组，是否为此JOB组的未分组IP生成无标签子组
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.publish_at_remain_subgroup"
+          placement="top"
         >
-        </el-switch>
-      </el-tooltip>
-    </el-descriptions-item>
-    <el-descriptions-item>
-      <template #label>
-        <!-- <i class="el-icon-mobile-phone"></i> -->
-        3）在发布JOB组时，针对没有设置相关联IP的JOB组（IP数0），不在prometheus.yml中生成job项
-      </template>
-      <el-tooltip
-        :content="'当前:' + titles.publish_at_empty_nocreate_file"
-        placement="top"
-      >
-        <el-switch
-          v-model="options.publish_at_empty_nocreate_file"
-          active-color="#13ce66"
-          inactive-color="#ff4949"
-          @change="doPutOptions($event, 'publish_at_empty_nocreate_file')"
-          active-value="true"
-          inactive-value="false"
+          <el-switch
+            v-model="options.publish_at_remain_subgroup"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'publish_at_remain_subgroup')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          3）在发布JOB组时，针对没有设置相关联IP的JOB组（IP数0），不在prometheus.yml中生成job项
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.publish_at_empty_nocreate_file"
+          placement="top"
         >
-        </el-switch>
-      </el-tooltip>
-    </el-descriptions-item>
-    <el-descriptions-item>
-      <template #label>
-        <!-- <i class="el-icon-mobile-phone"></i> -->
-        4）在发布JOB组时，同进也更新JOB组对应的IP分组（在'分组预览'中看到的）文件
-      </template>
-      <el-tooltip
-        :content="'当前:' + titles.publish_jobs_also_ips"
-        placement="top"
-      >
-        <el-switch
-          v-model="options.publish_jobs_also_ips"
-          active-color="#13ce66"
-          inactive-color="#ff4949"
-          @change="doPutOptions($event, 'publish_jobs_also_ips')"
-          active-value="true"
-          inactive-value="false"
+          <el-switch
+            v-model="options.publish_at_empty_nocreate_file"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'publish_at_empty_nocreate_file')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          4）在发布JOB组时，同进也更新JOB组对应的IP分组（在'分组预览'中看到的）文件
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.publish_jobs_also_ips"
+          placement="top"
         >
-        </el-switch>
-      </el-tooltip>
-    </el-descriptions-item>
-    <el-descriptions-item>
-      <template #label>
-        <!-- <i class="el-icon-mobile-phone"></i> -->
-        5）在发布JOB组时，同时Reload Prometheus服务
-      </template>
-      <el-tooltip
-        :content="'当前:' + titles.publish_jobs_also_reload_srv"
-        placement="top"
-      >
-        <el-switch
-          v-model="options.publish_jobs_also_reload_srv"
-          active-color="#13ce66"
-          inactive-color="#ff4949"
-          @change="doPutOptions($event, 'publish_jobs_also_reload_srv')"
-          active-value="true"
-          inactive-value="false"
+          <el-switch
+            v-model="options.publish_jobs_also_ips"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'publish_jobs_also_ips')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          5）在发布JOB组时，同时Reload Prometheus服务
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.publish_jobs_also_reload_srv"
+          placement="top"
         >
-        </el-switch>
-      </el-tooltip>
-    </el-descriptions-item>
-    <el-descriptions-item>
-      <template #label>
-        <!-- <i class="el-icon-mobile-phone"></i> -->
-        6）在发布'IP管理'中发布IP分组文件时，同时Reload
-        Prometheus服务（默认Prometheus自动更新）
-      </template>
-      <el-tooltip
-        :content="'当前:' + titles.publish_ips_also_reload_srv"
-        placement="top"
-      >
-        <el-switch
-          v-model="options.publish_ips_also_reload_srv"
-          active-color="#13ce66"
-          inactive-color="#ff4949"
-          @change="doPutOptions($event, 'publish_ips_also_reload_srv')"
-          active-value="true"
-          inactive-value="false"
+          <el-switch
+            v-model="options.publish_jobs_also_reload_srv"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'publish_jobs_also_reload_srv')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          6）在发布'IP管理'中发布IP分组文件时，同时Reload
+          Prometheus服务（默认Prometheus自动更新）
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.publish_ips_also_reload_srv"
+          placement="top"
         >
-        </el-switch>
-      </el-tooltip>
-    </el-descriptions-item>
-  </el-descriptions>
+          <el-switch
+            v-model="options.publish_ips_also_reload_srv"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'publish_ips_also_reload_srv')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
+    </el-descriptions>
+  </div>
 </template>
 
 <script>
@@ -186,16 +188,16 @@ export default {
     doPutOptions (event, optKey) {
       // 变化后的值
       putOptions({ [optKey]: event }).then(r => {
-        // this.$notify({
-        //   title: '成功',
-        //   message: '更新成功！',
-        //   type: 'success'
-        // });
-        this.$message({
-          showClose: true,
+        this.$notify({
+          title: '成功',
           message: '更新成功！',
           type: 'success'
-        })
+        });
+        // this.$message({
+        //   showClose: true,
+        //   message: '更新成功！',
+        //   type: 'success'
+        // })
       }).catch(e => console.log(e))
     }
   }
@@ -203,4 +205,7 @@ export default {
 </script>
 
 <style scoped>
+.option-board {
+  width: 800px;
+}
 </style>

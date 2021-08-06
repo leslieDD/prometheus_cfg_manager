@@ -37,7 +37,7 @@
             type="textarea"
             size="mini"
             wrap="off"
-            :rows="2"
+            :rows="4"
             maxlength="5000"
             show-word-limit
             v-model="formData.expr"
@@ -173,7 +173,7 @@
                   <div class="annotations-right">
                     <el-input
                       type="textarea"
-                      :rows="2"
+                      :rows="4"
                       wrap="off"
                       size="mini"
                       show-word-limit
@@ -698,7 +698,7 @@ annotations:
 .box-card {
   /* width: 98%; */
   margin-left: 5px;
-  width: 745px;
+  width: 840px;
   padding: 0px 0px;
 }
 .box-member :deep() .el-form-item__label {
@@ -708,5 +708,8 @@ annotations:
 }
 .box-member :deep() .el-tabs__content {
   padding-right: 5px !important;
+}
+.box-member :deep() .el-descriptions__content {
+  padding: 0px 0px 0px 0px;
 }
 </style>

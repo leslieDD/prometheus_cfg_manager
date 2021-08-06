@@ -328,7 +328,8 @@ export default {
       },
       scrollbarStyle: 'native'
     }))
-    this.refresh()
+    this.yamlRelabelEdit.refresh()
+    this.yamlRelabelEdit.setSize('1120px', '62vh');
     this.yamlRelabelEdit.setValue(this.value)
 
     this.yamlRelabelEdit.on('change', (cm) => {
@@ -578,22 +579,8 @@ export default {
   padding-top: 12px;
 }
 .yaml-relabel-edit {
-  /* position: relative; */
   border: 1px solid burlywood;
   margin-top: 10px;
-  width: 830px;
-  height: 40vh;
-}
-.yaml-relabel-edit :deep() .CodeMirror {
-  height: 100%;
-  min-height: 300px;
-  width: 100%;
-}
-.yaml-relabel-edit :deep() .CodeMirror-scroll {
-  min-height: 300px;
-}
-.yaml-relabel-edit :deep() .cm-s-rubyblue span.cm-string {
-  color: #f08047;
 }
 .cm-s-monokai {
   height: 100%;
