@@ -10,7 +10,7 @@
           <!-- <img src="/imgs/xiaohei.jpg" /> -->
         </div>
         <div class="meBox-title">
-          <p>I'm DianDian</p>
+          <p>I'm {{ userInfo.nice_name }}</p>
           <div class="fg"></div>
         </div>
         <div class="meBox-text">
@@ -198,6 +198,7 @@ export default {
       sayWhat: [],
       timer: null,
       userInfo: {
+        nice_name: '',
         phone: '',
         group_name: '',
         register_time: '',
@@ -248,6 +249,7 @@ export default {
         const userInfo = this.$store.getters.userInfo
         this.userInfo = {
           id: this.$store.getters.userID,
+          nice_name: userInfo.nice_name,
           phone: userInfo.phone,
           group_name: userInfo.group_name,
           register_time: userInfo.create_at,

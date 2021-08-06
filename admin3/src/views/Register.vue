@@ -14,10 +14,10 @@
         class="demo-ruleForm"
         size="small"
       >
-        <el-form-item label="用户名：" prop="username">
+        <el-form-item label="用户账号：" prop="username">
           <el-input
             clearable
-            placeholder="请输入用户名"
+            placeholder="请输入登录账号"
             v-model="ruleForm.username"
           ></el-input>
         </el-form-item>
@@ -27,6 +27,13 @@
             type="password"
             placeholder="请输入密码"
             v-model="ruleForm.password"
+          ></el-input>
+        </el-form-item>
+        <el-form-item label="用户姓名：" prop="nice_name">
+          <el-input
+            clearable
+            placeholder="请输入用户姓名"
+            v-model="ruleForm.nice_name"
           ></el-input>
         </el-form-item>
         <el-form-item label="手机号：" prop="phone">
@@ -40,9 +47,12 @@
           <div class="action-area">
             <el-button
               @click="doRegister('ruleForm')"
-              type="primary"
+              type="warning"
               width="300px"
-              >注册</el-button
+              >&nbsp;&nbsp;注&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;册&nbsp;&nbsp;</el-button
+            >
+            <el-button @click="doLogin('ruleForm')" type="primary" width="300px"
+              >&nbsp;&nbsp;登&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;录&nbsp;&nbsp;</el-button
             >
           </div>
         </el-form-item>
@@ -60,11 +70,15 @@ export default {
     return {
       ruleForm: {
         username: '',
+        nice_name: '',
         password: ''
       },
       rules: {
         username: [
-          { required: true, message: '请输入用户名', trigger: ['blur'] }
+          { required: true, message: '请输入用户账号', trigger: ['blur'] }
+        ],
+        nice_name: [
+          { required: true, message: '请输入用户名称', trigger: ['blur'] }
         ],
         password: [
           { required: true, message: '请输入密码', trigger: ['blur'] }
@@ -80,10 +94,17 @@ export default {
         if (valid) {
           register(logInfo).then(r => {
             this.userInfo = r.data
-            this.$router.push({ name: 'login' })
+            this.$notify({
+              title: '成功',
+              message: '注册成功！',
+              type: 'success'
+            });
           }).catch(e => console.log(e))
         }
       })
+    },
+    doLogin () {
+      this.$router.push({ name: 'login' })
     }
   }
 }
@@ -92,7 +113,7 @@ export default {
 <style scoped>
 .login-board {
   /* border: 1px solid red; */
-  width: 400px;
+  width: 500px;
   height: 450px;
   position: absolute;
   left: 50%;
@@ -105,6 +126,9 @@ export default {
   margin-bottom: 30px;
 }
 .action-area {
+  margin-top: 10px;
+  margin-left: -30px;
+  margin-right: 20px;
   display: flex;
   justify-content: space-between;
 }

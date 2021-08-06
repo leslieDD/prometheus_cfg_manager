@@ -28,6 +28,9 @@ const store = createStore({
     },
     userID(state) {
       return state.userinfo.id
+    },
+    niceName(state) {
+      return state.userinfo.nice_name
     }
   },
   actions: {

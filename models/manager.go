@@ -26,6 +26,7 @@ type ManagerGroupList struct {
 type ManagerUser struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	UserName string    `json:"username" gorm:"column:username"`
+	NiceName string    `json:"nice_name" gorm:"column:nice_name"`
 	Password string    `json:"password" gorm:"column:password"`
 	Phone    string    `json:"phone" gorm:"column:phone"`
 	Salt     string    `json:"-" gorm:"column:salt"`
@@ -47,6 +48,7 @@ type UserLogInfo struct {
 
 type RegisterInfo struct {
 	Username string `json:"username" form:"username"`
+	NiceName string `json:"nice_name" form:"nice_name"`
 	Password string `json:"password" form:"password"`
 	Phone    string `json:"phone" form:"phone"`
 	GroupID  int    `json:"group_id" form:"group_id"`
@@ -264,6 +266,7 @@ func PutManagerUser(mu *ManagerUser) *BriefMessage {
 	tx := db.Table("manager_user").
 		Where("id=?", mu.ID).
 		Update("username", mu.UserName).
+		Update("nice_name", mu.NiceName).
 		Update("phone", mu.Phone).
 		Update("group_id", mu.GroupID).
 		// Update("enabled", mg.Enabled).
@@ -393,6 +396,7 @@ func Login(ui *UserLogInfo) (*ManagerUserDetail, *BriefMessage) {
 func Register(r *RegisterInfo) *BriefMessage {
 	u := ManagerUser{
 		UserName: r.Username,
+		NiceName: r.NiceName,
 		Password: r.Password,
 		Phone:    r.Phone,
 		GroupID:  r.GroupID,
