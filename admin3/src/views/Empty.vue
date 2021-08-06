@@ -72,7 +72,15 @@
       </div>
     </el-scrollbar>
     <div>
-      <el-dialog title="输入重置码" v-model="dialogFormVisible" width="400px">
+      <el-dialog title="输入重置码" v-model="dialogFormVisible" width="430px">
+        <div class="reset-explain">
+          <p>系統会在后台生成一个重置码，可以在服务的日志中看到，如：</p>
+          <p style="font-width: bold">
+            reset <span style="color: blue">prometheus</span> config key:
+            <span style="color: red">6eb96669-2fb1-4758-8776-ddcdb58405c9</span>
+          </p>
+          <p>输入红色部分的KEY即可重置成出产设置</p>
+        </div>
         <el-form
           :model="ruleForm"
           :rules="rules"
@@ -254,5 +262,11 @@ export default {
 .dialog-footer {
   text-align: right;
   align-content: right;
+}
+.reset-explain {
+  font: 0.8em Arial, Tahoma, Verdana;
+  color: #777;
+  margin-top: -30px;
+  margin-bottom: 12px;
 }
 </style>

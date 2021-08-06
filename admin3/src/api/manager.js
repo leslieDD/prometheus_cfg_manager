@@ -134,3 +134,19 @@ export function putAdminSetting(paramsInfo){
     data: paramsInfo
   })
 }
+
+export function resetAdmin (GrantInfo) {
+  return request({
+    url: '/v1/manager/reset/admin',
+    method: 'post',
+    data: GrantInfo
+  })
+}
+
+export function preResetAdmin (GrantInfo) {
+  return request({
+    url: '/v1/manager/reset/secret',
+    method: 'post',
+    data: GrantInfo
+  })
+}

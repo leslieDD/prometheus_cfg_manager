@@ -152,6 +152,9 @@ func PutGroupPriv(privInfo []*ItemPriv, gInfo *GetPrivInfo) *BriefMessage {
 			config.Log.Error(err)
 			return err
 		}
+		if len(tgp) == 0 {
+			return nil
+		}
 		if err := tx.Table("group_priv").Create(tgp).Error; err != nil {
 			config.Log.Error(err)
 			return err

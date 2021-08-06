@@ -40,6 +40,9 @@ func initManagerApi() {
 
 	v1.GET("/manager/setting", getManagerSetting)
 	v1.PUT("/manager/setting", putManagerSetting)
+
+	v1.POST("/manager/reset/admin", postManagerResetAdmin)
+	v1.POST("/manager/reset/secret", postManagerResetSecret)
 }
 
 func logout(c *gin.Context) {
@@ -388,5 +391,32 @@ func putManagerSetting(c *gin.Context) {
 		return
 	}
 	bf := models.PutManagerSetting(params)
+	resComm(c, bf, nil)
+}
+
+func postManagerResetAdmin(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "setting", "reset")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	code := models.ResetCode{}
+	if err := c.BindJSON(&code); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.OptResetAdmin(&code, c.Request.RemoteAddr)
+	resComm(c, bf, nil)
+}
+
+func postManagerResetSecret(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "setting", "reset")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	bf := models.PreOptResetAdmin()
 	resComm(c, bf, nil)
 }

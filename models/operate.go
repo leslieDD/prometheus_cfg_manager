@@ -141,7 +141,7 @@ var ResetBlock = utils.NewNoBlockLock()
 func PreOptResetSystem() *BriefMessage {
 	key := uuid.NewString()
 	ResetSystemKey.Store(key)
-	config.Log.Warnf("reset system key: %s", key)
+	config.Log.Warnf("reset prometheus config key: %s", key)
 	return Success
 }
 
@@ -213,6 +213,111 @@ func OptResetSystem(code *ResetCode, ipAddr string) *BriefMessage {
 		}
 		if err := tx.Table("tmpl").Create(&tmpl).Error; err != nil {
 			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return ErrReset
+	}
+	return Success
+}
+
+var ResetAdminKey = atomic.Value{}
+var ResetAdminBlock = utils.NewNoBlockLock()
+
+func PreOptResetAdmin() *BriefMessage {
+	key := uuid.NewString()
+	ResetAdminKey.Store(key)
+	config.Log.Warnf("reset admin config key: %s", key)
+	return Success
+}
+
+func OptResetAdmin(code *ResetCode, ipAddr string) *BriefMessage {
+	var err error
+	if ResetAdminBlock.AnyOne() {
+		err = fmt.Errorf("running, try again later.")
+		config.Log.Error(err)
+		return ErrAlreadyRunning
+	}
+	defer ResetAdminBlock.Done()
+	keyStore, ok := ResetAdminKey.Load().(string)
+	if !ok {
+		err = fmt.Errorf("load key error")
+		config.Log.Error(err)
+		return ErrNoResetKey
+	}
+	if keyStore != code.Code {
+		err = fmt.Errorf("重置KEY不匹配")
+		config.Log.Error(err)
+		return ErrResetKeyDiff
+	}
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		err = fmt.Errorf("%s", InternalGetBDInstanceErr)
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tableCleard := []string{
+		"manager_group",
+		"manager_user",
+		"group_priv",
+		"manager_set",
+	}
+	err = db.Transaction(func(tx *gorm.DB) error {
+		for _, tableName := range tableCleard {
+			if err := tx.Table(tableName).Where("1=1").Delete(nil).Error; err != nil {
+				return err
+			}
+			if err := tx.Table(tableName).Exec(fmt.Sprintf("ALTER TABLE %s AUTO_INCREMENT = 1;", tableName)).Error; err != nil {
+				return err
+			}
+		}
+		ug := ManagerGroup{
+			Name:     "administrator",
+			Enabled:  true,
+			UpdateAt: time.Now(),
+		}
+		if err := tx.Table("manager_group").Create(&ug).Error; err != nil {
+			return err
+		}
+		uu := ManagerUser{
+			UserName: "admin",
+			Password: "admin",
+			Salt:     uuid.NewString(),
+			Phone:    "10086",
+			GroupID:  ug.ID,
+			Enabled:  true,
+			UpdateAt: time.Now(),
+			CreateAt: time.Now(),
+		}
+		uu.Password = utils.CreateHashword(uu.Password, uu.Salt)
+		if err := tx.Table("manager_user").Create(&uu).Error; err != nil {
+			return err
+		}
+		params := []AdminParams{
+			{
+				ParamName:  "default_group",
+				ParamValue: "",
+			},
+		}
+		if err := tx.Table("manager_set").Create(&params).Error; err != nil {
+			return err
+		}
+		pIDs := []OnlyID{}
+		if err := tx.Table("page_function").Select("id").Find(&pIDs).Error; err != nil {
+			return err
+		}
+		if len(pIDs) != 0 {
+			uPriv := []*TableGroupPriv{}
+			for _, p := range pIDs {
+				uPriv = append(uPriv, &TableGroupPriv{
+					GroupID: ug.ID,
+					FuncID:  p.ID,
+				})
+			}
+			if err := tx.Table("group_priv").Create(&uPriv).Error; err != nil {
+				return err
+			}
 		}
 		return nil
 	})
