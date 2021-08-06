@@ -45,7 +45,7 @@
               </el-table-column>
               <el-table-column
                 label="密码"
-                width="80px"
+                width="280px"
                 show-overflow-tooltip
                 prop="password"
               >
