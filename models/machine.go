@@ -1,7 +1,9 @@
 package models
 
 import (
+	"errors"
 	"fmt"
+	"net"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/utils"
@@ -400,6 +402,17 @@ func UploadMachines(uploadInfo *UploadMachinesInfo) (*UploadMachinesInfo, *Brief
 	uploadInfo.TongJi.Total = len(uploadInfo.Machines)
 	db.Transaction(func(tx *gorm.DB) error {
 		for _, ipInfo := range uploadInfo.Machines {
+			if net.ParseIP(ipInfo.IpAddr) == nil {
+				ipInfo.ImportInPool = false
+				err := errors.New("IP地址不能不合法，不能正常解析")
+				ipInfo.ImportError = err.Error()
+				uploadInfo.TongJi.Fail += 1
+				config.Log.Error(err)
+				if !uploadInfo.Opts.IgnoreErr {
+					return err
+				}
+				continue
+			}
 			m := Machine{
 				ID:       0,
 				IpAddr:   ipInfo.IpAddr,
