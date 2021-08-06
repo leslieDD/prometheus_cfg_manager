@@ -89,7 +89,8 @@ func initApiRouter() {
 	v1.POST("/base/relabels", postReLabels)
 	v1.PUT("/base/relabels", putReLabels)
 	v1.DELETE("/base/relabels", delReLabels)
-	v1.PUT("base/relabels/code", putRelabelsCode)
+	v1.PUT("/base/relabels/code", putRelabelsCode)
+	v1.GET("/base/relabels/check/view-code-priv", getRelabelsViewCodePriv)
 	v1.PUT("/base/relabels/status", putBaseRelabelsStatus)
 
 	v1.GET("/prometheus/tmpl", getProTmpl)
@@ -1266,6 +1267,12 @@ func putBaseLabelsStatus(c *gin.Context) {
 	}
 	bf := models.PutBaseLabelsStatus(&ed)
 	resComm(c, bf, nil)
+}
+
+func getRelabelsViewCodePriv(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "reLabels", "view_code")
+	resComm(c, pass, nil)
 }
 
 func putBaseRelabelsStatus(c *gin.Context) {

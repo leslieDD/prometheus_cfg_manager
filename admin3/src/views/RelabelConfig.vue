@@ -242,7 +242,8 @@ import {
   postReLabels,
   deleteReLabels,
   putReLabelsCode,
-  enabledRelabelCfg
+  enabledRelabelCfg,
+  checkViewCodePriv,
 } from '@/api/relabel.js'
 
 export default {
@@ -498,13 +499,15 @@ export default {
       this.yamlRelabelEdit.refresh()
     },
     doEditReLablesCode (scape) {
-      Object.keys(this.postCodeButVisable).forEach(key => {
-        if (key !== scape.row.id) {
-          this.postCodeButVisable[key] = true
-        }
-      })
-      this.yamlRelabelEdit.setValue(scape.row.code)
-      this.postCodeButVisable[scape.row.id] = false
+      checkViewCodePriv().then(r => {
+        Object.keys(this.postCodeButVisable).forEach(key => {
+          if (key !== scape.row.id) {
+            this.postCodeButVisable[key] = true
+          }
+        })
+        this.yamlRelabelEdit.setValue(scape.row.code)
+        this.postCodeButVisable[scape.row.id] = false
+      }).catch(e => console.log(e))
     },
     doPostReLablesCode (scape) {
       const code = {

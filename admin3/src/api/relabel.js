@@ -54,3 +54,10 @@ export function enabledRelabelCfg (info) {
     data: info
   })
 }
+
+export function checkViewCodePriv () {
+  return request({
+    url: '/v1/base/relabels/check/view-code-priv',
+    method: 'get'
+  })
+}
