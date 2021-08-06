@@ -122,7 +122,7 @@
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="235px">
+      <el-table-column label="操作" align="center" width="270px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
@@ -803,7 +803,7 @@ el-tabs {
 .actioneara {
   display: flex;
   flex-wrap: nowrap;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 .change_order_button {
   display: flex;
