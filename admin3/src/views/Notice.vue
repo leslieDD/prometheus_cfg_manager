@@ -20,14 +20,14 @@
                 icon="el-icon-upload"
                 size="mini"
                 @click="doRulesPublish"
-                >发布</el-button
+                >发布监控规则</el-button
               >
               <el-button
                 v-if="pushing === true"
                 type="primary"
                 icon="el-icon-loading"
                 size="mini"
-                >发布</el-button
+                >发布监控规则</el-button
               >
             </div>
           </div>

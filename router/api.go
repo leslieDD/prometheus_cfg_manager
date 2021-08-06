@@ -909,7 +909,7 @@ func ruleFileContent(c *gin.Context) {
 
 func getTree(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
-	pass := models.CheckPriv(user, "noticeManager", "", "search")
+	pass := models.CheckPriv(user, "noticeManager", "", "search_tree")
 	if pass != models.Success {
 		resComm(c, pass, nil)
 		return
@@ -920,7 +920,7 @@ func getTree(c *gin.Context) {
 
 func getNode(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
-	pass := models.CheckPriv(user, "noticeManager", "", "search")
+	pass := models.CheckPriv(user, "noticeManager", "", "search_rule")
 	if pass != models.Success {
 		resComm(c, pass, nil)
 		return
