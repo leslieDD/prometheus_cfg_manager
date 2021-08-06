@@ -536,12 +536,12 @@ annotations:
       textarea.push(`for: ${this.formData.for}`)
       textarea.push(`labels:`)
       this.formData.labels.forEach(item => {
-        const value = item.value //.replace(/\n/g, '\\n')
+        const value = item.value.replace(/\n/g, '\\n')
         textarea.push(`  ${item.key}: ${value}`)
       })
       textarea.push(`annotations:`)
       this.formData.annotations.forEach(item => {
-        const value = item.value //.replace(/\n/g, '\\n')
+        const value = item.value.replace(/\n/g, '\\n')
         textarea.push(`  ${item.key}: ${value}`)
       })
       this.viweCode = textarea.join('\n')
@@ -557,12 +557,12 @@ annotations:
       textarea.push(`for: ${this.formData.for}`)
       textarea.push(`labels:`)
       this.formData.labels.forEach(item => {
-        const value = item.value //.replace(/\n/g, '\\n')
+        const value = item.value.replace(/\n/g, '\\n')
         textarea.push(`  ${item.key}: ${value}`)
       })
       textarea.push(`annotations:`)
       this.formData.annotations.forEach(item => {
-        const value = item.value //.replace(/\n/g, '\\n')
+        const value = item.value.replace(/\n/g, '\\n')
         textarea.push(`  ${item.key}: ${value}`)
       })
       this.textarea = textarea.join('\n')
@@ -599,7 +599,7 @@ annotations:
             let haveData = false
             this.formData.labels.map(item => {
               if (item.key === key) {
-                item.value = yamlContext.labels[key] //.replace(/\n/g, '\\n')
+                item.value = yamlContext.labels[key].replace(/\\n/g, '\n')
                 haveData = true
               }
               if (genID !== 0 && item.id < genID) {
@@ -610,7 +610,7 @@ annotations:
               this.formData.labels.push({
                 id: genID,
                 key: key,
-                value: yamlContext.labels[key], //.replace(/\n/g, '\\n'),
+                value: yamlContext.labels[key].replace(/\\n/g, '\n'),
                 is_new: true
               })
               genID += 1
@@ -624,7 +624,7 @@ annotations:
             let haveData = false
             this.formData.annotations.map(item => {
               if (item.key === key) {
-                item.value = yamlContext.annotations[key] //.replace(/\n/g, '\\n')
+                item.value = yamlContext.annotations[key].replace(/\\n/g, '\n')
                 haveData = true
               }
               if (genID !== 0 && item.id < genID) {
@@ -635,7 +635,7 @@ annotations:
               this.formData.annotations.push({
                 id: genID,
                 key: key,
-                value: yamlContext.annotations[key], //.replace(/\n/g, '\\n'),
+                value: yamlContext.annotations[key].replace(/\\n/g, '\n'),
                 is_new: true
               })
               genID += 1
@@ -671,7 +671,7 @@ annotations:
   width: 79%;
 }
 .rule-edit-area {
-  width: 570px;
+  width: 680px;
   align-content: right;
   text-align: right;
 }
