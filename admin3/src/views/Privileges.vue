@@ -34,6 +34,9 @@
             <el-button size="mini" type="primary" @click="save()"
               >保存</el-button
             >
+            <el-button size="mini" type="warning" @click="reload()"
+              >重新加载</el-button
+            >
             <span class="show-group-name"
               ><el-tag size="small"
                 >当前组名：{{ groupInfo.group_name }}</el-tag
@@ -77,7 +80,7 @@ export default {
     if (this.$route.params.group_name) {
       this.groupInfo.group_id = parseInt(this.$route.params.group_id)
     }
-    this.getPriv()
+    this.getPriv(false)
   },
   methods: {
     objectSpanMethod ({ row, column, rowIndex, columnIndex }) {
@@ -98,7 +101,7 @@ export default {
       }
     },
 
-    getPriv () {
+    getPriv (notice) {
       const groupInfo = {
         ...this.groupInfo
       }
@@ -115,6 +118,13 @@ export default {
         })
         this.tableRowSpan = tableRowSpan
         this.privTableData = r.data
+        if (notice) {
+          this.$notify({
+            title: '成功',
+            message: '重新加载成功！',
+            type: 'success'
+          });
+        }
       }).catch(e => console.log(e))
     },
     rowStyle (row) {
@@ -187,6 +197,9 @@ export default {
           type: 'success'
         });
       }).catch(e => console.log(e))
+    },
+    reload () {
+      this.getPriv(true)
     }
   }
 };
