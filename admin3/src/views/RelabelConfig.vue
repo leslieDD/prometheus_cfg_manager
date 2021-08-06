@@ -329,7 +329,7 @@ export default {
       scrollbarStyle: 'native'
     }))
     this.yamlRelabelEdit.refresh()
-    this.yamlRelabelEdit.setSize('1120px', '62vh');
+    this.yamlRelabelEdit.setSize('1120px', '50vh');
     this.yamlRelabelEdit.setValue(this.value)
 
     this.yamlRelabelEdit.on('change', (cm) => {
