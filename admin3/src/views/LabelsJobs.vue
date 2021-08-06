@@ -272,6 +272,7 @@
                 v-model="addNewGroupLabels.key"
                 filterable
                 allow-create
+                clearable
                 default-first-option
                 placeholder="请选择或者输入"
               >

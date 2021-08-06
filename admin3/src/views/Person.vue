@@ -316,7 +316,7 @@ export default {
         logout().then(r => {
           this.$notify({
             title: '成功',
-            message: '更新成功！',
+            message: '退出成功！',
             type: 'success'
           });
           this.$store.dispatch('resetToken')

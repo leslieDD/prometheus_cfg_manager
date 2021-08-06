@@ -216,12 +216,16 @@ func PutManagerGroupMember(gInfo *GetPrivInfo, userList []int) *BriefMessage {
 		}
 		defaultGroupValue := int64(0)
 		if param.ParamName == "default_group" {
-			value, err := strconv.ParseInt(param.ParamValue, 10, 0)
-			if err != nil {
-				config.Log.Error(err)
-				return err
+			if param.ParamValue == "" {
+				defaultGroupValue = 0
+			} else {
+				value, err := strconv.ParseInt(param.ParamValue, 10, 0)
+				if err != nil {
+					config.Log.Error(err)
+					return err
+				}
+				defaultGroupValue = value
 			}
-			defaultGroupValue = value
 		}
 		config.Log.Warnf("defaultGroupValue => %v", defaultGroupValue)
 		if err := tx.Table("manager_user").

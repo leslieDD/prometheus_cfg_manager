@@ -367,7 +367,7 @@ func delJobGroup(c *gin.Context) {
 
 func getJobMachines(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
-	pass := models.CheckPriv(user, "jobs", "jobs", "search")
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_search")
 	if pass != models.Success {
 		resComm(c, pass, nil)
 		return
