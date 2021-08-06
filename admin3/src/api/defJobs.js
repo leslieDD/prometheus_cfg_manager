@@ -39,3 +39,10 @@ export function enabledDefaultJob (info) {
     data: info
   })
 }
+
+export function publishJobs () {
+  return request({
+    url: '/v1/job/default/publish',
+    method: 'post'
+  })
+}

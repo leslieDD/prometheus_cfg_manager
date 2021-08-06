@@ -3,13 +3,32 @@
     <div class="do_action">
       <div style="padding-right: 15px">
         <el-button size="small" type="warning" @click="restartServer()"
+          >让Prometheus服务重新加载配置</el-button
+        >
+        <el-button
+          v-if="publishMode === false"
+          size="small"
+          icon="el-icon-upload"
+          type="primary"
+          @click="publishJobsfunc()"
+          >发布</el-button
+        >
+        <el-button
+          v-if="publishMode === true"
+          icon="el-icon-loading"
+          size="small"
+          type="primary"
+          @click="publishJobsRunning()"
+          >发布</el-button
+        >
+        <!-- <el-button size="small" type="warning" @click="restartServer()"
           >重新加载配置（Reload）</el-button
         >
         <el-button size="small" type="primary" @click="publishJobsfunc()"
           >发布</el-button
-        >
+        > -->
         <el-button size="small" type="success" plain @click="doAdd()"
-          >添加</el-button
+          >添加默认组</el-button
         >
       </div>
       <div>
@@ -190,11 +209,13 @@ import {
   postDefJob,
   putDefJob,
   deleteDefJob,
-  enabledDefaultJob
+  enabledDefaultJob,
+  publishJobs,
+
 } from '@/api/defJobs.js'
-import { publishJobs } from '@/api/jobs.js'
+// import { publishJobs } from '@/api/jobs.js'
 import { getAllReLabels } from '@/api/relabel.js'
-import { restartSrv } from '@/api/srv'
+import { restartDefSrv } from '@/api/srv'
 
 export default {
   name: 'JobsDefault',
@@ -241,7 +262,8 @@ export default {
         // display_order: [
         //   { type: 'number', min: 1, message: '请输入排序号[>=1]', trigger: ['blur'] }
         // ]
-      }
+      },
+      publishMode: false
     }
   },
   created () {
@@ -501,6 +523,7 @@ export default {
       )
     },
     publishJobsfunc () {
+      this.publishMode = true
       publishJobs().then(
         r => {
           this.$notify({
@@ -508,13 +531,17 @@ export default {
             message: '发布成功！',
             type: 'success'
           });
+          this.publishMode = false
         }
       ).catch(
-        e => { console.log(e) }
+        e => {
+          this.publishMode = false
+          console.log(e)
+        }
       )
     },
     restartServer () {
-      restartSrv().then(
+      restartDefSrv().then(
         r => {
           this.$notify({
             title: '成功',

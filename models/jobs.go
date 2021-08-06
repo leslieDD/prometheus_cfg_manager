@@ -279,7 +279,6 @@ func PostJob(job *Jobs) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	job.IsCommon = false
 	job.UpdateAt = time.Now()
 	max, bf := getMaxDisplayOrder()
 	if bf != Success {

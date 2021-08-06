@@ -29,6 +29,7 @@ func initApiRouter() {
 	v1.PUT("/job/default", putDefJob)
 	v1.DELETE("/job/default", deleteDefJob)
 	v1.PUT("/job/default/status", putJobDefaultStatus)
+	v1.POST("/job/default/publish", publishDefJobs)
 
 	v1.GET("/job/group", getJobGroup)
 	v1.POST("/job/group", postJobGroup)
@@ -58,6 +59,7 @@ func initApiRouter() {
 
 	v1.POST("/publish", publish)
 	v1.POST("/reload", reload)
+	v1.POST("/def/reload", defReload)
 	v1.GET("/preview", preview)
 
 	v1.GET("/load/all-file-list", allFileList)
@@ -189,6 +191,7 @@ func postJob(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
+	jInfo.IsCommon = false
 	bf := models.PostJob(jInfo)
 	resComm(c, bf, nil)
 }
@@ -611,6 +614,17 @@ func publishJobs(c *gin.Context) {
 	resComm(c, bf, nil)
 }
 
+func publishDefJobs(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "defaultJobs", "publish")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	bf := models.AllowOneObj.DoPublishJobs()
+	resComm(c, bf, nil)
+}
+
 func putJobsStatus(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "jobs", "jobs", "dis.enable")
@@ -820,6 +834,17 @@ func preview(c *gin.Context) {
 func reload(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "jobs", "jobs", "reload")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	bf := models.Reload()
+	resComm(c, bf, nil)
+}
+
+func defReload(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "defaultJobs", "reload")
 	if pass != models.Success {
 		resComm(c, pass, nil)
 		return

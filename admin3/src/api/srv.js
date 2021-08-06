@@ -6,3 +6,10 @@ export function restartSrv () {
     method: 'post'
   })
 }
+
+export function restartDefSrv () {
+  return request({
+    url: '/v1/def/reload',
+    method: 'post'
+  })
+}
