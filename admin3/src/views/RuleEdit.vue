@@ -82,8 +82,9 @@
                   default-first-option
                   placeholder="请选择"
                   style="width: 20%"
+                  @change="selectChange"
                 >
-                  <el-option :label="data.key" :value="data.key"></el-option>
+                  <!-- <el-option :label="data.key" :value="data.key"></el-option> -->
                   <el-option
                     v-for="item in defaultLabels"
                     :key="item.id"
@@ -156,11 +157,12 @@
                       default-first-option
                       placeholder="请选择"
                       style="width: 100%"
+                      @change="selectChange"
                     >
-                      <el-option
+                      <!-- <el-option
                         :label="data.key"
                         :value="data.key"
-                      ></el-option>
+                      ></el-option> -->
                       <el-option
                         v-for="item in defaultLabels"
                         :key="item.id"
@@ -388,6 +390,10 @@ annotations:
       nodeInfo: null
     }
   },
+  mounted () {
+    this.defaultLabelsFromSrv = {}
+    this.defaultLabelsFromRule = {}
+  },
   methods: {
     doGetRuleDetail (info) {
       if (!info) {
@@ -399,9 +405,18 @@ annotations:
       this.nodeInfo = info
       getDefaultEnableLables().then(
         r => {
-          this.defaultLabels = r.data
+          r.data.forEach(x => {
+            this.defaultLabelsFromSrv[x.label] = true
+          })
           getRuleDetail(info).then(
             r => {
+              r.data.annotations.forEach(x => {
+                this.defaultLabelsFromRule[x.key] = true
+              })
+              r.data.labels.forEach(x => {
+                this.defaultLabelsFromRule[x.key] = true
+              })
+              this.createDefaultLabels()
               this.formData = r.data
               this.submitType = 'put'
             }
@@ -412,6 +427,32 @@ annotations:
       ).catch(
         e => { console.log(e) }
       )
+    },
+    createDefaultLabels () {
+      this.defaultLabels = []
+      let defaultLabelsMap = {}
+      Object.keys(this.defaultLabelsFromSrv).forEach(x => {
+        defaultLabelsMap[x] = true
+      })
+      Object.keys(this.defaultLabelsFromRule).forEach(x => {
+        defaultLabelsMap[x] = true
+      })
+      Object.keys(defaultLabelsMap).forEach((x, index) => {
+        this.defaultLabels.push({
+          id: index,
+          label: x
+        })
+      })
+    },
+    selectChange (value) {
+      if (this.defaultLabelsFromSrv[value] === true) {
+        return
+      }
+      if (this.defaultLabelsFromRule[value] === true) {
+        return
+      }
+      this.defaultLabelsFromRule[value] = true
+      this.createDefaultLabels()
     },
     flush () {
       this.doGetRuleDetail(this.nodeInfo)
@@ -455,26 +496,19 @@ annotations:
       }
     },
     addLables (witch) {
-      getDefaultEnableLables().then(
-        r => {
-          this.defaultLabels = r.data
-          let newID = 0
-          if (witch === 'annotations') {
-            if (this.formData.annotations.length !== 0) {
-              newID = this.formData.annotations[this.formData.annotations.length - 1].id + 1
-            }
-            this.formData.annotations.push({ id: newID, key: '', value: '', is_new: true })
-          } else if (witch === 'labels') {
-            if (this.formData.annotations.length !== 0) {
-              newID = this.formData.labels[this.formData.labels.length - 1].id + 1
-            }
-            this.formData.labels.push({ id: newID, key: '', value: '', is_new: true })
-          }
-          this.formData = { ...this.formData }
+      let newID = 0
+      if (witch === 'annotations') {
+        if (this.formData.annotations.length !== 0) {
+          newID = this.formData.annotations[this.formData.annotations.length - 1].id + 1
         }
-      ).catch(
-        e => { console.log(e) }
-      )
+        this.formData.annotations.push({ id: newID, key: '', value: '', is_new: true })
+      } else if (witch === 'labels') {
+        if (this.formData.annotations.length !== 0) {
+          newID = this.formData.labels[this.formData.labels.length - 1].id + 1
+        }
+        this.formData.labels.push({ id: newID, key: '', value: '', is_new: true })
+      }
+      this.formData = { ...this.formData }
     },
     delItem (data, lType) {
       const labelInfo = data.valueOf()
@@ -607,6 +641,7 @@ annotations:
               }
             })
             if (haveData === false) {
+              this.defaultLabelsFromRule[key] = true
               this.formData.labels.push({
                 id: genID,
                 key: key,
@@ -632,6 +667,7 @@ annotations:
               }
             })
             if (haveData === false) {
+              this.defaultLabelsFromRule[key] = null
               this.formData.annotations.push({
                 id: genID,
                 key: key,
@@ -642,6 +678,7 @@ annotations:
             }
           }
         }
+        this.createDefaultLabels()
         this.error = message + fields.join(",")
         this.showError = true
       } catch (e) {
