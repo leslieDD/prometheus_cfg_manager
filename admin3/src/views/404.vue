@@ -49,7 +49,7 @@ export default {
   background: #eee
     url(data:image/gif;base64,iVBORw0KGgoAAAANSUhEUgAAAAQAAAAECAIAAAAmkwkpAAAAHklEQVQImWNkYGBgYGD4//8/A5wF5SBYyAr+//8PAPOCFO0Q2zq7AAAAAElFTkSuQmCC)
     repeat;
-  text-shadow: 5px -5px #a8a8a8, 4px -4px white;
+  text-shadow: 5px -5px #49033d, 4px -4px rgb(241, 207, 9);
   font-weight: bold;
   -webkit-text-fill-color: transparent;
   -webkit-background-clip: text;
