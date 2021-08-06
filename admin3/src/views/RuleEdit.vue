@@ -452,7 +452,10 @@ annotations:
         return
       }
       this.defaultLabelsFromRule[value] = true
-      this.createDefaultLabels()
+      this.defaultLabels.push({
+        id: this.defaultLabels.length + 1,
+        label: value
+      })
     },
     flush () {
       this.doGetRuleDetail(this.nodeInfo)

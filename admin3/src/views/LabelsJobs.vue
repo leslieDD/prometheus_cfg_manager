@@ -275,6 +275,7 @@
                 clearable
                 default-first-option
                 placeholder="请选择或者输入"
+                @change="selectChange"
               >
                 <el-option
                   v-for="item in defaultLabels"
@@ -540,6 +541,8 @@ export default {
     // this.doGetJobs()
   },
   mounted () {
+    this.defaultLabelsFromSrv = {}
+    this.defaultLabelsFromData = {}
     this.jobInfo = this.$route.params
     this.jobInfo.id = parseInt(this.jobInfo.id, 10)
     this.doGetSubGroup()
@@ -638,15 +641,20 @@ export default {
         id: gid
       }
       getDefaultEnableLables().then(r => {
-        this.defaultLabels = r.data
+        r.data.forEach(x => {
+          this.defaultLabelsFromSrv[x.label] = true
+        })
+        // this.defaultLabels = r.data
         getGroupLabels(getInfo).then(r => {
           // 有两个一样的地方要更新
           this.deleteLabelsVisible = {}
           let n = 0
           r.data.data.forEach(item => {
             this.deleteLabelsVisible[n] = false
+            this.defaultLabelsFromData[item.key] = true
             n += 1
           })
+          this.createDefaultLabels()
           this.glPageTotal = r.data.totalCount
           this.glCurrentPage = r.data.pageNo
           this.glPageSize = r.data.pageSize
@@ -656,6 +664,22 @@ export default {
           this.editObject = scope.row.name
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
+    },
+    createDefaultLabels () {
+      this.defaultLabels = []
+      let defaultLabelsMap = {}
+      Object.keys(this.defaultLabelsFromSrv).forEach(x => {
+        defaultLabelsMap[x] = true
+      })
+      Object.keys(this.defaultLabelsFromData).forEach(x => {
+        defaultLabelsMap[x] = true
+      })
+      Object.keys(defaultLabelsMap).forEach((x, index) => {
+        this.defaultLabels.push({
+          id: index,
+          label: x
+        })
+      })
     },
     doGetGroupLabels (getInfo) {
       if (!getInfo) {
@@ -994,6 +1018,19 @@ export default {
     },
     transferChange (value, direction, movedKeys) {
       this.transferChanged = true
+    },
+    selectChange (value) {
+      if (this.defaultLabelsFromSrv[value] === true) {
+        return
+      }
+      if (this.defaultLabelsFromData[value] === true) {
+        return
+      }
+      this.defaultLabelsFromData[value] = true
+      this.defaultLabels.push({
+        id: this.defaultLabels.length + 1,
+        label: value
+      })
     },
     goBack () {
       let queryInfo = {
