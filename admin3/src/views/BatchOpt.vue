@@ -20,7 +20,7 @@
             size="mini"
           >
             <el-form-item label="当遇到错误，是否继续导入：">
-              <el-tooltip :content="'当前:' + ignoreErrStatus" placement="top">
+              <el-tooltip :content="'当前: ' + ignoreErrStatus" placement="top">
                 <el-switch
                   v-model="pushOption.ignoreErr"
                   active-color="#13ce66"
@@ -348,9 +348,9 @@ export default {
   computed: {
     ignoreErrStatus () {
       if (this.pushOption.ignoreErr === true) {
-        return '选中'
+        return '继续导入'
       } else {
-        return '未选中'
+        return '停止退出'
       }
     }
   },
