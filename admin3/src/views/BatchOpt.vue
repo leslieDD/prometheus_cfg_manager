@@ -16,10 +16,10 @@
           <el-form
             ref="form"
             :model="pushOption"
-            label-width="155px"
+            label-width="auto"
             size="mini"
           >
-            <el-form-item label="忽略IP已存在的错误：">
+            <el-form-item label="当遇到错误，是否继续导入：">
               <el-tooltip :content="'当前:' + ignoreErrStatus" placement="top">
                 <el-switch
                   v-model="pushOption.ignoreErr"
