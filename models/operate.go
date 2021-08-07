@@ -283,6 +283,7 @@ func OptResetAdmin(code *ResetCode, ipAddr string) *BriefMessage {
 		uu := ManagerUser{
 			UserName: "admin",
 			Password: "admin",
+			NiceName: "管理员",
 			Salt:     uuid.NewString(),
 			Phone:    "10086",
 			GroupID:  ug.ID,

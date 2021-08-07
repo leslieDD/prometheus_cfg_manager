@@ -50,6 +50,7 @@
                 prop="password"
               >
               </el-table-column>
+              <el-table-column label="姓名" prop="nice_name"> </el-table-column>
               <el-table-column label="手机" prop="phone"> </el-table-column>
               <el-table-column label="所属组" prop="group_name">
                 <template v-slot="{ row }">
@@ -158,7 +159,7 @@
     <el-dialog
       :title="dialogTitle"
       v-model="dialogVisible"
-      width="410px"
+      width="510px"
       modal
       :before-close="handleClose"
     >
@@ -171,22 +172,28 @@
           label-width="auto"
           size="small"
         >
-          <el-form-item label="用户名：" prop="username">
+          <el-form-item label="用户登录名：" prop="username">
             <el-input
-              style="width: 280px"
+              style="width: 340px"
               v-model="ManagerUserRef.username"
             ></el-input>
           </el-form-item>
-          <el-form-item label="密码：" prop="password">
+          <el-form-item label="登录密码：" prop="password">
             <el-input
               type="password"
-              style="width: 280px"
+              style="width: 340px"
               v-model="ManagerUserRef.password"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="用户姓名：" prop="nice_name">
+            <el-input
+              style="width: 340px"
+              v-model="ManagerUserRef.nice_name"
             ></el-input>
           </el-form-item>
           <el-form-item label="手机：" prop="phone">
             <el-input
-              style="width: 280px"
+              style="width: 340px"
               v-model="ManagerUserRef.phone"
             ></el-input>
           </el-form-item>
@@ -198,10 +205,10 @@
               size="small"
               collapse-tags
               placeholder="请选择"
-              style="width: 280px"
+              style="width: 340px"
             >
               <el-option
-                style="width: 280px"
+                style="width: 340px"
                 v-for="item in ManagerGroup"
                 :key="item.id"
                 :label="item.name"
@@ -278,10 +285,13 @@ export default {
       dialogTitle: '',
       rules: {
         username: [
-          { required: true, message: '请输入正确的名称', validator: validateStr, trigger: ['blur'] }
+          { required: true, message: '请输入正确的登录名', validator: validateStr, trigger: ['blur'] }
         ],
         password: [
           { required: true, message: '请输入密码', trigger: ['blur'] }
+        ],
+        nice_name: [
+          { required: true, message: '请输入正确的用户名称', validator: validateStr, trigger: ['blur'] }
         ],
         group_id: [
           { required: true, message: '请选择组', trigger: ['blur'] }
@@ -302,6 +312,7 @@ export default {
         id: 0,
         username: '',
         password: '',
+        nice_name: '',
         group_id: null,
         phone: ''
       }
