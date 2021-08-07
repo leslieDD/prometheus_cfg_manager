@@ -6,6 +6,8 @@ const store = createStore({
   state() {
     return {
       userinfo: null,
+      pageNum: 1,
+      pageSize: 15,
     };
   },
   mutations: {
@@ -14,7 +16,11 @@ const store = createStore({
     },
     resetToken(state) {
       state.userinfo.session.token = ''
-    }
+    },
+    setPageInfo(state, pageSize, pageNum) {
+      state.pageSize = pageSize;
+      state.pageNum = pageNum;
+    },
   },
   getters: {
     token(state) {
@@ -31,7 +37,19 @@ const store = createStore({
     },
     niceName(state) {
       return state.userinfo.nice_name
-    }
+    },
+    getPageInfo(state) {
+      let info = {}
+      if(state.pageNum === 0) {
+        info.pageNum = 1
+      }
+      info.pageNum = state.pageNum
+      if(state.pageSize === 0) {
+        info.pageSize = 1
+      }
+      info.pageSize = state.pageSize
+      return info
+    },
   },
   actions: {
     setUserInfo(context, payload) {
@@ -39,7 +57,10 @@ const store = createStore({
     },
     resetToken(context){
       context.commit("resetToken");
-    }
+    },
+    setPageInfo(context, pageSize, pageNum) {
+      context.commit("setPageInfo", pageSize, pageNum);
+    },
   },
 });
 

@@ -37,6 +37,9 @@
             <el-button size="mini" type="warning" @click="reload()"
               >重新加载</el-button
             >
+            <el-button size="mini" type="info" @click="goBack()"
+              >返回</el-button
+            >
             <span class="show-group-name"
               ><el-tag size="small"
                 >当前组名：{{ groupInfo.group_name }}</el-tag
@@ -200,6 +203,9 @@ export default {
     },
     reload () {
       this.getPriv(true)
+    },
+    goBack () {
+      this.$router.push({ name: 'group' })
     }
   }
 };

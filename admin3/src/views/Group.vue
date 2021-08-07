@@ -305,6 +305,9 @@ export default {
     if (this.$route.params.group_name) {
       this.searchContent = this.$route.params.group_name
     }
+    const pageInfo = this.$store.getters.getPageInfo
+    this.pageSize = pageInfo.pageSize
+    this.pageNo = pageInfo.pageNo
     this.doGetManagerGroup()
   },
   methods: {
@@ -502,6 +505,7 @@ export default {
       }).catch(e => console.log(e))
     },
     doPriv (scape) {
+      this.$store.dispatch('setPageInfo', this.pageSize, this.pageNo)
       this.$router.push({
         name: 'privileges', params: {
           group_name: scape.row.name,
