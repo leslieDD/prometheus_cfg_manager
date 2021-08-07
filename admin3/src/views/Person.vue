@@ -10,7 +10,7 @@
           <!-- <img src="/imgs/xiaohei.jpg" /> -->
         </div>
         <div class="meBox-title">
-          <p>I'm {{ userInfo.nice_name }}</p>
+          <p>您好，{{ userInfo.nice_name }}</p>
           <div class="fg"></div>
         </div>
         <div class="meBox-text">
