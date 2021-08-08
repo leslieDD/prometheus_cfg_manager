@@ -2,27 +2,36 @@
   <div class="relabel-config-box">
     <div class="main-content">
       <div>
-        <div class="do_action">
-          <div style="padding-right: 15px">
-            <el-button size="small" type="success" plain @click="doAdd()"
-              >添加规则</el-button
+        <div class="btn-action-area">
+          <div>
+            <span class="explain-words">
+              说明：定义prometheus中的<el-tag size="mini" type="warning"
+                >relabel_configs</el-tag
+              >规则，可以在<el-tag size="mini">JOB组管理</el-tag>中使用</span
             >
           </div>
-          <div>
-            <el-input
-              size="small"
-              placeholder="请输入内容"
-              @keyup.enter="onSearch()"
-              v-model="searchContent"
-            >
-              <template #append>
-                <el-button
-                  size="small"
-                  @click="onSearch()"
-                  icon="el-icon-search"
-                ></el-button>
-              </template>
-            </el-input>
+          <div class="do_action">
+            <div style="padding-right: 15px">
+              <el-button size="small" type="success" plain @click="doAdd()"
+                >添加规则</el-button
+              >
+            </div>
+            <div>
+              <el-input
+                size="small"
+                placeholder="请输入内容"
+                @keyup.enter="onSearch()"
+                v-model="searchContent"
+              >
+                <template #append>
+                  <el-button
+                    size="small"
+                    @click="onSearch()"
+                    icon="el-icon-search"
+                  ></el-button>
+                </template>
+              </el-input>
+            </div>
           </div>
         </div>
         <div class="table-show">
@@ -584,5 +593,14 @@ export default {
 }
 .cm-s-monokai {
   height: 100%;
+}
+.explain-words {
+  font: 0.9em Arial, Tahoma, Verdana;
+  color: #777;
+}
+.btn-action-area {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 </style>

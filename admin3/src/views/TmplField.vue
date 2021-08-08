@@ -10,7 +10,7 @@
             target="_blank"
             type="warning"
             >text/template</el-link
-          >语法</span
+          ></span
         >
       </div>
       <div class="do_action">
@@ -457,10 +457,8 @@ el-tabs {
   width: 20px;
 }
 .explain-words {
-  font: 0.8em Arial, Tahoma, Verdana;
+  font: 0.9em Arial, Tahoma, Verdana;
   color: #777;
-  margin-top: -30px;
-  margin-bottom: 12px;
 }
 .btn-action-area {
   display: flex;

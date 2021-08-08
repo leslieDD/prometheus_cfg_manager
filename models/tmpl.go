@@ -30,7 +30,7 @@ func Raw(value string) string {
 }
 
 type DataStructForTmpl struct {
-	Jobs []JobsForTmpl
+	Jobs []*JobsForTmpl
 	// 以下以绝对路径
 	AbsRooDir  string
 	AbsConfDir string

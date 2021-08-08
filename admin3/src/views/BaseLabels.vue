@@ -1,27 +1,36 @@
 <template>
   <div class="main-board">
-    <div class="do_action">
-      <div style="padding-right: 15px">
-        <el-button size="small" type="success" plain @click="doAdd()"
-          >添加标签</el-button
+    <div class="btn-action-area">
+      <div>
+        <span class="explain-words">
+          说明：定义的标签（key/value）可以在<el-tag size="mini"
+            >JOB组管理</el-tag
+          >和<el-tag size="mini">告警管理</el-tag>中使用</span
         >
       </div>
-      <div>
-        <div>
-          <el-input
-            size="small"
-            placeholder="请输入内容"
-            v-model="searchContent"
-            @keyup.enter="onSearch()"
+      <div class="do_action">
+        <div style="padding-right: 15px">
+          <el-button size="small" type="success" plain @click="doAdd()"
+            >添加标签</el-button
           >
-            <template #append>
-              <el-button
-                size="small"
-                @click="onSearch()"
-                icon="el-icon-search"
-              ></el-button>
-            </template>
-          </el-input>
+        </div>
+        <div>
+          <div>
+            <el-input
+              size="small"
+              placeholder="请输入内容"
+              v-model="searchContent"
+              @keyup.enter="onSearch()"
+            >
+              <template #append>
+                <el-button
+                  size="small"
+                  @click="onSearch()"
+                  icon="el-icon-search"
+                ></el-button>
+              </template>
+            </el-input>
+          </div>
         </div>
       </div>
     </div>
@@ -429,5 +438,14 @@ el-tabs {
 .change_order_button .el-button {
   padding: auto 0px;
   width: 20px;
+}
+.explain-words {
+  font: 0.9em Arial, Tahoma, Verdana;
+  color: #777;
+}
+.btn-action-area {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 </style>

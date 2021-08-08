@@ -33,8 +33,9 @@ type JobsWithRelabelNameAndCount struct {
 }
 
 type JobsForTmpl struct {
-	ReLabelName string `json:"relabel_name" gorm:"column:relabel_name"`
-	Code        string `json:"code" gorm:"column:code"`
+	ReLabelName    string `json:"relabel_name" gorm:"column:relabel_name"`
+	ReLabelEnabled bool   `json:"relabel_enabled" gorm:"column:relabel_enabled"`
+	Code           string `json:"code" gorm:"column:code"`
 	Jobs
 }
 
@@ -75,7 +76,7 @@ func GetJobs() (*[]Jobs, *BriefMessage) {
 	return &jobs, Success
 }
 
-func GetJobsForTmpl() (*[]JobsForTmpl, *BriefMessage) {
+func GetJobsForTmpl() (*[]*JobsForTmpl, *BriefMessage) {
 	r, bf := CheckByFiled("publish_at_empty_nocreate_file", "true")
 	if bf != Success {
 		return nil, bf
@@ -94,7 +95,8 @@ func GetJobsForTmpl() (*[]JobsForTmpl, *BriefMessage) {
 	}
 	var where string
 	if len(jobsCount) == 0 {
-		where = "jobs.enabled=1 and relabels.enabled=1"
+		// where = "jobs.enabled=1 and relabels.enabled=1"
+		where = "jobs.enabled=1"
 	} else {
 		ids := []string{}
 		for _, obj := range jobsCount {
@@ -103,11 +105,12 @@ func GetJobsForTmpl() (*[]JobsForTmpl, *BriefMessage) {
 			}
 			ids = append(ids, fmt.Sprint(obj.ID))
 		}
-		where = fmt.Sprintf("jobs.enabled=1 and relabels.enabled=1 and jobs.id in (%s)", strings.Join(ids, ","))
+		// where = fmt.Sprintf("jobs.enabled=1 and relabels.enabled=1 and jobs.id in (%s)", strings.Join(ids, ","))
+		where = fmt.Sprintf("jobs.enabled=1 and jobs.id in (%s)", strings.Join(ids, ","))
 	}
-	jobs := []JobsForTmpl{}
+	jobs := []*JobsForTmpl{}
 	tx := db.Table("jobs").
-		Select("jobs.*, relabels.code, relabels.name as relabel_name ").
+		Select("jobs.*, relabels.code, relabels.name as relabel_name, relabels.enabled as relabel_enabled ").
 		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ").
 		Where(where).
 		Order("display_order asc").
@@ -116,6 +119,11 @@ func GetJobsForTmpl() (*[]JobsForTmpl, *BriefMessage) {
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
+	}
+	for _, job := range jobs {
+		if !job.ReLabelEnabled {
+			job.Code = ""
+		}
 	}
 	return &jobs, Success
 }

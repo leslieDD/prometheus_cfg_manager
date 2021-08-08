@@ -368,13 +368,13 @@ func RelabelsHaveJobs(relabelID int) (*int64, *BriefMessage) {
 }
 
 func PutBaseRelabelsStatus(edi *EnabledInfo) *BriefMessage {
-	count, bf := RelabelsHaveJobs(edi.ID)
-	if bf != Success {
-		return bf
-	}
-	if *count != 0 {
-		return ErrHaveDataNoAllowToDisabled
-	}
+	// count, bf := RelabelsHaveJobs(edi.ID)
+	// if bf != Success {
+	// 	return bf
+	// }
+	// if *count != 0 {
+	// 	return ErrHaveDataNoAllowToDisabled
+	// }
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
