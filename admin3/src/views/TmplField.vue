@@ -297,6 +297,7 @@ export default {
           postData['key'] = this.addTmplFields.key
           postData['value'] = this.addTmplFields.value
           if (this.buttonTitle === '创建') {
+            postData['enabled'] = true
             postBaseFields(postData).then(
               r => {
                 this.$notify({

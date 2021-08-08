@@ -38,6 +38,8 @@ type DataStructForTmpl struct {
 	// 以下为相对路径
 	RelConfDir string
 	RelRuleDir string
+	// 模块字段
+	Fields map[string]string
 }
 
 func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
@@ -66,11 +68,16 @@ func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
 		config.Log.Error(err)
 		return nil, ErrTmplParse
 	}
+	tmplFields, bf := GetTmplFields()
+	if bf != Success {
+		return nil, bf
+	}
 	dsft := DataStructForTmpl{
 		Jobs:       *jobData,
 		AbsRooDir:  config.Cfg.PrometheusCfg.RootDir,
 		RelConfDir: config.SubDir,
 		RelRuleDir: config.RuleDir,
+		Fields:     tmplFields,
 	}
 	if runtime.GOOS == "windows" {
 		dsft.AbsConfDir = filepath.ToSlash(config.Cfg.PrometheusCfg.Conf)
@@ -161,6 +168,8 @@ type DataStructForTmpl struct {
 	// 以下为相对路径
 	RelConfDir string
 	RelRuleDir string
+	// 模块字段
+	Fields map[string]string
 }
 `
 	return st, Success

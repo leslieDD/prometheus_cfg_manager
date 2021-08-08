@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
@@ -155,7 +156,7 @@ func OptResetSystem(code *ResetCode, ipAddr string) *BriefMessage {
 		FlagLog("", ipAddr, "reset_system", err)
 	}()
 	if ResetBlock.AnyOne() {
-		err = fmt.Errorf("running, try again later.")
+		err = errors.New("running, try again later")
 		config.Log.Error(err)
 		return ErrAlreadyRunning
 	}
@@ -192,6 +193,7 @@ func OptResetSystem(code *ResetCode, ipAddr string) *BriefMessage {
 		"rules_groups",
 		"sub_group",
 		"tmpl",
+		"tmpl_fields",
 	}
 	err = db.Transaction(func(tx *gorm.DB) error {
 		for _, tableName := range tableCleard {
@@ -212,6 +214,13 @@ func OptResetSystem(code *ResetCode, ipAddr string) *BriefMessage {
 			Tmpl: DefTmplText,
 		}
 		if err := tx.Table("tmpl").Create(&tmpl).Error; err != nil {
+			return err
+		}
+		fields := []BaseFields{
+			{Key: "metrics", Value: "/metrics", Enabled: true, UpdateAt: time.Now()},
+			{Key: "refresh_interval", Value: "15s", Enabled: true, UpdateAt: time.Now()},
+		}
+		if err := tx.Table("tmpl_fields").Create(&fields).Error; err != nil {
 			return err
 		}
 		return nil

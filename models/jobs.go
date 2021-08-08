@@ -120,6 +120,24 @@ func GetJobsForTmpl() (*[]JobsForTmpl, *BriefMessage) {
 	return &jobs, Success
 }
 
+func GetTmplFields() (map[string]string, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	fields := []*BaseFields{}
+	tx := db.Table("tmpl_fields").Where("enabled=1").Find(&fields)
+	if tx.Error != nil {
+		return nil, ErrSearchDBData
+	}
+	fieldsMap := map[string]string{}
+	for _, f := range fields {
+		fieldsMap[f.Key] = f.Value
+	}
+	return fieldsMap, Success
+}
+
 func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
