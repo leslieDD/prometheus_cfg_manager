@@ -41,7 +41,7 @@
                   {{ scope.$index + 1 }}
                 </template>
               </el-table-column>
-              <el-table-column label="用户名" prop="username">
+              <el-table-column label="登录名" prop="username">
               </el-table-column>
               <el-table-column
                 label="密码"

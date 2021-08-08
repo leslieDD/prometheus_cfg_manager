@@ -74,6 +74,16 @@
       <el-table-column label="JOB组名称" prop="name" show-overflow-tooltip>
       </el-table-column>
       <el-table-column label="端口号" width="100px" prop="port">
+        <template #header>
+          <el-tooltip
+            content="如果端口号为0，在生成配置时忽略端口号，只保留IP地址"
+            placement="top"
+          >
+            <span type="warning"
+              >端口号<i style="font-size: 13px" class="el-icon-warning"></i
+            ></span>
+          </el-tooltip>
+        </template>
       </el-table-column>
       <el-table-column label="IP数" width="75px">
         <template v-slot="scope">
@@ -197,7 +207,7 @@
     <el-dialog
       :title="dialogTitle"
       v-model="dialogVisible"
-      width="400px"
+      width="450px"
       modal
       :before-close="handleClose"
     >
@@ -207,27 +217,41 @@
           :rules="rules"
           ref="addJobInfo"
           :model="addJobInfo"
-          label-width="90px"
+          label-width="110px"
           size="small"
         >
           <el-form-item label="分组名：" prop="name">
-            <el-input style="width: 230px" v-model="addJobInfo.name"></el-input>
+            <el-input style="width: 250px" v-model="addJobInfo.name"></el-input>
           </el-form-item>
-          <el-form-item label="端口号" prop="port">
+          <el-form-item label="端口号：" prop="port">
+            <template #label>
+              <span>端口号</span>
+              <el-tooltip
+                content="如果端口号为0，在生成配置时忽略端口号，只保留IP地址"
+                placement="top"
+                style="diaplay: inline"
+              >
+                <span
+                  ><i style="font-size: 13px" class="el-icon-warning"
+                    >：</i
+                  ></span
+                >
+              </el-tooltip>
+            </template>
             <el-input
               type="number"
-              style="width: 230px"
+              style="width: 250px"
               v-model.number="addJobInfo.port"
             ></el-input>
           </el-form-item>
-          <el-form-item label="重写标签" prop="relabel_id">
+          <el-form-item label="重写标签：" prop="relabel_id">
             <el-select
               v-model="addJobInfo.relabel_id"
               filterable
               allow-create
               default-first-option
               placeholder="请选择"
-              style="width: 230px"
+              style="width: 250px"
             >
               <el-option
                 v-for="item in relabelList"
@@ -849,5 +873,10 @@ el-tabs {
 }
 .ip-list-close-btn {
   margin-right: 8px;
+}
+.form-inline-label {
+  display: flex;
+  flex-direction: row;
+  margin-left: 0px;
 }
 </style>
