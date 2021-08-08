@@ -110,6 +110,12 @@ const routes = [
               component: () => import('@/views/BaseLabels.vue')
             },
             {
+              path: '/tmpl-fields',
+              name: 'tmplFields',
+              title: '模板字段',
+              component: () => import('@/views/TmplField.vue')
+            },
+            {
               path: '/re-labels',
               name: 'reLabels',
               title: '标签重写',

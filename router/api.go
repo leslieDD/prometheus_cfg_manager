@@ -95,6 +95,12 @@ func initApiRouter() {
 	v1.GET("/base/relabels/check/view-code-priv", getRelabelsViewCodePriv)
 	v1.PUT("/base/relabels/status", putBaseRelabelsStatus)
 
+	v1.GET("/base/fields", getBaseFields)
+	v1.POST("/base/fields", postBaseFields)
+	v1.PUT("/base/fields", putBaseFields)
+	v1.PUT("/base/fields/status", putBaseFieldsStatus)
+	v1.DELETE("/base/fields", delBaseFields)
+
 	v1.GET("/prometheus/tmpl", getProTmpl)
 	v1.PUT("/prometheus/tmpl", putProTmpl)
 	v1.GET("/prometheus/struct", getStruct)
@@ -1313,6 +1319,92 @@ func putBaseRelabelsStatus(c *gin.Context) {
 		return
 	}
 	bf := models.PutBaseRelabelsStatus(&ed)
+	resComm(c, bf, nil)
+}
+
+func getBaseFields(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "baseFields", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.GetBaseFields(sp)
+	resComm(c, bf, data)
+}
+
+func postBaseFields(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "baseFields", "add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	newLabel := models.BaseFields{}
+	if err := c.BindJSON(&newLabel); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostBaseFields(&newLabel)
+	resComm(c, bf, nil)
+}
+
+func putBaseFields(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "baseFields", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	label := models.BaseFields{}
+	if err := c.BindJSON(&label); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutBaseFields(&label)
+	resComm(c, bf, nil)
+}
+
+func putBaseFieldsStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "baseFields", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ed := models.EnabledInfo{}
+	if err := c.BindJSON(&ed); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutBaseFieldsStatus(&ed)
+	resComm(c, bf, nil)
+}
+
+func delBaseFields(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "baseFields", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	id, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	bf := models.DelBaseFields(id)
 	resComm(c, bf, nil)
 }
 

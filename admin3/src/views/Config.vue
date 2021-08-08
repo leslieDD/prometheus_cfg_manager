@@ -8,31 +8,35 @@
         @close="handleClose"
         @select="handleSelect"
       >
-        <el-menu-item index="1">
+        <el-menu-item index="options">
           <i class="el-icon-orange"></i>
           <template #title>选项编辑</template>
         </el-menu-item>
-        <el-menu-item index="2">
+        <el-menu-item index="baseLabels">
           <i class="el-icon-grape"></i>
           <template #title>公共标签</template>
         </el-menu-item>
-        <el-menu-item index="3">
+        <el-menu-item index="tmplFields">
+          <i class="el-icon-ice-cream"></i>
+          <template #title>模板字段</template>
+        </el-menu-item>
+        <el-menu-item index="reLabels">
           <i class="el-icon-watermelon"></i>
           <template #title>标签重写</template>
         </el-menu-item>
-        <el-menu-item index="4">
+        <el-menu-item index="defaultJobs">
           <i class="el-icon-cherry"></i>
           <template #title>默认分组</template>
         </el-menu-item>
-        <el-menu-item index="5">
+        <el-menu-item index="checkYml">
           <i class="el-icon-apple"></i>
           <template #title>测试配置</template>
         </el-menu-item>
-        <el-menu-item index="6">
+        <el-menu-item index="editPrometheusYml">
           <i class="el-icon-pear"></i>
           <template #title>模板编辑</template>
         </el-menu-item>
-        <el-menu-item index="7">
+        <el-menu-item index="empty">
           <i class="el-icon-lollipop"></i>
           <template #title>重置</template>
         </el-menu-item>
@@ -68,19 +72,21 @@ export default {
       console.log(key, keyPath);
     },
     handleSelect (key, keyPath) {
-      if (key === '1') {
+      if (key === 'options') {
         this.$router.push({ name: 'options' })
-      } else if (key === '2') {
+      } else if (key === 'baseLabels') {
         this.$router.push({ name: 'baseLabels' })
-      } else if (key === '3') {
+      } else if (key === 'tmplFields') {
+        this.$router.push({ name: 'tmplFields' })
+      } else if (key === 'reLabels') {
         this.$router.push({ name: 'reLabels' })
-      } else if (key === '4') {
+      } else if (key === 'defaultJobs') {
         this.$router.push({ name: 'defaultJobs' })
-      } else if (key === '5') {
+      } else if (key === 'checkYml') {
         this.$router.push({ name: 'checkYml' })
-      } else if (key === '6') {
+      } else if (key === 'editPrometheusYml') {
         this.$router.push({ name: 'editPrometheusYml' })
-      } else if (key === '7') {
+      } else if (key === 'empty') {
         this.$router.push({ name: 'empty' })
       }
     }

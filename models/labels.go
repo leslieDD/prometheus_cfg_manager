@@ -5,6 +5,8 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type BaseLabels struct {
@@ -87,6 +89,120 @@ func DelBaseLabels(id int64) *BriefMessage {
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrDelData
+	}
+	return Success
+}
+
+type BaseFields struct {
+	ID       int       `json:"id" gorm:"column:id"`
+	Key      string    `json:"key" gorm:"column:key"`
+	Value    string    `json:"value" gorm:"column:value"`
+	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
+	UpdateAt time.Time `json:"update_at" gorm:"update_at"`
+}
+
+func GetBaseFields(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
+	if sp.PageSize <= 0 {
+		sp.PageSize = 15
+	}
+	if sp.PageNo <= 0 {
+		sp.PageNo = 1
+	}
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	var count int64
+	var likeSql string
+	var tx *gorm.DB
+	tx = db.Table("tmpl_fields")
+	if sp.Search != "" {
+		likeContent := fmt.Sprint("%", sp.Search, "%")
+		likeSql = fmt.Sprint("key like ? or value like ?", likeContent, likeContent)
+		tx = db.Where(likeSql)
+	}
+	tx = tx.Count(&count)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrCount
+	}
+	lists := []*BaseFields{}
+	tx = db.Table("tmpl_fields")
+	if sp.Search != "" {
+		tx = db.Where(likeSql)
+	}
+	tx = tx.Order("update_at desc").
+		Offset((sp.PageNo - 1) * sp.PageSize).
+		Limit(sp.PageSize).
+		Find(&lists)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrCount
+	}
+	return CalSplitPage(sp, count, lists), Success
+}
+
+func PostBaseFields(newFields *BaseFields) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	newFields.UpdateAt = time.Now()
+	tx := db.Table("tmpl_fields").Create(newFields)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrCreateDBData
+	}
+	return Success
+}
+
+func PutBaseFields(fields *BaseFields) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("tmpl_fields").
+		Where("id=?", fields.ID).
+		Update("key", fields.Key).
+		Update("value", fields.Value).
+		Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func DelBaseFields(id int64) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("tmpl_fields").Where("id=?", id).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	return Success
+}
+
+func PutBaseFieldsStatus(edi *EnabledInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("tmpl_fields").
+		Where("id=?", edi.ID).
+		Update("enabled", edi.Enabled).
+		Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
 	}
 	return Success
 }

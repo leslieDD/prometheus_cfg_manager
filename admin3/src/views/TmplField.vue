@@ -1,27 +1,41 @@
 <template>
-  <div class="main-board">
-    <div class="do_action">
-      <div style="padding-right: 15px">
-        <el-button size="small" type="success" plain @click="doAdd()"
-          >添加标签</el-button
+  <div class="tmpl-field-board">
+    <div class="btn-action-area">
+      <div>
+        <span class="explain-words"
+          >说明：这儿定义的字段（key/value）可以在<el-tag size="mini"
+            >模块编辑</el-tag
+          >中使用，语法请参考golang中的<el-link
+            href="https://pkg.go.dev/text/template"
+            target="_blank"
+            type="warning"
+            >text/template</el-link
+          >语法</span
         >
       </div>
-      <div>
-        <div>
-          <el-input
-            size="small"
-            placeholder="请输入内容"
-            v-model="searchContent"
-            @keyup.enter="onSearch()"
+      <div class="do_action">
+        <div style="padding-right: 15px">
+          <el-button size="small" type="success" plain @click="doAdd()"
+            >添加模板字段</el-button
           >
-            <template #append>
-              <el-button
-                size="small"
-                @click="onSearch()"
-                icon="el-icon-search"
-              ></el-button>
-            </template>
-          </el-input>
+        </div>
+        <div>
+          <div>
+            <el-input
+              size="small"
+              placeholder="请输入内容"
+              v-model="searchContent"
+              @keyup.enter="onSearch()"
+            >
+              <template #append>
+                <el-button
+                  size="small"
+                  @click="onSearch()"
+                  icon="el-icon-search"
+                ></el-button>
+              </template>
+            </el-input>
+          </div>
         </div>
       </div>
     </div>
@@ -29,7 +43,7 @@
       size="mini"
       highlight-current-row
       border
-      :data="baseLabels"
+      :data="tmplFields"
       stripe
       :row-style="rowStyle"
       :cell-style="cellStyle"
@@ -39,7 +53,8 @@
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column label="标签名称" prop="label"> </el-table-column>
+      <el-table-column label="模板字段名称" prop="key"> </el-table-column>
+      <el-table-column label="模板字段值" prop="value"> </el-table-column>
       <el-table-column label="最后更新时间" prop="update_at">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
@@ -123,28 +138,34 @@
         <el-form
           label-position="right"
           :rules="rules"
-          ref="addLabelInfo"
-          :model="addLabelInfo"
-          label-width="90px"
+          ref="addTmplFields"
+          :model="addTmplFields"
+          label-width="auto"
           size="small"
         >
-          <el-form-item label="标签名：" prop="label">
+          <el-form-item label="字段名称：" prop="key">
             <el-input
-              style="width: 230px"
-              v-model="addLabelInfo.label"
+              style="width: 250px"
+              v-model="addTmplFields.key"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="字段值：" prop="value">
+            <el-input
+              style="width: 250px"
+              v-model="addTmplFields.value"
             ></el-input>
           </el-form-item>
           <el-form-item size="small">
             <el-button
               size="small"
               type="primary"
-              @click="onSubmit('addLabelInfo')"
+              @click="onSubmit('addTmplFields')"
               >{{ buttonTitle }}</el-button
             >
             <el-button
               size="small"
               type="info"
-              @click="onCancel('addLabelInfo')"
+              @click="onCancel('addTmplFields')"
               >取消</el-button
             >
           </el-form-item>
@@ -156,15 +177,15 @@
 
 <script>
 import {
-  getBaseLabels,
-  putBaseLabels,
-  postBaseLabels,
-  deleteBaseLabels,
-  enabledBaseLabels
-} from '@/api/base.js'
+  getBaseFields,
+  putBaseFields,
+  postBaseFields,
+  deleteBaseFields,
+  enabledBaseFields
+} from '@/api/fields.js'
 
 export default {
-  name: 'baseLabels',
+  name: 'tmplFields',
   data () {
     function validateStr (rule, value, callback) {
       if (value === '' || typeof value === 'undefined' || value == null) {
@@ -179,8 +200,8 @@ export default {
       }
     }
     return {
-      baseLabels: [],
-      addLabelInfo: {
+      tmplFields: [],
+      addTmplFields: {
         'id': 0,
         'label': ''
       },
@@ -193,8 +214,11 @@ export default {
       buttonTitle: '',
       dialogTitle: '',
       rules: {
-        label: [
-          { required: true, message: '请输入正确的标签名称', validator: validateStr, trigger: ['blur'] }
+        key: [
+          { required: true, message: '请输入正确的字段名称', validator: validateStr, trigger: ['blur'] }
+        ],
+        value: [
+          { required: true, message: '请输入正确的字段值', validator: validateStr, trigger: ['blur'] }
         ]
         // display_order: [
         //   { type: 'number', min: 1, message: '请输入排序号[>=1]', trigger: ['blur'] }
@@ -203,23 +227,22 @@ export default {
     }
   },
   created () {
-    // this.doGetBaseLabels()
+    // this.doGetBaseFields()
   },
   mounted () {
-    this.doGetBaseLabels()
+    this.doGetBaseFields()
   },
   methods: {
     doAdd () {
-      this.addLabelInfo = {
-        'label': '',
-        'port': 0,
-        'display_order': 1
+      this.addTmplFields = {
+        'key': '',
+        'value': ''
       }
       this.buttonTitle = '创建'
-      this.dialogTitle = '增加标签'
+      this.dialogTitle = '增加字段'
       this.dialogVisible = true
     },
-    doGetBaseLabels (getInfo) {
+    doGetBaseFields (getInfo) {
       if (!getInfo) {
         getInfo = {
           'pageNo': this.currentPage,
@@ -227,9 +250,9 @@ export default {
           'search': this.searchContent
         }
       }
-      getBaseLabels(getInfo).then(
+      getBaseFields(getInfo).then(
         r => {
-          this.baseLabels = r.data.data
+          this.tmplFields = r.data.data
           this.pageTotal = r.data.totalCount
           this.currentPage = r.data.pageNo
           this.pageSize = r.data.pageSize
@@ -242,9 +265,10 @@ export default {
     },
     doEdit (data) {
       this.buttonTitle = '更新'
-      this.dialogTitle = '编辑标签'
-      this.addLabelInfo.id = data.row.id
-      this.addLabelInfo.label = data.row.label
+      this.dialogTitle = '编辑字段'
+      this.addTmplFields.id = data.row.id
+      this.addTmplFields.key = data.row.key
+      this.addTmplFields.value = data.row.value
       this.dialogVisible = true
     },
     handleSizeChange (val) {
@@ -253,7 +277,7 @@ export default {
         'pageSize': val,
         'search': this.searchContent
       }
-      this.doGetBaseLabels(getInfo)
+      this.doGetBaseFields(getInfo)
     },
     handleCurrentChange (val) {
       let getInfo = {
@@ -261,7 +285,7 @@ export default {
         'pageSize': this.pageSize,
         'search': this.searchContent
       }
-      this.doGetBaseLabels(getInfo)
+      this.doGetBaseFields(getInfo)
     },
     handleClose (done) {
       this.dialogVisible = false
@@ -270,16 +294,17 @@ export default {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           let postData = {}
-          postData['label'] = this.addLabelInfo.label
+          postData['key'] = this.addTmplFields.key
+          postData['value'] = this.addTmplFields.value
           if (this.buttonTitle === '创建') {
-            postBaseLabels(postData).then(
+            postBaseFields(postData).then(
               r => {
                 this.$notify({
                   title: '成功',
                   message: '创建成功！',
                   type: 'success'
                 });
-                this.doGetBaseLabels()
+                this.doGetBaseFields()
                 this.dialogVisible = false
                 this.$refs[formName].resetFields()
               }
@@ -287,15 +312,15 @@ export default {
               e => { console.log(e) }
             )
           } else {
-            postData['id'] = this.addLabelInfo.id
-            putBaseLabels(postData).then(
+            postData['id'] = this.addTmplFields.id
+            putBaseFields(postData).then(
               r => {
                 this.$notify({
                   title: '成功',
                   message: '更新成功！',
                   type: 'success'
                 });
-                this.doGetBaseLabels()
+                this.doGetBaseFields()
                 this.dialogVisible = false
                 this.$refs[formName].resetFields()
               }
@@ -313,21 +338,21 @@ export default {
       this.$refs[formName].resetFields()
     },
     onSearch () {
-      this.doGetBaseLabels()
+      this.doGetBaseFields()
     },
     parseTimeSelf (t) {
       var time = new Date(Date.parse(t))
       return time.toLocaleDateString() + ' ' + time.toTimeString().split(' ')[0]
     },
     doYes (scope) {
-      deleteBaseLabels({ id: scope.row.id }).then(
+      deleteBaseFields({ id: scope.row.id }).then(
         r => {
           this.$notify({
             title: '成功',
             message: '删除成功！',
             type: 'success'
           });
-          this.doGetBaseLabels()
+          this.doGetBaseFields()
         }
       ).catch(
         e => {
@@ -358,19 +383,19 @@ export default {
       return cs
     },
     invocate (scope) {
-      const newStatus = !this.baseLabels[scope.$index].enabled
+      const newStatus = !this.tmplFields[scope.$index].enabled
       const bInfo = {
         id: scope.row.id,
         enabled: newStatus
       }
-      enabledBaseLabels(bInfo).then(r => {
+      enabledBaseFields(bInfo).then(r => {
         this.$notify({
           title: '成功',
           message: '更新状态成功！',
           type: 'success'
         });
-        this.baseLabels[scope.$index].enabled = newStatus
-        this.baseLabels = [...this.baseLabels]
+        this.tmplFields[scope.$index].enabled = newStatus
+        this.tmplFields = [...this.tmplFields]
       }).catch(e => console.log(e))
     }
   }
@@ -429,5 +454,16 @@ el-tabs {
 .change_order_button .el-button {
   padding: auto 0px;
   width: 20px;
+}
+.explain-words {
+  font: 0.8em Arial, Tahoma, Verdana;
+  color: #777;
+  margin-top: -30px;
+  margin-bottom: 12px;
+}
+.btn-action-area {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 </style>

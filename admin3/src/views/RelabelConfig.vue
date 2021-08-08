@@ -5,7 +5,7 @@
         <div class="do_action">
           <div style="padding-right: 15px">
             <el-button size="small" type="success" plain @click="doAdd()"
-              >添加</el-button
+              >添加规则</el-button
             >
           </div>
           <div>
