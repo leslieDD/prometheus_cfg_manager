@@ -27,7 +27,7 @@
       <el-descriptions-item>
         <template #label>
           <i class="el-icon-refresh-left"></i>
-          重置用户及极限管理成出产设置
+          重置用户及权限管理成出产设置
         </template>
         <el-button size="small" type="danger" @click="showResetDialog">
           重置数据
