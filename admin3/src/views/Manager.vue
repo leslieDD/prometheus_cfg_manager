@@ -138,7 +138,13 @@
       >
         <template #header>
           <el-tooltip content="所有机器状态5分钟更新一次" placement="top">
-            <span type="warning">状态</span>
+            <span type="warning"
+              >状态
+              <i
+                style="font-size: 13px; color: #0081ff"
+                class="el-icon-warning"
+              ></i
+            ></span>
           </el-tooltip>
         </template>
         <template v-slot="{ row }">

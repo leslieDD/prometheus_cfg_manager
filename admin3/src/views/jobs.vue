@@ -80,7 +80,11 @@
             placement="top"
           >
             <span type="warning"
-              >端口号<i style="font-size: 13px" class="el-icon-warning"></i
+              >端口号
+              <i
+                style="font-size: 13px; color: #0081ff"
+                class="el-icon-warning"
+              ></i
             ></span>
           </el-tooltip>
         </template>
