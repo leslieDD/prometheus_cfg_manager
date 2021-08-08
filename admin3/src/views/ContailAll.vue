@@ -1,52 +1,54 @@
 <template>
   <div class="main-board">
-    <div class="do_action">
-      <div style="padding-right: 15px">
-        <el-button size="small" type="warning" @click="restartServer()"
-          >让Prometheus服务重新加载配置</el-button
-        >
-        <el-button
-          v-if="publishMode === false"
-          size="small"
-          icon="el-icon-upload"
-          type="primary"
-          @click="publishJobsfunc()"
-          >发布</el-button
-        >
-        <el-button
-          v-if="publishMode === true"
-          icon="el-icon-loading"
-          size="small"
-          type="primary"
-          @click="publishJobsRunning()"
-          >发布</el-button
-        >
-        <!-- <el-button size="small" type="warning" @click="restartServer()"
-          >重新加载配置（Reload）</el-button
-        >
-        <el-button size="small" type="primary" @click="publishJobsfunc()"
-          >发布</el-button
-        > -->
-        <el-button size="small" type="success" plain @click="doAdd()"
-          >添加默认组</el-button
+    <div class="btn-action-area">
+      <div>
+        <span class="explain-words"
+          >说明：定义包含<el-tag size="mini" type="warning">所有IP地址</el-tag
+          >的分组</span
         >
       </div>
-      <div>
-        <div>
-          <el-input
-            size="small"
-            placeholder="请输入内容"
-            @keyup.enter="onSearch()"
-            v-model="searchContent"
+      <div class="do_action">
+        <div style="padding-right: 15px">
+          <el-button size="small" type="warning" @click="restartServer()"
+            >让Prometheus服务重新加载配置</el-button
           >
-            <template #append>
-              <el-button
-                size="small"
-                @click="onSearch()"
-                icon="el-icon-search"
-              ></el-button>
-            </template>
-          </el-input>
+          <el-button
+            v-if="publishMode === false"
+            size="small"
+            icon="el-icon-upload"
+            type="primary"
+            @click="publishJobsfunc()"
+            >发布</el-button
+          >
+          <el-button
+            v-if="publishMode === true"
+            icon="el-icon-loading"
+            size="small"
+            type="primary"
+            @click="publishJobsRunning()"
+            >发布</el-button
+          >
+          <el-button size="small" type="success" plain @click="doAdd()"
+            >添加默认组</el-button
+          >
+        </div>
+        <div>
+          <div>
+            <el-input
+              size="small"
+              placeholder="请输入内容"
+              @keyup.enter="onSearch()"
+              v-model="searchContent"
+            >
+              <template #append>
+                <el-button
+                  size="small"
+                  @click="onSearch()"
+                  icon="el-icon-search"
+                ></el-button>
+              </template>
+            </el-input>
+          </div>
         </div>
       </div>
     </div>
@@ -625,5 +627,14 @@ el-tabs {
 .change_order_button .el-button {
   padding: auto 0px;
   width: 20px;
+}
+.explain-words {
+  font: 0.9em Arial, Tahoma, Verdana;
+  color: #777;
+}
+.btn-action-area {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
 }
 </style>

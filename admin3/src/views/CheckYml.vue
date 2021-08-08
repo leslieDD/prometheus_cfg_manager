@@ -1,13 +1,29 @@
 <template>
   <div style="height: 100%">
-    <div class="control-btn">
-      <el-button type="warning" @click="restart" size="small"
-        >重启Prometheus服务</el-button
-      >
-      <el-button type="primary" @click="check" size="small"
-        >测试配置文件</el-button
-      >
-    </div>
+    <el-descriptions class="margin-top" :column="2" size="mini" border>
+      <el-descriptions-item>
+        <template #label>
+          <i class="el-icon-switch-button"></i>
+          执行重启Prometheus服务
+        </template>
+        <div style="width: 250px">
+          <el-button type="warning" @click="restart" size="small"
+            >重 启</el-button
+          >
+        </div>
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <i class="el-icon-first-aid-kit"></i>
+          执行测试配置文件（prometheus.yml）
+        </template>
+        <div style="width: 250px">
+          <el-button type="primary" @click="check" size="small"
+            >测 试</el-button
+          >
+        </div>
+      </el-descriptions-item>
+    </el-descriptions>
     <div ref="terminalbox" style="height: 100%; background: #002833">
       <div id="terminal" ref="terminal"></div>
     </div>
