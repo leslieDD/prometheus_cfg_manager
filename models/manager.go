@@ -541,3 +541,101 @@ func PutManagerSetting(params map[string]string) *BriefMessage {
 	}
 	return Success
 }
+
+type LogLevelSetting struct {
+	ID       int    `json:"id" gorm:"column:id"`
+	Level    string `json:"level" gorm:"column:level"`
+	Label    string `json:"label" gorm:"column:label"`
+	Selected bool   `json:"selected" gorm:"column:selected"`
+}
+
+func GetSystemReocdeSetting() ([]LogLevelSetting, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	recodes := []LogLevelSetting{}
+	tx := db.Table("log_setting").Find(&recodes)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return recodes, Success
+}
+
+func PutSystemReocdeSetting(ids []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tErr := db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Table("log_setting").Where("id in ?", ids).Update("selected", true).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		if err := tx.Table("log_setting").Where("id not in ?", ids).Update("selected", false).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		return nil
+	})
+	if tErr != nil {
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func ClearSystemLog() *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("system_log").Where("1=1").Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	return Success
+}
+
+func GetSystemLog(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	var count int64
+	var likeSql string
+	tx := db.Table("system_log")
+	if sp.Search != "" {
+		like := `'%` + sp.Search + `%'`
+		likeSql = fmt.Sprintf("username like %s "+
+			"or ipaddr like %s "+
+			"or operate_name like %s "+
+			"or operate_error like %s ", like, like, like, like)
+	} else {
+		likeSql = "1=1"
+	}
+	txCount := tx.Where(likeSql).Count(&count)
+	if txCount.Error != nil {
+		config.Log.Error(txCount.Error)
+		return nil, ErrCount
+	}
+	logs := []*OperationLog{}
+	tx = db.Table("system_log")
+	if sp.Search != "" {
+		tx = tx.Where(likeSql)
+	}
+	tx = tx.Order("operate_at desc").
+		Offset((sp.PageNo - 1) * sp.PageSize).
+		Limit(sp.PageSize).
+		Find(&logs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return CalSplitPage(sp, count, logs), Success
+}

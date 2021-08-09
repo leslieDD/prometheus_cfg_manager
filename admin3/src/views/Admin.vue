@@ -19,28 +19,28 @@
         <div class="base-config-board">
           <div class="base-config-menu">
             <el-menu
-              default-active="8"
+              default-active="user"
               class="el-menu-vertical-demo"
               @open="handleOpen"
               @close="handleClose"
               @select="handleSelect"
             >
-              <el-menu-item index="8">
+              <el-menu-item index="user">
                 <i class="el-icon-potato-strips"></i>
                 <template #title>用户管理</template>
               </el-menu-item>
-              <el-menu-item index="9">
+              <el-menu-item index="group">
                 <i class="el-icon-milk-tea"></i>
                 <template #title>组管理</template>
               </el-menu-item>
-              <el-menu-item index="10">
+              <el-menu-item index="adminSet">
                 <i class="el-icon-lollipop"></i>
                 <template #title>设置</template>
               </el-menu-item>
-              <!-- <el-menu-item index="10">
+              <el-menu-item index="log">
                 <i class="el-icon-ice-drink"></i>
-                <template #title>权限管理</template>
-              </el-menu-item> -->
+                <template #title>日志</template>
+              </el-menu-item>
             </el-menu>
           </div>
           <div class="base-config-router">
@@ -76,14 +76,16 @@ export default {
       console.log(key, keyPath);
     },
     handleSelect (key, keyPath) {
-      if (key === '8') {
+      if (key === 'user') {
         this.$router.push({ name: 'user' })
-      } else if (key === '9') {
+      } else if (key === 'group') {
         this.$router.push({ name: 'group' })
-      } else if (key === '10') {
+      } else if (key === 'adminSet') {
         this.$router.push({ name: 'adminSet' })
-      } else if (key === '11') {
+      } else if (key === 'privileges') {
         this.$router.push({ name: 'privileges' })
+      } else if (key === 'log') {
+        this.$router.push({ name: 'log' })
       }
     },
     goBackPerson () {

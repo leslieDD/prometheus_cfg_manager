@@ -100,7 +100,7 @@ const routes = [
             {
               path: '/empty',
               name: 'empty',
-              title: '空状态',
+              title: '重置',
               component: () => import('@/views/Empty.vue')
             },
             {
@@ -195,6 +195,12 @@ const routes = [
           name: 'privileges',
           title: '权限管理',
           component: () => import('@/views/Privileges.vue')
+        },
+        {
+          path: '/log',
+          name: 'log',
+          title: '日志',
+          component: () => import('@/views/Log.vue')
         }
       ]
     },

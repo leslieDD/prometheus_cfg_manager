@@ -43,6 +43,11 @@ func initManagerApi() {
 
 	v1.POST("/manager/reset/admin", postManagerResetAdmin)
 	v1.POST("/manager/reset/secret", postManagerResetSecret)
+
+	v1.GET("/system/log/setting", getSystemReocdeSetting)
+	v1.PUT("/system/log/setting", putSystemReocdeSetting)
+	v1.POST("/system/log/clear", clearSystemLog)
+	v1.GET("/system/log", getSystemLog)
 }
 
 func logout(c *gin.Context) {
@@ -419,4 +424,58 @@ func postManagerResetSecret(c *gin.Context) {
 	}
 	bf := models.PreOptResetAdmin()
 	resComm(c, bf, nil)
+}
+
+func getSystemReocdeSetting(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "log", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	data, bf := models.GetSystemReocdeSetting()
+	resComm(c, bf, data)
+}
+
+func putSystemReocdeSetting(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "log", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	recodes := []int{}
+	if err := c.BindJSON(&recodes); err != nil {
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutSystemReocdeSetting(recodes)
+	resComm(c, bf, nil)
+}
+
+func clearSystemLog(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "log", "clear")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	bf := models.ClearSystemLog()
+	resComm(c, bf, nil)
+}
+
+func getSystemLog(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "log", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.GetSystemLog(sp)
+	resComm(c, bf, data)
 }
