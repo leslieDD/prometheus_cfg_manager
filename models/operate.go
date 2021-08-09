@@ -13,6 +13,13 @@ import (
 	"gorm.io/gorm"
 )
 
+type LogType int
+
+const (
+	IsOperateLog LogType = iota + 1
+	IsSystemLog
+)
+
 type OperateObj struct {
 	operateChan chan *OperationLog
 }
@@ -21,12 +28,14 @@ var OO = NewOpterationLog()
 
 type OperationLog struct {
 	ID            int       `json:"id" gorm:"column:id"`
+	OperateType   string    `json:"operate_type" gorm:"column:operate_name"`
 	UserName      string    `json:"username" gorm:"column:username"`
 	Ipaddr        string    `json:"ipaddr" gorm:"column:ipaddr"`
 	OperateName   string    `json:"operate_name" gorm:"column:operate_name"`
 	OperateResult bool      `json:"operate_result" gorm:"column:operate_result"`
 	OperateAt     time.Time `json:"operate_at" gorm:"column:operate_at"`
 	OperateError  string    `json:"operate_error" gorm:"column:operate_error"`
+	ThisLogType   LogType   `json:"-" gorm:"-"`
 }
 
 func (ol *OperationLog) String() string {
@@ -44,6 +53,7 @@ func (ol *OperationLog) String() string {
 func NewOpterationLog() *OperateObj {
 	oo := &OperateObj{}
 	oo.operateChan = make(chan *OperationLog, 10)
+
 	go oo.loopWrite()
 	return oo
 }
@@ -94,6 +104,24 @@ func FlagLog(userName, ipaddr, optName string, opt_err error) {
 		OperateName:   optName,
 		OperateAt:     time.Now(),
 		OperateResult: opt_err == nil,
+		ThisLogType:   IsOperateLog,
+	}
+	if opt_err != nil {
+		opl.OperateError = opt_err.Error()
+	} else {
+		opl.OperateError = "操作成功"
+	}
+	OO.Log(opl)
+}
+
+func RecodeLog(userName, ipaddr, optName string, opt_err error) {
+	opl := &OperationLog{
+		UserName:      userName,
+		Ipaddr:        ipaddr,
+		OperateName:   optName,
+		OperateAt:     time.Now(),
+		OperateResult: opt_err == nil,
+		ThisLogType:   IsSystemLog,
 	}
 	if opt_err != nil {
 		opl.OperateError = opt_err.Error()
@@ -121,7 +149,16 @@ func (o *OperateObj) writeLog(opl *OperationLog) *BriefMessage {
 		return ErrDataBase
 	}
 	opl.ID = 0
-	tx := db.Table("operation_log").Create(opl)
+	var tx *gorm.DB
+	switch opl.ThisLogType {
+	case IsOperateLog:
+		tx = db.Table("operation_log")
+	case IsSystemLog:
+		tx = db.Table("system_log")
+	default:
+		return Success
+	}
+	tx = tx.Create(opl)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrCreateDBData
@@ -133,6 +170,14 @@ func (o *OperateObj) Log(opl *OperationLog) {
 	select {
 	case o.operateChan <- opl:
 	default:
+	}
+}
+
+func (o *OperateObj) FlushLevel() {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return
 	}
 }
 
@@ -150,10 +195,10 @@ type ResetCode struct {
 	Code string `json:"code" form:"code"`
 }
 
-func OptResetSystem(code *ResetCode, ipAddr string) *BriefMessage {
+func OptResetSystem(user *UserSessionInfo, code *ResetCode, ipAddr string) *BriefMessage {
 	var err error
 	defer func() {
-		FlagLog("", ipAddr, "reset_system", err)
+		FlagLog(user.Username, ipAddr, "reset_system", err)
 	}()
 	if ResetBlock.AnyOne() {
 		err = errors.New("running, try again later")
