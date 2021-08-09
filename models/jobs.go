@@ -21,6 +21,7 @@ type Jobs struct {
 	ReLabelID    int       `json:"relabel_id" gorm:"column:relabel_id"`
 	Enabled      bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt     time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy     string    `json:"update_by" gorm:"column:update_by"`
 	Online       string    `json:"online" gorm:"-"`
 	LastError    string    `json:"last_error" gorm:"-"`
 }
@@ -299,13 +300,14 @@ func GetJob(jID int64) (*Jobs, *BriefMessage) {
 	return &job, Success
 }
 
-func PostJob(job *Jobs) *BriefMessage {
+func PostJob(user *UserSessionInfo, job *Jobs) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
 	job.UpdateAt = time.Now()
+	job.UpdateBy = user.Username
 	max, bf := getMaxDisplayOrder()
 	if bf != Success {
 		return bf
@@ -336,7 +338,7 @@ func getMaxDisplayOrder() (int, *BriefMessage) {
 	return max.Max, Success
 }
 
-func PutJob(job *Jobs) *BriefMessage {
+func PutJob(user *UserSessionInfo, job *Jobs) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -349,7 +351,8 @@ func PutJob(job *Jobs) *BriefMessage {
 		Update("is_common", job.IsCommon).
 		Update("relabel_id", job.ReLabelID).
 		// Update("display_order", job.DisplayOrder).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -389,18 +392,18 @@ func DeleteJob(jID int64, isCommon bool) *BriefMessage {
 	return Success
 }
 
-func DoSwap(sInfo *SwapInfo) *BriefMessage {
+func DoSwap(user *UserSessionInfo, sInfo *SwapInfo) *BriefMessage {
 	if sInfo.Action == "up" {
-		upSwap(sInfo)
+		upSwap(user, sInfo)
 	} else if sInfo.Action == "down" {
-		downSwap(sInfo)
+		downSwap(user, sInfo)
 	} else {
 		return ErrUnSupport
 	}
 	return Success
 }
 
-func upSwap(sInfo *SwapInfo) *BriefMessage {
+func upSwap(user *UserSessionInfo, sInfo *SwapInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -416,7 +419,8 @@ func upSwap(sInfo *SwapInfo) *BriefMessage {
 		tx := db.Table("jobs").
 			Where("id=?", sInfo.ID).
 			Update("display_order", beforeDO).
-			Update("update_at", time.Now())
+			Update("update_at", time.Now()).
+			Update("update_by", user.Username)
 		if tx.Error != nil {
 			config.Log.Error(tx.Error)
 			return ErrUpdateData
@@ -445,7 +449,7 @@ func upSwap(sInfo *SwapInfo) *BriefMessage {
 	return Success
 }
 
-func downSwap(sInfo *SwapInfo) *BriefMessage {
+func downSwap(user *UserSessionInfo, sInfo *SwapInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -462,7 +466,7 @@ func downSwap(sInfo *SwapInfo) *BriefMessage {
 		tx := db.Table("jobs").
 			Where("id=?", beSwapID).
 			Update("display_order", sInfo.DisplayOrder).
-			Update("update_at", time.Now())
+			Update("update_at", time.Now()).Update("update_by", user.Username)
 		if tx.Error != nil {
 			config.Log.Error(tx.Error)
 			return ErrUpdateData
@@ -590,7 +594,7 @@ func getJobIdByOrder(orderID int) ([]OnlyID, *BriefMessage) {
 	return jobIdList, Success
 }
 
-func PutJobsStatus(oid *EnabledInfo) *BriefMessage {
+func PutJobsStatus(user *UserSessionInfo, oid *EnabledInfo) *BriefMessage {
 	// count, bf := getMachineCountForJob(oid.ID)
 	// if bf != Success {
 	// 	return bf
@@ -606,7 +610,8 @@ func PutJobsStatus(oid *EnabledInfo) *BriefMessage {
 	tx := db.Table("jobs").
 		Where("id=?", oid.ID).
 		Update("enabled", oid.Enabled).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -614,7 +619,7 @@ func PutJobsStatus(oid *EnabledInfo) *BriefMessage {
 	return Success
 }
 
-func PutJobDefaultStatus(edi *EnabledInfo) *BriefMessage {
+func PutJobDefaultStatus(user *UserSessionInfo, edi *EnabledInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -623,7 +628,8 @@ func PutJobDefaultStatus(edi *EnabledInfo) *BriefMessage {
 	tx := db.Table("jobs").
 		Where("id=?", edi.ID).
 		Update("enabled", edi.Enabled).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -636,7 +642,7 @@ type UpdateIPForJob struct {
 	MachinesIDs []int `json:"machines_ids" gorm:"column:machines_ids"`
 }
 
-func PostUpdateJobIPs(cInfo *UpdateIPForJob) *BriefMessage {
+func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -660,6 +666,12 @@ func PostUpdateJobIPs(cInfo *UpdateIPForJob) *BriefMessage {
 			})
 		}
 		if err := db.Table("job_machines").Create(&tjms).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		if err := db.Table("jobs").
+			Update("update_at", time.Now()).
+			Update("update_by", user.Username).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}

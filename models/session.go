@@ -111,6 +111,7 @@ type UserSessionInfo struct {
 	UserID       int       `json:"user_id" gorm:"column:user_id"`
 	UpdateAt     time.Time `json:"update_at" gorm:"column:update_at"`
 	Username     string    `json:"username" gorm:"column:username"`
+	NiceName     string    `json:"nice_name" gorm:"column:nice_name"`
 	GroupID      int       `json:"group_id" gorm:"column:group_id"`
 	Phone        string    `json:"phone" gorm:"column:phone"`
 	UserEnabled  bool      `json:"user_enabled" gorm:"column:user_enabled"`

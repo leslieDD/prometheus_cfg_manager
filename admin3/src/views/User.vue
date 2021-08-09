@@ -45,7 +45,6 @@
               </el-table-column>
               <el-table-column
                 label="密码"
-                width="280px"
                 show-overflow-tooltip
                 prop="password"
               >
@@ -62,11 +61,9 @@
                   >
                 </template>
               </el-table-column>
-              <el-table-column
-                label="最后更新时间"
-                width="130px"
-                prop="update_at"
-              >
+              <el-table-column label="最后更新账号" prop="update_by">
+              </el-table-column>
+              <el-table-column label="最后更新时间" prop="update_at">
                 <template v-slot="{ row }">
                   <span>{{ parseTimeSelf(row.update_at) }}</span>
                 </template>

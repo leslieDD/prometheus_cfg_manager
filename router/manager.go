@@ -106,7 +106,7 @@ func postManagerGroup(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostManagerGroup(&mg)
+	bf := models.PostManagerGroup(user, &mg)
 	resComm(c, bf, nil)
 }
 
@@ -122,7 +122,7 @@ func putManagerGroup(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutManagerGroup(&mg)
+	bf := models.PutManagerGroup(user, &mg)
 	resComm(c, bf, nil)
 }
 
@@ -160,7 +160,7 @@ func putManagerGroupStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutManagerGroupStatus(&enabledInfo)
+	bf := models.PutManagerGroupStatus(user, &enabledInfo)
 	resComm(c, bf, nil)
 }
 
@@ -195,7 +195,7 @@ func postManagerUser(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostManagerUser(&mu)
+	bf := models.PostManagerUser(user, &mu)
 	resComm(c, bf, nil)
 }
 
@@ -212,7 +212,7 @@ func putManagerUser(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutManagerUser(&mu)
+	bf := models.PutManagerUser(user, &mu)
 	resComm(c, bf, nil)
 }
 
@@ -250,7 +250,7 @@ func putManagerUserStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutManagerUserStatus(&enabledInfo)
+	bf := models.PutManagerUserStatus(user, &enabledInfo)
 	resComm(c, bf, nil)
 }
 
@@ -266,7 +266,7 @@ func postUserPassword(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostUserPassword(&pInfo)
+	bf := models.PostUserPassword(user, &pInfo)
 	resComm(c, bf, nil)
 }
 
@@ -314,7 +314,7 @@ func putManagerGroupMember(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutManagerGroupMember(&gInfo, uIDs)
+	bf := models.PutManagerGroupMember(user, &gInfo, uIDs)
 	resComm(c, bf, nil)
 }
 
@@ -357,7 +357,7 @@ func putUserPriv(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutGroupPriv(privInfo, &gInfo)
+	bf := models.PutGroupPriv(user, privInfo, &gInfo)
 	resComm(c, bf, nil)
 }
 

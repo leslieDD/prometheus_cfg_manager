@@ -86,6 +86,7 @@ func initApiRouter() {
 	v1.PUT("/base/labels", putBaseLabels)
 	v1.PUT("/base/labels/status", putBaseLabelsStatus)
 	v1.DELETE("/base/labels", delBaseLabels)
+
 	v1.GET("/base/relabels", getReLabels)
 	v1.GET("/base/relabels/all", getAllRelabels)
 	v1.POST("/base/relabels", postReLabels)
@@ -198,7 +199,7 @@ func postJob(c *gin.Context) {
 		return
 	}
 	jInfo.IsCommon = false
-	bf := models.PostJob(jInfo)
+	bf := models.PostJob(user, jInfo)
 	resComm(c, bf, nil)
 }
 
@@ -215,7 +216,7 @@ func postDefJob(c *gin.Context) {
 		return
 	}
 	jInfo.IsCommon = true
-	bf := models.PostJob(jInfo)
+	bf := models.PostJob(user, jInfo)
 	resComm(c, bf, nil)
 }
 
@@ -232,7 +233,7 @@ func putJob(c *gin.Context) {
 		return
 	}
 	jInfo.IsCommon = false
-	bf := models.PutJob(jInfo)
+	bf := models.PutJob(user, jInfo)
 	resComm(c, bf, nil)
 }
 
@@ -249,7 +250,7 @@ func putDefJob(c *gin.Context) {
 		return
 	}
 	jInfo.IsCommon = true
-	bf := models.PutJob(jInfo)
+	bf := models.PutJob(user, jInfo)
 	resComm(c, bf, nil)
 }
 
@@ -309,7 +310,7 @@ func putJobDefaultStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutJobDefaultStatus(&ed)
+	bf := models.PutJobDefaultStatus(user, &ed)
 	resComm(c, bf, nil)
 }
 
@@ -341,7 +342,7 @@ func postJobGroup(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostJobGroup(info)
+	bf := models.PostJobGroup(user, info)
 	resComm(c, bf, nil)
 }
 
@@ -357,7 +358,7 @@ func putJobGroup(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutJobGroup(info)
+	bf := models.PutJobGroup(user, info)
 	resComm(c, bf, nil)
 }
 
@@ -562,7 +563,7 @@ func putJobGroupStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutJobGroupStatus(&ed)
+	bf := models.PutJobGroupStatus(user, &ed)
 	resComm(c, bf, nil)
 }
 
@@ -578,7 +579,7 @@ func putJobGroupLabelsStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutJobGroupLabelsStatus(&ed)
+	bf := models.PutJobGroupLabelsStatus(user, &ed)
 	resComm(c, bf, nil)
 }
 
@@ -605,7 +606,7 @@ func swapJob(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.DoSwap(sInfo)
+	bf := models.DoSwap(user, sInfo)
 	resComm(c, bf, nil)
 }
 
@@ -643,7 +644,7 @@ func putJobsStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutJobsStatus(&ed)
+	bf := models.PutJobsStatus(user, &ed)
 	resComm(c, bf, nil)
 }
 
@@ -659,7 +660,7 @@ func postUpdateJobIPs(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostUpdateJobIPs(&cInfo)
+	bf := models.PostUpdateJobIPs(user, &cInfo)
 	resComm(c, bf, nil)
 }
 
@@ -714,7 +715,7 @@ func postMachine(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostMachine(mInfo)
+	bf := models.PostMachine(user, mInfo)
 	resComm(c, bf, nil)
 }
 
@@ -730,7 +731,7 @@ func putMachine(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutMachine(mInfo)
+	bf := models.PutMachine(user, mInfo)
 	resComm(c, bf, nil)
 }
 
@@ -768,7 +769,7 @@ func putMachineStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutMachineStatus(&ed)
+	bf := models.PutMachineStatus(user, &ed)
 	resComm(c, bf, nil)
 }
 
@@ -811,7 +812,7 @@ func uploadMachines(c *gin.Context) {
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
-	result, bf := models.UploadMachines(&info)
+	result, bf := models.UploadMachines(user, &info)
 	resComm(c, bf, result)
 }
 
@@ -952,7 +953,7 @@ func postNode(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	data, bf := models.PostNode(&nodeInfo)
+	data, bf := models.PostNode(user, &nodeInfo)
 	resComm(c, bf, data)
 }
 
@@ -968,7 +969,7 @@ func putNode(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	data, bf := models.PutNode(&nodeInfo)
+	data, bf := models.PutNode(user, &nodeInfo)
 	resComm(c, bf, data)
 }
 
@@ -1038,7 +1039,7 @@ func updateTreeNode(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.UpdateTreeNode(&tnc)
+	bf := models.UpdateTreeNode(user, &tnc)
 	resComm(c, bf, nil)
 }
 
@@ -1091,7 +1092,7 @@ func putTreeNodeStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutTreeNodeStatus(&upInfo)
+	bf := models.PutTreeNodeStatus(user, &upInfo)
 	resComm(c, bf, nil)
 }
 
@@ -1113,7 +1114,7 @@ func postTreeUploadFileYaml(c *gin.Context) {
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
-	r, bf := models.PostTreeUploadFileYaml(c, gid)
+	r, bf := models.PostTreeUploadFileYaml(c, user, gid)
 	resComm(c, bf, r)
 }
 
@@ -1145,7 +1146,7 @@ func postBaseLabels(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostBaseLabels(&newLabel)
+	bf := models.PostBaseLabels(user, &newLabel)
 	resComm(c, bf, nil)
 }
 
@@ -1161,7 +1162,7 @@ func putBaseLabels(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutBaseLabels(&label)
+	bf := models.PutBaseLabels(user, &label)
 	resComm(c, bf, nil)
 }
 
@@ -1226,7 +1227,7 @@ func postReLabels(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostReLabels(&reLabel)
+	bf := models.PostReLabels(user, &reLabel)
 	resComm(c, bf, nil)
 }
 
@@ -1242,7 +1243,7 @@ func putReLabels(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutReLabels(&reLabel)
+	bf := models.PutReLabels(user, &reLabel)
 	resComm(c, bf, nil)
 }
 
@@ -1280,7 +1281,7 @@ func putRelabelsCode(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutReLabelsCode(&reLabel)
+	bf := models.PutReLabelsCode(user, &reLabel)
 	resComm(c, bf, nil)
 }
 
@@ -1296,7 +1297,7 @@ func putBaseLabelsStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutBaseLabelsStatus(&ed)
+	bf := models.PutBaseLabelsStatus(user, &ed)
 	resComm(c, bf, nil)
 }
 
@@ -1318,7 +1319,7 @@ func putBaseRelabelsStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutBaseRelabelsStatus(&ed)
+	bf := models.PutBaseRelabelsStatus(user, &ed)
 	resComm(c, bf, nil)
 }
 
@@ -1350,7 +1351,7 @@ func postBaseFields(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PostBaseFields(&newLabel)
+	bf := models.PostBaseFields(user, &newLabel)
 	resComm(c, bf, nil)
 }
 
@@ -1366,7 +1367,7 @@ func putBaseFields(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutBaseFields(&label)
+	bf := models.PutBaseFields(user, &label)
 	resComm(c, bf, nil)
 }
 
@@ -1382,7 +1383,7 @@ func putBaseFieldsStatus(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutBaseFieldsStatus(&ed)
+	bf := models.PutBaseFieldsStatus(user, &ed)
 	resComm(c, bf, nil)
 }
 
@@ -1431,7 +1432,7 @@ func putProTmpl(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutProTmpl(&tp)
+	bf := models.PutProTmpl(user, &tp)
 	resComm(c, bf, nil)
 }
 

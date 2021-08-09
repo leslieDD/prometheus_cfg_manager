@@ -20,6 +20,7 @@ type Machine struct {
 	JobsID   []int     `json:"jobs_id" gorm:"-"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
 type TableJobMachines struct {
@@ -34,6 +35,7 @@ type ListMachine struct {
 	JobsIdStr string    `json:"jobs_id_str" gorm:"jobs_id_str"`
 	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
 	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
+	UpdateBy  string    `json:"update_by" gorm:"column:update_by"`
 }
 
 type ListMachineMerge struct {
@@ -42,6 +44,7 @@ type ListMachineMerge struct {
 	IpAddr    string    `json:"ipaddr" gorm:"column:ipaddr"`
 	JobsId    []int     `json:"jobs_id" gorm:"jobs_id"`
 	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy  string    `json:"update_by" gorm:"column:update_by"`
 	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
 	Health    string    `json:"health" gorm:"-"`
 	LastError string    `json:"last_error" gorm:"-"`
@@ -167,6 +170,7 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 			UpdateAt: l.UpdateAt,
 			Enabled:  l.Enabled,
 			JobsId:   ints,
+			UpdateBy: l.UpdateBy,
 		})
 	}
 	mObj.Check(&listsSend)
@@ -232,7 +236,7 @@ func GetMachines(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	return CalSplitPage(sp, count, machines), Success
 }
 
-func PostMachine(m *Machine) *BriefMessage {
+func PostMachine(user *UserSessionInfo, m *Machine) *BriefMessage {
 	if utils.CheckIPAddr(m.IpAddr) {
 		return ErrIPAddr
 	}
@@ -243,6 +247,7 @@ func PostMachine(m *Machine) *BriefMessage {
 	}
 	m.UpdateAt = time.Now()
 	m.Enabled = true
+	m.UpdateBy = user.Username
 	err := db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Table("machines").Create(m).Error
 		if err != nil {
@@ -275,7 +280,7 @@ func PostMachine(m *Machine) *BriefMessage {
 	return ErrCreateDBData
 }
 
-func PutMachine(m *Machine) *BriefMessage {
+func PutMachine(user *UserSessionInfo, m *Machine) *BriefMessage {
 	if utils.CheckIPAddr(m.IpAddr) {
 		return ErrIPAddr
 	}
@@ -288,7 +293,8 @@ func PutMachine(m *Machine) *BriefMessage {
 		if err := db.Table("machines").
 			Where("id = ?", m.ID).
 			Update("ipaddr", m.IpAddr).
-			Update("update_at", time.Now()).Error; err != nil {
+			Update("update_at", time.Now()).
+			Update("update_by", user.Username).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
@@ -351,7 +357,7 @@ type EnabledInfo struct {
 	Enabled bool `json:"enabled" gorm:"column:enabled" form:"enabled"`
 }
 
-func PutMachineStatus(oid *EnabledInfo) *BriefMessage {
+func PutMachineStatus(user *UserSessionInfo, oid *EnabledInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -360,6 +366,7 @@ func PutMachineStatus(oid *EnabledInfo) *BriefMessage {
 	tx := db.Table("machines").
 		Where("id=?", oid.ID).
 		Update("enabled", oid.Enabled).
+		Update("update_by", user.Username).
 		Update("update_at", time.Now())
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -393,7 +400,7 @@ type UploadMachinesInfo struct {
 	TongJi   UploadResult     `json:"tongji" form:"-"`
 }
 
-func UploadMachines(uploadInfo *UploadMachinesInfo) (*UploadMachinesInfo, *BriefMessage) {
+func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*UploadMachinesInfo, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -418,6 +425,7 @@ func UploadMachines(uploadInfo *UploadMachinesInfo) (*UploadMachinesInfo, *Brief
 				IpAddr:   ipInfo.IpAddr,
 				Enabled:  true,
 				UpdateAt: time.Now(),
+				UpdateBy: user.Username,
 			}
 			if err := tx.Table("machines").Create(&m).Error; err != nil {
 				ipInfo.ImportInPool = false

@@ -14,6 +14,7 @@ type BaseLabels struct {
 	Label    string    `json:"label" gorm:"column:label"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"update_at"`
+	UpdateBy string    `json:"update_by" gorm:"update_by"`
 }
 
 func GetBaseLabels(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
@@ -47,13 +48,14 @@ func GetBaseLabels(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	return CalSplitPage(sp, count, lists), Success
 }
 
-func PostBaseLabels(newLabel *BaseLabels) *BriefMessage {
+func PostBaseLabels(user *UserSessionInfo, newLabel *BaseLabels) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
 	newLabel.UpdateAt = time.Now()
+	newLabel.UpdateBy = user.NiceName
 	tx := db.Table("labels").Create(newLabel)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -62,7 +64,7 @@ func PostBaseLabels(newLabel *BaseLabels) *BriefMessage {
 	return Success
 }
 
-func PutBaseLabels(label *BaseLabels) *BriefMessage {
+func PutBaseLabels(user *UserSessionInfo, label *BaseLabels) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -71,7 +73,8 @@ func PutBaseLabels(label *BaseLabels) *BriefMessage {
 	tx := db.Table("labels").
 		Where("id=?", label.ID).
 		Update("label", label.Label).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -98,7 +101,8 @@ type BaseFields struct {
 	Key      string    `json:"key" gorm:"column:key"`
 	Value    string    `json:"value" gorm:"column:value"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
-	UpdateAt time.Time `json:"update_at" gorm:"update_at"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
 func GetBaseFields(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
@@ -143,13 +147,14 @@ func GetBaseFields(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	return CalSplitPage(sp, count, lists), Success
 }
 
-func PostBaseFields(newFields *BaseFields) *BriefMessage {
+func PostBaseFields(user *UserSessionInfo, newFields *BaseFields) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
 	newFields.UpdateAt = time.Now()
+	newFields.UpdateBy = user.Username
 	tx := db.Table("tmpl_fields").Create(newFields)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -158,7 +163,7 @@ func PostBaseFields(newFields *BaseFields) *BriefMessage {
 	return Success
 }
 
-func PutBaseFields(fields *BaseFields) *BriefMessage {
+func PutBaseFields(user *UserSessionInfo, fields *BaseFields) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -168,7 +173,8 @@ func PutBaseFields(fields *BaseFields) *BriefMessage {
 		Where("id=?", fields.ID).
 		Update("key", fields.Key).
 		Update("value", fields.Value).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -190,7 +196,7 @@ func DelBaseFields(id int64) *BriefMessage {
 	return Success
 }
 
-func PutBaseFieldsStatus(edi *EnabledInfo) *BriefMessage {
+func PutBaseFieldsStatus(user *UserSessionInfo, edi *EnabledInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -199,7 +205,8 @@ func PutBaseFieldsStatus(edi *EnabledInfo) *BriefMessage {
 	tx := db.Table("tmpl_fields").
 		Where("id=?", edi.ID).
 		Update("enabled", edi.Enabled).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -212,7 +219,8 @@ type ReLabels struct {
 	Name     string    `json:"name" gorm:"column:name"`
 	Code     string    `json:"code" gorm:"column:code"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
-	UpdateAt time.Time `json:"update_at" gorm:"update_at"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
 func GetReLabels(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
@@ -263,13 +271,14 @@ func GetAllReLabels() ([]*ReLabels, *BriefMessage) {
 	return lists, Success
 }
 
-func PostReLabels(rl *ReLabels) *BriefMessage {
+func PostReLabels(user *UserSessionInfo, rl *ReLabels) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
 	rl.UpdateAt = time.Now()
+	rl.UpdateBy = user.Username
 	if rl.Code == "" {
 		// 注意格式，如空格
 		rl.Code = `    relabel_configs:
@@ -286,7 +295,7 @@ func PostReLabels(rl *ReLabels) *BriefMessage {
 	return Success
 }
 
-func PutReLabels(label *ReLabels) *BriefMessage {
+func PutReLabels(user *UserSessionInfo, label *ReLabels) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -296,7 +305,8 @@ func PutReLabels(label *ReLabels) *BriefMessage {
 		Where("id=?", label.ID).
 		Update("name", label.Name).
 		Update("code", label.Code).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -318,7 +328,7 @@ func DelReLabels(id int64) *BriefMessage {
 	return Success
 }
 
-func PutReLabelsCode(label *ReLabels) *BriefMessage {
+func PutReLabelsCode(user *UserSessionInfo, label *ReLabels) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -327,7 +337,8 @@ func PutReLabelsCode(label *ReLabels) *BriefMessage {
 	tx := db.Table("relabels").
 		Where("id=?", label.ID).
 		Update("code", label.Code).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -335,7 +346,7 @@ func PutReLabelsCode(label *ReLabels) *BriefMessage {
 	return Success
 }
 
-func PutBaseLabelsStatus(edi *EnabledInfo) *BriefMessage {
+func PutBaseLabelsStatus(user *UserSessionInfo, edi *EnabledInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -344,7 +355,8 @@ func PutBaseLabelsStatus(edi *EnabledInfo) *BriefMessage {
 	tx := db.Table("labels").
 		Where("id=?", edi.ID).
 		Update("enabled", edi.Enabled).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -367,14 +379,7 @@ func RelabelsHaveJobs(relabelID int) (*int64, *BriefMessage) {
 	return &count, Success
 }
 
-func PutBaseRelabelsStatus(edi *EnabledInfo) *BriefMessage {
-	// count, bf := RelabelsHaveJobs(edi.ID)
-	// if bf != Success {
-	// 	return bf
-	// }
-	// if *count != 0 {
-	// 	return ErrHaveDataNoAllowToDisabled
-	// }
+func PutBaseRelabelsStatus(user *UserSessionInfo, edi *EnabledInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -383,7 +388,8 @@ func PutBaseRelabelsStatus(edi *EnabledInfo) *BriefMessage {
 	tx := db.Table("relabels").
 		Where("id=?", edi.ID).
 		Update("enabled", edi.Enabled).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData

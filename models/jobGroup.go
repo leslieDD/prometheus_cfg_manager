@@ -16,6 +16,7 @@ type JobGroup struct {
 	Name     string    `json:"name" gorm:"column:name"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
 type JobGroupBoard struct {
@@ -136,13 +137,14 @@ func CountEachGroupIP() ([]*CountDep, *BriefMessage) {
 	return cd, Success
 }
 
-func PostJobGroup(jb *JobGroup) *BriefMessage {
+func PostJobGroup(user *UserSessionInfo, jb *JobGroup) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
 	jb.UpdateAt = time.Now()
+	jb.UpdateBy = user.Username
 	tx := db.Table("job_group").Create(&jb)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -151,7 +153,7 @@ func PostJobGroup(jb *JobGroup) *BriefMessage {
 	return Success
 }
 
-func PutJobGroup(jb *JobGroup) *BriefMessage {
+func PutJobGroup(user *UserSessionInfo, jb *JobGroup) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -159,7 +161,9 @@ func PutJobGroup(jb *JobGroup) *BriefMessage {
 	}
 	tx := db.Table("job_group").
 		Where("jobs_id=? and id=?", jb.JobsID, jb.ID).
-		Update("name", jb.Name)
+		Update("name", jb.Name).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrCreateDBData
@@ -328,22 +332,6 @@ func PutJobGroupMachines(gID int64, pools *[]JobGroupMachine) *BriefMessage {
 			return ErrSearchDBData
 		}
 	}
-	// tx := db.Table("group_machines").Where("job_group_id=?", gID).Delete(nil)
-	// if tx.Error != nil {
-	// 	config.Log.Error(tx.Error)
-	// 	return ErrSearchDBData
-	// }
-	// ist := []string{}
-	// for _, p := range *pools {
-	// 	ist = append(ist, fmt.Sprintf(`(%d, %d)`, gID, p.MachinesID))
-	// }
-	// values := strings.Join(ist, ",")
-	// sql := "INSERT INTO group_machines(`job_group_id`,`machines_id`) VALUES " + values
-	// tx2 := db.Table("group_machines").Exec(sql)
-	// if tx2.Error != nil {
-	// 	config.Log.Error(tx2.Error)
-	// 	return ErrCreateDBData
-	// }
 	return Success
 }
 
@@ -354,6 +342,7 @@ type GroupLabels struct {
 	Value      string    `json:"value" gorm:"column:value"`
 	Enabled    bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt   time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy   string    `json:"update_by" gorm:"column:update_by"`
 }
 
 func GetGroupLabels(gID int64) ([]*GroupLabels, *BriefMessage) {
@@ -509,7 +498,7 @@ func GetAllMachinesLabels(jg *JobGroupID) (interface{}, *BriefMessage) {
 	return &data, Success
 }
 
-func PutJobGroupStatus(edi *EnabledInfo) *BriefMessage {
+func PutJobGroupStatus(user *UserSessionInfo, edi *EnabledInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -518,7 +507,8 @@ func PutJobGroupStatus(edi *EnabledInfo) *BriefMessage {
 	tx := db.Table("job_group").
 		Where("id=?", edi.ID).
 		Update("enabled", edi.Enabled).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -526,7 +516,7 @@ func PutJobGroupStatus(edi *EnabledInfo) *BriefMessage {
 	return Success
 }
 
-func PutJobGroupLabelsStatus(edi *EnabledInfo) *BriefMessage {
+func PutJobGroupLabelsStatus(user *UserSessionInfo, edi *EnabledInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -535,7 +525,8 @@ func PutJobGroupLabelsStatus(edi *EnabledInfo) *BriefMessage {
 	tx := db.Table("group_labels").
 		Where("id=?", edi.ID).
 		Update("enabled", edi.Enabled).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData

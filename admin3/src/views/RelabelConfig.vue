@@ -50,6 +50,8 @@
               </template>
             </el-table-column>
             <el-table-column label="名称" prop="name"> </el-table-column>
+            <el-table-column label="最新后新账号" prop="update_by">
+            </el-table-column>
             <el-table-column label="最后更新时间" prop="update_at">
               <template v-slot="{ row }">
                 <span>{{ parseTimeSelf(row.update_at) }}</span>

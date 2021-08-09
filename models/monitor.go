@@ -267,6 +267,8 @@ func CreateTreeNode(user *UserSessionInfo, t *TreeNodeFromCli) *BriefMessage {
 	} else {
 		return ErrUnSupport
 	}
+	writeData["update_at"] = time.Now()
+	writeData["update_by"] = user.Username
 	tx.Create(&writeData)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -275,7 +277,7 @@ func CreateTreeNode(user *UserSessionInfo, t *TreeNodeFromCli) *BriefMessage {
 	return Success
 }
 
-func UpdateTreeNode(t *TreeNodeFromCli) *BriefMessage {
+func UpdateTreeNode(user *UserSessionInfo, t *TreeNodeFromCli) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -295,6 +297,7 @@ func UpdateTreeNode(t *TreeNodeFromCli) *BriefMessage {
 	} else {
 		return ErrUnSupport
 	}
+	tx = tx.Update("update_at", time.Now()).Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrCreateDBData
@@ -477,7 +480,7 @@ type TreeNodeStatus struct {
 	Enabled bool `json:"enabled" form:"enabled"`
 }
 
-func PutTreeNodeStatus(tns *TreeNodeStatus) *BriefMessage {
+func PutTreeNodeStatus(user *UserSessionInfo, tns *TreeNodeStatus) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -485,7 +488,10 @@ func PutTreeNodeStatus(tns *TreeNodeStatus) *BriefMessage {
 	}
 	err := db.Transaction(func(tx *gorm.DB) error {
 		if tns.Level == 1 {
-			tx.Table("monitor_rules").Where("1=1").Update("enabled", tns.Enabled)
+			tx.Table("monitor_rules").Where("1=1").
+				Update("enabled", tns.Enabled).
+				Update("update_at", time.Now()).
+				Update("update_by", user.Username)
 		} else if tns.Level == 2 {
 			ids := []OnlyID{}
 			if err := tx.Table("monitor_rules").
@@ -505,6 +511,8 @@ func PutTreeNodeStatus(tns *TreeNodeStatus) *BriefMessage {
 			if err := tx.Table("monitor_rules").
 				Where("id in (?)", idsSlice).
 				Update("enabled", tns.Enabled).
+				Update("update_at", time.Now()).
+				Update("update_by", user.Username).
 				Error; err != nil {
 				config.Log.Error(err)
 				return err
@@ -512,13 +520,17 @@ func PutTreeNodeStatus(tns *TreeNodeStatus) *BriefMessage {
 		} else if tns.Level == 3 {
 			if err := tx.Table("monitor_rules").
 				Where("sub_group_id=?", tns.ID).
-				Update("enabled", tns.Enabled).Error; err != nil {
+				Update("enabled", tns.Enabled).
+				Update("update_at", time.Now()).
+				Update("update_by", user.Username).Error; err != nil {
 				config.Log.Error(err)
 				return err
 			}
 		} else if tns.Level == 4 {
 			if err := tx.Table("monitor_rules").
 				Where("id=?", tns.ID).
+				Update("update_at", time.Now()).
+				Update("update_by", user.Username).
 				Update("enabled", tns.Enabled).Error; err != nil {
 				config.Log.Error(err)
 				return err
@@ -567,7 +579,7 @@ type RespImportResult struct {
 	Result TongJiUploadRule `json:"result"`
 }
 
-func PostTreeUploadFileYaml(c *gin.Context, gid int64) (*RespImportResult, *BriefMessage) {
+func PostTreeUploadFileYaml(c *gin.Context, user *UserSessionInfo, gid int64) (*RespImportResult, *BriefMessage) {
 	rFile, err := c.FormFile("file")
 	if err != nil {
 		config.Log.Error(err)
@@ -615,6 +627,8 @@ func PostTreeUploadFileYaml(c *gin.Context, gid int64) (*RespImportResult, *Brie
 				Enabled:     r.Enabled,
 				Description: r.Description,
 				SubGroupID:  int(gid),
+				UpdateAt:    time.Now(),
+				UpdateBy:    user.Username,
 			}
 			if err := tx.Table("monitor_rules").Create(&mr).Error; err != nil {
 				errItem.Success = false

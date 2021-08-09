@@ -4,6 +4,7 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/utils"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -15,6 +16,8 @@ type TreeNode struct {
 	Parent   int         `json:"parent"`
 	Path     []string    `json:"path"`
 	Code     string      `json:"code"`
+	UpdateAt time.Time   `json:"update_at"`
+	UpdateBy string      `json:"update_by"`
 	Children []*TreeNode `json:"children"`
 }
 
@@ -30,6 +33,8 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 		Path:     []string{},
 		Parent:   -1,
 		Children: []*TreeNode{},
+		UpdateAt: time.Now(),
+		UpdateBy: "administrator",
 	}
 	root.Code = utils.Getmd5(1, 0, root.Label)
 	root.Path = append(root.Path, root.Label)
@@ -46,7 +51,10 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 			Parent:   root.ID,
 			Path:     []string{root.Label, rg.Name},
 			Code:     utils.Getmd5(2, rg.ID, root.Label, rg.Name),
-			Children: []*TreeNode{}}
+			Children: []*TreeNode{},
+			UpdateAt: rg.UpdateAt,
+			UpdateBy: rg.UpdateBy,
+		}
 		subGroup, bf := GetSubGroup(rg.ID)
 		if bf != Success {
 			return nil, bf
@@ -61,6 +69,8 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 				Path:     []string{root.Label, rg.Name, sub.Name},
 				Code:     utils.Getmd5(3, sub.ID, root.Label, rg.Name, sub.Name),
 				Children: []*TreeNode{},
+				UpdateAt: sub.UpdateAt,
+				UpdateBy: sub.UpdateBy,
 			}
 			mrs, bf := GetMonitorRules(sub.ID, false)
 			if bf != Success {
@@ -75,6 +85,8 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 					Code:     utils.Getmd5(4, mr.ID, root.Label, rg.Name, sub.Name, mr.Alert),
 					Path:     []string{root.Label, rg.Name, sub.Name, mr.Alert},
 					Children: nil,
+					UpdateAt: mr.UpdateAt,
+					UpdateBy: mr.UpdateBy,
 				})
 			}
 			thisSubNodes = append(thisSubNodes, &thisSubNode)
@@ -147,8 +159,10 @@ func GetNodesFromDB() ([]*TreeNode, *BriefMessage) {
 // }
 
 type RulesGroups struct {
-	ID   int    `json:"id" gorm:"column:id"`
-	Name string `json:"name" gorm:"column:name"`
+	ID       int       `json:"id" gorm:"column:id"`
+	Name     string    `json:"name" gorm:"column:name"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
 func GetRulesGroups() ([]RulesGroups, *BriefMessage) {
@@ -202,9 +216,11 @@ func GetNodeInfo() ([]NodeInfo, *BriefMessage) {
 }
 
 type SubGroup struct {
-	ID            int    `json:"id" gorm:"column:id"`
-	Name          string `json:"name" gorm:"column:name"`
-	RulesGroupsID int    `json:"rules_groups_id" gorm:"column:rules_groups_id"`
+	ID            int       `json:"id" gorm:"column:id"`
+	Name          string    `json:"name" gorm:"column:name"`
+	RulesGroupsID int       `json:"rules_groups_id" gorm:"column:rules_groups_id"`
+	UpdateAt      time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy      string    `json:"update_by" gorm:"column:update_by"`
 }
 
 func GetSubGroup(rulesGroupsID int) ([]SubGroup, *BriefMessage) {
@@ -223,13 +239,15 @@ func GetSubGroup(rulesGroupsID int) ([]SubGroup, *BriefMessage) {
 }
 
 type MonitorRule struct {
-	ID          int    `json:"id" gorm:"column:id"`
-	Alert       string `json:"alert" gorm:"column:alert"`
-	Expr        string `json:"expr" gorm:"column:expr"`
-	For         string `json:"for" gorm:"column:for"`
-	SubGroupID  int    `json:"sub_group_id" gorm:"column:sub_group_id"`
-	Enabled     bool   `json:"enabled" gorm:"column:enabled"`
-	Description string `json:"description" gorm:"column:description"`
+	ID          int       `json:"id" gorm:"column:id"`
+	Alert       string    `json:"alert" gorm:"column:alert"`
+	Expr        string    `json:"expr" gorm:"column:expr"`
+	For         string    `json:"for" gorm:"column:for"`
+	SubGroupID  int       `json:"sub_group_id" gorm:"column:sub_group_id"`
+	Enabled     bool      `json:"enabled" gorm:"column:enabled"`
+	Description string    `json:"description" gorm:"column:description"`
+	UpdateAt    time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy    string    `json:"update_by" gorm:"column:update_by"`
 }
 
 func GetMonitorRules(subGroupID int, isPublish bool) ([]MonitorRule, *BriefMessage) {
@@ -282,15 +300,17 @@ type Label struct {
 }
 
 type TreeNodeInfo struct {
-	ID          int     `json:"id" gorm:"column:id"`
-	Alert       string  `json:"alert" gorm:"column:alert"`
-	Expr        string  `json:"expr" gorm:"column:expr"`
-	For         string  `json:"for" gorm:"column:for"`
-	SubGroupID  int     `json:"sub_group_id" gorm:"column:sub_group_id"`
-	Labels      []Label `json:"labels" gorm:"column:labels"`
-	Annotations []Label `json:"annotations" gorm:"column:annotations"`
-	Enabled     bool    `json:"enabled" gorm:"column:enabled"`
-	Description string  `json:"description" gorm:"column:description"`
+	ID          int       `json:"id" gorm:"column:id"`
+	Alert       string    `json:"alert" gorm:"column:alert"`
+	Expr        string    `json:"expr" gorm:"column:expr"`
+	For         string    `json:"for" gorm:"column:for"`
+	SubGroupID  int       `json:"sub_group_id" gorm:"column:sub_group_id"`
+	Labels      []Label   `json:"labels" gorm:"column:labels"`
+	Annotations []Label   `json:"annotations" gorm:"column:annotations"`
+	Enabled     bool      `json:"enabled" gorm:"column:enabled"`
+	Description string    `json:"description" gorm:"column:description"`
+	UpdateAt    time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy    string    `json:"update_by" gorm:"column:update_by"`
 }
 
 func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
@@ -306,6 +326,8 @@ func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
 		SubGroupID:  mr.SubGroupID,
 		Enabled:     mr.Enabled,
 		Description: mr.Description,
+		UpdateAt:    mr.UpdateAt,
+		UpdateBy:    mr.UpdateBy,
 	}
 
 	tni.Labels, bf = SearchLabelsByMonitorID(tni.ID)
@@ -319,7 +341,7 @@ func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
 	return &tni, Success
 }
 
-func PostNode(nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
+func PostNode(user *UserSessionInfo, nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -331,6 +353,8 @@ func PostNode(nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
 		"for":          nodeInfo.For,
 		"sub_group_id": nodeInfo.SubGroupID,
 		"enabled":      nodeInfo.Enabled,
+		"update_at":    time.Now(),
+		"update_by":    user.Username,
 	}
 	tx := db.Table("monitor_rules").Create(&createMap)
 	if tx.Error != nil {
@@ -346,7 +370,7 @@ func PostNode(nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
 	return GetNode(&QueryGetNode{ID: nodeInfo.ID, Level: 4})
 }
 
-func PutNode(nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
+func PutNode(user *UserSessionInfo, nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -358,7 +382,9 @@ func PutNode(nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *BriefMessage) {
 		Update("for", nodeInfo.For).
 		Update("sub_group_id", nodeInfo.SubGroupID).
 		Update("enabled", nodeInfo.Enabled).
-		Update("description", nodeInfo.Description)
+		Update("description", nodeInfo.Description).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrCreateDBData

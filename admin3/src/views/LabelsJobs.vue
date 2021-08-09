@@ -85,6 +85,8 @@
       </el-table-column>
       <el-table-column label="标签数" prop="labels_count" width="160px">
       </el-table-column>
+      <el-table-column label="最后更新账号" prop="update_by" width="160px">
+      </el-table-column>
       <el-table-column label="最后更新时间" prop="update_at" width="240px">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
@@ -253,7 +255,7 @@
     <el-dialog
       :title="'编辑标签列表：' + editObject"
       v-model="editLabelsVisible"
-      width="800px"
+      width="900px"
       modal
       :before-close="editLabelsClose"
     >
@@ -359,6 +361,8 @@
           </el-table-column>
           <el-table-column property="key" label="标签名"></el-table-column>
           <el-table-column property="value" label="标签值"></el-table-column>
+          <el-table-column property="update_by" label="最后更新账号">
+          </el-table-column>
           <el-table-column
             label="最后更新"
             prop="update_at"
@@ -369,7 +373,7 @@
               <span>{{ parseTimeSelf(row.update_at) }}</span>
             </template>
           </el-table-column>
-          <el-table-column label="操作" align="center">
+          <el-table-column label="操作" align="center" width="200px">
             <template v-slot="scope" align="center">
               <div class="actioneara">
                 <div>
@@ -1113,7 +1117,7 @@ el-tabs {
 .actioneara {
   display: flex;
   flex-wrap: nowrap;
-  justify-content: space-around;
+  justify-content: space-between;
 }
 .jobs-labels-board :deep() .el-transfer {
   margin-top: -15px;
@@ -1148,12 +1152,12 @@ el-tabs {
   margin-right: 8px;
 }
 .add-labels-input-box :deep() .el-input__inner {
-  width: 256px;
+  width: 325px;
 }
 .add-labels-select-box {
   margin-right: 10px;
 }
 .add-labels-select-box :deep() .el-input__inner {
-  width: 200px;
+  width: 250px;
 }
 </style>

@@ -10,6 +10,7 @@ import (
 	"strings"
 	"sync"
 	"text/template"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -105,7 +106,9 @@ func (t *Tmpl) doWrite(content []byte) *BriefMessage {
 }
 
 type ProTmpl struct {
-	Tmpl string `json:"tmpl" gorm:"column:tmpl"`
+	Tmpl     string    `json:"tmpl" gorm:"column:tmpl"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
 func GetProTmpl() (*ProTmpl, *BriefMessage) {
@@ -123,12 +126,14 @@ func GetProTmpl() (*ProTmpl, *BriefMessage) {
 	return &pt, Success
 }
 
-func PutProTmpl(pt *ProTmpl) *BriefMessage {
+func PutProTmpl(user *UserSessionInfo, pt *ProTmpl) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
+	pt.UpdateAt = time.Now()
+	pt.UpdateBy = user.Username
 	tx := db.Table("tmpl").Where("1=1").Update("tmpl", pt.Tmpl)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)

@@ -6,6 +6,7 @@ import (
 	"pro_cfg_manager/dbs"
 	"sort"
 	"strconv"
+	"time"
 
 	"gorm.io/gorm"
 )
@@ -129,7 +130,7 @@ func GetGroupPriv(gInfo *GetPrivInfo) ([]*ItemPriv, *BriefMessage) {
 	return ips, Success
 }
 
-func PutGroupPriv(privInfo []*ItemPriv, gInfo *GetPrivInfo) *BriefMessage {
+func PutGroupPriv(user *UserSessionInfo, privInfo []*ItemPriv, gInfo *GetPrivInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -148,7 +149,9 @@ func PutGroupPriv(privInfo []*ItemPriv, gInfo *GetPrivInfo) *BriefMessage {
 		}
 	}
 	tErr := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Table("group_priv").Where("group_id=?", gInfo.GroupID).Delete(nil).Error; err != nil {
+		if err := tx.Table("group_priv").
+			Where("group_id=?", gInfo.GroupID).
+			Delete(nil).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
@@ -156,6 +159,12 @@ func PutGroupPriv(privInfo []*ItemPriv, gInfo *GetPrivInfo) *BriefMessage {
 			return nil
 		}
 		if err := tx.Table("group_priv").Create(tgp).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		if err := tx.Table("manager_group").
+			Where("id=?", gInfo.GroupID).
+			Update("update_at", time.Now()).Update("update_by", user.Username).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
@@ -202,7 +211,7 @@ func GetManagerGroupMember(gInfo *GetPrivInfo) ([]*UserGroupMember, *BriefMessag
 	return ugm, Success
 }
 
-func PutManagerGroupMember(gInfo *GetPrivInfo, userList []int) *BriefMessage {
+func PutManagerGroupMember(user *UserSessionInfo, gInfo *GetPrivInfo, userList []int) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -210,7 +219,9 @@ func PutManagerGroupMember(gInfo *GetPrivInfo, userList []int) *BriefMessage {
 	}
 	tErr := db.Transaction(func(tx *gorm.DB) error {
 		param := AdminParams{}
-		if err := tx.Table("manager_set aaa").Where("param_name='default_group'").Find(&param).Error; err != nil {
+		if err := tx.Table("manager_set aaa").
+			Where("param_name='default_group'").
+			Find(&param).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
@@ -227,16 +238,19 @@ func PutManagerGroupMember(gInfo *GetPrivInfo, userList []int) *BriefMessage {
 				defaultGroupValue = value
 			}
 		}
-		config.Log.Warnf("defaultGroupValue => %v", defaultGroupValue)
 		if err := tx.Table("manager_user").
 			Where("group_id=?", gInfo.GroupID).
-			Update("group_id", defaultGroupValue).Error; err != nil {
+			Update("group_id", defaultGroupValue).
+			Update("update_at", time.Now()).
+			Update("update_by", user.Username).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
 		if err := tx.Table("manager_user").
 			Where("id in (?)", userList).
-			Update("group_id", gInfo.GroupID).Error; err != nil {
+			Update("group_id", gInfo.GroupID).
+			Update("update_at", time.Now()).
+			Update("update_by", user.Username).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}

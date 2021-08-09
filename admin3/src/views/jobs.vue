@@ -131,7 +131,12 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column label="最后更新时间" prop="update_at" width="180px">
+      <el-table-column
+        label="最后更新账号"
+        prop="update_by"
+        width="100px"
+      ></el-table-column>
+      <el-table-column label="最后更新时间" prop="update_at" width="160px">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>

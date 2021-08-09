@@ -107,6 +107,7 @@
         prop="jobs_id"
         align="center"
         header-align="center"
+        width="230px"
       >
         <template v-slot="scope">
           <el-select
@@ -172,6 +173,12 @@
           </el-tooltip>
         </template>
       </el-table-column>
+      <el-table-column
+        label="最后更新账号"
+        prop="update_by"
+        align="center"
+        header-align="center"
+      ></el-table-column>
       <el-table-column
         label="最后更新时间"
         prop="update_at"
@@ -766,6 +773,6 @@ el-dialog {
 .borderNone :deep() .el-input__inner {
   border: none;
   background: transparent;
-  width: 300px;
+  width: 225px;
 }
 </style>

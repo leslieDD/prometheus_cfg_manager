@@ -16,6 +16,7 @@ type ManagerGroup struct {
 	Name     string    `json:"name" gorm:"column:name"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
 type ManagerGroupList struct {
@@ -34,6 +35,7 @@ type ManagerUser struct {
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	CreateAt time.Time `json:"create_at" gorm:"column:create_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
 type ManagerUserList struct {
@@ -120,7 +122,7 @@ func GetManagerGroupEnabled() ([]*ManagerGroup, *BriefMessage) {
 	return mgs, Success
 }
 
-func PostManagerGroup(mg *ManagerGroup) *BriefMessage {
+func PostManagerGroup(user *UserSessionInfo, mg *ManagerGroup) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -128,6 +130,7 @@ func PostManagerGroup(mg *ManagerGroup) *BriefMessage {
 	}
 	mg.ID = 0
 	mg.UpdateAt = time.Now()
+	mg.UpdateBy = user.Username
 	tx := db.Table("manager_group").Create(&mg)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -136,7 +139,7 @@ func PostManagerGroup(mg *ManagerGroup) *BriefMessage {
 	return Success
 }
 
-func PutManagerGroup(mg *ManagerGroup) *BriefMessage {
+func PutManagerGroup(user *UserSessionInfo, mg *ManagerGroup) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -146,7 +149,8 @@ func PutManagerGroup(mg *ManagerGroup) *BriefMessage {
 		Where("id=?", mg.ID).
 		Update("name", mg.Name).
 		// Update("enabled", mg.Enabled).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -177,7 +181,7 @@ func DeleteManagerGroup(mgID int64) *BriefMessage {
 	return Success
 }
 
-func PutManagerGroupStatus(info *EnabledInfo) *BriefMessage {
+func PutManagerGroupStatus(user *UserSessionInfo, info *EnabledInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -186,7 +190,8 @@ func PutManagerGroupStatus(info *EnabledInfo) *BriefMessage {
 	tx := db.Table("manager_group").
 		Where("id=?", info.ID).
 		Update("enabled", info.Enabled).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -233,7 +238,7 @@ func GetManagerUsers(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	return CalSplitPage(sp, count, mus), Success
 }
 
-func PostManagerUser(mu *ManagerUser) *BriefMessage {
+func PostManagerUser(user *UserSessionInfo, mu *ManagerUser) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -244,6 +249,7 @@ func PostManagerUser(mu *ManagerUser) *BriefMessage {
 	mu.Salt = uuid.NewString()
 	mu.Password = utils.CreateHashword(mu.Password, mu.Salt)
 	mu.CreateAt = time.Now()
+	mu.UpdateBy = user.Username
 	tx := db.Table("manager_user").Create(&mu)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -252,14 +258,14 @@ func PostManagerUser(mu *ManagerUser) *BriefMessage {
 	return Success
 }
 
-func PutManagerUser(mu *ManagerUser) *BriefMessage {
+func PutManagerUser(user *UserSessionInfo, mu *ManagerUser) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	user := ManagerUser{}
-	if err := db.Table("manager_user").Where("id=?", mu.ID).Find(&user).Error; err != nil {
+	userInfo := ManagerUser{}
+	if err := db.Table("manager_user").Where("id=?", mu.ID).Find(&userInfo).Error; err != nil {
 		config.Log.Error(err)
 		return ErrUserNotExist
 	}
@@ -270,8 +276,9 @@ func PutManagerUser(mu *ManagerUser) *BriefMessage {
 		Update("phone", mu.Phone).
 		Update("group_id", mu.GroupID).
 		// Update("enabled", mg.Enabled).
-		Update("update_at", time.Now())
-	if user.Password != mu.Password {
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
+	if userInfo.Password != mu.Password {
 		mu.Salt = uuid.NewString()
 		mu.Password = utils.CreateHashword(mu.Password, mu.Salt)
 		tx.Update("password", mu.Password).Update("salt", mu.Salt)
@@ -298,7 +305,7 @@ func DeleteManagerUser(muID int64) *BriefMessage {
 	return Success
 }
 
-func PutManagerUserStatus(info *EnabledInfo) *BriefMessage {
+func PutManagerUserStatus(user *UserSessionInfo, info *EnabledInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -307,7 +314,8 @@ func PutManagerUserStatus(info *EnabledInfo) *BriefMessage {
 	tx := db.Table("manager_user").
 		Where("id=?", info.ID).
 		Update("enabled", info.Enabled).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -322,7 +330,7 @@ type ChangePasswordInfo struct {
 	NewPwd2 string `json:"new_pwd2" form:"new_pwd2"`
 }
 
-func PostUserPassword(cpi *ChangePasswordInfo) *BriefMessage {
+func PostUserPassword(user *UserSessionInfo, cpi *ChangePasswordInfo) *BriefMessage {
 	if cpi.OldPwd == "" {
 		return ErrPostData
 	}
@@ -334,13 +342,13 @@ func PostUserPassword(cpi *ChangePasswordInfo) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	user := ManagerUser{}
-	if err := db.Table("manager_user").Where("id=?", cpi.ID).Find(&user).Error; err != nil {
+	userInfo := ManagerUser{}
+	if err := db.Table("manager_user").Where("id=?", cpi.ID).Find(&userInfo).Error; err != nil {
 		config.Log.Error(err)
 		return ErrUserNotExist
 	}
-	checkPassword := utils.CreateHashword(cpi.OldPwd, user.Salt)
-	if checkPassword != user.Password {
+	checkPassword := utils.CreateHashword(cpi.OldPwd, userInfo.Salt)
+	if checkPassword != userInfo.Password {
 		return ErrPwdNotMatch
 	}
 	salt := uuid.NewString()
@@ -349,7 +357,8 @@ func PostUserPassword(cpi *ChangePasswordInfo) *BriefMessage {
 		Where("id=?", cpi.ID).
 		Update("password", newPassword).
 		Update("salt", salt).
-		Update("update_at", time.Now())
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -401,7 +410,10 @@ func Register(r *RegisterInfo) *BriefMessage {
 		Phone:    r.Phone,
 		GroupID:  r.GroupID,
 	}
-	return PostManagerUser(&u)
+	user := &UserSessionInfo{
+		Username: "anonymous",
+	}
+	return PostManagerUser(user, &u)
 }
 
 func LoadUserEnabled() ([]*ManagerUserDetail, *BriefMessage) {
