@@ -6,6 +6,7 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/utils"
+	"sync"
 	"sync/atomic"
 	"time"
 
@@ -16,26 +17,46 @@ import (
 type LogType int
 
 const (
-	IsOperateLog LogType = iota + 1
-	IsSystemLog
+	OperateLog LogType = iota + 1
+	SystemLog
+)
+
+type RecodeType int
+
+const (
+	IsSearch RecodeType = iota + 1
+	IsAdd
+	IsDel
+	IsUpdate
+	IsRunning
+	IsPublish
+	IsLogin
+	IsReset
 )
 
 type OperateObj struct {
-	operateChan chan *OperationLog
+	operateChan  chan *OperationLogMess
+	recodesLevel map[RecodeType]*LogLevelSetting
+	lock         sync.Mutex
 }
 
 var OO = NewOpterationLog()
 
 type OperationLog struct {
 	ID            int       `json:"id" gorm:"column:id"`
-	OperateType   string    `json:"operate_type" gorm:"column:operate_name"`
+	OperateType   string    `json:"operate_type" gorm:"column:operate_type"`
 	UserName      string    `json:"username" gorm:"column:username"`
 	Ipaddr        string    `json:"ipaddr" gorm:"column:ipaddr"`
 	OperateName   string    `json:"operate_name" gorm:"column:operate_name"`
 	OperateResult bool      `json:"operate_result" gorm:"column:operate_result"`
 	OperateAt     time.Time `json:"operate_at" gorm:"column:operate_at"`
 	OperateError  string    `json:"operate_error" gorm:"column:operate_error"`
-	ThisLogType   LogType   `json:"-" gorm:"-"`
+}
+
+type OperationLogMess struct {
+	OptLog      *OperationLog
+	ThisLogType LogType
+	RecodeType  RecodeType
 }
 
 func (ol *OperationLog) String() string {
@@ -51,9 +72,12 @@ func (ol *OperationLog) String() string {
 }
 
 func NewOpterationLog() *OperateObj {
-	oo := &OperateObj{}
-	oo.operateChan = make(chan *OperationLog, 10)
-
+	oo := &OperateObj{
+		lock: sync.Mutex{},
+	}
+	oo.operateChan = make(chan *OperationLogMess, 10)
+	oo.recodesLevel = map[RecodeType]*LogLevelSetting{}
+	oo.FlushLevel()
 	go oo.loopWrite()
 	return oo
 }
@@ -97,36 +121,36 @@ func GetOperateLog(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	return CalSplitPage(sp, count, logs), Success
 }
 
-func FlagLog(userName, ipaddr, optName string, opt_err error) {
-	opl := &OperationLog{
-		UserName:      userName,
-		Ipaddr:        ipaddr,
-		OperateName:   optName,
-		OperateAt:     time.Now(),
-		OperateResult: opt_err == nil,
-		ThisLogType:   IsOperateLog,
-	}
-	if opt_err != nil {
-		opl.OperateError = opt_err.Error()
-	} else {
-		opl.OperateError = "操作成功"
+// 记录重置日志，可以查看“Prometheus”中的“基本配置”中的“重置”可以看到内容
+func FlagLog(userName, ipaddr, optName string, operateType RecodeType, opt_err *BriefMessage) {
+	opl := &OperationLogMess{
+		OptLog: &OperationLog{
+			UserName:      userName,
+			Ipaddr:        ipaddr,
+			OperateName:   optName,
+			OperateAt:     time.Now(),
+			OperateResult: opt_err == Success,
+			OperateError:  opt_err.String(),
+		},
+		ThisLogType: OperateLog,
+		RecodeType:  operateType,
 	}
 	OO.Log(opl)
 }
 
-func RecodeLog(userName, ipaddr, optName string, opt_err error) {
-	opl := &OperationLog{
-		UserName:      userName,
-		Ipaddr:        ipaddr,
-		OperateName:   optName,
-		OperateAt:     time.Now(),
-		OperateResult: opt_err == nil,
-		ThisLogType:   IsSystemLog,
-	}
-	if opt_err != nil {
-		opl.OperateError = opt_err.Error()
-	} else {
-		opl.OperateError = "操作成功"
+// 记录系统日志，在“用户及权限管理”中的“日志”页，可以查看内容
+func RecodeLog(userName, ipaddr, optName string, operateType RecodeType, opt_err *BriefMessage) {
+	opl := &OperationLogMess{
+		OptLog: &OperationLog{
+			UserName:      userName,
+			Ipaddr:        ipaddr,
+			OperateName:   optName,
+			OperateAt:     time.Now(),
+			OperateResult: opt_err == Success,
+			OperateError:  opt_err.String(),
+		},
+		ThisLogType: SystemLog,
+		RecodeType:  operateType,
 	}
 	OO.Log(opl)
 }
@@ -142,23 +166,28 @@ func (o *OperateObj) loopWrite() {
 	}
 }
 
-func (o *OperateObj) writeLog(opl *OperationLog) *BriefMessage {
+func (o *OperateObj) writeLog(opl *OperationLogMess) *BriefMessage {
+	r, ok := o.recodesLevel[opl.RecodeType]
+	if !ok || !r.Selected {
+		return Success
+	}
+	opl.OptLog.OperateType = r.Label
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	opl.ID = 0
+	opl.OptLog.ID = 0
 	var tx *gorm.DB
 	switch opl.ThisLogType {
-	case IsOperateLog:
+	case OperateLog:
 		tx = db.Table("operation_log")
-	case IsSystemLog:
+	case SystemLog:
 		tx = db.Table("system_log")
 	default:
 		return Success
 	}
-	tx = tx.Create(opl)
+	tx = tx.Create(opl.OptLog)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrCreateDBData
@@ -166,7 +195,7 @@ func (o *OperateObj) writeLog(opl *OperationLog) *BriefMessage {
 	return Success
 }
 
-func (o *OperateObj) Log(opl *OperationLog) {
+func (o *OperateObj) Log(opl *OperationLogMess) {
 	select {
 	case o.operateChan <- opl:
 	default:
@@ -174,11 +203,25 @@ func (o *OperateObj) Log(opl *OperationLog) {
 }
 
 func (o *OperateObj) FlushLevel() {
+	o.lock.Lock()
+	defer o.lock.Unlock()
+
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return
 	}
+	recodes := []*LogLevelSetting{}
+	tx := db.Table("log_setting").Find(&recodes)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return
+	}
+	recodeMap := map[RecodeType]*LogLevelSetting{}
+	for _, r := range recodes {
+		recodeMap[RecodeType(r.ID)] = r
+	}
+	o.recodesLevel = recodeMap
 }
 
 var ResetSystemKey = atomic.Value{}
@@ -195,11 +238,8 @@ type ResetCode struct {
 	Code string `json:"code" form:"code"`
 }
 
-func OptResetSystem(user *UserSessionInfo, code *ResetCode, ipAddr string) *BriefMessage {
+func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 	var err error
-	defer func() {
-		FlagLog(user.Username, ipAddr, "reset_system", err)
-	}()
 	if ResetBlock.AnyOne() {
 		err = errors.New("running, try again later")
 		config.Log.Error(err)
@@ -289,7 +329,7 @@ func PreOptResetAdmin() *BriefMessage {
 func OptResetAdmin(code *ResetCode, ipAddr string) *BriefMessage {
 	var err error
 	if ResetAdminBlock.AnyOne() {
-		err = fmt.Errorf("running, try again later.")
+		err = fmt.Errorf("running, try again later")
 		config.Log.Error(err)
 		return ErrAlreadyRunning
 	}
@@ -307,7 +347,6 @@ func OptResetAdmin(code *ResetCode, ipAddr string) *BriefMessage {
 	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
-		err = fmt.Errorf("%s", InternalGetBDInstanceErr)
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}

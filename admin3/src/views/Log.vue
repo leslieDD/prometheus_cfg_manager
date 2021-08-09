@@ -4,7 +4,7 @@
       <el-descriptions-item>
         <template #label>
           <i class="el-icon-user"></i>
-          日志记录类型
+          要记录的日志类型
         </template>
         <el-select
           size="small"
@@ -71,16 +71,16 @@
         </el-table-column>
         <el-table-column label="IP地址" width="150px" prop="ipaddr">
         </el-table-column>
-        <el-table-column label="操作名称" width="110px" prop="system_name">
+        <el-table-column label="操作名称" width="110px" prop="operate_name">
         </el-table-column>
-        <el-table-column label="操作结果" width="70px" prop="system_result">
+        <el-table-column label="操作结果" width="70px" prop="operate_result">
         </el-table-column>
-        <el-table-column label="操作时间" width="130px" prop="system_at">
+        <el-table-column label="操作时间" width="130px" prop="operate_at">
           <template v-slot="{ row }">
-            <span>{{ parseTimeSelf(row.system_at) }}</span>
+            <span>{{ parseTimeSelf(row.operate_at) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="错误原因" prop="system_error">
+        <el-table-column label="错误原因" prop="operate_error">
         </el-table-column>
       </el-table>
       <div class="block" v-if="paginationShow">

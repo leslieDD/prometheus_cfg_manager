@@ -1506,6 +1506,7 @@ func optResetSystem(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.OptResetSystem(user, &code, c.Request.RemoteAddr)
+	bf := models.OptResetSystem(user, &code)
+	models.FlagLog(user.Username, c.Request.RemoteAddr, "reset_system", models.IsReset, bf)
 	resComm(c, bf, nil)
 }

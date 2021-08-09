@@ -561,6 +561,7 @@ func GetSystemReocdeSetting() ([]LogLevelSetting, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
+	go OO.FlushLevel()
 	return recodes, Success
 }
 
@@ -571,13 +572,15 @@ func PutSystemReocdeSetting(ids []int) *BriefMessage {
 		return ErrDataBase
 	}
 	tErr := db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Table("log_setting").Where("id in ?", ids).Update("selected", true).Error; err != nil {
+		if err := tx.Table("log_setting").Where("1=1").Update("selected", false).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
-		if err := tx.Table("log_setting").Where("id not in ?", ids).Update("selected", false).Error; err != nil {
-			config.Log.Error(err)
-			return err
+		if len(ids) != 0 {
+			if err := tx.Table("log_setting").Where("id in ?", ids).Update("selected", true).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
 		}
 		return nil
 	})
