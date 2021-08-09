@@ -51,12 +51,14 @@ func initManagerApi() {
 }
 
 func logout(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	uid := models.OnlyID{}
 	if err := c.BindQuery(&uid); err != nil {
+		models.RecodeLog(user.Username, c.Request.RemoteAddr, "logout", models.IsLogin, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	models.RecodeLog(user.Username, c.Request.RemoteAddr, "logout", models.IsLogin, models.ErrPostData)
 	bf := models.Logout(user)
 	resComm(c, bf, nil)
 }

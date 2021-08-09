@@ -167,7 +167,9 @@ func (o *OperateObj) loopWrite() {
 }
 
 func (o *OperateObj) writeLog(opl *OperationLogMess) *BriefMessage {
+	o.lock.Lock()
 	r, ok := o.recodesLevel[opl.RecodeType]
+	o.lock.Unlock()
 	if !ok || !r.Selected {
 		return Success
 	}
