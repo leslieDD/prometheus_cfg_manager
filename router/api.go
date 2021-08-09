@@ -129,6 +129,7 @@ func getJobs(c *gin.Context) {
 		return
 	}
 	result, bf := models.GetJobs()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get jobs", models.IsSearch, bf)
 	resComm(c, bf, result)
 }
 
@@ -141,10 +142,12 @@ func getJobsSplit(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get jobs", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	result, bf := models.GetJobsSplit(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get jobs", models.IsSearch, bf)
 	resComm(c, bf, result)
 }
 
@@ -157,10 +160,12 @@ func getDefJobsSplit(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get default jobs", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	result, bf := models.GetDefJobsSplit(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get default jobs", models.IsSearch, bf)
 	resComm(c, bf, result)
 }
 
@@ -173,16 +178,19 @@ func getJob(c *gin.Context) {
 	}
 	jIDstr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job", models.IsSearch, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(jIDstr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job", models.IsSearch, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	result, bf := models.GetJob(jID)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job", models.IsSearch, bf)
 	resComm(c, bf, result)
 }
 
@@ -195,11 +203,13 @@ func postJob(c *gin.Context) {
 	}
 	jInfo := &models.Jobs{}
 	if err := c.BindJSON(jInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create job", models.IsAdd, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	jInfo.IsCommon = false
 	bf := models.PostJob(user, jInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create job", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -212,11 +222,13 @@ func postDefJob(c *gin.Context) {
 	}
 	jInfo := &models.Jobs{}
 	if err := c.BindJSON(jInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create default job", models.IsAdd, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	jInfo.IsCommon = true
 	bf := models.PostJob(user, jInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create default job", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -229,11 +241,13 @@ func putJob(c *gin.Context) {
 	}
 	jInfo := &models.Jobs{}
 	if err := c.BindJSON(jInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	jInfo.IsCommon = false
 	bf := models.PutJob(user, jInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -246,11 +260,13 @@ func putDefJob(c *gin.Context) {
 	}
 	jInfo := &models.Jobs{}
 	if err := c.BindJSON(jInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update default job", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	jInfo.IsCommon = true
 	bf := models.PutJob(user, jInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update default job", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -263,16 +279,19 @@ func deleteJob(c *gin.Context) {
 	}
 	jIDstr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(jIDstr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DeleteJob(jID, false)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -285,16 +304,19 @@ func deleteDefJob(c *gin.Context) {
 	}
 	jIDstr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete default job", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(jIDstr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete default job", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DeleteJob(jID, true)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete default job", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -307,10 +329,12 @@ func putJobDefaultStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update default job status", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobDefaultStatus(user, &ed)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update default job status", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -323,10 +347,12 @@ func getJobGroup(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get sub group", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.GetJobGroup(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get sub group", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -339,10 +365,12 @@ func postJobGroup(c *gin.Context) {
 	}
 	info := &models.JobGroup{}
 	if err := c.BindJSON(info); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create sub group", models.IsAdd, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostJobGroup(user, info)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create sub group", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -355,10 +383,12 @@ func putJobGroup(c *gin.Context) {
 	}
 	info := &models.JobGroup{}
 	if err := c.BindJSON(info); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobGroup(user, info)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -371,10 +401,12 @@ func delJobGroup(c *gin.Context) {
 	}
 	info := &models.DelJobGroupInfo{}
 	if err := c.BindQuery(info); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.DelJobGroup(info)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -388,15 +420,18 @@ func getJobMachines(c *gin.Context) {
 	idStr, ok := c.GetQuery("id")
 	if !ok {
 		resComm(c, models.ErrQueryData, nil)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		return
 	}
 	jID, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
 		resComm(c, models.ErrQueryData, nil)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		return
 	}
 	data, bf := models.GetJobMachines(jID)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -409,16 +444,19 @@ func getJobGroupMachines(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	data, bf := models.GetJobGroupMachines(jID)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -431,21 +469,25 @@ func putJobGroupMachines(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	gms := []models.JobGroupMachine{}
 	if err := c.BindJSON(&gms); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobGroupMachines(jID, &gms)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -458,10 +500,12 @@ func getGroupLabels(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.GetJobGroupWithSplitPage(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -474,21 +518,25 @@ func postGroupLabels(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	gls := models.GroupLabels{}
 	if err := c.BindJSON(&gls); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostGroupLabels(jID, &gls)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -501,21 +549,25 @@ func putGroupLabels(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	gls := models.GroupLabels{}
 	if err := c.BindJSON(&gls); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutGroupLabels(jID, &gls)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -528,10 +580,12 @@ func delGroupLabels(c *gin.Context) {
 	}
 	dinfo := models.DelGroupLables{}
 	if err := c.BindQuery(&dinfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	bf := models.DelGroupLabels(&dinfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -544,10 +598,12 @@ func getAllMachinesLabels(c *gin.Context) {
 	}
 	info := models.JobGroupID{}
 	if err := c.BindQuery(&info); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.GetAllMachinesLabels(&info)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -560,10 +616,12 @@ func putJobGroupStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobGroupStatus(user, &ed)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -576,10 +634,12 @@ func putJobGroupLabelsStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobGroupLabelsStatus(user, &ed)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -591,6 +651,7 @@ func getJobAllRelabels(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetAllReLabels()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -603,10 +664,12 @@ func swapJob(c *gin.Context) {
 	}
 	sInfo := &models.SwapInfo{}
 	if err := c.BindJSON(sInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.DoSwap(user, sInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -618,6 +681,7 @@ func publishJobs(c *gin.Context) {
 		return
 	}
 	bf := models.AllowOneObj.DoPublishJobs()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -629,6 +693,7 @@ func publishDefJobs(c *gin.Context) {
 		return
 	}
 	bf := models.AllowOneObj.DoPublishJobs()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -641,10 +706,12 @@ func putJobsStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobsStatus(user, &ed)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -657,10 +724,12 @@ func postUpdateJobIPs(c *gin.Context) {
 	}
 	cInfo := models.UpdateIPForJob{}
 	if err := c.BindJSON(&cInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostUpdateJobIPs(user, &cInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -673,16 +742,19 @@ func getMachine(c *gin.Context) {
 	}
 	mIDstr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	mID, err := strconv.ParseInt(mIDstr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	result, bf := models.GetMachine(int(mID))
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, result)
 }
 
@@ -695,11 +767,12 @@ func getMachines(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
-	// result, bf := models.GetMachines(sp)
 	result, bf := models.GetMachinesV2(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, result)
 }
 
@@ -712,10 +785,12 @@ func postMachine(c *gin.Context) {
 	}
 	mInfo := &models.Machine{}
 	if err := c.BindJSON(mInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostMachine(user, mInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -728,10 +803,12 @@ func putMachine(c *gin.Context) {
 	}
 	mInfo := &models.Machine{}
 	if err := c.BindJSON(mInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutMachine(user, mInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -744,16 +821,19 @@ func deleteMachine(c *gin.Context) {
 	}
 	mIDstr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	mID, err := strconv.ParseInt(mIDstr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DeleteMachine(int(mID))
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -766,10 +846,12 @@ func putMachineStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutMachineStatus(user, &ed)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -777,10 +859,12 @@ func getAllMachines(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "ipManager", "", "search")
 	if pass != models.Success {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, pass, nil)
 		return
 	}
 	data, bf := models.GetAllMachine()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -793,10 +877,12 @@ func batchDeleteMachine(c *gin.Context) {
 	}
 	ids := []int{}
 	if err := c.BindJSON(&ids); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	bf := models.BatchDeleteMachine(ids)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -804,15 +890,18 @@ func uploadMachines(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "ipManager", "", "import")
 	if pass != models.Success {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, pass, nil)
 		return
 	}
 	info := models.UploadMachinesInfo{}
 	if err := c.BindJSON(&info); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	result, bf := models.UploadMachines(user, &info)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, result)
 }
 
@@ -824,6 +913,7 @@ func publish(c *gin.Context) {
 		return
 	}
 	bf := models.Publish()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -835,6 +925,7 @@ func preview(c *gin.Context) {
 		return
 	}
 	data, bf := models.Preview()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -846,6 +937,7 @@ func reload(c *gin.Context) {
 		return
 	}
 	bf := models.Reload()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -857,6 +949,7 @@ func defReload(c *gin.Context) {
 		return
 	}
 	bf := models.Reload()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update prometheus config file[def]", models.IsRunning, bf)
 	resComm(c, bf, nil)
 }
 
@@ -868,6 +961,7 @@ func allFileList(c *gin.Context) {
 		return
 	}
 	data, bf := models.AllFileList()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get all file list", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -880,10 +974,12 @@ func fileContent(c *gin.Context) {
 	}
 	child := models.Child{}
 	if err := c.BindJSON(&child); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "view sd_file content", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.ReadFileContent(&child)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "view sd_file content", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -895,6 +991,7 @@ func allRulesFileList(c *gin.Context) {
 		return
 	}
 	data, bf := models.AllRulesFileList()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get all rule file list", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -907,10 +1004,12 @@ func ruleFileContent(c *gin.Context) {
 	}
 	child := models.Child{}
 	if err := c.BindJSON(&child); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get rule file content", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.ReadRuleFileContent(&child)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get rule file content", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -922,6 +1021,7 @@ func getTree(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetNodesFromDB()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get monitor tree", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -934,10 +1034,12 @@ func getNode(c *gin.Context) {
 	}
 	qni := models.QueryGetNode{}
 	if err := c.BindQuery(&qni); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get node", models.IsSearch, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	data, bf := models.GetNode(&qni)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get node", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -950,10 +1052,12 @@ func postNode(c *gin.Context) {
 	}
 	nodeInfo := models.TreeNodeInfo{}
 	if err := c.BindJSON(&nodeInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create node", models.IsAdd, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	data, bf := models.PostNode(user, &nodeInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create node", models.IsAdd, bf)
 	resComm(c, bf, data)
 }
 
@@ -966,10 +1070,12 @@ func putNode(c *gin.Context) {
 	}
 	nodeInfo := models.TreeNodeInfo{}
 	if err := c.BindJSON(&nodeInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update monitor rule", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	data, bf := models.PutNode(user, &nodeInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update monitor rule", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -1004,15 +1110,18 @@ func delLabel(c *gin.Context) {
 	}
 	labelType, ok := c.GetQuery("type")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete label of monitor rule", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	labelInfo := models.Label{}
 	if err := c.BindJSON(&labelInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete label of monitor rule", models.IsDel, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.DelLabel(&labelInfo, labelType)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete label of monitor rule", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1024,6 +1133,7 @@ func createTreeNode(c *gin.Context) {
 		return
 	}
 	bf := models.CreateTreeNode(user, &tnc)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create tree node", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1036,10 +1146,12 @@ func updateTreeNode(c *gin.Context) {
 	}
 	tnc := models.TreeNodeFromCli{}
 	if err := c.BindJSON(&tnc); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update tree node", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.UpdateTreeNode(user, &tnc)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update tree node", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1062,10 +1174,12 @@ func deleteTreeNode(c *gin.Context) {
 	}
 	tnc := models.TreeNodeFromCli{}
 	if err := c.BindJSON(&tnc); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete tree node", models.IsDel, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.DeleteTreeNode(&tnc, skipSelf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete tree node", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1077,6 +1191,7 @@ func rulePublish(c *gin.Context) {
 		return
 	}
 	bf := models.RulePublish()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish rule", models.IsPublish, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1089,10 +1204,12 @@ func putTreeNodeStatus(c *gin.Context) {
 	}
 	upInfo := models.TreeNodeStatus{}
 	if err := c.BindJSON(&upInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update tree node status", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutTreeNodeStatus(user, &upInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update tree node status", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1105,16 +1222,19 @@ func postTreeUploadFileYaml(c *gin.Context) {
 	}
 	gidStr, ok := c.GetQuery("gid")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import rule from file", models.IsUpdate, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	gid, err := strconv.ParseInt(gidStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import rule from file", models.IsUpdate, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	r, bf := models.PostTreeUploadFileYaml(c, user, gid)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import rule from file", models.IsUpdate, bf)
 	resComm(c, bf, r)
 }
 
@@ -1127,10 +1247,12 @@ func getBaseLabels(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get baseLabels", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.GetBaseLabels(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get baseLabels", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -1143,10 +1265,12 @@ func postBaseLabels(c *gin.Context) {
 	}
 	newLabel := models.BaseLabels{}
 	if err := c.BindJSON(&newLabel); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create baseLabels", models.IsAdd, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostBaseLabels(user, &newLabel)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create baseLabels", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1159,10 +1283,12 @@ func putBaseLabels(c *gin.Context) {
 	}
 	label := models.BaseLabels{}
 	if err := c.BindJSON(&label); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update baseLabels", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutBaseLabels(user, &label)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update baseLabels", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1175,16 +1301,19 @@ func delBaseLabels(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete baseLabels", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	id, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete baseLabels", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DelBaseLabels(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete baseLabels", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1197,10 +1326,12 @@ func getReLabels(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get reLabels", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.GetReLabels(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get reLabels", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -1212,6 +1343,7 @@ func getAllRelabels(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetAllReLabels()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get all reLabels", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -1224,10 +1356,12 @@ func postReLabels(c *gin.Context) {
 	}
 	reLabel := models.ReLabels{}
 	if err := c.BindJSON(&reLabel); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create reLabels", models.IsAdd, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostReLabels(user, &reLabel)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create reLabels", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1240,10 +1374,12 @@ func putReLabels(c *gin.Context) {
 	}
 	reLabel := models.ReLabels{}
 	if err := c.BindJSON(&reLabel); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutReLabels(user, &reLabel)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1256,16 +1392,19 @@ func delReLabels(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete reLabels", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	id, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete reLabels", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DelReLabels(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete reLabels", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1278,10 +1417,12 @@ func putRelabelsCode(c *gin.Context) {
 	}
 	reLabel := models.ReLabels{}
 	if err := c.BindJSON(&reLabel); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update reLabels code", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutReLabelsCode(user, &reLabel)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update reLabels code", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1294,16 +1435,19 @@ func putBaseLabelsStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update baseLabels status", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutBaseLabelsStatus(user, &ed)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update baseLabels status", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
 func getRelabelsViewCodePriv(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "baseConfig", "reLabels", "view_code")
+	// models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, pass, nil)
 }
 
@@ -1316,10 +1460,12 @@ func putBaseRelabelsStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update reLabels", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutBaseRelabelsStatus(user, &ed)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update reLabels", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1332,10 +1478,12 @@ func getBaseFields(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get base fields", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.GetBaseFields(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get base fields", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -1348,10 +1496,12 @@ func postBaseFields(c *gin.Context) {
 	}
 	newLabel := models.BaseFields{}
 	if err := c.BindJSON(&newLabel); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create base fields", models.IsAdd, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostBaseFields(user, &newLabel)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create base fields", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1364,10 +1514,12 @@ func putBaseFields(c *gin.Context) {
 	}
 	label := models.BaseFields{}
 	if err := c.BindJSON(&label); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update base fields", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutBaseFields(user, &label)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update base fields", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1380,10 +1532,12 @@ func putBaseFieldsStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update base fields status", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutBaseFieldsStatus(user, &ed)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update base fields status", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1396,16 +1550,19 @@ func delBaseFields(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete base fields", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	id, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete base fields", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DelBaseFields(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete base fields", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1417,6 +1574,7 @@ func getProTmpl(c *gin.Context) {
 		return
 	}
 	tmpl, bf := models.GetProTmpl()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get prometheus template", models.IsSearch, bf)
 	resComm(c, bf, tmpl)
 }
 
@@ -1429,20 +1587,26 @@ func putProTmpl(c *gin.Context) {
 	}
 	tp := models.ProTmpl{}
 	if err := c.BindJSON(&tp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update prometheus template", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutProTmpl(user, &tp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update prometheus template", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
 func getStruct(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	data, bf := models.GetStruct()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get struct", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
 func ws(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	bf := models.WS(c)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create websokcet", models.IsRunning, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1454,6 +1618,7 @@ func getOptions(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetOptions()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get options", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -1466,10 +1631,12 @@ func putOptions(c *gin.Context) {
 	}
 	opts := map[string]string{}
 	if err := c.BindJSON(&opts); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update options", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutOptions(opts)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update options", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1480,6 +1647,7 @@ func getOperateLog(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetOperateLog(sp)
+	// models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -1491,6 +1659,7 @@ func preOptResetSystem(c *gin.Context) {
 		return
 	}
 	bf := models.PreOptResetSystem()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create reset prometheus config data key", models.IsReset, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1503,10 +1672,11 @@ func optResetSystem(c *gin.Context) {
 	}
 	code := models.ResetCode{}
 	if err := c.BindJSON(&code); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reset prometheus config data", models.IsReset, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.OptResetSystem(user, &code)
-	models.FlagLog(user.Username, c.Request.RemoteAddr, "reset_system", models.IsReset, bf)
+	models.OO.FlagLog(user.Username, c.Request.RemoteAddr, "reset prometheus config data", models.IsReset, bf)
 	resComm(c, bf, nil)
 }

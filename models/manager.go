@@ -561,7 +561,6 @@ func GetSystemReocdeSetting() ([]LogLevelSetting, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
-	go OO.FlushLevel()
 	return recodes, Success
 }
 
@@ -587,6 +586,7 @@ func PutSystemReocdeSetting(ids []int) *BriefMessage {
 	if tErr != nil {
 		return ErrUpdateData
 	}
+	go OO.FlushLevel()
 	return Success
 }
 

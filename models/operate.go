@@ -122,7 +122,13 @@ func GetOperateLog(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 }
 
 // 记录重置日志，可以查看“Prometheus”中的“基本配置”中的“重置”可以看到内容
-func FlagLog(userName, ipaddr, optName string, operateType RecodeType, opt_err *BriefMessage) {
+func (o *OperateObj) FlagLog(userName, ipaddr, optName string, operateType RecodeType, opt_err *BriefMessage) {
+	o.lock.Lock()
+	r, ok := o.recodesLevel[operateType]
+	o.lock.Unlock()
+	if !ok || !r.Selected {
+		return
+	}
 	opl := &OperationLogMess{
 		OptLog: &OperationLog{
 			UserName:      userName,
@@ -139,7 +145,13 @@ func FlagLog(userName, ipaddr, optName string, operateType RecodeType, opt_err *
 }
 
 // 记录系统日志，在“用户及权限管理”中的“日志”页，可以查看内容
-func RecodeLog(userName, ipaddr, optName string, operateType RecodeType, opt_err *BriefMessage) {
+func (o *OperateObj) RecodeLog(userName, ipaddr, optName string, operateType RecodeType, opt_err *BriefMessage) {
+	o.lock.Lock()
+	r, ok := o.recodesLevel[operateType]
+	o.lock.Unlock()
+	if !ok || !r.Selected {
+		return
+	}
 	opl := &OperationLogMess{
 		OptLog: &OperationLog{
 			UserName:      userName,
@@ -148,6 +160,7 @@ func RecodeLog(userName, ipaddr, optName string, operateType RecodeType, opt_err
 			OperateAt:     time.Now(),
 			OperateResult: opt_err == Success,
 			OperateError:  opt_err.String(),
+			OperateType:   r.Label,
 		},
 		ThisLogType: SystemLog,
 		RecodeType:  operateType,
@@ -167,13 +180,6 @@ func (o *OperateObj) loopWrite() {
 }
 
 func (o *OperateObj) writeLog(opl *OperationLogMess) *BriefMessage {
-	o.lock.Lock()
-	r, ok := o.recodesLevel[opl.RecodeType]
-	o.lock.Unlock()
-	if !ok || !r.Selected {
-		return Success
-	}
-	opl.OptLog.OperateType = r.Label
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
