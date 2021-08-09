@@ -158,6 +158,7 @@ export default {
           type: 'success'
         });
         this.runningMod = false
+        this.doGetSystemLog()
       }).catch(e => {
         console.log(e)
         this.runningMod = false
