@@ -24,7 +24,7 @@ func login(c *gin.Context) {
 		return
 	}
 	data, bf := models.Login(&ui)
-	models.OO.RecodeLog(data.UserName, c.Request.RemoteAddr, "login", models.IsLogin, bf)
+	models.OO.RecodeLog(ui.Username, c.Request.RemoteAddr, "login", models.IsLogin, bf)
 	resComm(c, bf, data)
 }
 
@@ -35,5 +35,6 @@ func register(c *gin.Context) {
 		return
 	}
 	bf := models.Register(&r)
+	models.OO.RecodeLog("", c.Request.RemoteAddr, "register", models.IsLogin, bf)
 	resComm(c, bf, nil)
 }

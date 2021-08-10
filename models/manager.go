@@ -377,8 +377,7 @@ func Login(ui *UserLogInfo) (*ManagerUserDetail, *BriefMessage) {
 		Select("manager_user.*, manager_group.enabled AS group_enabled, manager_group.name as group_name ").
 		Joins("LEFT JOIN manager_group ON manager_user.group_id=manager_group.id").
 		Where("username=?", ui.Username).
-		First(&u).
-		Error; err != nil {
+		First(&u).Error; err != nil {
 		return nil, ErrUserNotExist
 	}
 	if !u.Enabled {
