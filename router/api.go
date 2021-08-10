@@ -911,7 +911,7 @@ func publish(c *gin.Context) {
 		return
 	}
 	bf := models.Publish()
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish sd_file", models.IsRunning, bf)
 	resComm(c, bf, nil)
 }
 
@@ -923,7 +923,7 @@ func preview(c *gin.Context) {
 		return
 	}
 	data, bf := models.Preview()
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "view prometheus.yml", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -935,7 +935,7 @@ func reload(c *gin.Context) {
 		return
 	}
 	bf := models.Reload()
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus service", models.IsRunning, bf)
 	resComm(c, bf, nil)
 }
 
@@ -947,7 +947,7 @@ func defReload(c *gin.Context) {
 		return
 	}
 	bf := models.Reload()
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update prometheus config file[def]", models.IsRunning, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config[def]", models.IsRunning, bf)
 	resComm(c, bf, nil)
 }
 
