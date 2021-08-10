@@ -62,3 +62,26 @@ export function publishJobs () {
     method: 'post'
   })
 }
+
+export function enabledJob (jInfo) {
+  return request({
+    url: '/v1/jobs/status',
+    method: 'put',
+    data: jInfo
+  })
+}
+
+export function updateIPForJob (uInfo) {
+  return request({
+    url: '/v1/jobs/update-ips',
+    method: 'post',
+    data: uInfo
+  })
+}
+
+export function getAllReLabels () {
+  return request({
+    url: '/v1/job/relabels/all',
+    method: 'get'
+  })
+}

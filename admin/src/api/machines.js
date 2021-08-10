@@ -39,3 +39,26 @@ export function deleteMachine (machineId) {
     params: { id: machineId }
   })
 }
+
+export function enabledMachine (mInfo) {
+  return request({
+    url: '/v1/machine/status',
+    method: 'put',
+    data: mInfo
+  })
+}
+
+export function allIPList () {
+  return request({
+    url: '/v1/machines/all',
+    method: 'get'
+  })
+}
+
+export function batchDeleteMachine(ids){
+  return request({
+    url: '/v1/machines/selection',
+    method: 'delete',
+    data: ids
+  })
+}

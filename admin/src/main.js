@@ -1,27 +1,29 @@
-// The Vue build version to load with the `import` command
-// (runtime-only or standalone) has been set in webpack.base.conf with an alias.
-import Vue from 'vue'
-import App from './App'
-import router from './router'
-// import Element from 'element-ui'
-// import 'element-ui/lib/theme-chalk/index.css'
+import { createApp } from 'vue'
+import App from './App.vue'
+
+import router from './router/index'
+import store from './store/index.js'
+import './permission.js'
+
 import ElementPlus from 'element-plus'
 import 'element-plus/lib/theme-chalk/index.css'
+import './assets/icon/iconfont.css'
+import IconSvg from '@/components/IconSvg.vue'
+import './assets/svg/iconfont.js'
+import 'dayjs/locale/zh-cn'
+import locale from 'element-plus/lib/locale/lang/zh-cn'
 
-import * as filters from './filters'
+import 'vite-plugin-svg-icons/register'
+// 需要全局引入再添加
+import singleSvg from './components/singleSvg.vue' // 全局svg图标组件
+import Highlight from './directive/highlight.js' // 这里是你项目highlight.js所在路径
+import "default-passive-events"
 
-Object.keys(filters).forEach(key => {
-  Vue.filter(key, filters[key])
-})
-
-Vue.config.productionTip = false
-// Vue.use(Element) // global filters
-Vue.use(ElementPlus) // global filters
-
-/* eslint-disable no-new */
-new Vue({
-  el: '#app',
-  router,
-  components: { App },
-  template: '<App/>'
-})
+const app = createApp(App)
+app.use(ElementPlus, { locale })
+app.use(router)
+app.use(store)
+app.use(Highlight)
+app.component('icon-svg', IconSvg)
+app.component('single-svg', singleSvg)
+app.mount('#app')
