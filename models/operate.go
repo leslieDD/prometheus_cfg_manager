@@ -171,7 +171,6 @@ func (o *OperateObj) RecodeLog(userName, ipaddr, optContent string, operateType 
 func (o *OperateObj) loopWrite() {
 	for ol := range o.operateChan {
 		if r := o.writeLog(ol); r != Success {
-			config.Log.Error(ol)
 			if r == ErrDataBase {
 				time.Sleep(5 * time.Second)
 			}
