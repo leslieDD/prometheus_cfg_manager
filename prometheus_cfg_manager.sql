@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS `annotations` (
   `value` varchar(500) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_monitor_rules_id_key` (`monitor_rules_id`,`key`)
-) ENGINE=InnoDB AUTO_INCREMENT=51 DEFAULT CHARSET=utf8 COMMENT='监控规则的注释';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='监控规则的注释';
 
 -- 数据导出被取消选择。
 
@@ -40,7 +40,7 @@ CREATE TABLE IF NOT EXISTS `group_labels` (
   `update_by` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_groupid_key` (`key`,`job_group_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='子组标签列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='子组标签列表';
 
 -- 数据导出被取消选择。
 
@@ -52,7 +52,7 @@ CREATE TABLE IF NOT EXISTS `group_machines` (
   `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique` (`machines_id`,`job_group_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8 COMMENT='子组IP列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='子组IP列表';
 
 -- 数据导出被取消选择。
 
@@ -62,7 +62,7 @@ CREATE TABLE IF NOT EXISTS `group_priv` (
   `group_id` int NOT NULL,
   `func_id` int NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=3626 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=99 DEFAULT CHARSET=utf8;
 
 -- 数据导出被取消选择。
 
@@ -81,7 +81,7 @@ CREATE TABLE IF NOT EXISTS `jobs` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_unique` (`name`),
   KEY `order_unique` (`display_order`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8 COMMENT='prometheus任务列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='prometheus任务列表';
 
 -- 数据导出被取消选择。
 
@@ -94,7 +94,7 @@ CREATE TABLE IF NOT EXISTS `job_group` (
   `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   `update_by` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='还可以为单个分组中的IP地址进行分子组，为每个子组设置相应的标签列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='还可以为单个分组中的IP地址进行分子组，为每个子组设置相应的标签列表';
 
 -- 数据导出被取消选择。
 
@@ -116,7 +116,7 @@ CREATE TABLE IF NOT EXISTS `labels` (
   `update_by` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_labels` (`label`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='标签列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='标签列表';
 
 -- 数据导出被取消选择。
 
@@ -140,7 +140,7 @@ CREATE TABLE IF NOT EXISTS `machines` (
   `update_by` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `ipaddr_unique` (`ipaddr`)
-) ENGINE=InnoDB AUTO_INCREMENT=397 DEFAULT CHARSET=utf8 COMMENT='机器列表';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='机器列表';
 
 -- 数据导出被取消选择。
 
@@ -153,7 +153,7 @@ CREATE TABLE IF NOT EXISTS `manager_group` (
   `update_by` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `name_unique` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='用户组';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='用户组';
 
 -- 数据导出被取消选择。
 
@@ -180,7 +180,7 @@ CREATE TABLE IF NOT EXISTS `manager_user` (
   `update_by` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name` (`username`)
-) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8 COMMENT='用户';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8 COMMENT='用户';
 
 -- 数据导出被取消选择。
 
@@ -192,7 +192,7 @@ CREATE TABLE IF NOT EXISTS `monitor_labels` (
   `value` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_mid_lid` (`key`,`monitor_rules_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=26 DEFAULT CHARSET=utf8 COMMENT='监控规则的标签';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='监控规则的标签';
 
 -- 数据导出被取消选择。
 
@@ -208,7 +208,7 @@ CREATE TABLE IF NOT EXISTS `monitor_rules` (
   `update_by` varchar(100) NOT NULL,
   `update_at` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=28 DEFAULT CHARSET=utf8 COMMENT='具体的监控规则';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='具体的监控规则';
 
 -- 数据导出被取消选择。
 
@@ -218,12 +218,12 @@ CREATE TABLE IF NOT EXISTS `operation_log` (
   `username` varchar(100) NOT NULL,
   `operate_type` varchar(50) NOT NULL,
   `ipaddr` varchar(100) NOT NULL,
-  `operate_name` varchar(100) NOT NULL,
+  `operate_content` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   `operate_result` tinyint NOT NULL,
   `operate_at` datetime NOT NULL,
   `operate_error` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=148 DEFAULT CHARSET=utf8 COMMENT='操作日志';
+) ENGINE=InnoDB AUTO_INCREMENT=149 DEFAULT CHARSET=utf8 COMMENT='操作日志';
 
 -- 数据导出被取消选择。
 
@@ -273,7 +273,7 @@ CREATE TABLE IF NOT EXISTS `rules_groups` (
   `update_by` varchar(100) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name` (`name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='监控规则组';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='监控规则组';
 
 -- 数据导出被取消选择。
 
@@ -285,7 +285,7 @@ CREATE TABLE IF NOT EXISTS `session` (
   `update_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=94 DEFAULT CHARSET=utf8 COMMENT='用户登录会话';
+) ENGINE=InnoDB AUTO_INCREMENT=95 DEFAULT CHARSET=utf8 COMMENT='用户登录会话';
 
 -- 数据导出被取消选择。
 
@@ -298,7 +298,7 @@ CREATE TABLE IF NOT EXISTS `sub_group` (
   `update_by` varchar(50) NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_name_rules_groups_id` (`name`,`rules_groups_id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='监控规则组中的下级组，子组';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='监控规则组中的下级组，子组';
 
 -- 数据导出被取消选择。
 
@@ -313,7 +313,7 @@ CREATE TABLE IF NOT EXISTS `system_log` (
   `operate_at` datetime NOT NULL,
   `operate_error` text CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=385 DEFAULT CHARSET=utf8 COMMENT='系统日志';
+) ENGINE=InnoDB AUTO_INCREMENT=392 DEFAULT CHARSET=utf8 COMMENT='系统日志';
 
 -- 数据导出被取消选择。
 
