@@ -20,7 +20,9 @@ type Tmpl struct {
 }
 
 type TmplTable struct {
-	Tmpl string `json:"tmpl" gorm:"column:tmpl"`
+	Tmpl     string    `json:"tmpl" gorm:"column:tmpl"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
 var TmplObj = Tmpl{lock: sync.Mutex{}}

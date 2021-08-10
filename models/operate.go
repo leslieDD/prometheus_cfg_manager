@@ -304,7 +304,9 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 			return err
 		}
 		tmpl := TmplTable{
-			Tmpl: DefTmplText,
+			Tmpl:     DefTmplText,
+			UpdateAt: time.Now(),
+			UpdateBy: "administrator",
 		}
 		if err := tx.Table("tmpl").Create(&tmpl).Error; err != nil {
 			return err
