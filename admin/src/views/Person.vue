@@ -15,6 +15,9 @@
         </div>
         <div class="meBox-text">
           <el-descriptions title="" :column="1" size="">
+            <el-descriptions-item label="登录账号">{{
+              userInfo.username
+            }}</el-descriptions-item>
             <el-descriptions-item label="手机号">{{
               userInfo.phone
             }}</el-descriptions-item>
@@ -198,6 +201,7 @@ export default {
       sayWhat: [],
       timer: null,
       userInfo: {
+        username: '',
         nice_name: '',
         phone: '',
         group_name: '',
@@ -249,6 +253,7 @@ export default {
         const userInfo = this.$store.getters.userInfo
         this.userInfo = {
           id: this.$store.getters.userID,
+          username: userInfo.username,
           nice_name: userInfo.nice_name,
           phone: userInfo.phone,
           group_name: userInfo.group_name,
