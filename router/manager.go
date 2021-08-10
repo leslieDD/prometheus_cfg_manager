@@ -44,8 +44,8 @@ func initManagerApi() {
 	v1.POST("/manager/reset/admin", postManagerResetAdmin)
 	v1.POST("/manager/reset/secret", postManagerResetSecret)
 
-	v1.GET("/system/log/setting", getSystemReocdeSetting)
-	v1.PUT("/system/log/setting", putSystemReocdeSetting)
+	v1.GET("/system/log/setting", getSystemRecodeSetting)
+	v1.PUT("/system/log/setting", putSystemRecodeSetting)
 	v1.POST("/system/log/clear", clearSystemLog)
 	v1.GET("/system/log", getSystemLog)
 }
@@ -66,10 +66,12 @@ func getManagerGroups(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager group", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	result, bf := models.GetManagerGroups(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager group", models.IsSearch, bf)
 	resComm(c, bf, result)
 }
 
@@ -77,10 +79,12 @@ func getManagerGroupList(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "admin", "group", "search")
 	if pass != models.Success {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager group list", models.IsSearch, pass)
 		resComm(c, pass, nil)
 		return
 	}
 	result, bf := models.GetManagerGroupList(user)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager group list", models.IsSearch, bf)
 	resComm(c, bf, result)
 }
 
@@ -88,10 +92,12 @@ func getMGEnabled(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "admin", "group", "search")
 	if pass != models.Success {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager group enabled", models.IsSearch, pass)
 		resComm(c, pass, nil)
 		return
 	}
 	data, bf := models.GetManagerGroupEnabled()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager group enabled", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -104,10 +110,12 @@ func postManagerGroup(c *gin.Context) {
 	}
 	mg := models.ManagerGroup{}
 	if err := c.BindJSON(&mg); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create manager group", models.IsAdd, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostManagerGroup(user, &mg)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create manager group", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -120,10 +128,12 @@ func putManagerGroup(c *gin.Context) {
 	}
 	mg := models.ManagerGroup{}
 	if err := c.BindJSON(&mg); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager group", models.IsUpdate, models.ErrQueryData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutManagerGroup(user, &mg)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager group", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -136,16 +146,19 @@ func deleteManagerGroup(c *gin.Context) {
 	}
 	gIDStr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete manager group", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	gID, err := strconv.ParseInt(gIDStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete manager group", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DeleteManagerGroup(gID)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete manager group", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -158,10 +171,12 @@ func putManagerGroupStatus(c *gin.Context) {
 	}
 	enabledInfo := models.EnabledInfo{}
 	if err := c.BindJSON(&enabledInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager group status", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutManagerGroupStatus(user, &enabledInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager group status", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -176,10 +191,12 @@ func getManagerUsers(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager users", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	result, bf := models.GetManagerUsers(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager users", models.IsSearch, bf)
 	resComm(c, bf, result)
 }
 
@@ -193,10 +210,12 @@ func postManagerUser(c *gin.Context) {
 	mu := models.ManagerUser{}
 	if err := c.BindJSON(&mu); err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create manager user", models.IsAdd, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostManagerUser(user, &mu)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create manager user", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -210,10 +229,12 @@ func putManagerUser(c *gin.Context) {
 	mu := models.ManagerUser{}
 	if err := c.BindJSON(&mu); err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager user", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutManagerUser(user, &mu)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager user", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -226,16 +247,19 @@ func deleteManagerUser(c *gin.Context) {
 	}
 	gIDStr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete manager user", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	gID, err := strconv.ParseInt(gIDStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete manager user", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DeleteManagerUser(gID)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete manager user", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -248,10 +272,12 @@ func putManagerUserStatus(c *gin.Context) {
 	}
 	enabledInfo := models.EnabledInfo{}
 	if err := c.BindJSON(&enabledInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager user status", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutManagerUserStatus(user, &enabledInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager user status", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -264,10 +290,12 @@ func postUserPassword(c *gin.Context) {
 	}
 	pInfo := models.ChangePasswordInfo{}
 	if err := c.BindJSON(&pInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create user password", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostUserPassword(user, &pInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create user password", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -279,6 +307,7 @@ func getManagerUsersList(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetManagerUsersList()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager user list", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -291,10 +320,12 @@ func getManagerGroupMember(c *gin.Context) {
 	}
 	gInfo := models.GetPrivInfo{}
 	if err := c.BindQuery(&gInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager group member", models.IsSearch, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	data, bf := models.GetManagerGroupMember(&gInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager group member", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -307,15 +338,18 @@ func putManagerGroupMember(c *gin.Context) {
 	}
 	gInfo := models.GetPrivInfo{}
 	if err := c.BindQuery(&gInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager group member", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	uIDs := []int{}
 	if err := c.BindJSON(&uIDs); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager group member", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutManagerGroupMember(user, &gInfo, uIDs)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager group member", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -331,13 +365,14 @@ func getUserPriv(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	// u := c.Keys["userInfo"].(*models.ManagerUserDetail)
 	gInfo := models.GetPrivInfo{}
 	if err := c.BindQuery(&gInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager user priv", models.IsSearch, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	data, bf := models.GetGroupPriv(&gInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager user priv", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -350,21 +385,25 @@ func putUserPriv(c *gin.Context) {
 	}
 	privInfo := []*models.ItemPriv{}
 	if err := c.BindJSON(&privInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager user priv", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	gInfo := models.GetPrivInfo{}
 	if err := c.BindQuery(&gInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager user priv", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutGroupPriv(user, privInfo, &gInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager user priv", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
 func getUserMenuPriv(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	result, bf := models.GetUserMenuPriv(user)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager user menu priv", models.IsSearch, bf)
 	resComm(c, bf, result)
 }
 
@@ -376,6 +415,7 @@ func getManagerSetting(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetManagerSetting()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get manager setting", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -388,10 +428,12 @@ func putManagerSetting(c *gin.Context) {
 	}
 	params := map[string]string{}
 	if err := c.BindJSON(&params); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager setting", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutManagerSetting(params)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update manager setting", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -404,10 +446,12 @@ func postManagerResetAdmin(c *gin.Context) {
 	}
 	code := models.ResetCode{}
 	if err := c.BindJSON(&code); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reset manager data", models.IsReset, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.OptResetAdmin(&code, c.Request.RemoteAddr)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reset manager data", models.IsReset, bf)
 	resComm(c, bf, nil)
 }
 
@@ -419,21 +463,23 @@ func postManagerResetSecret(c *gin.Context) {
 		return
 	}
 	bf := models.PreOptResetAdmin()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create manager reset secret", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
-func getSystemReocdeSetting(c *gin.Context) {
+func getSystemRecodeSetting(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "admin", "log", "search")
 	if pass != models.Success {
 		resComm(c, pass, nil)
 		return
 	}
-	data, bf := models.GetSystemReocdeSetting()
+	data, bf := models.GetSystemRecodeSetting()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get system recode setting", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
-func putSystemReocdeSetting(c *gin.Context) {
+func putSystemRecodeSetting(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "admin", "log", "update")
 	if pass != models.Success {
@@ -442,10 +488,12 @@ func putSystemReocdeSetting(c *gin.Context) {
 	}
 	recodes := []int{}
 	if err := c.BindJSON(&recodes); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update system recode setting", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutSystemReocdeSetting(recodes)
+	bf := models.PutSystemRecodeSetting(recodes)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update system recode setting", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -457,6 +505,7 @@ func clearSystemLog(c *gin.Context) {
 		return
 	}
 	bf := models.ClearSystemLog()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "clear system log", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -469,9 +518,11 @@ func getSystemLog(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get system log", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.GetSystemLog(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get system log", models.IsSearch, bf)
 	resComm(c, bf, data)
 }

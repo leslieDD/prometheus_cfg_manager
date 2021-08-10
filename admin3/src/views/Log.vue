@@ -67,20 +67,31 @@
             {{ scope.$index + 1 }}
           </template>
         </el-table-column>
-        <el-table-column label="用户名" width="80px" prop="username">
+        <el-table-column label="用户名" width="100px" prop="username">
         </el-table-column>
         <el-table-column label="IP地址" width="150px" prop="ipaddr">
         </el-table-column>
-        <el-table-column label="操作名称" width="110px" prop="operate_name">
+        <el-table-column label="类型" width="80px" prop="operate_type">
         </el-table-column>
-        <el-table-column label="操作结果" width="70px" prop="operate_result">
+        <el-table-column
+          label="操作内容"
+          show-overflow-tooltip
+          width="230px"
+          prop="operate_content"
+        >
+        </el-table-column>
+        <el-table-column label="结果" width="50px" prop="operate_result">
         </el-table-column>
         <el-table-column label="操作时间" width="130px" prop="operate_at">
           <template v-slot="{ row }">
             <span>{{ parseTimeSelf(row.operate_at) }}</span>
           </template>
         </el-table-column>
-        <el-table-column label="错误原因" prop="operate_error">
+        <el-table-column
+          label="错误原因"
+          show-overflow-tooltip
+          prop="operate_error"
+        >
         </el-table-column>
       </el-table>
       <div class="block" v-if="paginationShow">
@@ -88,7 +99,7 @@
           @size-change="handleSizeChange"
           @current-change="handleCurrentChange"
           :current-page="currentPage"
-          :page-sizes="[30, 50, 80, 100]"
+          :page-sizes="[25, 50, 80, 100]"
           :page-size="pageSize"
           layout="total, sizes, prev, pager, next, jumper"
           :total="pageTotal"
@@ -112,7 +123,7 @@ export default {
     return {
       systemLogs: [],
       paginationShow: true,
-      pageSize: 30,
+      pageSize: 25,
       pageTotal: 0,
       currentPage: 1,
       searchContent: '',

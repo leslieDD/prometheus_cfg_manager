@@ -549,7 +549,7 @@ type LogLevelSetting struct {
 	Selected bool   `json:"selected" gorm:"column:selected"`
 }
 
-func GetSystemReocdeSetting() ([]LogLevelSetting, *BriefMessage) {
+func GetSystemRecodeSetting() ([]LogLevelSetting, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -564,7 +564,7 @@ func GetSystemReocdeSetting() ([]LogLevelSetting, *BriefMessage) {
 	return recodes, Success
 }
 
-func PutSystemReocdeSetting(ids []int) *BriefMessage {
+func PutSystemRecodeSetting(ids []int) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -617,7 +617,7 @@ func GetSystemLog(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		like := `'%` + sp.Search + `%'`
 		likeSql = fmt.Sprintf("username like %s "+
 			"or ipaddr like %s "+
-			"or operate_name like %s "+
+			"or operate_content like %s "+
 			"or operate_error like %s ", like, like, like, like)
 	} else {
 		likeSql = "1=1"

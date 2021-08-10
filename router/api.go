@@ -401,12 +401,12 @@ func delJobGroup(c *gin.Context) {
 	}
 	info := &models.DelJobGroupInfo{}
 	if err := c.BindQuery(info); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "del sub group", models.IsDel, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.DelJobGroup(info)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "del sub group", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -419,19 +419,19 @@ func getJobMachines(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job machines", models.IsSearch, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		return
 	}
 	jID, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job machines", models.IsSearch, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
 		return
 	}
 	data, bf := models.GetJobMachines(jID)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job machines", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -444,19 +444,19 @@ func getJobGroupMachines(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job sub group machines", models.IsUpdate, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job sub group machines", models.IsUpdate, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	data, bf := models.GetJobGroupMachines(jID)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job sub group machines", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -469,25 +469,25 @@ func putJobGroupMachines(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group ip pool", models.IsUpdate, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group ip pool", models.IsUpdate, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	gms := []models.JobGroupMachine{}
 	if err := c.BindJSON(&gms); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group ip pool", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobGroupMachines(jID, &gms)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group ip pool", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -500,12 +500,12 @@ func getGroupLabels(c *gin.Context) {
 	}
 	sp := &models.SplitPage{}
 	if err := c.BindQuery(sp); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get sub group lables", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.GetJobGroupWithSplitPage(sp)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get sub group lables", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -518,25 +518,25 @@ func postGroupLabels(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "add sub group label", models.IsAdd, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "add sub group label", models.IsAdd, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	gls := models.GroupLabels{}
 	if err := c.BindJSON(&gls); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "add sub group label", models.IsAdd, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PostGroupLabels(jID, &gls)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "add sub group label", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -598,12 +598,12 @@ func getAllMachinesLabels(c *gin.Context) {
 	}
 	info := models.JobGroupID{}
 	if err := c.BindQuery(&info); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get all methines and labels", models.IsSearch, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	data, bf := models.GetAllMachinesLabels(&info)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get all methines and labels", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -616,12 +616,12 @@ func putJobGroupStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group status", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobGroupStatus(user, &ed)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group status", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -634,12 +634,12 @@ func putJobGroupLabelsStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub job group status", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobGroupLabelsStatus(user, &ed)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub job group status", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -651,7 +651,7 @@ func getJobAllRelabels(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetAllReLabels()
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get all labels of job's sub group", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
@@ -664,12 +664,12 @@ func swapJob(c *gin.Context) {
 	}
 	sInfo := &models.SwapInfo{}
 	if err := c.BindJSON(sInfo); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "swap group order", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.DoSwap(user, sInfo)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "swap group order", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -681,7 +681,7 @@ func publishJobs(c *gin.Context) {
 		return
 	}
 	bf := models.AllowOneObj.DoPublishJobs()
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish job", models.IsPublish, bf)
 	resComm(c, bf, nil)
 }
 
@@ -706,12 +706,12 @@ func putJobsStatus(c *gin.Context) {
 	}
 	ed := models.EnabledInfo{}
 	if err := c.BindJSON(&ed); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job status", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutJobsStatus(user, &ed)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job status", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 

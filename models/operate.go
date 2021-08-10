@@ -43,14 +43,14 @@ type OperateObj struct {
 var OO = NewOpterationLog()
 
 type OperationLog struct {
-	ID            int       `json:"id" gorm:"column:id"`
-	OperateType   string    `json:"operate_type" gorm:"column:operate_type"`
-	UserName      string    `json:"username" gorm:"column:username"`
-	Ipaddr        string    `json:"ipaddr" gorm:"column:ipaddr"`
-	OperateName   string    `json:"operate_name" gorm:"column:operate_name"`
-	OperateResult bool      `json:"operate_result" gorm:"column:operate_result"`
-	OperateAt     time.Time `json:"operate_at" gorm:"column:operate_at"`
-	OperateError  string    `json:"operate_error" gorm:"column:operate_error"`
+	ID             int       `json:"id" gorm:"column:id"`
+	OperateType    string    `json:"operate_type" gorm:"column:operate_type"`
+	UserName       string    `json:"username" gorm:"column:username"`
+	Ipaddr         string    `json:"ipaddr" gorm:"column:ipaddr"`
+	OperateContent string    `json:"operate_content" gorm:"column:operate_content"`
+	OperateResult  bool      `json:"operate_result" gorm:"column:operate_result"`
+	OperateAt      time.Time `json:"operate_at" gorm:"column:operate_at"`
+	OperateError   string    `json:"operate_error" gorm:"column:operate_error"`
 }
 
 type OperationLogMess struct {
@@ -61,10 +61,10 @@ type OperationLogMess struct {
 
 func (ol *OperationLog) String() string {
 	return fmt.Sprintf("username: %s, ipaddr: %s, "+
-		"operate_name: %s, operate_result: %v, operate_at: %s, operate_error: %s",
+		"operate_content: %s, operate_result: %v, operate_at: %s, operate_error: %s",
 		ol.UserName,
 		ol.Ipaddr,
-		ol.OperateName,
+		ol.OperateContent,
 		ol.OperateResult,
 		ol.OperateAt,
 		ol.OperateError,
@@ -122,7 +122,7 @@ func GetOperateLog(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 }
 
 // 记录重置日志，可以查看“Prometheus”中的“基本配置”中的“重置”可以看到内容
-func (o *OperateObj) FlagLog(userName, ipaddr, optName string, operateType RecodeType, opt_err *BriefMessage) {
+func (o *OperateObj) FlagLog(userName, ipaddr, optContent string, operateType RecodeType, opt_err *BriefMessage) {
 	o.lock.Lock()
 	r, ok := o.recodesLevel[operateType]
 	o.lock.Unlock()
@@ -131,12 +131,12 @@ func (o *OperateObj) FlagLog(userName, ipaddr, optName string, operateType Recod
 	}
 	opl := &OperationLogMess{
 		OptLog: &OperationLog{
-			UserName:      userName,
-			Ipaddr:        ipaddr,
-			OperateName:   optName,
-			OperateAt:     time.Now(),
-			OperateResult: opt_err == Success,
-			OperateError:  opt_err.String(),
+			UserName:       userName,
+			Ipaddr:         ipaddr,
+			OperateContent: optContent,
+			OperateAt:      time.Now(),
+			OperateResult:  opt_err == Success,
+			OperateError:   opt_err.String(),
 		},
 		ThisLogType: OperateLog,
 		RecodeType:  operateType,
@@ -145,7 +145,7 @@ func (o *OperateObj) FlagLog(userName, ipaddr, optName string, operateType Recod
 }
 
 // 记录系统日志，在“用户及权限管理”中的“日志”页，可以查看内容
-func (o *OperateObj) RecodeLog(userName, ipaddr, optName string, operateType RecodeType, opt_err *BriefMessage) {
+func (o *OperateObj) RecodeLog(userName, ipaddr, optContent string, operateType RecodeType, opt_err *BriefMessage) {
 	o.lock.Lock()
 	r, ok := o.recodesLevel[operateType]
 	o.lock.Unlock()
@@ -154,13 +154,13 @@ func (o *OperateObj) RecodeLog(userName, ipaddr, optName string, operateType Rec
 	}
 	opl := &OperationLogMess{
 		OptLog: &OperationLog{
-			UserName:      userName,
-			Ipaddr:        ipaddr,
-			OperateName:   optName,
-			OperateAt:     time.Now(),
-			OperateResult: opt_err == Success,
-			OperateError:  opt_err.String(),
-			OperateType:   r.Label,
+			UserName:       userName,
+			Ipaddr:         ipaddr,
+			OperateContent: optContent,
+			OperateAt:      time.Now(),
+			OperateResult:  opt_err == Success,
+			OperateError:   opt_err.String(),
+			OperateType:    r.Label,
 		},
 		ThisLogType: SystemLog,
 		RecodeType:  operateType,
