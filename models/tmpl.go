@@ -218,7 +218,7 @@ scrape_configs:
     file_sd_configs:
       - files:
         - "{{$.AbsConfDir}}/{{.Name}}.json"
-        refresh_interval: 15s
+        refresh_interval: {{$.Fields.refresh_interval}}
 {{.Code}}
 {{ end }}
 `
