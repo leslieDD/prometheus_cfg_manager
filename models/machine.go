@@ -38,16 +38,21 @@ type ListMachine struct {
 	UpdateBy  string    `json:"update_by" gorm:"column:update_by"`
 }
 
+type SrvStatus struct {
+	Job       string `json:"job" gorm:"-"`
+	Health    string `json:"health" gorm:"-"`
+	LastError string `json:"last_error" gorm:"-"`
+}
+
 type ListMachineMerge struct {
-	ID        int       `json:"id" gorm:"column:id"`
-	Name      string    `json:"name" gorm:"column:name"`
-	IpAddr    string    `json:"ipaddr" gorm:"column:ipaddr"`
-	JobsId    []int     `json:"jobs_id" gorm:"jobs_id"`
-	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
-	UpdateBy  string    `json:"update_by" gorm:"column:update_by"`
-	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
-	Health    string    `json:"health" gorm:"-"`
-	LastError string    `json:"last_error" gorm:"-"`
+	ID         int          `json:"id" gorm:"column:id"`
+	Name       string       `json:"name" gorm:"column:name"`
+	IpAddr     string       `json:"ipaddr" gorm:"column:ipaddr"`
+	JobsId     []int        `json:"jobs_id" gorm:"jobs_id"`
+	UpdateAt   time.Time    `json:"update_at" gorm:"column:update_at"`
+	UpdateBy   string       `json:"update_by" gorm:"column:update_by"`
+	Enabled    bool         `json:"enabled" gorm:"column:enabled"`
+	MSrvStatus []*SrvStatus `json:"msrv_status" gorm:"-"`
 }
 
 func GetMachine(machineID int) (*Machine, *BriefMessage) {
@@ -164,13 +169,14 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 			return nil, ErrConvertDataType
 		}
 		listsSend = append(listsSend, &ListMachineMerge{
-			ID:       l.ID,
-			Name:     l.Name,
-			IpAddr:   l.IpAddr,
-			UpdateAt: l.UpdateAt,
-			Enabled:  l.Enabled,
-			JobsId:   ints,
-			UpdateBy: l.UpdateBy,
+			ID:         l.ID,
+			Name:       l.Name,
+			IpAddr:     l.IpAddr,
+			UpdateAt:   l.UpdateAt,
+			Enabled:    l.Enabled,
+			JobsId:     ints,
+			UpdateBy:   l.UpdateBy,
+			MSrvStatus: []*SrvStatus{},
 		})
 	}
 	mObj.Check(&listsSend)

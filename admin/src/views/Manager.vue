@@ -71,6 +71,7 @@
       header-align="center"
       @expand-change="expandChange"
       @selection-change="handleSelectionChange"
+      @cell-mouse-enter="cellMouseEnter"
     >
       <el-table-column type="selection" width="40"> </el-table-column>
       <el-table-column type="expand">
@@ -133,7 +134,7 @@
       </el-table-column>
       <el-table-column
         label="状态"
-        width="90px"
+        width="150px"
         align="center"
         header-align="center"
       >
@@ -149,27 +150,39 @@
           </el-tooltip>
         </template>
         <template v-slot="{ row }">
-          <el-tooltip
-            v-if="row.health === 'up'"
-            content="主机正在运行"
-            placement="top"
-          >
-            <el-tag type="primary" size="mini">{{ row.health }}</el-tag>
-          </el-tooltip>
-          <el-tooltip
-            v-else-if="row.enabled === false"
-            :content="row.last_error"
-            placement="top"
-          >
-            <el-tag v-if="row.enabled === false" size="mini" type="warning"
-              >disabled</el-tag
+          <el-tooltip placement="left" effect="light">
+            <template #content>
+              <table class="pure-table">
+                <tbody>
+                  <tr
+                    class="pure-table-tr"
+                    v-for="(value, key, index) in ipStatusList"
+                    :key="index"
+                  >
+                    <td class="pure-table-td">{{ key }}</td>
+                    <td class="pure-table-td">{{ value }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </template>
+
+            <el-button
+              v-if="needWarning[row.ipaddr] === true"
+              class="el-button-color"
+              icon="el-icon-warning"
+              type="text"
+              size="mini"
+              @click="displayIPStatusDialog(row)"
+              >查看状态详情</el-button
             >
-          </el-tooltip>
-          <el-tooltip v-else :content="row.last_error" placement="top">
-            <el-tag v-if="row.health === 'down'" size="mini" type="danger">{{
-              row.health
-            }}</el-tag>
-            <el-tag v-else type="info" size="mini">{{ row.health }}</el-tag>
+            <el-button
+              v-else
+              type="text"
+              size="mini"
+              icon="el-icon-sunny"
+              @click="displayIPStatusDialog(row)"
+              >查看状态详情</el-button
+            >
           </el-tooltip>
         </template>
       </el-table-column>
@@ -318,6 +331,39 @@
         </el-form>
       </span>
     </el-dialog>
+    <div class="dialog-ip-status">
+      <el-dialog
+        :title="'IP状态信息：' + currentIPStatus"
+        v-model="dialogIpStatusVisible"
+        width="900px"
+      >
+        <el-table :data="ipStatusData" size="mini">
+          <el-table-column
+            width="150px"
+            property="job"
+            label="分组"
+          ></el-table-column>
+          <el-table-column width="100px" label="状态">
+            <template v-slot="{ row }">
+              <el-tag v-if="row.health === 'up'" size="mini" type="success">{{
+                row.health
+              }}</el-tag>
+              <el-tag
+                v-else-if="row.health === 'down'"
+                size="mini"
+                type="danger"
+                >{{ row.health }}</el-tag
+              >
+              <el-tag v-else type="info" size="mini">{{ row.health }}</el-tag>
+            </template>
+          </el-table-column>
+          <el-table-column
+            property="last_error"
+            label="错误信息"
+          ></el-table-column>
+        </el-table>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -383,7 +429,12 @@ export default {
       multipleSelection: [],
       pageshow: false,
       pushing: false,
-      editObj: null
+      editObj: null,
+      ipStatusData: [],
+      dialogIpStatusVisible: false,
+      currentIPStatus: '',
+      ipStatusList: {},
+      needWarning: {},
     }
   },
   created () {
@@ -432,12 +483,21 @@ export default {
                 this.pageshow = true;
               });
               this.deleteVisible = {}
+              let needWarning = {}
               let n = 0
               r.data.data.forEach(element => {
                 this.selectTypeValue[element.id] = element.jobs_id
                 this.deleteVisible[n] = false
+                needWarning[element.ipaddr] = false
+                const other = element.msrv_status.findIndex((item, index) => {
+                  return item.health !== 'up';
+                })
+                if (other !== -1) {
+                  needWarning[element.ipaddr] = true
+                }
                 n += 1
               })
+              this.needWarning = needWarning
             }
           ).catch(
             e => {
@@ -450,6 +510,25 @@ export default {
           console.log(e)
         }
       )
+    },
+    displayIPStatusDialog (row) {
+      this.ipStatusData = row.msrv_status
+      this.currentIPStatus = row.ipaddr
+      this.dialogIpStatusVisible = true
+    },
+    cellMouseEnter (row, column, cell, event) {
+      if (column.label !== '状态' && column.label !== 'status') {
+        return
+      }
+      let ipStatusList = {}
+      row.msrv_status.forEach(x => {
+        if (ipStatusList[x.health] !== undefined) {
+          ipStatusList[x.health] += 1
+        } else {
+          ipStatusList[x.health] = 1
+        }
+      })
+      this.ipStatusList = ipStatusList
     },
     handleSelect (visible, index, row) {
       if (visible) {
@@ -774,5 +853,33 @@ el-dialog {
   border: none;
   background: transparent;
   width: 225px;
+}
+.dialog-ip-status :deep() .el-dialog__body {
+  padding-top: 5px;
+}
+.pure-table {
+  font-family: verdana, arial, sans-serif;
+  font-size: 11px;
+  color: #333333;
+  border-width: 1px;
+  border-color: #999999;
+  border-collapse: collapse;
+}
+.pure-table-tr {
+  background: #b5cfd2;
+  border-width: 1px;
+  padding: 5px;
+  border-style: solid;
+  border-color: #999999;
+}
+.pure-table-td {
+  background: #dcddc0;
+  border-width: 1px;
+  padding: 5px;
+  border-style: solid;
+  border-color: #999999;
+}
+.el-button-color {
+  color: red;
 }
 </style>

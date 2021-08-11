@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 	"pro_cfg_manager/config"
@@ -22,7 +23,7 @@ import (
 type Monitor struct {
 	lock     sync.Mutex
 	syncTime time.Time
-	info     map[string]*activeTarget
+	info     map[string][]*SrvStatus
 }
 
 var mObj = Monitor{
@@ -56,29 +57,35 @@ func (m *Monitor) Check(list *[]*ListMachineMerge) {
 	defer m.lock.Unlock()
 	if m.info == nil || time.Since(m.syncTime).Minutes() > 5.0 {
 		config.Log.Print("sync prometheus data")
-		if m.info == nil {
-			m.info = map[string]*activeTarget{}
-		}
+		m.info = map[string][]*SrvStatus{}
 		info, err := m.target()
 		if err == nil {
 			for _, each := range info.Data.ActiveTargets {
-				n := fmt.Sprintf("%s_%s", each.Labels["instance"], each.Labels["job"])
-				m.info[n] = each
+				host, _, sErr := net.SplitHostPort(each.DiscoveredLabels["__address__"])
+				if sErr != nil {
+					config.Log.Error(sErr)
+					continue
+				}
+				m.info[host] = append(m.info[host], &SrvStatus{
+					Job:       each.ScrapePool,
+					Health:    each.Health,
+					LastError: each.LastError,
+				})
 			}
 		}
 	}
-
 	for _, each := range *list {
-		obj, ok := m.info[fmt.Sprintf("%s_%s", each.IpAddr, each.Name)]
+		obj, ok := m.info[each.IpAddr]
 		if ok {
-			each.Health = obj.Health
-			each.LastError = obj.LastError
-		} else if !each.Enabled {
-			each.Health = "disabled"
-			each.LastError = "IP已经被禁用"
+			each.MSrvStatus = obj
 		} else {
-			each.Health = "unknow"
-			each.LastError = "信息还未同步或者IP异常"
+			each.MSrvStatus = []*SrvStatus{
+				{
+					Job:       "[未找到]",
+					Health:    "[未知]",
+					LastError: "[未知]",
+				},
+			}
 		}
 	}
 }
