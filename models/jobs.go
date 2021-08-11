@@ -669,7 +669,7 @@ func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessag
 			config.Log.Error(err)
 			return err
 		}
-		if err := db.Table("jobs").
+		if err := db.Table("jobs").Where("id=?", cInfo.JobID).
 			Update("update_at", time.Now()).
 			Update("update_by", user.Username).Error; err != nil {
 			config.Log.Error(err)
