@@ -10,7 +10,7 @@ import { getStorageToken, removeStorageUserInfo } from '@/utils/localStorage.js'
 const service = axios.create({
   // baseURL: process.env.VUE_APP_BASE_API, // url = base url + request url
   // withCredentials: false, // send cookies when cross-domain requests
-  timeout: 1000 * 8// request timeout
+  timeout: 1000 * 15// request timeout
 })
 
 // request interceptor
