@@ -16,4 +16,5 @@
 
 ##### 附
 
-告警规则可以参考：https://awesome-prometheus-alerts.grep.to/rules.html，支持此网站规则导入到本服务中，在`告警管理`页面中操作。`告警管理`中支持右键下拉菜单进行操作
+告警规则可以参考：[https://awesome-prometheus-alerts.grep.to/rules.html](https://awesome-prometheus-alerts.grep.to/rules.html)，支持此网站规则导入到本服务中，在`告警管理`页面中操作。`告警管理`中支持右键下拉菜单进行操作
+
