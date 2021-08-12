@@ -22,12 +22,12 @@
 
 ##### 以下是部分截图
 
-![](/blob/master/images/person.png)
+![](https://github.com/leslieDD/prometheus_cfg_manager/blob/master/images/person.png)
 
-![](/blob/master/images/ipManager.png)
+![](https://github.com/leslieDD/prometheus_cfg_manager/blob/master/images/ipManager.png)
 
-![](/blob/master/images/group.png)
+![](https://github.com/leslieDD/prometheus_cfg_manager/blob/master/images/group.png)
 
-![](/blob/master/images/ymlView.png)
+![](https://github.com/leslieDD/prometheus_cfg_manager/blob/master/images/ymlView.png)
 
-![](/blob/master/images/admin.png)
+![](https://github.com/leslieDD/prometheus_cfg_manager/blob/master/images/admin.png)
