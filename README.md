@@ -22,12 +22,12 @@
 
 ##### 以下是部分截图
 
-![](images\person.png)
+![](/blob/master/images/person.png)
 
-![](images\ipManager.png)
+![](/blob/master/images/ipManager.png)
 
-![](images\group.png)
+![](/blob/master/images/group.png)
 
-![](images\ymlView.png)
+![](/blob/master/images/ymlView.png)
 
-![](images\admin.png)
+![](/blob/master/images/admin.png)
