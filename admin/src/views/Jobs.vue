@@ -71,9 +71,14 @@
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column label="JOB组名称" prop="name" show-overflow-tooltip>
+      <el-table-column
+        label="JOB组名称"
+        prop="name"
+        width="220px"
+        show-overflow-tooltip
+      >
       </el-table-column>
-      <el-table-column label="端口号" width="100px" prop="port">
+      <el-table-column label="端口号" width="90px" prop="port">
         <template #header>
           <el-tooltip
             content="如果端口号为0，在生成配置时忽略端口号，只保留IP地址"
@@ -89,14 +94,14 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column label="IP数" width="75px">
+      <el-table-column label="IP数" width="55px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
             scope.row.ip_count
           }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column label="子组数" width="90px">
+      <el-table-column label="子组数" width="65px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
             scope.row.group_count

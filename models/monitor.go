@@ -81,9 +81,9 @@ func (m *Monitor) Check(list *[]*ListMachineMerge) {
 		} else {
 			each.MSrvStatus = []*SrvStatus{
 				{
-					Job:       "[未找到]",
+					Job:       "[未知]",
 					Health:    "[未知]",
-					LastError: "[未知]",
+					LastError: "[未从Prometheus服务中找到]",
 				},
 			}
 		}

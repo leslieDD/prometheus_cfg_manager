@@ -339,7 +339,7 @@
       >
         <el-table :data="ipStatusData" size="mini">
           <el-table-column
-            width="150px"
+            width="200px"
             property="job"
             label="分组"
           ></el-table-column>
