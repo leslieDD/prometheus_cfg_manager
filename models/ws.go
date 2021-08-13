@@ -151,7 +151,7 @@ func (c *CmdAreaT) Check(wsc *wsCommand) {
 	}
 	wsc.Result <- "测试中，请稍等...\n--------------------------"
 	cmd = fmt.Sprintf("%s check config %s", cmd, config.Cfg.PrometheusCfg.MainConf)
-	wsc.Result <- fmt.Sprintf("执行命令：%s\n状态码：%d\n输出结果：%s\n错误信息：%v",
+	wsc.Result <- fmt.Sprintf("执行命令：%s\n状态码：%d\n输出结果：\n%s\n错误信息：%v",
 		cmd, statusCode, output, err)
 	wsc.Result <- "--------------------------\n测试完成"
 	close(wsc.Result)
