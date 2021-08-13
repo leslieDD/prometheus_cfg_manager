@@ -68,7 +68,7 @@ type CmdAreaT struct {
 	messSend    chan []byte
 }
 
-var cmdArea = NewCmdArea()
+var cmdArea *CmdAreaT
 
 func NewCmdArea() *CmdAreaT {
 	cmdArea := &CmdAreaT{

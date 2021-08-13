@@ -25,7 +25,11 @@ type TmplTable struct {
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
-var TmplObj = Tmpl{lock: sync.Mutex{}}
+var TmplObj *Tmpl
+
+func NewTmpl() *Tmpl {
+	return &Tmpl{lock: sync.Mutex{}}
+}
 
 func Raw(value string) string {
 	// config.Log.Error(value)

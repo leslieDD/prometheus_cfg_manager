@@ -30,7 +30,7 @@ type SessionCache struct {
 	sessionsDetail map[string]*ManagerUserDetail
 }
 
-var SSObj = NewSessionCache()
+var SSObj *SessionCache
 
 func NewSessionCache() *SessionCache {
 	sc := SessionCache{

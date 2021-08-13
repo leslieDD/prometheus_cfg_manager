@@ -491,7 +491,7 @@ func downSwap(user *UserSessionInfo, sInfo *SwapInfo) *BriefMessage {
 	return Success
 }
 
-var AllowOneObj = NewOnlyAllowOne()
+var AllowOneObj *onlyAllowOne
 
 func NewOnlyAllowOne() *onlyAllowOne {
 	oao := &onlyAllowOne{

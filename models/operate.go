@@ -40,7 +40,7 @@ type OperateObj struct {
 	lock         sync.Mutex
 }
 
-var OO = NewOpterationLog()
+var OO *OperateObj
 
 type OperationLog struct {
 	ID             int       `json:"id" gorm:"column:id"`

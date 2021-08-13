@@ -14,10 +14,10 @@ import (
 const MYExt = ".json"
 const MYYaml = ".yml"
 
-var publish PublishResolve
+var publish *PublishResolve
 
-func init() {
-	publish = PublishResolve{
+func NewPublishResolve() *PublishResolve {
+	return &PublishResolve{
 		lock: sync.Mutex{},
 	}
 }

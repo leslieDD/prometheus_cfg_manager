@@ -44,7 +44,7 @@ func NewPR() *PrometheusRule {
 	}
 }
 
-var PR = NewPR()
+var PR *PrometheusRule
 
 func (pr *PrometheusRule) GetDate() *BriefMessage {
 	rulesGroups, bf := GetRulesGroups()

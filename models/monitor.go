@@ -26,9 +26,13 @@ type Monitor struct {
 	info     map[string][]*SrvStatus
 }
 
-var mObj = Monitor{
-	lock:     sync.Mutex{},
-	syncTime: time.Now(),
+var mObj *Monitor
+
+func NewMonitor() *Monitor {
+	return &Monitor{
+		lock:     sync.Mutex{},
+		syncTime: time.Now(),
+	}
 }
 
 type activeTarget struct {
