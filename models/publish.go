@@ -77,6 +77,10 @@ func (p *PublishResolve) formatData() (map[string]*[]*TargetList, *BriefMessage)
 	if bf != Success {
 		return nil, bf
 	}
+	allMachines, bf := GetAllMachines()
+	if bf != Success {
+		return nil, bf
+	}
 	//          map[分组ID]map[子组ID]
 	jobGpAndLb := map[int]map[int]*TargetList{}
 	for _, obj := range jobGp {
@@ -95,7 +99,7 @@ func (p *PublishResolve) formatData() (map[string]*[]*TargetList, *BriefMessage)
 		}
 		relJob, ok := jobsMap[obj.JobsID]
 		if !ok {
-			config.Log.Errorf("no found real job, id: %d, ipaddr: %s", obj.JobsID, obj.IPAddr)
+			// config.Log.Errorf("no found real job, id: %d, ipaddr: %s", obj.JobsID, obj.IPAddr)
 			continue
 		}
 		if relJob.Port == 0 {
@@ -119,6 +123,26 @@ func (p *PublishResolve) formatData() (map[string]*[]*TargetList, *BriefMessage)
 			job[obj.JobGroupID] = group
 		}
 		group.Lables[obj.Key] = obj.Value
+	}
+	for _, job := range jobs {
+		if !job.IsCommon {
+			continue
+		}
+		allMachinesSlice := make([]string, 0, len(allMachines))
+		if job.Port == 0 {
+			for _, a := range allMachines {
+				allMachinesSlice = append(allMachinesSlice, a.IpAddr)
+			}
+		} else {
+			for _, a := range allMachines {
+				allMachinesSlice = append(allMachinesSlice, fmt.Sprintf("%s:%d", a.IpAddr, job.Port))
+			}
+		}
+		jobGpAndLb[job.ID] = map[int]*TargetList{}
+		jobGpAndLb[job.ID][0] = &TargetList{
+			Targets: allMachinesSlice,
+			Lables:  map[string]string{},
+		}
 	}
 	targets := map[string]*[]*TargetList{}
 	for _, job := range jobs {
@@ -260,6 +284,21 @@ func GetJobGroupIPInfo() ([]*JobGroupIPInfo, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	return jgIPs, Success
+}
+
+func GetAllMachines() ([]*Machine, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	machines := []*Machine{}
+	tx := db.Table("machines").Where("enabled=1").Find(&machines)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return machines, Success
 }
 
 func GetJobGroupLabelsInfo() ([]*JobGroupLablesInfo, *BriefMessage) {
