@@ -223,8 +223,8 @@ func doOptions_3() ([]*OnlyIDAndCount, *BriefMessage) {
 	}
 	idDef := []*OnlyIDAndCount{}
 	tx = db.Table("jobs").
-		Select("SELECT jobs.id, (SELECT COUNT(*) FROM machines WHERE enabled=1) AS `count`").
-		Where("jobs.is_common=1")
+		Select("jobs.id, (SELECT COUNT(*) FROM machines WHERE enabled=1) AS `count`").
+		Where("jobs.is_common=1 AND jobs.enabled=1").Find(&idDef)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData

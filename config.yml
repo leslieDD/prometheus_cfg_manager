@@ -9,7 +9,7 @@ logger:
   level: all
 
 mysql:
-  url: monitor:monitorPwd@tcp(127.0.0.1:3306)/pro_cfg_manager?charset=utf8&parseTime=True&loc=Local
+  url: monitor:XAME6SeKtrIXhicI2zzq@tcp(125.77.27.12:3306)/pro_cfg_manager?charset=utf8&parseTime=True&loc=Local
 
 prometheus_cfg:
   # prometheus服务的监听地址及端口号
