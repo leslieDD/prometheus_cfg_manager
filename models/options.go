@@ -221,6 +221,15 @@ func doOptions_3() ([]*OnlyIDAndCount, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
+	idDef := []*OnlyIDAndCount{}
+	tx = db.Table("jobs").
+		Select("SELECT jobs.id, (SELECT COUNT(*) FROM machines WHERE enabled=1) AS `count`").
+		Where("jobs.is_common=1")
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	idC = append(idC, idDef...)
 	return idC, Success
 }
 
