@@ -67,14 +67,18 @@ func (m *Monitor) Check(list *[]*ListMachineMerge) {
 			for _, each := range info.Data.ActiveTargets {
 				host, _, sErr := net.SplitHostPort(each.DiscoveredLabels["__address__"])
 				if sErr != nil {
-					config.Log.Error(sErr)
-					continue
+					m.info[each.DiscoveredLabels["__address__"]] = append(m.info[each.DiscoveredLabels["__address__"]], &SrvStatus{
+						Job:       each.ScrapePool,
+						Health:    each.Health,
+						LastError: each.LastError,
+					})
+				} else {
+					m.info[host] = append(m.info[host], &SrvStatus{
+						Job:       each.ScrapePool,
+						Health:    each.Health,
+						LastError: each.LastError,
+					})
 				}
-				m.info[host] = append(m.info[host], &SrvStatus{
-					Job:       each.ScrapePool,
-					Health:    each.Health,
-					LastError: each.LastError,
-				})
 			}
 		}
 	}
