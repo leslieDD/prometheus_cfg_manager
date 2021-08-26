@@ -106,6 +106,9 @@ func GetJobsForTmpl() (*[]*JobsForTmpl, *BriefMessage) {
 			}
 			ids = append(ids, fmt.Sprint(obj.ID))
 		}
+		if len(ids) == 0 {
+			return nil, ErrNoVaildData
+		}
 		// where = fmt.Sprintf("jobs.enabled=1 and relabels.enabled=1 and jobs.id in (%s)", strings.Join(ids, ","))
 		where = fmt.Sprintf("jobs.enabled=1 and jobs.id in (%s)", strings.Join(ids, ","))
 	}
