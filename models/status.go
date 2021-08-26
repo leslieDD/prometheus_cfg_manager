@@ -104,6 +104,7 @@ var ErrNoResetKey = &BriefMessage{400000, "重置KEY还没有生成"}
 var ErrResetKeyDiff = &BriefMessage{400000, "重置KEY不匹配"}
 var ErrAlreadyRunning = &BriefMessage{400000, "服务正在运行，请稍后重试"}
 var ErrNoPrivRequest = &BriefMessage{400000, "未授权的访问"}
+var ErrNoVaildData = &BriefMessage{400000, "未找到有效的数据"}
 
 // --------------------------------------------------------------
 // ---------------- 300xxx 链接错误 ------------------------------
