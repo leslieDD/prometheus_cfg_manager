@@ -37,3 +37,4 @@ nohup.out
 cdn
 __debug_*
 *.exe*
+config.yml
