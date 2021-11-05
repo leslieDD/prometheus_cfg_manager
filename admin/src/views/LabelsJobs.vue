@@ -556,6 +556,10 @@ export default {
       let newValues = []
       this.editIPValue.forEach(machinedID => {
         const v = this.editIPValueMap[machinedID]
+        console.log("diandian", this.editIPDataMap[machinedID], v)
+        if(!this.editIPDataMap[machinedID]) {
+          return
+        }
         let newV = {
           machines_id: machinedID,
           ipaddr: this.editIPDataMap[machinedID].ipaddr

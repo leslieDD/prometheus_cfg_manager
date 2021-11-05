@@ -9,11 +9,11 @@ logger:
   level: all
 
 mysql:
-  url: monitor:XAME6SeKtrIXhicI2zzq@tcp(127.0.0.1:3306)/pro_cfg_manager?charset=utf8&parseTime=True&loc=Local
+  url: monitor:44rZyLA=~d:in/Bp:I6D@tcp(125.77.27.12:3306)/pro_cfg_manager?charset=utf8&parseTime=True&loc=Local
 
 prometheus_cfg:
   # prometheus服务的监听地址及端口号
-  api: "127.0.0.1:9090"
+  api: "125.77.27.12:9191"
   # 只支持base auth，因为prometheus本身没有支持权限管理，
   # 有时候会为prometheus通过nginx代理，在nginx下设置访问权限，
   # 如果未设置访问权限，请忽略以下两个字段
@@ -21,4 +21,4 @@ prometheus_cfg:
   password: "password"
   # prometheus服务的主目录
   # 本服务生成的文件有文件夹都在此目录下
-  dir: D:/prometheus
+  dir: /home/diandian/temp
