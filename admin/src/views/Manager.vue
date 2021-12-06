@@ -13,21 +13,21 @@
       </div>
       <div class="do_action">
         <div style="padding-right: 15px">
-          <el-button
+          <!-- <el-button
             v-if="pushing === false"
             size="small"
             icon="el-icon-upload"
             type="primary"
             @click="onPublish()"
             >发布【file_sd_configs】</el-button
-          >
-          <el-button
+          > -->
+          <!-- <el-button
             v-if="pushing === true"
             size="small"
             icon="el-icon-loading"
             type="primary"
             >发布【file_sd_configs】</el-button
-          >
+          > -->
           <el-button size="small" type="warning" plain @click="doBatchAdd()"
             >批量添加</el-button
           >

@@ -359,3 +359,16 @@ func GetAllActiveJobs() ([]*Jobs, *BriefMessage) {
 func GetAllActiveDefJobs([]*Jobs, *BriefMessage) {
 
 }
+
+func CreateProConfig() *BriefMessage {
+
+	return Success
+}
+
+func ReloadProConfig() *BriefMessage {
+	return Success
+}
+
+func CreateAndReloadConfig() *BriefMessage {
+	return Success
+}

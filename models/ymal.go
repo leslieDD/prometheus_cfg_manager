@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"io"
 	"os"
 	"path/filepath"
 	"pro_cfg_manager/config"
@@ -102,6 +103,38 @@ func (pr *PrometheusRule) GetDate() *BriefMessage {
 	return Success
 }
 
+func (pr *PrometheusRule) EmptyData() *BriefMessage {
+	if err := filepath.Walk(config.Cfg.PrometheusCfg.RuleConf,
+		func(path string, fi os.FileInfo, err error) error {
+			if err != nil {
+				config.Log.Error(err)
+				return nil
+			}
+			if path == config.Cfg.PrometheusCfg.RuleConf {
+				return nil
+			}
+			fd, err := os.OpenFile(path, os.O_RDWR, os.ModePerm)
+			if err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if _, err := fd.Seek(4, io.SeekStart); err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			err = fd.Truncate(0)
+			if err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			// return os.RemoveAll(path)
+			return nil
+		}); err != nil {
+		config.Log.Error(err)
+	}
+	return Success
+}
+
 func (pr *PrometheusRule) Write() *BriefMessage {
 	if pr.data == nil {
 		return ErrDataIsNil
@@ -141,4 +174,8 @@ func RulePublish() *BriefMessage {
 		return bf
 	}
 	return PR.Write()
+}
+
+func EmptyRulePublish() *BriefMessage {
+	return PR.EmptyData()
 }
