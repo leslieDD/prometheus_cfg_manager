@@ -2,10 +2,63 @@
   <div class="main-board">
     <div class="person-center-btn">
       <div>
+        <el-button size="mini" type="danger" @click="goControlCenter">
+          <single-svg icon-class="wxctl" />控制中心</el-button
+        >
+      </div>
+      <div><span>&nbsp;&nbsp;</span></div>
+      <div>
         <el-button size="mini" type="warning" @click="goBackPerson">
           <single-svg icon-class="pig" />个人中心</el-button
         >
       </div>
+    </div>
+    <div>
+      <el-dialog
+        v-model="dialogVisible"
+        title="Prometheus服务控制中心"
+        width="600px"
+        :before-close="handleClose"
+      >
+        <el-descriptions
+          class="margin-top"
+          :column="1"
+          size="small"
+          border
+        >
+          <el-descriptions-item>
+            <template #label>
+              <!-- <el-icon><user /></el-icon> -->
+              <icon-svg icon-class="yezi" />
+              重新生成所有规则
+            </template>
+            <el-button size="small" type="warning" @click="create" plain>点击执行操作</el-button>
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>
+              <icon-svg icon-class="yezi" />
+              重新加载（Reload）配置
+            </template>
+            <el-button size="small" type="danger" @click="reload" plain>点击执行操作</el-button>
+          </el-descriptions-item>
+          <el-descriptions-item>
+            <template #label>
+              <icon-svg icon-class="yezi" />
+              重新生成所有规则，并重新加载（Reload）配置
+            </template>
+            <el-button size="small" type="danger" @click="createAreload" plain>点击执行操作</el-button>
+          </el-descriptions-item>
+        </el-descriptions>
+        <!-- <span>This is a message</span> -->
+        <!-- <template #footer>
+          <span class="dialog-footer">
+            <el-button @click="dialogVisible = false">Cancel</el-button>
+            <el-button type="primary" @click="dialogVisible = false"
+              >Confirm</el-button
+            >
+          </span>
+        </template> -->
+      </el-dialog>
     </div>
     <div class="base-config-menu">
       <el-tabs
@@ -133,13 +186,17 @@
 </template>
 
 <script>
+
+import {ctlCreate, ctlReloadPrometheus, ctlCreateAndReload} from '@/api/control.js'
+
 export default {
   name: "Menu",
   data () {
     return {
       activeTabName: 'ipManager',
       transitionName: 'slide-left',
-      scrollBackShow: false
+      scrollBackShow: false,
+      dialogVisible: false
     }
   },
   watch: {
@@ -193,6 +250,51 @@ export default {
     },
     goBackPerson () {
       this.$router.push({ name: 'person' })
+    },
+    goControlCenter(){
+      this.dialogVisible = true
+    },
+    handleClose(){
+      this.dialogVisible = false
+    },
+    create(){
+      ctlCreate().then(
+        r => {
+          this.$notify({
+            title: '成功',
+            message: '重新创建配置成功！',
+            type: 'success'
+          })
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
+    },
+    reload(){
+      ctlReloadPrometheus().then(
+        r => {
+          this.$notify({
+            title: '成功',
+            message: '重新加载配置成功！',
+            type: 'success'
+          })
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
+    },
+    createAreload(){
+      ctlCreateAndReload().then(
+        r => {
+          this.$notify({
+            title: '成功',
+            message: '重新创建并加载配置成功！',
+            type: 'success'
+          })
+        }
+      ).catch(
+        e => { console.log(e) }
+      )
     }
   }
 }

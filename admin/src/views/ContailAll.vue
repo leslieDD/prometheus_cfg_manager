@@ -9,7 +9,7 @@
       </div>
       <div class="do_action">
         <div style="padding-right: 15px">
-          <el-button size="small" type="warning" @click="restartServer()"
+          <!-- <el-button size="small" type="warning" @click="restartServer()"
             >让Prometheus服务重新加载配置</el-button
           >
           <el-button
@@ -27,7 +27,7 @@
             type="primary"
             @click="publishJobsRunning()"
             >发布</el-button
-          >
+          > -->
           <el-button size="small" type="success" plain @click="doAdd()"
             >添加默认组</el-button
           >

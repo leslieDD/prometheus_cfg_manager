@@ -17,17 +17,36 @@
               <el-button
                 v-if="pushing === false"
                 type="primary"
+                plain
                 icon="el-icon-upload"
                 size="mini"
                 @click="doRulesPublish"
-                >发布监控规则</el-button
+                >发布</el-button
               >
               <el-button
                 v-if="pushing === true"
                 type="primary"
+                plain
                 icon="el-icon-loading"
                 size="mini"
-                >发布监控规则</el-button
+                >发布</el-button
+              >
+              <el-button
+                v-if="pushingEmpty === false"
+                type="primary"
+                icon="el-icon-upload"
+                plain
+                size="mini"
+                @click="doEmptyRulesPublish"
+                >发布空规则</el-button
+              >
+              <el-button
+                v-if="pushingEmpty === true"
+                type="primary"
+                plain
+                icon="el-icon-loading"
+                size="mini"
+                >发布空规则</el-button
               >
             </div>
           </div>
@@ -366,6 +385,7 @@ import {
   updateTreeNode,
   removeTreeNode,
   rulesPublish,
+  emptyRulesPublish,
   disableTreeNode,
   uploadYamlFile
 } from '@/api/monitor.js'
@@ -425,6 +445,7 @@ export default {
       expandedList: [],
       currentMode: '',
       pushing: false,
+      pushingEmpty: false,
       btnTitleAppend: '',
       showEditArea: false
     }
@@ -914,6 +935,24 @@ export default {
         e => {
           console.log(e)
           this.pushing = false
+        }
+      )
+    },
+    doEmptyRulesPublish () {
+      this.pushingEmpty = true
+      emptyRulesPublish().then(
+        r => {
+          this.$notify({
+            title: '成功',
+            message: '发布空规则成功！',
+            type: 'success'
+          })
+          this.pushingEmpty = false
+        }
+      ).catch(
+        e => {
+          console.log(e)
+          this.pushingEmpty = false
         }
       )
     },

@@ -153,7 +153,7 @@ func doOptions_2() *BriefMessage {
 	ON group_machines.job_group_id=job_group.id
 	WHERE group_machines.job_group_id IS NULL `
 	jgs := []*JobIDAndMachinesID{}
-	tx := db.Table("job_machines").Raw(sql).Find(&jgs)
+	tx := db.Table("job_machines").Exec(sql).Find(&jgs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrSearchDBData
@@ -197,7 +197,12 @@ func doOptions_2() *BriefMessage {
 			JobGroupID: groupID,
 			UpdateAt:   time.Now(),
 		}
-		txCreate2 := shiwu.Table("group_machines").Create(&jgm)
+		txCreate2 := shiwu.Exec("INSERT ignore INTO `group_machines` (`job_group_id`,`machines_id`,`update_at`) VALUES (?,?,?);",
+			jgm.JobGroupID,
+			jgm.MachinesID,
+			jgm.UpdateAt,
+		)
+		// txCreate2 := shiwu.Table("group_machines").Create(&jgm)
 		if txCreate2.Error != nil {
 			config.Log.Error(txCreate2.Error)
 			db.Rollback()
@@ -252,7 +257,7 @@ func DoTmplBefore() *BriefMessage {
 			return bf
 		}
 	}
-	// 在发布JOB组时，针对有配置子组的JOB组，是否为此JOB组的未分组IP生成无标签子组
+	// 在发布JOB组时，针对有配置子组的JOB组，是否为此JOB组的未分组的IP添加进默认子组
 	r, bf = CheckByFiled("publish_at_remain_subgroup", "true")
 	if bf != Success {
 		return bf

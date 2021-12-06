@@ -33,7 +33,7 @@
       <el-descriptions-item>
         <template #label>
           <!-- <i class="el-icon-mobile-phone"></i> -->
-          2）在发布JOB组时，针对有配置子组的JOB组，是否为此JOB组的未分组IP生成无标签子组
+          2）在发布JOB组时，针对有配置子组的JOB组，是否为此JOB组的未分组的IP添加进默认子组
         </template>
         <el-tooltip
           :content="'当前:' + titles.publish_at_remain_subgroup"

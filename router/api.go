@@ -78,6 +78,7 @@ func initApiRouter() {
 	v1.PUT("/tree/update/node", updateTreeNode)
 	v1.DELETE("/tree/remove/node", deleteTreeNode)
 	v1.POST("/rules/publish", rulePublish)
+	v1.POST("/rules/empty/publish", emptyRulePublish)
 	v1.PUT("/tree/node/status", putTreeNodeStatus)
 	v1.POST("/tree/upload/file/yaml", postTreeUploadFileYaml)
 
@@ -114,6 +115,10 @@ func initApiRouter() {
 	v1.GET("/operate/log", getOperateLog)
 	v1.POST("/operate/reset/secret", preOptResetSystem)
 	v1.POST("/operate/reset/system", optResetSystem)
+
+	v1.POST("/control/create", ctlCreate)
+	v1.POST("/control/reload", ctlReload)
+	v1.POST("/control/create/and/reload", ctlCreateAReload)
 }
 
 func getTest(c *gin.Context) {
@@ -1193,6 +1198,18 @@ func rulePublish(c *gin.Context) {
 	resComm(c, bf, nil)
 }
 
+func emptyRulePublish(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "noticeManager", "", "publish_empty_rule")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	bf := models.EmptyRulePublish()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish empty rule", models.IsPublish, bf)
+	resComm(c, bf, nil)
+}
+
 func putTreeNodeStatus(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "noticeManager", "", "dis.enable")
@@ -1676,5 +1693,47 @@ func optResetSystem(c *gin.Context) {
 	}
 	bf := models.OptResetSystem(user, &code)
 	models.OO.FlagLog(user.Username, c.Request.RemoteAddr, "reset prometheus config data", models.IsReset, bf)
+	resComm(c, bf, nil)
+}
+
+func ctlCreate(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "control", "", "create")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	bf := models.AllowOneObj.DoPublishJobs()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create prometheus config", models.IsPublish, bf)
+	resComm(c, bf, nil)
+}
+
+func ctlReload(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "control", "", "reload")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	bf := models.Reload()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config", models.IsPublish, bf)
+	resComm(c, bf, nil)
+}
+
+func ctlCreateAReload(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "control", "", "createAndreload")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	bf := models.AllowOneObj.DoPublishJobs()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create prometheus config", models.IsPublish, bf)
+	if bf != models.Success {
+		resComm(c, bf, nil)
+		return
+	}
+	bf = models.Reload()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config", models.IsPublish, bf)
 	resComm(c, bf, nil)
 }
