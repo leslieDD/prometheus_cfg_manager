@@ -508,7 +508,8 @@ func NewOnlyAllowOne() *onlyAllowOne {
 }
 
 type Notice struct {
-	Result chan *BriefMessage
+	Result     chan *BriefMessage
+	NeedReload bool
 }
 
 type onlyAllowOne struct {
@@ -516,9 +517,10 @@ type onlyAllowOne struct {
 	notice chan *Notice
 }
 
-func (o *onlyAllowOne) DoPublishJobs() *BriefMessage {
+func (o *onlyAllowOne) DoPublishJobs(needReload bool) *BriefMessage {
 	n := &Notice{
-		Result: make(chan *BriefMessage),
+		Result:     make(chan *BriefMessage),
+		NeedReload: needReload,
 	}
 	select {
 	case o.notice <- n:
@@ -532,13 +534,13 @@ func (o *onlyAllowOne) doWork() {
 	for {
 		select {
 		case mess := <-o.notice:
-			mess.Result <- DoPublishJobs()
+			mess.Result <- DoPublishJobs(mess.NeedReload)
 			close(mess.Result)
 		}
 	}
 }
 
-func DoPublishJobs() *BriefMessage {
+func DoPublishJobs(needReload bool) *BriefMessage {
 	if bf := DoTmplBefore(); bf != Success {
 		return bf
 	}
@@ -549,9 +551,9 @@ func DoPublishJobs() *BriefMessage {
 	if bf := TmplObj.doWrite(b); bf != Success {
 		return bf
 	}
-	// if bf := DoTmplAfter(); bf != Success {
-	// 	return bf
-	// }
+	if bf := DoTmplAfter(needReload); bf != Success {
+		return bf
+	}
 	return Success
 }
 
