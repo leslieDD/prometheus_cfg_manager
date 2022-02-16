@@ -71,20 +71,20 @@ export function enabledJob (jInfo) {
   })
 }
 
-export function updateIPForJob (uInfo, jobID) {
+export function updateIPForJob (uInfo) {
   return request({
     url: '/v1/jobs/update-ips',
     method: 'post',
-    data: uInfo,
-    params: { id: jobID }
+    data: uInfo
   })
 }
 
-export function updateIPV2ForJob (uInfo) {
+export function updateIPV2ForJob (uInfo, jobID) {
   return request({
     url: '/v1/jobs/update-ips/v2',
     method: 'post',
-    data: uInfo
+    data: uInfo,
+    params: { id: jobID }
   })
 }
 
