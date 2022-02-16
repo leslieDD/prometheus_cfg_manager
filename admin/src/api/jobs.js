@@ -20,7 +20,7 @@ export function getJob (jobID) {
   return request({
     url: '/v1/job',
     method: 'get',
-    params: {id: jobID}
+    params: { id: jobID }
   })
 }
 
@@ -44,7 +44,7 @@ export function deleteJob (jobID) {
   return request({
     url: '/v1/job',
     method: 'delete',
-    params: {id: jobID}
+    params: { id: jobID }
   })
 }
 
@@ -71,9 +71,18 @@ export function enabledJob (jInfo) {
   })
 }
 
-export function updateIPForJob (uInfo) {
+export function updateIPForJob (uInfo, jobID) {
   return request({
     url: '/v1/jobs/update-ips',
+    method: 'post',
+    data: uInfo,
+    params: { id: jobID }
+  })
+}
+
+export function updateIPV2ForJob (uInfo) {
+  return request({
+    url: '/v1/jobs/update-ips/v2',
     method: 'post',
     data: uInfo
   })

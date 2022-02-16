@@ -549,9 +549,9 @@ func DoPublishJobs() *BriefMessage {
 	if bf := TmplObj.doWrite(b); bf != Success {
 		return bf
 	}
-	if bf := DoTmplAfter(); bf != Success {
-		return bf
-	}
+	// if bf := DoTmplAfter(); bf != Success {
+	// 	return bf
+	// }
 	return Success
 }
 
@@ -645,6 +645,31 @@ func PutJobDefaultStatus(user *UserSessionInfo, edi *EnabledInfo) *BriefMessage 
 type UpdateIPForJob struct {
 	JobID       int   `json:"job_id" gorm:"column:job_id"`
 	MachinesIDs []int `json:"machines_ids" gorm:"column:machines_ids"`
+}
+
+func ChangeIPAddrUseID(ipContents string) (*UpdateIPForJob, *BriefMessage) {
+	ipAddrList := strings.Split(strings.TrimSpace(ipContents), ";")
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	uif := UpdateIPForJob{}
+	for _, ipAddr := range ipAddrList {
+		config.Log.Error(ipAddr)
+		m := Machine{}
+		tx := db.Table("machines").Where("ipaddr", ipAddr).Find(&m)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return nil, ErrSearchDBData
+		}
+		if m.IpAddr != ipAddr {
+			config.Log.Error("ip no found: " + ipAddr)
+			continue
+		}
+		uif.MachinesIDs = append(uif.MachinesIDs, m.ID)
+	}
+	return &uif, Success
 }
 
 func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessage {

@@ -114,7 +114,7 @@
         show-overflow-tooltip
       >
       </el-table-column>
-      <el-table-column label="排序" width="75px" prop="display_order">
+      <!-- <el-table-column label="排序" width="75px" prop="display_order">
       </el-table-column>
       <el-table-column label="调整排序" width="70px">
         <template v-slot="scope">
@@ -135,7 +135,7 @@
             ></el-button>
           </div>
         </template>
-      </el-table-column>
+      </el-table-column> -->
       <el-table-column
         label="最后更新账号"
         prop="update_by"
@@ -146,7 +146,7 @@
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="270px">
+      <el-table-column label="操作" align="center" width="350px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
@@ -170,6 +170,11 @@
                 @click="invocate(scope)"
                 plain
                 >启用</el-button
+              >
+            </div>
+            <div>
+              <el-button size="mini" type="primary" @click="doEditPool(scope)" plain
+                >编辑IP列表</el-button
               >
             </div>
             <div>
@@ -326,6 +331,40 @@
         >
       </div>
     </el-dialog>
+    <el-dialog
+      :title="'编辑IP列表 - ' + editIPListDialog"
+      v-model="editIPListVisible"
+      width="700px"
+      modal
+      :before-close="clearIPListClose"
+      custom-class="editIPListDialog"
+    >
+    <span><el-tag type="warning">IP以半角分号（;）隔开，只会添加在“IP管理”中已经有的IP地址</el-tag></span>
+      <div>
+        <el-input
+          type="textarea"
+          :autosize="{ minRows: 20, maxRows: 20}"
+          placeholder="请输入内容"
+          v-model="ipListConetnt">
+        </el-input>
+      </div>
+      <div class="ip-list-push-box">
+        <el-button
+          class="ip-list-close-btn2"
+          type="info"
+          size="small"
+          @click="clearIPListClose"
+          >关闭</el-button
+        >
+        <el-button
+          class="ip-list-push-btn2"
+          type="warning"
+          size="small"
+          @click="updateJobIPListV2"
+          >提交</el-button
+        >
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -339,6 +378,7 @@ import {
   publishJobs,
   enabledJob,
   updateIPForJob,
+  updateIPV2ForJob,
   getAllReLabels
 } from '@/api/jobs.js'
 import { allIPList } from '@/api/machines.js'
@@ -383,8 +423,11 @@ export default {
       allIPDataMap: {},
       currentJobId: 0,
       editIPVisible: false,
+      editIPListVisible: false,
       transferChanged: false,
       editIPDialog: '未设置',
+      editIPListDialog: '未设置',
+      ipListConetnt: '',
       publishMode: false,
       pageshow: true,
       rules: {
@@ -736,6 +779,23 @@ export default {
       }
       this.editIPVisible = false
     },
+    clearIPListClose(scope){
+      this.editIPListVisible = false
+    },
+    doEditPool(scope){
+      getJobMachines(scope.row.id).then(r => {
+        let currentIPValue = []
+        r.data.forEach(item => {
+          currentIPValue.push(item.ipaddr)
+        })
+        this.ipListConetnt = currentIPValue.join(';')
+        this.currentJobId = scope.row.id
+        this.editIPListDialog = scope.row.name
+        this.editIPListVisible = true
+      }).catch(
+        e => console.log(e)
+      )
+    },
     doPool (scope) {
       getJobMachines(scope.row.id).then(r => {
         let currentIPValue = []
@@ -773,6 +833,16 @@ export default {
         }
       })
       updateIPForJob(clearInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '整理成功！',
+          type: 'success'
+        })
+        this.doGetJobs()
+      }).catch(e => console.log(e))
+    },
+    updateJobIPListV2(){
+      updateIPV2ForJob(this.ipListConetnt, this.currentJobId).then(r => {
         this.$notify({
           title: '成功',
           message: '整理成功！',
@@ -888,9 +958,20 @@ el-tabs {
 .ip-list-close-btn {
   margin-right: 8px;
 }
+.ip-list-push-btn2 {
+  margin-top: 7px;
+  margin-right: 26px;
+}
+.ip-list-close-btn2 {
+  margin-top: 7px;
+  margin-right: 8px;
+}
 .form-inline-label {
   display: flex;
   flex-direction: row;
   margin-left: 0px;
+}
+:deep() .editIPListDialog > div.el-dialog__body {
+  padding-top: 6px;
 }
 </style>
