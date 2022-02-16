@@ -21,4 +21,4 @@ prometheus_cfg:
   password: "password"
   # prometheus服务的主目录
   # 本服务生成的文件有文件夹都在此目录下
-  dir: /home/diandian/temp/prometheus
+  dir: D:\diandian\config

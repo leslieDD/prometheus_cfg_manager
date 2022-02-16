@@ -1,6 +1,7 @@
 package router
 
 import (
+	"io"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/models"
 	"strconv"
@@ -23,6 +24,7 @@ func initApiRouter() {
 	v1.POST("/jobs/publish", publishJobs)
 	v1.PUT("/jobs/status", putJobsStatus)
 	v1.POST("/jobs/update-ips", postUpdateJobIPs)
+	v1.POST("/jobs/update-ips/v2", postUpdateJobIPsV2)
 
 	v1.GET("/jobs/default/split", getDefJobsSplit)
 	v1.POST("/job/default", postDefJob)
@@ -738,6 +740,47 @@ func postUpdateJobIPs(c *gin.Context) {
 	resComm(c, bf, nil)
 }
 
+func postUpdateJobIPsV2(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "ip_pool")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	jobID := c.Query("id")
+	if jobID == "" {
+		config.Log.Error("job id empty")
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	jobIDInt, err := strconv.ParseInt(jobID, 10, 0)
+	if err != nil {
+		config.Log.Error("job id need number")
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	// 把IP替换成对应的ID编号
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	cInfo, bf := models.ChangeIPAddrUseID(string(body))
+	if bf != models.Success {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, models.ErrPostData)
+		resComm(c, bf, nil)
+		return
+	}
+	cInfo.JobID = int(jobIDInt)
+	bf = models.PostUpdateJobIPs(user, cInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
 func getMachine(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "ipManager", "", "search")
@@ -1086,8 +1129,8 @@ func getDefLabels(c *gin.Context) {
 	// user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	// pass := models.CheckPriv(user, "baseConfig", "baseLabels", "search")
 	// if pass != models.Success {
-	// 	resComm(c, pass, nil)
-	// 	return
+	//     resComm(c, pass, nil)
+	//     return
 	// }
 	data, bf := models.GetDefLabels()
 	resComm(c, bf, data)
@@ -1097,8 +1140,8 @@ func getDefEnableLabels(c *gin.Context) {
 	// user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	// pass := models.CheckPriv(user, "baseConfig", "baseLabels", "search")
 	// if pass != models.Success {
-	// 	resComm(c, pass, nil)
-	// 	return
+	//     resComm(c, pass, nil)
+	//     return
 	// }
 	data, bf := models.GetDefEnableLabels()
 	resComm(c, bf, data)

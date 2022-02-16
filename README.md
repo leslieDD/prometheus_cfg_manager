@@ -6,6 +6,8 @@
 
 ##### 安装
 
+> 手动编译需要golang和nodejs的环境的支持
+
 * 在本项目库中有一SQL文件：`prometheus_cfg_manager.sql`，导入到`mysql`中即可
 * 配置本项目库中`config.yml`配置文件，根据里面的提示进行配置
 * 运行`./install.sh`脚本，即可安装完成
