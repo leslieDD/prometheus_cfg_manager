@@ -221,15 +221,15 @@ func (p *PublishResolve) Do(alreadyReload bool) *BriefMessage {
 	if bf != Success {
 		return bf
 	}
-	if !alreadyReload {
-		r, bf := CheckByFiled("publish_ips_also_reload_srv", "true")
-		if bf != Success {
-			return bf
-		}
-		if r {
-			return Reload()
-		}
-	}
+	// if !alreadyReload {
+	// 	r, bf := CheckByFiled("publish_ips_also_reload_srv", "true")
+	// 	if bf != Success {
+	// 		return bf
+	// 	}
+	// 	if r {
+	// 		return Reload()
+	// 	}
+	// }
 	return Success
 }
 

@@ -270,23 +270,26 @@ func DoTmplBefore() *BriefMessage {
 	return Success
 }
 
-func DoTmplAfter() *BriefMessage {
-	var needReload bool
-	r, bf := CheckByFiled("publish_jobs_also_reload_srv", "true")
-	if bf != Success {
+func DoTmplAfter(needReload bool) *BriefMessage {
+	// var needReload bool
+	// r, bf := CheckByFiled("publish_jobs_also_reload_srv", "true")
+	// if bf != Success {
+	// 	return bf
+	// }
+	// if r {
+	// needReload = true
+	// }
+	// r, bf = CheckByFiled("publish_jobs_also_ips", "true")
+	// if bf != Success {
+	// 	return bf
+	// }
+	// if r {
+	// 	if bf := publish.Do(needReload); bf != Success {
+	// 		return bf
+	// 	}
+	// }
+	if bf := publish.Do(needReload); bf != Success {
 		return bf
-	}
-	if r {
-		needReload = true
-	}
-	r, bf = CheckByFiled("publish_jobs_also_ips", "true")
-	if bf != Success {
-		return bf
-	}
-	if r {
-		if bf := publish.Do(needReload); bf != Success {
-			return bf
-		}
 	}
 	if needReload {
 		if bf := Reload(); bf != Success {
