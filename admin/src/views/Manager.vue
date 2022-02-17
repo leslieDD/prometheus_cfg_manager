@@ -113,7 +113,8 @@
       >
         <template v-slot="scope">
           <!-- <span>{{scope.row.position.country}}/{{scope.row.position.province}}/{{scope.row.position.city}}/{{scope.row.position.county}}/{{scope.row.position.isp}}</span> -->
-          <span>{{scope.row.position.country}}{{scope.row.position.province}}{{scope.row.position.city}}{{scope.row.position.county}}{{scope.row.position.isp}}</span>
+          <span v-if="scope.row.position.isp">{{scope.row.position.country}}{{scope.row.position.province}}{{scope.row.position.city}}{{scope.row.position.county}}-{{scope.row.position.isp}}</span>
+          <span v-else>{{scope.row.position.country}}{{scope.row.position.province}}{{scope.row.position.city}}{{scope.row.position.county}}{{scope.row.position.isp}}</span>
           <!-- <span v-if="scope.row.position.routes">{{scope.row.position.routes}}</span>
           <span v-else-if="scope.row.position.country">{{scope.row.position.country}}</span>
           <span v-else>未指定</span> -->

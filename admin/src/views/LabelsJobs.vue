@@ -62,7 +62,8 @@
               :key="index"
               :label="index + 1"
               >{{ item.ip }} <el-tag size="mini">
-                <span>{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}{{item.position.isp}}</span>
+                <span v-if="item.position.isp">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}-{{item.position.isp}}</span>
+                <span v-else>{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}{{item.position.isp}}</span>
                 <!-- <span v-if="item.position.routes">{{item.position.routes}}</span>
                 <span v-else-if="item.position.country">{{item.position.country}}</span>
                 <span v-else>未指定</span> -->
