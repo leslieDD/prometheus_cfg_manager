@@ -237,15 +237,25 @@ func (i *IPPosition) String() string {
 }
 
 func GetIPPosition(ipAddr string) *IPPosition {
-	postData := []byte(fmt.Sprintf("ipaddr=%s&submit=cdn_srv", ipAddr))
-	resp, err := utils.PostRespHeader(config.Cfg.Position, postData)
+	postData := []byte(fmt.Sprintf("ipaddr=%s&submit=xxxx", ipAddr))
+	resp, err := utils.PostForm(config.Cfg.Position, postData)
 	if err != nil {
 		config.Log.Error(err)
 		return nil
 	}
+	if len(resp) == 0 {
+		return nil
+	}
+	content := string(resp)
 	ipp := IPPosition{}
-	config.Log.Print(string(resp.Header.Get("X-GeoIP")))
-	if err := json.Unmarshal([]byte(resp.Header.Get("X-GeoIP")), &ipp); err != nil {
+	if !strings.Contains(content, "<html>") {
+		config.Log.Error("返回的数据可能不正确，内容中没有包括<html>")
+		return nil
+	}
+	jsonData := strings.Split(content, "<html")
+	// config.Log.Print(string(resp.Header.Get("X-GeoIP")))
+	config.Log.Print(jsonData[0])
+	if err := json.Unmarshal([]byte(jsonData[0]), &ipp); err != nil {
 		config.Log.Error(err)
 		return nil
 	}

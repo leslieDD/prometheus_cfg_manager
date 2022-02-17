@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"fmt"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
@@ -226,11 +227,18 @@ func ClearGroupIP(gID int) *BriefMessage {
 }
 
 type JobMachine struct {
-	ID     int    `json:"id" gorm:"column:id"`
-	IPAddr string `json:"ipaddr" gorm:"column:ipaddr"`
+	ID       int    `json:"id" gorm:"column:id"`
+	Position string `json:"position" gorm:"position"`
+	IPAddr   string `json:"ipaddr" gorm:"column:ipaddr"`
 }
 
-func GetJobMachines(jID int64) ([]*JobMachine, *BriefMessage) {
+type JobMachineSend struct {
+	ID       int         `json:"id" gorm:"column:id"`
+	Position *IPPosition `json:"position" gorm:"position"`
+	IPAddr   string      `json:"ipaddr" gorm:"column:ipaddr"`
+}
+
+func GetJobMachines(jID int64) ([]*JobMachineSend, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -238,15 +246,28 @@ func GetJobMachines(jID int64) ([]*JobMachine, *BriefMessage) {
 	}
 	jms := []*JobMachine{}
 	tx := db.Table("job_machines").
-		Select("id, ipaddr").
+		Select("id, ipaddr, machines.position").
 		Joins("LEFT JOIN machines ON job_machines.machine_id=machines.id").
 		Where("job_machines.job_id=?", jID).
 		Find(&jms)
+	jmsSend := []*JobMachineSend{}
+	for _, j := range jms {
+		ppi := &IPPosition{}
+		if err := json.Unmarshal([]byte(j.Position), ppi); err != nil {
+			config.Log.Error(err)
+			ppi = nil
+		}
+		jmsSend = append(jmsSend, &JobMachineSend{
+			ID:       j.ID,
+			IPAddr:   j.IPAddr,
+			Position: ppi,
+		})
+	}
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
-	return jms, Success
+	return jmsSend, Success
 }
 
 type JobGroupMachine struct {
@@ -466,21 +487,45 @@ type Label2 struct {
 	Value string `json:"value" gorm:"column:value"`
 }
 
+type IPAndPosition struct {
+	IP       string `json:"ipaddr" gorm:"column:ipaddr"`
+	Position string `json:"position" gorm:"column:position"`
+}
+
+type IPAndPositionSend struct {
+	IP       string      `json:"ip" gorm:"column:ip"`
+	Position *IPPosition `json:"position" gorm:"column:position"`
+}
+
 func GetAllMachinesLabels(jg *JobGroupID) (interface{}, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return nil, ErrDataBase
 	}
-	ips := []string{}
+	ips := []IPAndPosition{}
 	tx := db.Table("group_machines").
-		Select("ipaddr").
+		Select("machines.ipaddr, machines.position").
 		Joins("LEFT JOIN machines ON group_machines.machines_id=machines.id ").
 		Where("job_group_id=? AND ipaddr IS NOT NULL AND ipaddr<>''", jg.GroupID).
 		Find(&ips)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
+	}
+	pps := []*IPAndPositionSend{}
+	for _, i := range ips {
+		if i.Position != "" {
+			ppi := &IPPosition{}
+			if err := json.Unmarshal([]byte(i.Position), ppi); err != nil {
+				config.Log.Error(err)
+				ppi = nil
+			}
+			pps = append(pps, &IPAndPositionSend{
+				IP:       i.IP,
+				Position: ppi,
+			})
+		}
 	}
 	labels := []Label2{}
 	tx = db.Table("group_labels").
@@ -492,7 +537,7 @@ func GetAllMachinesLabels(jg *JobGroupID) (interface{}, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	data := map[string]interface{}{
-		"ips":    ips,
+		"ips":    pps,
 		"labels": labels,
 	}
 	return &data, Success

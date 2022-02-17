@@ -112,7 +112,10 @@
         header-align="center"
       >
         <template v-slot="scope">
-          <span>{{scope.row.position.country}}/{{scope.row.position.province}}/{{scope.row.position.city}}/{{scope.row.position.county}}/{{scope.row.position.isp}}</span>
+          <!-- <span>{{scope.row.position.country}}/{{scope.row.position.province}}/{{scope.row.position.city}}/{{scope.row.position.county}}/{{scope.row.position.isp}}</span> -->
+          <span v-if="scope.row.position.routes">{{scope.row.position.routes}}</span>
+          <span v-else-if="scope.row.position.country">{{scope.row.position.country}}</span>
+          <span v-else>未指定</span>
         </template>
       </el-table-column>
       <el-table-column
@@ -120,7 +123,7 @@
         prop="jobs_id"
         align="center"
         header-align="center"
-        width="150px"
+        width="180px"
       >
         <template v-slot="scope">
           <el-select
@@ -146,7 +149,7 @@
       </el-table-column>
       <el-table-column
         label="状态"
-        width="100px"
+        width="140px"
         align="center"
         header-align="center"
       >

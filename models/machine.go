@@ -266,6 +266,10 @@ func PostMachine(user *UserSessionInfo, m *Machine) *BriefMessage {
 	m.UpdateAt = time.Now()
 	m.Enabled = true
 	m.UpdateBy = user.Username
+	position := GetIPPosition(m.IpAddr)
+	if position != nil {
+		m.Position = position.String()
+	}
 	err := db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Table("machines").Create(m).Error
 		if err != nil {
@@ -444,6 +448,10 @@ func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Upl
 				Enabled:  true,
 				UpdateAt: time.Now(),
 				UpdateBy: user.Username,
+			}
+			position := GetIPPosition(ipInfo.IpAddr)
+			if position != nil {
+				m.Position = position.String()
 			}
 			if err := tx.Table("machines").Create(&m).Error; err != nil {
 				ipInfo.ImportInPool = false

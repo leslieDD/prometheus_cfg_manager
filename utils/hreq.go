@@ -75,9 +75,9 @@ func Post(reqURL string, postData []byte) ([]byte, error) {
 }
 
 // Post Post
-func PostRespHeader(reqURL string, postData []byte) (*http.Response, error) {
+func PostForm(reqURL string, postData []byte) ([]byte, error) {
 	resp, err := http.Post(reqURL,
-		"application/json",
+		"application/x-www-form-urlencoded",
 		bytes.NewReader(postData))
 	if err != nil {
 		return nil, err
@@ -89,12 +89,10 @@ func PostRespHeader(reqURL string, postData []byte) (*http.Response, error) {
 		return nil, fmt.Errorf("resp status: %d", resp.StatusCode)
 	}
 
-	return resp, nil
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
 
-	// body, err := ioutil.ReadAll(resp.Body)
-	// if err != nil {
-	// 	return nil, err
-	// }
-
-	// return body, nil
+	return body, nil
 }

@@ -58,10 +58,14 @@
         <template #default="props">
           <el-descriptions title="IP列表" size="mini" :column="3" border>
             <el-descriptions-item
-              v-for="(ipaddr, index) in ipsAndLabels[props.row.id].ips"
+              v-for="(item, index) in ipsAndLabels[props.row.id].ips"
               :key="index"
               :label="index + 1"
-              >{{ ipaddr }}</el-descriptions-item
+              >{{ item.ip }} <el-tag size="mini">
+                <span v-if="item.position.routes">{{item.position.routes}}</span>
+                <span v-else-if="item.position.country">{{item.position.country}}</span>
+                <span v-else>未指定</span>
+                </el-tag></el-descriptions-item
             >
           </el-descriptions>
           <el-descriptions title="标签列表" size="mini" :column="3" border>
