@@ -36,6 +36,7 @@ type Config struct {
 	Logger        logger        `json:"logger" yaml:"logger"`
 	Mysql         mysql         `json:"mysql" yaml:"mysql"`
 	PrometheusCfg prometheusCfg `json:"prometheus_cfg" yaml:"prometheus_cfg"`
+	Position      string        `json:"position" yaml:"position"`
 	RuntimeParam  runtimeParam  `json:"-" yaml:"-"`
 }
 

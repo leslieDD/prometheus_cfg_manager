@@ -55,6 +55,7 @@ func initApiRouter() {
 	v1.PUT("/machine", putMachine)
 	v1.DELETE("/machine", deleteMachine)
 	v1.PUT("/machine/status", putMachineStatus)
+	v1.PUT("/machines/position", updatePosition)
 	v1.GET("/machines/all", getAllMachines)
 	v1.DELETE("/machines/selection", batchDeleteMachine)
 	v1.POST("/upload/machines", uploadMachines)
@@ -900,6 +901,18 @@ func putMachineStatus(c *gin.Context) {
 	}
 	bf := models.PutMachineStatus(user, &ed)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update ip status", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func updatePosition(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "position")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	bf := models.UpdateIPPosition(user)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update ip position", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 

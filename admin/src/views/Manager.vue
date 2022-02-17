@@ -13,26 +13,28 @@
       </div>
       <div class="do_action">
         <div style="padding-right: 15px">
-          <!-- <el-button
-            v-if="pushing === false"
-            size="small"
-            icon="el-icon-upload"
-            type="primary"
-            @click="onPublish()"
-            >发布【file_sd_configs】</el-button
-          > -->
-          <!-- <el-button
-            v-if="pushing === true"
-            size="small"
-            icon="el-icon-loading"
-            type="primary"
-            >发布【file_sd_configs】</el-button
-          > -->
           <el-button size="small" type="warning" plain @click="doBatchAdd()"
             >批量添加</el-button
           >
           <el-button size="small" type="success" plain @click="doAdd()"
             >添加IP</el-button
+          >
+          <el-button
+            v-if="pushing === false"
+            size="small"
+            icon="el-icon-upload"
+            type="primary"
+            plain
+            @click="onUpdatePosition()"
+            >更新所有IP位置</el-button
+          >
+          <el-button
+            v-if="pushing === true"
+            size="small"
+            icon="el-icon-loading"
+            type="primary"
+            plain
+            >更新所有IP位置</el-button
           >
         </div>
         <div>
@@ -104,11 +106,21 @@
       >
       </el-table-column>
       <el-table-column
+        label="位置"
+        prop="ipaddr"
+        align="center"
+        header-align="center"
+      >
+        <template v-slot="scope">
+          <span>{{scope.row.position.country}}/{{scope.row.position.province}}/{{scope.row.position.city}}/{{scope.row.position.county}}/{{scope.row.position.isp}}</span>
+        </template>
+      </el-table-column>
+      <el-table-column
         label="分组选项"
         prop="jobs_id"
         align="center"
         header-align="center"
-        width="230px"
+        width="150px"
       >
         <template v-slot="scope">
           <el-select
@@ -134,7 +146,7 @@
       </el-table-column>
       <el-table-column
         label="状态"
-        width="150px"
+        width="100px"
         align="center"
         header-align="center"
       >
@@ -173,7 +185,7 @@
               type="text"
               size="mini"
               @click="displayIPStatusDialog(row)"
-              >查看状态详情</el-button
+              >状态详情</el-button
             >
             <el-button
               v-else
@@ -181,7 +193,7 @@
               size="mini"
               icon="el-icon-sunny"
               @click="displayIPStatusDialog(row)"
-              >查看状态详情</el-button
+              >状态详情</el-button
             >
           </el-tooltip>
         </template>
@@ -191,12 +203,14 @@
         prop="update_by"
         align="center"
         header-align="center"
+        width="100px"
       ></el-table-column>
       <el-table-column
         label="最后更新时间"
         prop="update_at"
         align="center"
         header-align="center"
+        width="140px"
       >
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
@@ -375,7 +389,8 @@ import {
   deleteMachine,
   putMachine,
   enabledMachine,
-  batchDeleteMachine
+  batchDeleteMachine,
+  updatePosition,
 } from '@/api/machines'
 import { publish } from '@/api/publish'
 
@@ -662,6 +677,16 @@ export default {
     onSearch () {
       this.doGetMechines()
     },
+    onUpdatePosition(){
+      this.pushing = true
+      updatePosition().then(r=>{
+        this.doGetMechines()
+        this.pushing = false
+      }).catch(e=>{
+        console.log(e)
+        this.pushing = false
+      })
+    },
     onPublish () {
       this.pushing = true
       publish().then(
@@ -852,7 +877,7 @@ el-dialog {
 .borderNone :deep() .el-input__inner {
   border: none;
   background: transparent;
-  width: 225px;
+  width: 160px;
 }
 .dialog-ip-status :deep() .el-dialog__body {
   padding-top: 5px;

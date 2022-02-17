@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"pro_cfg_manager/config"
+	"pro_cfg_manager/utils"
 	"strconv"
 	"strings"
 
@@ -187,4 +188,66 @@ func ConvertOnlyIdToIntSlice(oi []OnlyID) []int {
 		s = append(s, o.ID)
 	}
 	return s
+}
+
+// {
+// 	"country": "中国",
+// 	"province": "福建省",
+// 	"city": "福州市",
+// 	"county": "仓山区",
+// 	"isp": "中国电信",
+// 	"country_code": "CN",
+// 	"country_en": "China",
+// 	"province_en": "Fujian",
+// 	"city_en": "Fuzhou",
+// 	"longitude": "119.320988",
+// 	"latitude": "26.038912",
+// 	"isp_code": "100017",
+// 	"routes": "中国电信",
+// 	"province_code": "350000",
+// 	"city_code": "350100",
+// 	"county_code": "350104"
+// }
+
+type IPPosition struct {
+	Country      string `json:"country"`
+	Province     string `json:"province"`
+	City         string `json:"city"`
+	County       string `json:"county"`
+	ISP          string `json:"isp"`
+	CountryCode  string `json:"country_code"`
+	CountryEN    string `json:"country_en"`
+	CityEN       string `json:"city_en"`
+	Longitude    string `json:"longitude"`
+	Latitude     string `json:"latitude"`
+	ISPCode      string `json:"isp_code"`
+	Routes       string `json:"routes"`
+	ProvinceCode string `json:"province_code"`
+	CityCode     string `json:"city_code"`
+	CountyCode   string `json:"county_code"`
+}
+
+func (i *IPPosition) String() string {
+	c, err := json.Marshal(i)
+	if err != nil {
+		config.Log.Error(err)
+		return ""
+	}
+	return string(c)
+}
+
+func GetIPPosition(ipAddr string) *IPPosition {
+	postData := []byte(fmt.Sprintf("ipaddr=%s&submit=cdn_srv", ipAddr))
+	resp, err := utils.PostRespHeader(config.Cfg.Position, postData)
+	if err != nil {
+		config.Log.Error(err)
+		return nil
+	}
+	ipp := IPPosition{}
+	config.Log.Print(string(resp.Header.Get("X-GeoIP")))
+	if err := json.Unmarshal([]byte(resp.Header.Get("X-GeoIP")), &ipp); err != nil {
+		config.Log.Error(err)
+		return nil
+	}
+	return &ipp
 }

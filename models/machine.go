@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"net"
@@ -18,6 +19,7 @@ type Machine struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	IpAddr   string    `json:"ipaddr" gorm:"column:ipaddr"`
 	JobsID   []int     `json:"jobs_id" gorm:"-"`
+	Position string    `json:"position" gorm:"position"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
@@ -32,6 +34,7 @@ type ListMachine struct {
 	ID        int       `json:"id" gorm:"column:id"`
 	Name      string    `json:"name" gorm:"column:name"`
 	IpAddr    string    `json:"ipaddr" gorm:"column:ipaddr"`
+	Position  string    `json:"position" gorm:"position"`
 	JobsIdStr string    `json:"jobs_id_str" gorm:"jobs_id_str"`
 	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
 	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
@@ -49,6 +52,7 @@ type ListMachineMerge struct {
 	Name       string       `json:"name" gorm:"column:name"`
 	IpAddr     string       `json:"ipaddr" gorm:"column:ipaddr"`
 	JobsId     []int        `json:"jobs_id" gorm:"jobs_id"`
+	Position   *IPPosition  `json:"position" gorm:"position"`
 	UpdateAt   time.Time    `json:"update_at" gorm:"column:update_at"`
 	UpdateBy   string       `json:"update_by" gorm:"column:update_by"`
 	Enabled    bool         `json:"enabled" gorm:"column:enabled"`
@@ -168,10 +172,18 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		if err != nil {
 			return nil, ErrConvertDataType
 		}
+		ppi := &IPPosition{}
+		if l.Position != "" {
+			if err := json.Unmarshal([]byte(l.Position), ppi); err != nil {
+				config.Log.Error(err)
+				ppi = nil
+			}
+		}
 		listsSend = append(listsSend, &ListMachineMerge{
 			ID:         l.ID,
 			Name:       l.Name,
 			IpAddr:     l.IpAddr,
+			Position:   ppi,
 			UpdateAt:   l.UpdateAt,
 			Enabled:    l.Enabled,
 			JobsId:     ints,
@@ -474,4 +486,33 @@ func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Upl
 	})
 	uploadInfo.TongJi.NoAction = uploadInfo.TongJi.Total - (uploadInfo.TongJi.Success + uploadInfo.TongJi.Fail)
 	return uploadInfo, Success
+}
+
+func UpdateIPPosition(user *UserSessionInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	machines := []*Machine{}
+	tx := db.Table("machines").Find(&machines)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	for _, m := range machines {
+		ipp := GetIPPosition(m.IpAddr)
+		if ipp == nil {
+			continue
+		}
+		tx2 := db.Table("machines").Where("id", m.ID).
+			Update("position", ipp.String()).
+			Update("update_at", time.Now()).
+			Update("update_by", user.Username)
+		if tx2.Error != nil {
+			config.Log.Error(tx2.Error)
+			continue
+		}
+	}
+	return Success
 }

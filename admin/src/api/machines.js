@@ -55,10 +55,17 @@ export function allIPList () {
   })
 }
 
-export function batchDeleteMachine(ids){
+export function batchDeleteMachine (ids) {
   return request({
     url: '/v1/machines/selection',
     method: 'delete',
     data: ids
+  })
+}
+
+export function updatePosition () {
+  return request({
+    url: '/v1/machines/position',
+    method: 'put'
   })
 }

@@ -73,3 +73,28 @@ func Post(reqURL string, postData []byte) ([]byte, error) {
 
 	return body, nil
 }
+
+// Post Post
+func PostRespHeader(reqURL string, postData []byte) (*http.Response, error) {
+	resp, err := http.Post(reqURL,
+		"application/json",
+		bytes.NewReader(postData))
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("resp status: %d", resp.StatusCode)
+	}
+
+	return resp, nil
+
+	// body, err := ioutil.ReadAll(resp.Body)
+	// if err != nil {
+	// 	return nil, err
+	// }
+
+	// return body, nil
+}
