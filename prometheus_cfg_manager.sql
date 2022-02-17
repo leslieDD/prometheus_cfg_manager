@@ -12,20 +12,66 @@
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 /*!40111 SET @OLD_SQL_NOTES=@@SQL_NOTES, SQL_NOTES=0 */;
 
+
+-- 导出 pro_cfg_manager 的数据库结构
+CREATE DATABASE IF NOT EXISTS `pro_cfg_manager` /*!40100 DEFAULT CHARACTER SET utf8mb3 */;
+USE `pro_cfg_manager`;
+
+-- 导出  表 pro_cfg_manager.annotations 结构
+CREATE TABLE IF NOT EXISTS `annotations` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `monitor_rules_id` int(11) NOT NULL,
+  `key` varchar(500) NOT NULL,
+  `value` varchar(500) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_monitor_rules_id_key` (`monitor_rules_id`,`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='监控规则的注释';
+
 -- 正在导出表  pro_cfg_manager.annotations 的数据：~0 rows (大约)
 DELETE FROM `annotations`;
 /*!40000 ALTER TABLE `annotations` DISABLE KEYS */;
 /*!40000 ALTER TABLE `annotations` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.group_labels 结构
+CREATE TABLE IF NOT EXISTS `group_labels` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_group_id` int(11) NOT NULL,
+  `key` varchar(100) NOT NULL,
+  `value` varchar(100) NOT NULL,
+  `enabled` tinyint(4) NOT NULL DEFAULT 1,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `update_by` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_groupid_key` (`key`,`job_group_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='子组标签列表';
 
 -- 正在导出表  pro_cfg_manager.group_labels 的数据：~0 rows (大约)
 DELETE FROM `group_labels`;
 /*!40000 ALTER TABLE `group_labels` DISABLE KEYS */;
 /*!40000 ALTER TABLE `group_labels` ENABLE KEYS */;
 
+-- 导出  表 pro_cfg_manager.group_machines 结构
+CREATE TABLE IF NOT EXISTS `group_machines` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `job_group_id` int(11) NOT NULL,
+  `machines_id` int(11) NOT NULL,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique` (`machines_id`,`job_group_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='子组IP列表';
+
 -- 正在导出表  pro_cfg_manager.group_machines 的数据：~0 rows (大约)
 DELETE FROM `group_machines`;
 /*!40000 ALTER TABLE `group_machines` DISABLE KEYS */;
 /*!40000 ALTER TABLE `group_machines` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.group_priv 结构
+CREATE TABLE IF NOT EXISTS `group_priv` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `group_id` int(11) NOT NULL,
+  `func_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=497 DEFAULT CHARSET=utf8mb3;
 
 -- 正在导出表  pro_cfg_manager.group_priv 的数据：~98 rows (大约)
 DELETE FROM `group_priv`;
@@ -131,25 +177,80 @@ INSERT INTO `group_priv` (`id`, `group_id`, `func_id`) VALUES
 	(496, 1, 84);
 /*!40000 ALTER TABLE `group_priv` ENABLE KEYS */;
 
+-- 导出  表 pro_cfg_manager.jobs 结构
+CREATE TABLE IF NOT EXISTS `jobs` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `name` varchar(100) NOT NULL COMMENT '任务名称',
+  `port` int(11) NOT NULL COMMENT '端口号，对应exporter的端口号',
+  `cfg_name` varchar(100) DEFAULT NULL COMMENT '在prometheus下生成配置的文件名称',
+  `is_common` tinyint(4) NOT NULL,
+  `relabel_id` int(11) NOT NULL,
+  `display_order` int(10) unsigned NOT NULL,
+  `enabled` tinyint(4) NOT NULL DEFAULT 1,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `update_by` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`),
+  KEY `order_unique` (`display_order`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='prometheus任务列表';
+
 -- 正在导出表  pro_cfg_manager.jobs 的数据：~0 rows (大约)
 DELETE FROM `jobs`;
 /*!40000 ALTER TABLE `jobs` DISABLE KEYS */;
 /*!40000 ALTER TABLE `jobs` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.job_group 结构
+CREATE TABLE IF NOT EXISTS `job_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `jobs_id` int(11) NOT NULL,
+  `enabled` tinyint(4) NOT NULL DEFAULT 1,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `update_by` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='还可以为单个分组中的IP地址进行分子组，为每个子组设置相应的标签列表';
 
 -- 正在导出表  pro_cfg_manager.job_group 的数据：~0 rows (大约)
 DELETE FROM `job_group`;
 /*!40000 ALTER TABLE `job_group` DISABLE KEYS */;
 /*!40000 ALTER TABLE `job_group` ENABLE KEYS */;
 
+-- 导出  表 pro_cfg_manager.job_machines 结构
+CREATE TABLE IF NOT EXISTS `job_machines` (
+  `machine_id` int(11) NOT NULL,
+  `job_id` int(11) NOT NULL,
+  UNIQUE KEY `unique_mj` (`job_id`,`machine_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
+
 -- 正在导出表  pro_cfg_manager.job_machines 的数据：~0 rows (大约)
 DELETE FROM `job_machines`;
 /*!40000 ALTER TABLE `job_machines` DISABLE KEYS */;
 /*!40000 ALTER TABLE `job_machines` ENABLE KEYS */;
 
+-- 导出  表 pro_cfg_manager.labels 结构
+CREATE TABLE IF NOT EXISTS `labels` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `label` varchar(100) NOT NULL,
+  `enabled` tinyint(4) NOT NULL DEFAULT 1,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `update_by` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_labels` (`label`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='标签列表';
+
 -- 正在导出表  pro_cfg_manager.labels 的数据：~0 rows (大约)
 DELETE FROM `labels`;
 /*!40000 ALTER TABLE `labels` DISABLE KEYS */;
 /*!40000 ALTER TABLE `labels` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.log_setting 结构
+CREATE TABLE IF NOT EXISTS `log_setting` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `level` varchar(50) NOT NULL,
+  `label` varchar(50) NOT NULL,
+  `selected` tinyint(4) NOT NULL DEFAULT 0,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=9 DEFAULT CHARSET=utf8mb3 COMMENT='日志设置';
 
 -- 正在导出表  pro_cfg_manager.log_setting 的数据：~8 rows (大约)
 DELETE FROM `log_setting`;
@@ -165,49 +266,140 @@ INSERT INTO `log_setting` (`id`, `level`, `label`, `selected`) VALUES
 	(8, 'reset', '重置', 1);
 /*!40000 ALTER TABLE `log_setting` ENABLE KEYS */;
 
+-- 导出  表 pro_cfg_manager.machines 结构
+CREATE TABLE IF NOT EXISTS `machines` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `ipaddr` varchar(100) NOT NULL COMMENT 'IP地址',
+  `position` text DEFAULT NULL,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `enabled` tinyint(4) NOT NULL DEFAULT 1,
+  `update_by` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `ipaddr_unique` (`ipaddr`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='机器列表';
+
 -- 正在导出表  pro_cfg_manager.machines 的数据：~0 rows (大约)
 DELETE FROM `machines`;
 /*!40000 ALTER TABLE `machines` DISABLE KEYS */;
 /*!40000 ALTER TABLE `machines` ENABLE KEYS */;
 
--- 正在导出表  pro_cfg_manager.manager_group 的数据：~0 rows (大约)
+-- 导出  表 pro_cfg_manager.manager_group 结构
+CREATE TABLE IF NOT EXISTS `manager_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `enabled` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `update_by` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `name_unique` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COMMENT='用户组';
+
+-- 正在导出表  pro_cfg_manager.manager_group 的数据：~1 rows (大约)
 DELETE FROM `manager_group`;
 /*!40000 ALTER TABLE `manager_group` DISABLE KEYS */;
 INSERT INTO `manager_group` (`id`, `name`, `enabled`, `update_at`, `update_by`) VALUES
 	(1, 'administrator', 1, '2022-02-17 11:51:20', 'admin');
 /*!40000 ALTER TABLE `manager_group` ENABLE KEYS */;
 
--- 正在导出表  pro_cfg_manager.manager_set 的数据：~0 rows (大约)
+-- 导出  表 pro_cfg_manager.manager_set 结构
+CREATE TABLE IF NOT EXISTS `manager_set` (
+  `param_name` varbinary(100) NOT NULL,
+  `param_value` varbinary(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='权限管理默认的设置参数';
+
+-- 正在导出表  pro_cfg_manager.manager_set 的数据：~1 rows (大约)
 DELETE FROM `manager_set`;
 /*!40000 ALTER TABLE `manager_set` DISABLE KEYS */;
 INSERT INTO `manager_set` (`param_name`, `param_value`) VALUES
 	(_binary 0x64656661756c745f67726f7570, _binary '');
 /*!40000 ALTER TABLE `manager_set` ENABLE KEYS */;
 
--- 正在导出表  pro_cfg_manager.manager_user 的数据：~0 rows (大约)
+-- 导出  表 pro_cfg_manager.manager_user 结构
+CREATE TABLE IF NOT EXISTS `manager_user` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(100) NOT NULL,
+  `nice_name` varchar(100) NOT NULL,
+  `password` varchar(100) NOT NULL,
+  `phone` varchar(50) NOT NULL DEFAULT '',
+  `salt` varchar(100) NOT NULL,
+  `group_id` int(11) NOT NULL,
+  `update_at` datetime NOT NULL,
+  `enabled` tinyint(4) NOT NULL,
+  `create_at` datetime NOT NULL DEFAULT current_timestamp(),
+  `update_by` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_name` (`username`)
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COMMENT='用户';
+
+-- 正在导出表  pro_cfg_manager.manager_user 的数据：~1 rows (大约)
 DELETE FROM `manager_user`;
 /*!40000 ALTER TABLE `manager_user` DISABLE KEYS */;
 INSERT INTO `manager_user` (`id`, `username`, `nice_name`, `password`, `phone`, `salt`, `group_id`, `update_at`, `enabled`, `create_at`, `update_by`) VALUES
 	(1, 'admin', '管理员', 'cc7550fb9f1b75d84b3677fdcd9d4c9f', '10086', 'ec7ceb50-c6c0-43b2-994e-b79cdb365457', 1, '2021-08-10 17:33:24', 1, '2021-08-10 17:33:24', '');
 /*!40000 ALTER TABLE `manager_user` ENABLE KEYS */;
 
+-- 导出  表 pro_cfg_manager.monitor_labels 结构
+CREATE TABLE IF NOT EXISTS `monitor_labels` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `monitor_rules_id` int(11) NOT NULL,
+  `key` varchar(100) NOT NULL,
+  `value` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_mid_lid` (`key`,`monitor_rules_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='监控规则的标签';
+
 -- 正在导出表  pro_cfg_manager.monitor_labels 的数据：~0 rows (大约)
 DELETE FROM `monitor_labels`;
 /*!40000 ALTER TABLE `monitor_labels` DISABLE KEYS */;
 /*!40000 ALTER TABLE `monitor_labels` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.monitor_rules 结构
+CREATE TABLE IF NOT EXISTS `monitor_rules` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `alert` varchar(100) NOT NULL,
+  `expr` varchar(5000) NOT NULL,
+  `for` varchar(50) NOT NULL,
+  `sub_group_id` int(11) NOT NULL,
+  `enabled` tinyint(4) NOT NULL,
+  `description` varchar(300) NOT NULL,
+  `update_by` varchar(100) NOT NULL,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='具体的监控规则';
 
 -- 正在导出表  pro_cfg_manager.monitor_rules 的数据：~0 rows (大约)
 DELETE FROM `monitor_rules`;
 /*!40000 ALTER TABLE `monitor_rules` DISABLE KEYS */;
 /*!40000 ALTER TABLE `monitor_rules` ENABLE KEYS */;
 
--- 正在导出表  pro_cfg_manager.operation_log 的数据：~1 rows (大约)
+-- 导出  表 pro_cfg_manager.operation_log 结构
+CREATE TABLE IF NOT EXISTS `operation_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(100) NOT NULL,
+  `operate_type` varchar(50) NOT NULL,
+  `ipaddr` varchar(100) NOT NULL,
+  `operate_content` varchar(100) NOT NULL,
+  `operate_result` tinyint(4) NOT NULL,
+  `operate_at` datetime NOT NULL,
+  `operate_error` text NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COMMENT='操作日志';
+
+-- 正在导出表  pro_cfg_manager.operation_log 的数据：~2 rows (大约)
 DELETE FROM `operation_log`;
 /*!40000 ALTER TABLE `operation_log` DISABLE KEYS */;
 INSERT INTO `operation_log` (`id`, `username`, `operate_type`, `ipaddr`, `operate_content`, `operate_result`, `operate_at`, `operate_error`) VALUES
 	(1, 'admin', '', '127.0.0.1:59524', 'reset prometheus config data', 1, '2021-12-06 16:23:01', '成功'),
 	(2, 'admin', '', '127.0.0.1:51385', 'reset prometheus config data', 1, '2022-02-17 14:14:14', '成功');
 /*!40000 ALTER TABLE `operation_log` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.options 结构
+CREATE TABLE IF NOT EXISTS `options` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `opt_key` varchar(100) NOT NULL,
+  `opt_value` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3 COMMENT='选项';
 
 -- 正在导出表  pro_cfg_manager.options 的数据：~6 rows (大约)
 DELETE FROM `options`;
@@ -220,6 +412,18 @@ INSERT INTO `options` (`id`, `opt_key`, `opt_value`) VALUES
 	(5, 'publish_jobs_also_reload_srv', 'true'),
 	(6, 'publish_ips_also_reload_srv', 'true');
 /*!40000 ALTER TABLE `options` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.page_function 结构
+CREATE TABLE IF NOT EXISTS `page_function` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `page_name` varchar(100) NOT NULL,
+  `page_nice_name` varchar(100) NOT NULL,
+  `sub_page_name` varchar(100) DEFAULT '',
+  `sub_page_nice_name` varchar(100) DEFAULT '',
+  `func_name` varchar(100) NOT NULL,
+  `func_nice_name` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8mb3 COMMENT='页面功能';
 
 -- 正在导出表  pro_cfg_manager.page_function 的数据：~98 rows (大约)
 DELETE FROM `page_function`;
@@ -325,35 +529,101 @@ INSERT INTO `page_function` (`id`, `page_name`, `page_nice_name`, `sub_page_name
 	(105, 'ipManager', 'IP管理', '', '', 'position', '更新IP位置信息');
 /*!40000 ALTER TABLE `page_function` ENABLE KEYS */;
 
--- 正在导出表  pro_cfg_manager.relabels 的数据：~0 rows (大约)
+-- 导出  表 pro_cfg_manager.relabels 结构
+CREATE TABLE IF NOT EXISTS `relabels` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) NOT NULL,
+  `code` text DEFAULT NULL,
+  `enabled` tinyint(4) NOT NULL DEFAULT 1,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `update_by` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_name` (`name`)
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb3 COMMENT='重写标签的配置';
+
+-- 正在导出表  pro_cfg_manager.relabels 的数据：~1 rows (大约)
 DELETE FROM `relabels`;
 /*!40000 ALTER TABLE `relabels` DISABLE KEYS */;
 INSERT INTO `relabels` (`id`, `name`, `code`, `enabled`, `update_at`, `update_by`) VALUES
 	(1, '空规则', '', 1, '2021-07-07 14:57:50', '');
 /*!40000 ALTER TABLE `relabels` ENABLE KEYS */;
 
+-- 导出  表 pro_cfg_manager.rules_groups 结构
+CREATE TABLE IF NOT EXISTS `rules_groups` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `update_by` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_name` (`name`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='监控规则组';
+
 -- 正在导出表  pro_cfg_manager.rules_groups 的数据：~0 rows (大约)
 DELETE FROM `rules_groups`;
 /*!40000 ALTER TABLE `rules_groups` DISABLE KEYS */;
 /*!40000 ALTER TABLE `rules_groups` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.session 结构
+CREATE TABLE IF NOT EXISTS `session` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `token` varchar(100) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `update_at` datetime NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_user_id` (`user_id`)
+) ENGINE=InnoDB AUTO_INCREMENT=100 DEFAULT CHARSET=utf8mb3 COMMENT='用户登录会话';
 
 -- 正在导出表  pro_cfg_manager.session 的数据：~2 rows (大约)
 DELETE FROM `session`;
 /*!40000 ALTER TABLE `session` DISABLE KEYS */;
 INSERT INTO `session` (`id`, `token`, `user_id`, `update_at`) VALUES
 	(93, 'd553bf31-8d9e-4ed8-b6a0-d4b78150f9b8', 7, '2021-08-10 08:19:56'),
-	(95, 'fd5e775d-368d-4131-8281-52f27635925b', 1, '2022-02-16 03:52:26');
+	(99, 'ee08975f-3d95-4a9e-8d11-b31550b05c1a', 1, '2022-02-17 06:37:45');
 /*!40000 ALTER TABLE `session` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.sub_group 结构
+CREATE TABLE IF NOT EXISTS `sub_group` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(100) NOT NULL,
+  `rules_groups_id` int(11) NOT NULL,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `update_by` varchar(50) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `unique_name_rules_groups_id` (`name`,`rules_groups_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='监控规则组中的下级组，子组';
 
 -- 正在导出表  pro_cfg_manager.sub_group 的数据：~0 rows (大约)
 DELETE FROM `sub_group`;
 /*!40000 ALTER TABLE `sub_group` DISABLE KEYS */;
 /*!40000 ALTER TABLE `sub_group` ENABLE KEYS */;
 
--- 正在导出表  pro_cfg_manager.system_log 的数据：~0 rows (大约)
+-- 导出  表 pro_cfg_manager.system_log 结构
+CREATE TABLE IF NOT EXISTS `system_log` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(100) NOT NULL,
+  `operate_type` varchar(50) NOT NULL,
+  `ipaddr` varchar(100) NOT NULL,
+  `operate_content` varchar(100) NOT NULL,
+  `operate_result` tinyint(4) NOT NULL,
+  `operate_at` datetime NOT NULL,
+  `operate_error` text NOT NULL,
+  PRIMARY KEY (`id`) USING BTREE
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COMMENT='系统日志';
+
+-- 正在导出表  pro_cfg_manager.system_log 的数据：~2 rows (大约)
 DELETE FROM `system_log`;
 /*!40000 ALTER TABLE `system_log` DISABLE KEYS */;
+INSERT INTO `system_log` (`id`, `username`, `operate_type`, `ipaddr`, `operate_content`, `operate_result`, `operate_at`, `operate_error`) VALUES
+	(1, 'admin', '登录', '127.0.0.1:51539', 'logout', 1, '2022-02-17 14:15:57', '成功'),
+	(2, 'admin', '登录', '127.0.0.1:60545', 'login', 1, '2022-02-17 14:37:45', '成功');
 /*!40000 ALTER TABLE `system_log` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.tmpl 结构
+CREATE TABLE IF NOT EXISTS `tmpl` (
+  `tmpl` longtext NOT NULL,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `update_by` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='prometheus.yml';
 
 -- 正在导出表  pro_cfg_manager.tmpl 的数据：~1 rows (大约)
 DELETE FROM `tmpl`;
@@ -361,6 +631,18 @@ DELETE FROM `tmpl`;
 INSERT INTO `tmpl` (`tmpl`, `update_at`, `update_by`) VALUES
 	('# my global config\nglobal:\n  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.\n  # scrape_timeout is set to the global default (10s).\n  # scrape_timeout: 60s\n\n# Alertmanager configuration\nalerting:\n  alertmanagers:\n  - static_configs:\n    - targets:\n      - 127.0.0.1:9093\n\n# Load rules once and periodically evaluate them according to the global \'evaluation_interval\'.\nrule_files:\n   - "{{.RelRuleDir}}/*.yml"\n  # - "first_rules.yml"\n  # - "second_rules.yml"\n\n# A scrape configuration containing exactly one endpoint to scrape:\n# Here it\'s Prometheus itself.\nscrape_configs:\n  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.\n  - job_name: \'监控服务本机\'\n\n    # metrics_path defaults to \'/metrics\'\n    # scheme defaults to \'http\'.\n\n    static_configs:\n    - targets: [\'localhost:9090\']\n{{ range .Jobs }}\n  - job_name: \'{{.Name}}\'\n    file_sd_configs:\n      - files:\n        - "{{$.AbsConfDir}}/{{.Name}}.json"\n        refresh_interval: {{$.Fields.refresh_interval}}\n{{.Code}}\n{{ end }}\n', '2022-02-17 14:14:14', 'administrator');
 /*!40000 ALTER TABLE `tmpl` ENABLE KEYS */;
+
+-- 导出  表 pro_cfg_manager.tmpl_fields 结构
+CREATE TABLE IF NOT EXISTS `tmpl_fields` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `key` varchar(100) NOT NULL,
+  `value` varchar(500) NOT NULL,
+  `enabled` tinyint(4) NOT NULL,
+  `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `update_by` varchar(100) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `key_unique` (`key`)
+) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COMMENT='模板字段';
 
 -- 正在导出表  pro_cfg_manager.tmpl_fields 的数据：~2 rows (大约)
 DELETE FROM `tmpl_fields`;
