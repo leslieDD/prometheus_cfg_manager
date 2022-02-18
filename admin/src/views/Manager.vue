@@ -74,6 +74,7 @@
       @expand-change="expandChange"
       @selection-change="handleSelectionChange"
       @cell-mouse-enter="cellMouseEnter"
+      @cell-click="clickcell"
     >
       <el-table-column type="selection" width="40"> </el-table-column>
       <el-table-column type="expand">
@@ -379,6 +380,22 @@
         </el-table>
       </el-dialog>
     </div>
+    <div class="dialog-ip-position">
+      <el-dialog
+        :title="'IP位置信息：' + currentIPPosition"
+        v-model="dialogIpPositionVisible"
+        width="600px"
+      >
+        <div style="width: 550px">
+          <el-scrollbar height="300px">
+            <!-- <div v-if="showError">
+            <pre v-highlight="error"><code></code></pre>
+          </div> -->
+            <JsonView :json="jsonPositionInfo"></JsonView>
+          </el-scrollbar>
+        </div>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -394,10 +411,12 @@ import {
   updatePosition,
 } from '@/api/machines'
 import { publish } from '@/api/publish'
+import JsonView from '@/components/JsonView.vue'
 
 export default {
   name: 'Manager',
   components: {
+    JsonView: JsonView
   },
   data () {
     function validateIP (rule, value, callback) {
@@ -448,9 +467,12 @@ export default {
       editObj: null,
       ipStatusData: [],
       dialogIpStatusVisible: false,
+      dialogIpPositionVisible: false,
       currentIPStatus: '',
+      currentIPPosition: '',
       ipStatusList: {},
       needWarning: {},
+      jsonPositionInfo: null,
     }
   },
   created () {
@@ -827,6 +849,13 @@ export default {
       val.forEach(each => {
         this.multipleSelection.push(each.id)
       })
+    },
+    clickcell(row, column, cell, event){
+      if (column.property === 'ipaddr') {
+        this.currentIPPosition = row.ipaddr
+        this.jsonPositionInfo = row.position
+        this.dialogIpPositionVisible = true
+      }
     }
   }
 }
