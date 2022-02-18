@@ -108,7 +108,7 @@
       </el-table-column>
       <el-table-column
         label="位置"
-        prop="ipaddr"
+        prop="position"
         align="center"
         header-align="center"
       >
@@ -851,7 +851,7 @@ export default {
       })
     },
     clickcell(row, column, cell, event){
-      if (column.property === 'ipaddr') {
+      if (column.property === 'position') {
         this.currentIPPosition = row.ipaddr
         this.jsonPositionInfo = row.position
         this.dialogIpPositionVisible = true
