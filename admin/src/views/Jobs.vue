@@ -61,13 +61,13 @@
               v-for="(item, index) in jobAllIPList[props.row.id]"
               :key="index"
               :label="index + 1"
-              >{{ item.ipaddr }} <el-tag size="mini">
+              >{{ item.ipaddr }}
                 <!-- <span v-if="item.position.routes">{{item.position.routes}}</span>
                 <span v-else-if="item.position.country">{{item.position.country}}</span>
                 <span v-else>未指定</span> -->
-                <span v-if="item.position.isp">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}-{{item.position.isp}}</span>
-                <span v-else>{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}{{item.position.isp}}</span>
-                </el-tag>
+                <span v-if="item.position.isp"><el-tag size="mini" type="info">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}</el-tag><el-tag type="warning" size="mini" >{{item.position.isp}}</el-tag></span>
+                <span v-else><el-tag size="mini" type="info">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}{{item.position.isp}}</el-tag></span>
+                
             </el-descriptions-item>
           </el-descriptions>
         </template>

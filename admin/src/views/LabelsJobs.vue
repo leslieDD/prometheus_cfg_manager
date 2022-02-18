@@ -61,13 +61,10 @@
               v-for="(item, index) in ipsAndLabels[props.row.id].ips"
               :key="index"
               :label="index + 1"
-              >{{ item.ip }} <el-tag size="mini">
-                <span v-if="item.position.isp">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}-{{item.position.isp}}</span>
-                <span v-else>{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}{{item.position.isp}}</span>
-                <!-- <span v-if="item.position.routes">{{item.position.routes}}</span>
-                <span v-else-if="item.position.country">{{item.position.country}}</span>
-                <span v-else>未指定</span> -->
-                </el-tag></el-descriptions-item
+              >{{ item.ip }}
+                <span v-if="item.position.isp"><el-tag size="mini" type="info">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}</el-tag><el-tag type="warning" size="mini" >{{item.position.isp}}</el-tag></span>
+                <span v-else><el-tag size="mini" type="info">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}{{item.position.isp}}</el-tag></span>
+              </el-descriptions-item
             >
           </el-descriptions>
           <el-descriptions title="标签列表" size="mini" :column="3" border>
