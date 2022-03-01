@@ -1,15 +1,21 @@
 module.exports = {
-  extends: [
-    'plugin:vue/vue3-recommended',
-    'prettier',
-    'prettier/vue',
-    'eslint:recommended',
-    '@vue/typescript/recommended',
-    'airbnb-base'
-  ],
-  rules: {
-    'vue/no-unused-vars': 'error',
-    'vue/no-multiple-template-root': 'off',
-    'vue/no-v-for-template-key': 'on',
+  "env": {
+    "browser": true,
+    "es2021": true
   },
+  "extends": [
+    "eslint:recommended",
+    "@vue/babel-plugin-jsx",
+    "plugin:vue/essential"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 12,
+    "sourceType": "module"
+  },
+  "plugins": [
+    "vue",
+    "@vue/babel-plugin-jsx"
+  ],
+  "rules": {
+  }
 };

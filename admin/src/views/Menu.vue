@@ -80,6 +80,20 @@
             </transition>
           </router-view>
         </el-tab-pane>
+        <el-tab-pane label="IDC机房" name="idc">
+          <template #label>
+            <span>
+              <icon-svg icon-class="promgtshengxianshuiguo" />
+              <!-- <i class="iconfont prometheusshengxianshuiguo"></i> -->
+              IDC机房</span
+            >
+          </template>
+          <router-view name="idc" v-slot="{ Component }">
+            <transition name="slide-fade">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </el-tab-pane>
         <el-tab-pane label="JOB组管理" name="jobs">
           <template #label>
             <span>
@@ -237,6 +251,8 @@ export default {
         this.$router.push({ name: 'ruleView' })
       } else if (tab.instance.props.name === 'baseConfig') {
         this.$router.push({ name: 'baseConfig' })
+      } else if (tab.instance.props.name === 'idc') {
+        this.$router.push({ name: 'idc' })
       }
     },
     scrollToTop () {

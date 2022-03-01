@@ -1,0 +1,21 @@
+{
+  "presets": [
+    "@vue/babel-preset-jsx",
+    [
+      "es2015",
+      {
+        "modules": false
+      }
+    ]
+  ],
+  "plugins": [
+    [
+      "component",
+      {
+        "libraryName": "element-ui",
+        "styleLibraryName": "theme-chalk"
+      }
+    ]
+  ],
+  "parser": "babel-eslint"
+}

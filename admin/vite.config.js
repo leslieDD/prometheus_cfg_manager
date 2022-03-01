@@ -1,3 +1,4 @@
+import vueJsx from '@vitejs/plugin-vue-jsx'
 import { defineConfig } from 'vite'
 import vue from '@vitejs/plugin-vue'
 import path from 'path'
@@ -28,18 +29,18 @@ ViteComponents({
 export default defineConfig({
   resolve: {
     alias: {
-    /*
-      路径别名
-      若为文件系统路径必须是绝对路径的形式，否则将以别名原样呈现，不会解析为文件系统路径路径 
-    */
-    //'@': process.cwd()+'/src'
-    //'@':path.resolve('src')
-    //'@':path.resolve(__dirname, 'src')
-    '@': path.resolve(__dirname, './src'),
-    'comps': path.resolve(__dirname, 'src/components')
+      /*
+        路径别名
+        若为文件系统路径必须是绝对路径的形式，否则将以别名原样呈现，不会解析为文件系统路径路径 
+      */
+      //'@': process.cwd()+'/src'
+      //'@':path.resolve('src')
+      //'@':path.resolve(__dirname, 'src')
+      '@': path.resolve(__dirname, './src'),
+      'comps': path.resolve(__dirname, 'src/components')
     },
   },
-  plugins: [vue(), ViteComponents(), viteSvgIcons({
+  plugins: [vue(), ViteComponents(), vueJsx(), viteSvgIcons({
     // 配置路劲在你的src里的svg存放文件
     iconDirs: [path.resolve(__dirname, './src/assets/single')],
     symbolId: 'icon-[dir]-[name]',
@@ -68,7 +69,7 @@ export default defineConfig({
     静态资源目录，开发模式下会自动放到 / 下，生产模式下会自动放到 outDir 根路径下。
     该目录可以配置为文件系统绝对目录或者相对于项目根目录的相对路径
   */
-  publicDir:'public',
+  publicDir: 'public',
 
   /*
     Default: 'development' for serve, 'production' for build
@@ -122,7 +123,7 @@ export default defineConfig({
     // }
   },
   //生产模式打包配置
-  build:{
+  build: {
     outDir: 'dist',//Specify the output directory (relative to project root).
   }
 })
