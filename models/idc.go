@@ -274,7 +274,7 @@ func GetIDCTree() (interface{}, *BriefMessage) {
 		}
 		lineTreeResp[line.IDCID] = append(lineTreeResp[line.IDCID], &lineTree{
 			TreeID:   line.ID + maxIDCID, // 这样ID就不会有重复的，而且ID也不会变更
-			TreeType: "idc",
+			TreeType: "line",
 			Line:     *line,
 		})
 	}
