@@ -50,6 +50,19 @@ type NewPool struct {
 	Ipaddrs string `json:"ipaddrs" gorm:"column:ipaddrs"`
 }
 
+type idcTree struct {
+	TreeID   int         `json:"tree_id"`
+	TreeType string      `json:"tree_type"`
+	Children []*lineTree `json:"children"`
+	IDC
+}
+
+type lineTree struct {
+	TreeID   int    `json:"tree_id"`
+	TreeType string `json:"tree_type"`
+	Line
+}
+
 func GetIDC(id *OnlyID) (*IDC, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -121,8 +134,6 @@ func DelIDC(id *OnlyID) *BriefMessage {
 	}
 	return Success
 }
-
-func GetIDCTree() {}
 
 func GetLine(id *OnlyID) (*Line, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
@@ -225,4 +236,63 @@ func PutLineIpAddrs(user *UserSessionInfo, newPool *NewPool) *BriefMessage {
 		return ErrUpdateData
 	}
 	return Success
+}
+
+func GetIDCTree() (interface{}, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	// IDC
+	idcs := []*IDC{}
+	tx := db.Table("idc").Find(&idcs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	// Line
+	lines := []*Line{}
+	tx = db.Table("line").Find(&lines)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+
+	maxIDCID := 0
+	for _, i := range idcs {
+		if maxIDCID < i.ID {
+			maxIDCID = i.ID
+		}
+	}
+
+	lineTreeResp := map[int][]*lineTree{}
+	for _, line := range lines {
+		_, ok := lineTreeResp[line.IDCID]
+		if !ok {
+			lineTreeResp[line.IDCID] = []*lineTree{}
+		}
+		lineTreeResp[line.IDCID] = append(lineTreeResp[line.IDCID], &lineTree{
+			TreeID:   line.ID + maxIDCID, // 这样ID就不会有重复的，而且ID也不会变更
+			TreeType: "idc",
+			Line:     *line,
+		})
+	}
+
+	idcTreeResp := []*idcTree{}
+	for _, idc := range idcs {
+		node := &idcTree{
+			TreeID:   idc.ID,
+			TreeType: "idc",
+			IDC:      *idc,
+		}
+		obj, ok := lineTreeResp[idc.ID]
+		if ok {
+			node.Children = obj
+		} else {
+			node.Children = []*lineTree{}
+		}
+		idcTreeResp = append(idcTreeResp, node)
+	}
+	return idcTreeResp, Success
 }

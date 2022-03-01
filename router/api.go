@@ -1860,7 +1860,8 @@ func delIDC(c *gin.Context) {
 }
 
 func getIDCTree(c *gin.Context) {
-
+	treeData, bf := models.GetIDCTree()
+	resComm(c, bf, treeData)
 }
 
 func getLine(c *gin.Context) {
