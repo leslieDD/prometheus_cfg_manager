@@ -122,6 +122,23 @@ func initApiRouter() {
 	v1.POST("/control/create", ctlCreate)
 	v1.POST("/control/reload", ctlReload)
 	v1.POST("/control/create/and/reload", ctlCreateAReload)
+
+	v1.GET("/idc", getIDC)
+	v1.GET("/idcs", getIDCs)
+	v1.POST("/idc", postIDC)
+	v1.PUT("/idc", putIDC)
+	v1.DELETE("/idc", delIDC)
+
+	v1.GET("/idc/tree", getIDCTree)
+
+	v1.GET("/idc/line", getLine)
+	v1.GET("/idc/lines", getLines)
+	v1.POST("/idc/line", postLine)
+	v1.PUT("/idc/line", putLine)
+	v1.DELETE("/idc/line", delLine)
+
+	v1.GET("/idc/line/ipaddrs", getLineIpAddrs)
+	v1.PUT("/idc/line/ipaddrs", putLineIpAddrs)
 }
 
 func getTest(c *gin.Context) {
@@ -1793,3 +1810,71 @@ func ctlCreateAReload(c *gin.Context) {
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config", models.IsPublish, bf)
 	resComm(c, bf, nil)
 }
+
+func getIDC(c *gin.Context) {
+	id := &models.OnlyID{}
+	if err := c.BindQuery(id); err != nil {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	idc, bf := models.GetIDC(id)
+	resComm(c, bf, idc)
+}
+
+func getIDCs(c *gin.Context) {
+
+}
+
+func postIDC(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	newIDC := models.NewIDC{}
+	if err := c.BindJSON(&newIDC); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create new idc", models.IsAdd, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostIDC(user, &newIDC)
+	resComm(c, bf, nil)
+}
+
+func putIDC(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	newIDC := models.NewIDC{}
+	if err := c.BindJSON(&newIDC); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc", models.IsAdd, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutIDC(user, &newIDC)
+	resComm(c, bf, nil)
+}
+
+func delIDC(c *gin.Context) {
+	id := &models.OnlyID{}
+	if err := c.BindQuery(id); err != nil {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	bf := models.DelIDC(id)
+	resComm(c, bf, nil)
+}
+
+func getIDCTree(c *gin.Context) {
+
+}
+
+func getLine(c *gin.Context) {}
+
+func getLines(c *gin.Context) {}
+
+func postLine(c *gin.Context) {}
+
+func putLine(c *gin.Context) {}
+
+func delLine(c *gin.Context) {
+
+}
+
+func getLineIpAddrs(c *gin.Context) {}
+
+func putLineIpAddrs(c *gin.Context) {}

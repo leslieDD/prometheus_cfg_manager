@@ -81,6 +81,11 @@
 <script>
   let id = 1000;
 
+  // import { getIDC, getIDCs, postIDC, putIDC, deleteIDC } from '@/api/idc.js'
+  // import { getIDCTree } from '@/api/idc.js'
+  // import { getLine, getLines, postLine, putLine, delLine } from '@/api/idc.js'
+  // import { getLineIpAddrs, putLineIpAddrs } from '@/api/idc.js'
+
   export default {
     data() {
       const data = [{
