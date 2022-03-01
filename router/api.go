@@ -1909,6 +1909,24 @@ func delLine(c *gin.Context) {
 	resComm(c, bf, nil)
 }
 
-func getLineIpAddrs(c *gin.Context) {}
+func getLineIpAddrs(c *gin.Context) {
+	id := &models.OnlyID{}
+	if err := c.BindQuery(id); err != nil {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	data, bf := models.GetLineIpAddrs(id)
+	resComm(c, bf, data)
+}
 
-func putLineIpAddrs(c *gin.Context) {}
+func putLineIpAddrs(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	newPool := models.NewPool{}
+	if err := c.BindJSON(&newPool); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line ip pool", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutLineIpAddrs(user, &newPool)
+	resComm(c, bf, nil)
+}

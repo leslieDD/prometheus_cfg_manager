@@ -1,6 +1,7 @@
 package models
 
 import (
+	"fmt"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"time"
@@ -24,9 +25,10 @@ type Line struct {
 }
 
 type IPAddrsPool struct {
-	LineID   int       `json:"line_id" gorm:"column:line_id"`
-	Ipaddrs  string    `json:"ipaddrs" gorm:"column:ipaddrs"`
-	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
+	ID      int    `json:"id" gorm:"column:id"`
+	LineID  int    `json:"line_id" gorm:"column:line_id"`
+	Ipaddrs string `json:"ipaddrs" gorm:"column:ipaddrs"`
+	// Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
@@ -43,6 +45,8 @@ type NewLine struct {
 }
 
 type NewPool struct {
+	ID      int    `json:"id" gorm:"column:id"`
+	LineID  int    `json:"line_id" gorm:"column:line_id"`
 	Ipaddrs string `json:"ipaddrs" gorm:"column:ipaddrs"`
 }
 
@@ -192,6 +196,33 @@ func DelLine(id *OnlyID) *BriefMessage {
 	return Success
 }
 
-func GetLineIpAddrs() {}
+func GetLineIpAddrs(id *OnlyID) (*IPAddrsPool, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	pool := IPAddrsPool{}
+	tx := db.Table("pool").Where("id", id.ID).Find(&pool)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return &pool, Success
+}
 
-func PutLineIpAddrs() {}
+func PutLineIpAddrs(user *UserSessionInfo, newPool *NewPool) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	sql := fmt.Sprintf("replace into pool(id, line_id, ipaddrs, update_at, update_by) values(%d, %d, '%s', '%s', '%s');",
+		newPool.ID, newPool.LineID, newPool.Ipaddrs, time.Now().Format("2006-02-01 15:04:05"), user.Username)
+	tx := db.Table("pool").Exec(sql)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
