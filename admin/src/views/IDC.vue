@@ -4,7 +4,7 @@
       <template #header>
         <div class="card-header">
           <span>机房及线路</span>
-          <el-button class="button" @click="idcAppend"> 增加机房 </el-button>
+          <el-button size="small" class="button" @click="idcAppend"> 增加机房 </el-button>
         </div>
       </template>
       <div>
@@ -14,6 +14,7 @@
           highlight-current
           default-expand-all
           :expand-on-click-node="false"
+          @node-click="nodeClick"
         >
           <template #default="{ node, data }">
             <span class="custom-tree-node">
@@ -36,7 +37,7 @@
       <template #header>
         <div class="card-header">
           <span>IP地址</span>
-          <!-- <el-button class="button" type="text">Operation button</el-button> -->
+          <el-button size="small" class="button" @click="putLineIPData"> 更新 </el-button>
         </div>
       </template>
       <div>
@@ -44,7 +45,7 @@
           v-model="ipaddrs_net_line"
           :autosize="{ minRows: 30 }"
           type="textarea"
-          placeholder="所选线路IP地址列表"
+          placeholder=""
         />
       </div>
     </el-card>
@@ -89,7 +90,7 @@
   import { getIDCTree } from '@/api/idc.js'
   import { postLine, putLine, delLine } from '@/api/idc.js'
   // import { getLine, getLines, postLine, putLine, delLine } from '@/api/idc.js'
-  // import { getLineIpAddrs, putLineIpAddrs } from '@/api/idc.js'
+  import { getLineIpAddrs, putLineIpAddrs } from '@/api/idc.js'
 
   export default {
     data() {
@@ -139,6 +140,7 @@
         formLabelWidth: '80px',
         idcName: '添加线路',
         idEdit: false,
+        currentPoolObj: null,
       }
     },
 
@@ -268,6 +270,30 @@
         }, "Append "), h("a", {
           onClick: () => this.remove(node, data)
         }, "Delete")));
+      },
+      nodeClick(node, tree, event){
+        // console.log(node, tree, event)
+        if (node.tree_type !== 'line') {
+          return
+        }
+        this.currentPoolObj = node
+        getLineIpAddrs({id: node.id}).then(r=>{
+          this.ipaddrs_net_line = r.data.ipaddrs
+        }).catch(e=>{
+          console.log(e)
+        })
+      },
+      putLineIPData(){
+        if (!this.currentPoolObj) {
+          return
+        }
+        putLineIpAddrs({
+          "id": this.currentPoolObj.idc_id,
+          "line_id": this.currentPoolObj.id,
+          "ipaddrs": this.ipaddrs_net_line
+        }).then(r=>{
+          
+        }).catch(e=>console.log(e))
       }
     }
   };
