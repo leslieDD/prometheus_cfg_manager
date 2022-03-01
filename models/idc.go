@@ -38,6 +38,7 @@ type NewIDC struct {
 
 type NewLine struct {
 	ID    int    `json:"id" gorm:"column:id"`
+	IDCID int    `json:"idc_id" gorm:"column:idc_id"`
 	Label string `json:"label" gorm:"column:label"`
 }
 
@@ -119,15 +120,77 @@ func DelIDC(id *OnlyID) *BriefMessage {
 
 func GetIDCTree() {}
 
-func GetLine() {}
+func GetLine(id *OnlyID) (*Line, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	line := Line{}
+	tx := db.Table("line").Where("id", id.ID).Find(&line)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return &line, Success
+}
 
 func GetLines() {}
 
-func PostLine() {}
+func PostLine(user *UserSessionInfo, newLine *NewLine) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	line := Line{
+		ID:       0,
+		Enabled:  true,
+		Label:    newLine.Label,
+		IDCID:    newLine.IDCID,
+		UpdateAt: time.Now(),
+		UpdateBy: user.Username,
+	}
+	tx := db.Table("line").Create(&line)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrCreateDBData
+	}
+	return Success
+}
 
-func PutLine() {}
+func PutLine(user *UserSessionInfo, newLine *NewLine) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("line").Where("id", newLine.ID).
+		// Update("idc_id", 0)
+		Update("label", newLine.Label).
+		Update("enabled", true).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
 
-func DelLine() {}
+func DelLine(id *OnlyID) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("line").Where("id", id.ID).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	return Success
+}
 
 func GetLineIpAddrs() {}
 

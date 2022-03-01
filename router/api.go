@@ -1841,7 +1841,7 @@ func putIDC(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	newIDC := models.NewIDC{}
 	if err := c.BindJSON(&newIDC); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc", models.IsAdd, models.ErrPostData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
@@ -1863,16 +1863,50 @@ func getIDCTree(c *gin.Context) {
 
 }
 
-func getLine(c *gin.Context) {}
+func getLine(c *gin.Context) {
+	id := &models.OnlyID{}
+	if err := c.BindQuery(id); err != nil {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	idc, bf := models.GetLine(id)
+	resComm(c, bf, idc)
+}
 
 func getLines(c *gin.Context) {}
 
-func postLine(c *gin.Context) {}
+func postLine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	newLine := models.NewLine{}
+	if err := c.BindJSON(&newLine); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create new line", models.IsAdd, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostLine(user, &newLine)
+	resComm(c, bf, nil)
+}
 
-func putLine(c *gin.Context) {}
+func putLine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	newLine := models.NewLine{}
+	if err := c.BindJSON(&newLine); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutLine(user, &newLine)
+	resComm(c, bf, nil)
+}
 
 func delLine(c *gin.Context) {
-
+	id := &models.OnlyID{}
+	if err := c.BindQuery(id); err != nil {
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	bf := models.DelLine(id)
+	resComm(c, bf, nil)
 }
 
 func getLineIpAddrs(c *gin.Context) {}
