@@ -19,9 +19,9 @@ export function getIDCs (info) {
 
 export function postIDC (info) {
   return request({
-    url: '/v1/idcs',
+    url: '/v1/idc',
     method: 'post',
-    params: info
+    data: info
   })
 }
 
@@ -29,7 +29,7 @@ export function putIDC (info) {
   return request({
     url: '/v1/idc',
     method: 'put',
-    params: info
+    data: info
   })
 }
 
@@ -40,14 +40,6 @@ export function deleteIDC (info) {
     params: info
   })
 }
-
-// export function deleteIDC (info) {
-//   return request({
-//     url: '/v1/idc',
-//     method: 'delete',
-//     params: info
-//   })
-// }
 
 export function getIDCTree (info) {
   return request({
@@ -77,7 +69,7 @@ export function postLine (info) {
   return request({
     url: '/v1/idc/line',
     method: 'post',
-    params: info
+    data: info
   })
 }
 
@@ -85,7 +77,7 @@ export function putLine (info) {
   return request({
     url: '/v1/idc/line',
     method: 'put',
-    params: info
+    data: info
   })
 }
 
@@ -109,7 +101,7 @@ export function putLineIpAddrs (info) {
   return request({
     url: '/v1/idc/line/ipaddrs',
     method: 'put',
-    params: info
+    data: info
   })
 }
 

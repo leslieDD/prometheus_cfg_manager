@@ -19,10 +19,13 @@
             <span class="custom-tree-node">
               <span>{{ node.label }}</span>
               <span v-if="data.tree_type === 'idc'">
-                <el-tag size="small" @click="append(data)"><svg class="icon" width="10" height="10" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M832 384H576V128H192v768h640V384zm-26.496-64L640 154.496V320h165.504zM160 64h480l256 256v608a32 32 0 01-32 32H160a32 32 0 01-32-32V96a32 32 0 0132-32zm320 512V448h64v128h128v64H544v128h-64V640H352v-64h128z"></path></svg> 增加线路 </el-tag>
+                <el-tag size="small" @click="append(data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M832 384H576V128H192v768h640V384zm-26.496-64L640 154.496V320h165.504zM160 64h480l256 256v608a32 32 0 01-32 32H160a32 32 0 01-32-32V96a32 32 0 0132-32zm320 512V448h64v128h128v64H544v128h-64V640H352v-64h128z"></path></svg> </el-tag>
+                <el-tag size="small" @click="edit(node, data)"><svg t="1639990532110" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12171" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13" data-v-042ca774=""><path d="M199.04 672.64l193.984 112 224-387.968-193.92-112-224 388.032z m-23.872 60.16l32.896 148.288 144.896-45.696-177.792-102.592zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936-383.936 665.088h0.064l-248.448 78.336-56.448-254.336z m384 254.272v-64h448v64h-448z" p-id="12172"></path></svg> </el-tag>
+                <el-tag size="small" type="danger" @click="removeIDC(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
               </span>
               <span v-if="data.tree_type === 'line'">
-                <el-tag size="small" type="danger" @click="remove(node, data)"><svg class="icon" width="10" height="10" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> 删除线路 </el-tag >
+                <el-tag size="small" @click="editLine(node, data)"><svg t="1639990532110" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12171" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13" data-v-042ca774=""><path d="M199.04 672.64l193.984 112 224-387.968-193.92-112-224 388.032z m-23.872 60.16l32.896 148.288 144.896-45.696-177.792-102.592zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936-383.936 665.088h0.064l-248.448 78.336-56.448-254.336z m384 254.272v-64h448v64h-448z" p-id="12172"></path></svg></el-tag>
+                <el-tag size="small" type="danger" @click="removeLine(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
               </span>
             </span>
           </template>
@@ -82,7 +85,9 @@
   let tree_id = 1000;
 
   // import { getIDC, getIDCs, postIDC, putIDC, deleteIDC } from '@/api/idc.js'
+  import { postIDC, putIDC, deleteIDC } from '@/api/idc.js'
   import { getIDCTree } from '@/api/idc.js'
+  import { postLine, putLine, delLine } from '@/api/idc.js'
   // import { getLine, getLines, postLine, putLine, delLine } from '@/api/idc.js'
   // import { getLineIpAddrs, putLineIpAddrs } from '@/api/idc.js'
 
@@ -107,12 +112,14 @@
         dialogLineVisible: false,
         dialogIDCVisible: false,
         Lineform: {
+          id: 0,
           tree_id: 0,
           tree_type: 'line',
           label: '',
           children: [],
         },
         IDCform: {
+          id: 0,
           tree_id: 0,
           tree_type: 'idc',
           label: '',
@@ -131,6 +138,7 @@
         currentDataPoint: null,
         formLabelWidth: '80px',
         idcName: '添加线路',
+        idEdit: false,
       }
     },
 
@@ -148,26 +156,28 @@
       append(data) {
         this.currentDataPoint = data
         this.idcName = '添加线路：' + data.label
+        this.idEdit = false
         this.dialogLineVisible = true
       },
       lineAppend(formName){
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.Lineform.tree_type = 'line'
-            tree_id += 1
-            this.Lineform.tree_id = tree_id
-            const data = this.currentDataPoint
-            const newChild = this.Lineform;
-            if (!data.children) {
-              this.$set(data, 'children', []);
-            }
-            data.children.push(newChild);
-            this.dialogLineVisible = false
-            this.Lineform = {
-              tree_id: 0,
-              tree_type: 'line',
-              label: '',
-              children: []
+            if (this.idEdit === false) {
+              postLine({label: this.Lineform.label, id: this.Lineform.id}).then(r=>{
+                this.doGetTree()
+                this.dialogLineVisible = false
+              }).catch(e=>{
+                this.dialogLineVisible = false
+                console.log(e)
+              })
+            } else {
+              putLine({label: this.Lineform.label, id: this.Lineform.id}).then(r=>{
+                this.doGetTree()
+                this.dialogLineVisible = false
+              }).catch(e=>{
+                this.dialogLineVisible = false
+                console.log(e)
+              })
             }
           } else {
             return false
@@ -177,18 +187,23 @@
       idcAppendConfirm(formName){
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            tree_id += 1
-            this.IDCform.tree_id = tree_id
-            this.IDCform.tree_type = 'idc'
-            this.children = []
-            this.data.push(this.IDCform)
-            this.IDCform = {
-              tree_id: 0,
-              tree_type: 'idc',
-              label: '',
-              children: [],
+            if (this.idEdit === false) {
+              postIDC({'label': this.IDCform.label}).then(r=>{
+                this.doGetTree()
+                this.dialogIDCVisible = false
+              }).catch(e=> {
+                console.log(e)
+                this.dialogIDCVisible = false
+              })
+            } else {
+              putIDC({'label': this.IDCform.label, 'id': this.IDCform.id}).then(r=>{
+                this.doGetTree()
+                this.dialogIDCVisible = false
+              }).catch(e=> {
+                console.log(e)
+                this.dialogIDCVisible = false
+              })
             }
-            this.dialogIDCVisible = false
           } else {
             return false
           }
@@ -196,19 +211,54 @@
       },
       idcAppend(data){
         this.currentDataPoint = data
+        this.idEdit = false
         this.dialogIDCVisible = true
       },
-      remove(node, data) {
+      removeIDC(node, data) {
         this.$confirm('是否确定删除？', '确认信息', {
           distinguishCancelAndClose: true,
           confirmButtonText: '确定',
           cancelButtonText: '放弃'
         }).then(_ => {
+          deleteIDC({id: data.id}).then(r=>{
+            this.doGetTree()
+          }).catch(e=>{
+            console.log(e)
+          })
           const parent = node.parent;
           const children = parent.data.children || parent.data;
           const index = children.findIndex(d => d.tree_id === data.tree_id);
           children.splice(index, 1);
         }).catch(e => console.log(e))
+      },
+      removeLine(node, data){
+        this.$confirm('是否确定删除？', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '放弃'
+        }).then(_ => {
+          delLine({id: data.id}).then(r=>{
+            this.doGetTree()
+          }).catch(e=>{
+            console.log(e)
+          })
+          const parent = node.parent;
+          const children = parent.data.children || parent.data;
+          const index = children.findIndex(d => d.tree_id === data.tree_id);
+          children.splice(index, 1);
+        }).catch(e => console.log(e))
+      },
+      edit(node, data){
+        // console.log(data)
+        this.IDCform = {...data}
+        this.idEdit = true
+        this.dialogIDCVisible = true
+      },
+      editLine(node, data){
+        // console.log(data)
+        this.Lineform = {...data}
+        this.idEdit = true
+        this.dialogLineVisible = true
       },
       renderContent(h, { node, data, store }) {
         return h("span", {
