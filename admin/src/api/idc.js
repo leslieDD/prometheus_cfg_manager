@@ -41,13 +41,13 @@ export function deleteIDC (info) {
   })
 }
 
-export function deleteIDC (info) {
-  return request({
-    url: '/v1/idc',
-    method: 'delete',
-    params: info
-  })
-}
+// export function deleteIDC (info) {
+//   return request({
+//     url: '/v1/idc',
+//     method: 'delete',
+//     params: info
+//   })
+// }
 
 export function getIDCTree (info) {
   return request({

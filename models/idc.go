@@ -57,6 +57,11 @@ type idcTree struct {
 	IDC
 }
 
+type idcTreeWithID struct {
+	ID   int        `json:"id"`
+	Tree []*idcTree `json:"tree"`
+}
+
 type lineTree struct {
 	TreeID   int    `json:"tree_id"`
 	TreeType string `json:"tree_type"`
@@ -238,7 +243,7 @@ func PutLineIpAddrs(user *UserSessionInfo, newPool *NewPool) *BriefMessage {
 	return Success
 }
 
-func GetIDCTree() (interface{}, *BriefMessage) {
+func GetIDCTree() (*idcTreeWithID, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -266,14 +271,17 @@ func GetIDCTree() (interface{}, *BriefMessage) {
 		}
 	}
 
+	finalID := maxIDCID // 供前端使用,
+
 	lineTreeResp := map[int][]*lineTree{}
 	for _, line := range lines {
 		_, ok := lineTreeResp[line.IDCID]
 		if !ok {
 			lineTreeResp[line.IDCID] = []*lineTree{}
 		}
+		finalID = line.ID + maxIDCID
 		lineTreeResp[line.IDCID] = append(lineTreeResp[line.IDCID], &lineTree{
-			TreeID:   line.ID + maxIDCID, // 这样ID就不会有重复的，而且ID也不会变更
+			TreeID:   finalID, // 这样ID就不会有重复的，而且ID也不会变更
 			TreeType: "line",
 			Line:     *line,
 		})
@@ -294,5 +302,9 @@ func GetIDCTree() (interface{}, *BriefMessage) {
 		}
 		idcTreeResp = append(idcTreeResp, node)
 	}
-	return idcTreeResp, Success
+	respData := &idcTreeWithID{
+		ID:   finalID,
+		Tree: idcTreeResp,
+	}
+	return respData, Success
 }

@@ -18,10 +18,10 @@
           <template #default="{ node, data }">
             <span class="custom-tree-node">
               <span>{{ node.label }}</span>
-              <span v-if="data.type === 'idc'">
+              <span v-if="data.tree_type === 'idc'">
                 <el-tag size="small" @click="append(data)"><svg class="icon" width="10" height="10" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M832 384H576V128H192v768h640V384zm-26.496-64L640 154.496V320h165.504zM160 64h480l256 256v608a32 32 0 01-32 32H160a32 32 0 01-32-32V96a32 32 0 0132-32zm320 512V448h64v128h128v64H544v128h-64V640H352v-64h128z"></path></svg> 增加线路 </el-tag>
               </span>
-              <span v-if="data.type === 'line'">
+              <span v-if="data.tree_type === 'line'">
                 <el-tag size="small" type="danger" @click="remove(node, data)"><svg class="icon" width="10" height="10" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> 删除线路 </el-tag >
               </span>
             </span>
@@ -79,51 +79,16 @@
 </template>
 
 <script>
-  let id = 1000;
+  let tree_id = 1000;
 
   // import { getIDC, getIDCs, postIDC, putIDC, deleteIDC } from '@/api/idc.js'
-  // import { getIDCTree } from '@/api/idc.js'
+  import { getIDCTree } from '@/api/idc.js'
   // import { getLine, getLines, postLine, putLine, delLine } from '@/api/idc.js'
   // import { getLineIpAddrs, putLineIpAddrs } from '@/api/idc.js'
 
   export default {
     data() {
-      const data = [{
-        id: 1,
-        label: '广州电信机房',
-        type: 'idc',
-        children: [{
-          id: 4,
-          label: '广州电信机房线路1',
-          type: 'line',
-        }]
-      }, {
-        id: 2,
-        label: '泉州移动机房',
-        type: 'idc',
-        children: [{
-          id: 5,
-          label: '泉州移动机房线路1',
-          type: 'line',
-        }, {
-          id: 6,
-          label: '泉州移动机房线路2',
-          type: 'line',
-        }]
-      }, {
-        id: 3,
-        label: '福州联通机房',
-        type: 'idc',
-        children: [{
-          id: 7,
-          label: '福州联通线路1',
-          type: 'line',
-        }, {
-          id: 8,
-          label: '福州联通线路2',
-          type: 'line',
-        }]
-      }];
+      const data = [];
       function validateStr (rule, value, callback) {
         if (value === '' || typeof value === 'undefined' || value == null) {
           callback(new Error('请输入正确名称'))
@@ -142,14 +107,14 @@
         dialogLineVisible: false,
         dialogIDCVisible: false,
         Lineform: {
-          id: 0,
-          type: 'line',
+          tree_id: 0,
+          tree_type: 'line',
           label: '',
           children: [],
         },
         IDCform: {
-          id: 0,
-          type: 'idc',
+          tree_id: 0,
+          tree_type: 'idc',
           label: '',
           children: [],
         },
@@ -169,7 +134,17 @@
       }
     },
 
+    mounted () {
+      this.doGetTree()
+    },
+
     methods: {
+      doGetTree(){
+        getIDCTree().then(r => {
+          this.data = r.data.tree
+          tree_id = r.data.id + 1
+        }).catch(e => console.log(e))
+      },
       append(data) {
         this.currentDataPoint = data
         this.idcName = '添加线路：' + data.label
@@ -178,9 +153,9 @@
       lineAppend(formName){
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            this.Lineform.type = 'line'
-            id += 1
-            this.Lineform.id = id
+            this.Lineform.tree_type = 'line'
+            tree_id += 1
+            this.Lineform.tree_id = tree_id
             const data = this.currentDataPoint
             const newChild = this.Lineform;
             if (!data.children) {
@@ -189,8 +164,8 @@
             data.children.push(newChild);
             this.dialogLineVisible = false
             this.Lineform = {
-              id: 0,
-              type: 'line',
+              tree_id: 0,
+              tree_type: 'line',
               label: '',
               children: []
             }
@@ -202,14 +177,14 @@
       idcAppendConfirm(formName){
         this.$refs[formName].validate((valid) => {
           if (valid) {
-            id += 1
-            this.IDCform.id = id
-            this.IDCform.type = 'idc'
+            tree_id += 1
+            this.IDCform.tree_id = tree_id
+            this.IDCform.tree_type = 'idc'
             this.children = []
             this.data.push(this.IDCform)
             this.IDCform = {
-              id: 0,
-              type: 'idc',
+              tree_id: 0,
+              tree_type: 'idc',
               label: '',
               children: [],
             }
@@ -231,7 +206,7 @@
         }).then(_ => {
           const parent = node.parent;
           const children = parent.data.children || parent.data;
-          const index = children.findIndex(d => d.id === data.id);
+          const index = children.findIndex(d => d.tree_id === data.tree_id);
           children.splice(index, 1);
         }).catch(e => console.log(e))
       },
@@ -277,6 +252,6 @@
 }
 
 .box-card {
-  width: 48%;
+  width: 49%;
 }
 </style>
