@@ -139,6 +139,9 @@ func initApiRouter() {
 
 	v1.GET("/idc/line/ipaddrs", getLineIpAddrs)
 	v1.PUT("/idc/line/ipaddrs", putLineIpAddrs)
+
+	v1.PUT("/idc/update/netinfo/all", updateNetInfoAll)
+	v1.PUT("/idc/update/netinfo/part", updateNetInfoPart)
 }
 
 func getTest(c *gin.Context) {
@@ -1929,5 +1932,17 @@ func putLineIpAddrs(c *gin.Context) {
 		return
 	}
 	bf := models.PutLineIpAddrs(user, &newPool)
+	resComm(c, bf, nil)
+}
+
+func updateNetInfoAll(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	bf := models.UpdateAllIPAddrs(user, false)
+	resComm(c, bf, nil)
+}
+
+func updateNetInfoPart(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	bf := models.UpdateAllIPAddrs(user, true)
 	resComm(c, bf, nil)
 }

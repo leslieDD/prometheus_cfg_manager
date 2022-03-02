@@ -4,6 +4,10 @@
       <template #header>
         <div class="card-header">
           <span>机房及线路</span>
+          <span>
+            <el-button type="warning" plain size="small" class="button" @click="updateAllIPAddrs"> 更新所有IP </el-button>
+            <el-button type="info" plain size="small" class="button" @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
+          </span>
           <el-button size="small" class="button" @click="idcAppend"> 增加机房 </el-button>
         </div>
       </template>
@@ -36,7 +40,7 @@
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span>IP地址</span>
+          <span>IP地址列表：<el-tag v-if="currentTitle!==''" size="mini" type="danger">{{currentTitle}}</el-tag></span>
           <el-button size="small" class="button" @click="putLineIPData"> 更新 </el-button>
         </div>
       </template>
@@ -89,6 +93,7 @@
   import { postIDC, putIDC, deleteIDC } from '@/api/idc.js'
   import { getIDCTree } from '@/api/idc.js'
   import { postLine, putLine, delLine } from '@/api/idc.js'
+  import { updateAllIPAddrsNetInfo, updatePartIPAddrsNetInfo } from '@/api/idc.js'
   // import { getLine, getLines, postLine, putLine, delLine } from '@/api/idc.js'
   import { getLineIpAddrs, putLineIpAddrs } from '@/api/idc.js'
 
@@ -141,6 +146,7 @@
         idcName: '添加线路',
         idEdit: false,
         currentPoolObj: null,
+        currentTitle: '',
       }
     },
 
@@ -223,14 +229,19 @@
           cancelButtonText: '放弃'
         }).then(_ => {
           deleteIDC({id: data.id}).then(r=>{
+            this.$notify({
+              title: '成功',
+              message: '删除成功！',
+              type: 'success'
+            });
             this.doGetTree()
           }).catch(e=>{
             console.log(e)
           })
-          const parent = node.parent;
-          const children = parent.data.children || parent.data;
-          const index = children.findIndex(d => d.tree_id === data.tree_id);
-          children.splice(index, 1);
+          // const parent = node.parent;
+          // const children = parent.data.children || parent.data;
+          // const index = children.findIndex(d => d.tree_id === data.tree_id);
+          // children.splice(index, 1);
         }).catch(e => console.log(e))
       },
       removeLine(node, data){
@@ -240,14 +251,19 @@
           cancelButtonText: '放弃'
         }).then(_ => {
           delLine({id: data.id}).then(r=>{
+          this.$notify({
+            title: '成功',
+            message: '删除成功！',
+            type: 'success'
+          });
             this.doGetTree()
           }).catch(e=>{
             console.log(e)
           })
-          const parent = node.parent;
-          const children = parent.data.children || parent.data;
-          const index = children.findIndex(d => d.tree_id === data.tree_id);
-          children.splice(index, 1);
+          // const parent = node.parent;
+          // const children = parent.data.children || parent.data;
+          // const index = children.findIndex(d => d.tree_id === data.tree_id);
+          // children.splice(index, 1);
         }).catch(e => console.log(e))
       },
       edit(node, data){
@@ -272,10 +288,12 @@
         }, "Delete")));
       },
       nodeClick(node, tree, event){
-        // console.log(node, tree, event)
         if (node.tree_type !== 'line') {
+          this.currentTitle = tree.data.label
+          this.ipaddrs_net_line = ""
           return
         }
+        this.currentTitle = tree.parent.data.label + " > " + node.label
         this.currentPoolObj = node
         getLineIpAddrs({id: node.id}).then(r=>{
           this.ipaddrs_net_line = r.data.ipaddrs
@@ -297,6 +315,24 @@
               message: '更新成功！',
               type: 'success'
             });
+        }).catch(e=>console.log(e))
+      },
+      updateAllIPAddrs(){
+        updateAllIPAddrsNetInfo().then(r=>{
+          this.$notify({
+            title: '成功',
+            message: '更新成功！',
+            type: 'success'
+          });
+        }).catch(e=>console.log(e))
+      },
+      updatePartIPAddrs(){
+        updatePartIPAddrsNetInfo().then(r=>{
+          this.$notify({
+            title: '成功',
+            message: '更新成功！',
+            type: 'success'
+          });
         }).catch(e=>console.log(e))
       }
     }

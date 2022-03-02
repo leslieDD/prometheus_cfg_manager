@@ -19,7 +19,9 @@ type Machine struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	IpAddr   string    `json:"ipaddr" gorm:"column:ipaddr"`
 	JobsID   []int     `json:"jobs_id" gorm:"-"`
-	Position string    `json:"position" gorm:"position"`
+	Position string    `json:"position" gorm:"column:position"`
+	IDCName  string    `json:"idc_name" gorm:"column:idc_name"`
+	LineName string    `json:"line_name" gorm:"column:line_name"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
@@ -35,6 +37,8 @@ type ListMachine struct {
 	Name      string    `json:"name" gorm:"column:name"`
 	IpAddr    string    `json:"ipaddr" gorm:"column:ipaddr"`
 	Position  string    `json:"position" gorm:"position"`
+	IDCName   string    `json:"idc_name" gorm:"column:idc_name"`
+	LineName  string    `json:"line_name" gorm:"column:line_name"`
 	JobsIdStr string    `json:"jobs_id_str" gorm:"jobs_id_str"`
 	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
 	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
@@ -53,6 +57,8 @@ type ListMachineMerge struct {
 	IpAddr     string       `json:"ipaddr" gorm:"column:ipaddr"`
 	JobsId     []int        `json:"jobs_id" gorm:"jobs_id"`
 	Position   *IPPosition  `json:"position" gorm:"position"`
+	IDCName    string       `json:"idc_name" gorm:"column:idc_name"`
+	LineName   string       `json:"line_name" gorm:"column:line_name"`
 	UpdateAt   time.Time    `json:"update_at" gorm:"column:update_at"`
 	UpdateBy   string       `json:"update_by" gorm:"column:update_by"`
 	Enabled    bool         `json:"enabled" gorm:"column:enabled"`
@@ -161,7 +167,8 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		sp.PageSize,
 		(sp.PageNo-1)*sp.PageSize,
 	)
-	tx2 := db.Raw(likeSql).Scan(&lists)
+	// config.Log.Print(likeSql)
+	tx2 := db.Raw(likeSql).Find(&lists)
 	if tx2.Error != nil {
 		config.Log.Error(tx2.Error)
 		return nil, ErrSearchDBData
@@ -189,6 +196,8 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 			JobsId:     ints,
 			UpdateBy:   l.UpdateBy,
 			MSrvStatus: []*SrvStatus{},
+			IDCName:    l.IDCName,
+			LineName:   l.LineName,
 		})
 	}
 	mObj.Check(&listsSend)

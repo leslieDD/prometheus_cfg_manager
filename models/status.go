@@ -60,6 +60,7 @@ var ErrGetControlField = &BriefMessage{500000, "获取控制参数时出错"}
 var ErrHaveTaskRunning = &BriefMessage{500000, "有命令正在运行，请稍后重试"}
 var ErrConvertDataType = &BriefMessage{500000, "转换数据类型出错"}
 var ErrHaveInstanceRunning = &BriefMessage{500000, "有一个实例正在运行，请稍后重试"}
+var ErrHaveLine = &BriefMessage{500000, "此机房下还有线路存在，不允许直接删除"}
 var ErrReset = &BriefMessage{500000, "重置出现错误"}
 
 // --------------------------------------------------------------

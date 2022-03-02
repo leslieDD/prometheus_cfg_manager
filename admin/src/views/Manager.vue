@@ -107,10 +107,25 @@
       >
       </el-table-column>
       <el-table-column
-        label="位置"
+        label="所在机房"
+        prop="idc_name"
+        align="center"
+        header-align="center"
+      >
+      </el-table-column>
+      <el-table-column
+        label="线路"
+        prop="line_name"
+        align="center"
+        header-align="center"
+      >
+      </el-table-column>
+      <el-table-column
+        label="定位"
         prop="position"
         align="center"
         header-align="center"
+        width="260px"
       >
         <template v-slot="scope">
           <span v-if="scope.row.position.isp"><el-tag size="mini" type="info">{{scope.row.position.country}}{{scope.row.position.province}}{{scope.row.position.city}}{{scope.row.position.county}}</el-tag><el-tag type="warning" size="mini" >{{scope.row.position.isp}}</el-tag></span>
@@ -148,7 +163,7 @@
       </el-table-column>
       <el-table-column
         label="状态"
-        width="140px"
+        width="120px"
         align="center"
         header-align="center"
       >

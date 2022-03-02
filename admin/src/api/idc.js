@@ -105,3 +105,19 @@ export function putLineIpAddrs (info) {
   })
 }
 
+export function updateAllIPAddrsNetInfo (info) {
+  return request({
+    url: '/v1/idc/update/netinfo/all',
+    method: 'put',
+    data: info
+  })
+}
+
+export function updatePartIPAddrsNetInfo (info) {
+  return request({
+    url: '/v1/idc/update/netinfo/part',
+    method: 'put',
+    data: info
+  })
+}
+
