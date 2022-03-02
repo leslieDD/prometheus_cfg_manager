@@ -677,19 +677,25 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 		}
 		// 在表group_labels中创建数据
 		for key, obj := range subGroupCreateKeyVal {
-			wData := GroupLabels{
-				ID:         0,
-				JobGroupID: subGroupCreateID[key],
-				Key:        obj["idc"],
-				Value:      obj["line"],
-				Enabled:    true,
-				UpdateAt:   time.Now(),
-				UpdateBy:   user.Username,
-			}
-			tx = db.Table("group_labels").Create(&wData)
-			if tx.Error != nil {
-				config.Log.Error(tx.Error)
-				// return ErrCreateDBData // 因为有可能会创建到一样的标签,所以遇到错误就直接跳过
+			for k, v := range obj {
+				if v == "" {
+					config.Log.Warnf("labels key: %s, value is empty, skip", k)
+					continue
+				}
+				wData := GroupLabels{
+					ID:         0,
+					JobGroupID: subGroupCreateID[key],
+					Key:        k,
+					Value:      v,
+					Enabled:    true,
+					UpdateAt:   time.Now(),
+					UpdateBy:   user.Username,
+				}
+				tx = db.Table("group_labels").Create(&wData)
+				if tx.Error != nil {
+					config.Log.Error(tx.Error)
+					// return ErrCreateDBData // 因为有可能会创建到一样的标签,所以遇到错误就直接跳过
+				}
 			}
 		}
 	}
