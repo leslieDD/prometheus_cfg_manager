@@ -65,6 +65,10 @@ type ListMachineMerge struct {
 	MSrvStatus []*SrvStatus `json:"msrv_status" gorm:"-"`
 }
 
+type BatchImportIPaddrs struct {
+	Content string `json:"content"`
+}
+
 func GetMachine(machineID int) (*Machine, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -529,6 +533,33 @@ func UpdateIPPosition(user *UserSessionInfo) *BriefMessage {
 		if tx2.Error != nil {
 			config.Log.Error(tx2.Error)
 			continue
+		}
+	}
+	return Success
+}
+
+func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *BriefMessage {
+	items := strings.Split(content.Content, ";")
+	importIPs := map[string]struct{}{}
+	for _, item := range items {
+		if strings.Contains(item, "/") {
+			ipObj, netObj, err := net.ParseCIDR(item)
+			if err != nil {
+				config.Log.Errorf("net err: %s", item)
+				continue
+			}
+		} else if strings.Contains(item, "~") {
+			fields := strings.Split(item, "~")
+			if len(fields) != 2 {
+				config.Log.Errorf("ip pool err: %s", item)
+				continue
+			}
+		} else {
+			ipObj := net.ParseIP(item)
+			if ipObj == nil {
+				config.Log.Errorf("ip err: %s", item)
+				continue
+			}
 		}
 	}
 	return Success

@@ -3,7 +3,6 @@ module pro_cfg_manager
 go 1.15
 
 require (
-	github.com/3th1nk/cidr v0.0.0-20210818063431-caa3bf6ce590
 	github.com/StackExchange/wmi v1.2.0 // indirect
 	github.com/antonfisher/nested-logrus-formatter v1.3.0
 	github.com/gin-contrib/cors v1.3.1

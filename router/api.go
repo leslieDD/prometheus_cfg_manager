@@ -59,7 +59,7 @@ func initApiRouter() {
 	v1.GET("/machines/all", getAllMachines)
 	v1.DELETE("/machines/selection", batchDeleteMachine)
 	v1.POST("/upload/machines", uploadMachines)
-	v1.POST("/machines/batch/import", batchImportIPAddrs)
+	v1.PUT("/machines/batch/import", batchImportIPAddrs)
 
 	v1.POST("/publish", publish)
 	v1.POST("/reload", reload)
@@ -986,7 +986,11 @@ func uploadMachines(c *gin.Context) {
 	resComm(c, bf, result)
 }
 
-func batchImportIPAddrs(c *gin.Context) {}
+func batchImportIPAddrs(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	bf := models.BatchImportIPAddrs(user)
+	resComm(c, bf, nil)
+}
 
 func publish(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
