@@ -554,6 +554,7 @@ func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *Bri
 				config.Log.Errorf("ip pool err: %s", item)
 				continue
 			}
+
 		} else {
 			ipObj := net.ParseIP(item)
 			if ipObj == nil {
