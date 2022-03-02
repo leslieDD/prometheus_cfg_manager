@@ -12,6 +12,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/3th1nk/cidr"
 	"gorm.io/gorm"
 )
 
@@ -538,30 +539,52 @@ func UpdateIPPosition(user *UserSessionInfo) *BriefMessage {
 	return Success
 }
 
-func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *BriefMessage {
+func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) (map[string]struct{}, *BriefMessage) {
 	items := strings.Split(content.Content, ";")
 	importIPs := map[string]struct{}{}
 	for _, item := range items {
+		currIP := strings.TrimSpace(item)
 		if strings.Contains(item, "/") {
-			ipObj, netObj, err := net.ParseCIDR(item)
+			c, err := cidr.ParseCIDR(currIP)
 			if err != nil {
-				config.Log.Errorf("net err: %s", item)
+				config.Log.Error(err)
 				continue
 			}
-		} else if strings.Contains(item, "~") {
-			fields := strings.Split(item, "~")
+			if err := c.ForEachIP(func(ip string) error {
+				importIPs[ip] = struct{}{}
+				return nil
+			}); err != nil {
+				config.Log.Error(err.Error())
+			}
+		} else if strings.Contains(currIP, "~") {
+			fields := strings.Split(currIP, "~")
 			if len(fields) != 2 {
-				config.Log.Errorf("ip pool err: %s", item)
+				config.Log.Errorf("ip pool err: %s", currIP)
 				continue
 			}
-
+			ps, err := utils.RangeBeginToEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+			if err != nil {
+				config.Log.Error(err)
+				continue
+			}
+			for _, p := range ps {
+				importIPs[p] = struct{}{}
+			}
 		} else {
-			ipObj := net.ParseIP(item)
+			ipObj := net.ParseIP(currIP)
 			if ipObj == nil {
-				config.Log.Errorf("ip err: %s", item)
+				config.Log.Errorf("ip err: %s", currIP)
 				continue
 			}
+			importIPs[item] = struct{}{}
 		}
 	}
-	return Success
+	if len(importIPs) == 0 {
+		return Success
+	}
+	umi := UploadMachinesInfo{
+		Opts: UploadOpts{false},
+	}
+	UploadMachines(user, importIPs)
+	return importIPs, Success
 }

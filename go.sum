@@ -1,3 +1,5 @@
+github.com/3th1nk/cidr v0.0.0-20210818063431-caa3bf6ce590 h1:jbGBLWawqfe85MNtVDPZO2iAQt8rlmTdWkNlJ7CCSoI=
+github.com/3th1nk/cidr v0.0.0-20210818063431-caa3bf6ce590/go.mod h1:b4C3pR7zJpDKiwwJZUjU9VoZfTZQCSekuMPlBmtGzw4=
 github.com/BurntSushi/toml v0.3.1/go.mod h1:xHWCNGjB5oqiDr8zfno3MHue2Ht5sIBksp03qcyfWMU=
 github.com/StackExchange/wmi v1.2.0 h1:noJEYkMQVlFCEAc+2ma5YyRhlfjcWfZqk5sBRYozdyM=
 github.com/StackExchange/wmi v1.2.0/go.mod h1:3eOhrUMpNV+6aFIbp5/iudMxNCF27Vw2OZgy4xEx0Fg=
