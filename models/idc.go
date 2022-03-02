@@ -546,3 +546,152 @@ func WriteNetInfoToMachines(user *UserSessionInfo, ms []*Machine) *BriefMessage 
 	}
 	return Success
 }
+
+func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	// 获取所有的组
+	jobs := []*Jobs{}
+	tx := db.Table("jobs").Find(&jobs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	// 处理每一个组
+	for _, j := range jobs {
+		if !j.Enabled {
+			continue
+		}
+		// 获取组的所有IP地址
+		sql := fmt.Sprintf(`SELECT machines.* FROM job_machines
+		LEFT JOIN jobs 
+		ON jobs.id = job_machines.job_id
+		LEFT JOIN machines
+		ON machines.id = job_machines.machine_id
+		WHERE jobs.id = %d AND machines.enabled = 1
+		`, j.ID)
+		ipAddrsForJob := []*Machine{}
+		tx = db.Table("machines").Raw(sql).Find(&ipAddrsForJob)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrSearchDBData
+		}
+		// 给IP地址进行分组
+		subGroupCreateID := map[string]int{}
+		subGroupCreateKeyVal := map[string]map[string]string{}
+		idcLineMap := map[string][]*Machine{} // 稍后会把ID对应的label写入group_labels表中
+		for _, m := range ipAddrsForJob {
+			var key string
+			if m.IDCName != "" && m.LineName != "" {
+				key = fmt.Sprintf("%s_%s", m.IDCName, m.LineName)
+			} else if m.IDCName != "" {
+				key = m.IDCName
+			} else if m.LineName != "" {
+				key = m.LineName
+			} else {
+				key = "默认子组"
+			}
+
+			_, ok := idcLineMap[key]
+			if !ok {
+				idcLineMap[key] = []*Machine{}
+			}
+			idcLineMap[key] = append(idcLineMap[key], m)
+			subGroupCreateID[key] = 0
+			_, ok = subGroupCreateKeyVal[key]
+			if !ok {
+				subGroupCreateKeyVal[key] = map[string]string{}
+			}
+			subGroupCreateKeyVal[key]["idc"] = m.IDCName
+			subGroupCreateKeyVal[key]["line"] = m.LineName
+		}
+		// 获取此JOB组中的所有子组
+		sunJobGroup := []*JobGroup{}
+		tx = db.Table("job_group").Where("jobs_id", j.ID).Find(&sunJobGroup)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrSearchDBData
+		}
+		sunJobGroupMap := map[string]*JobGroup{}
+		for _, s := range sunJobGroup {
+			sunJobGroupMap[s.Name] = s
+		}
+		// 创建不存在的子组
+		// labelsWillWrite := map[string]map[string]string{}
+		crateIDForTableGroupMachines := map[int][]int{}
+		for name, ipList := range idcLineMap {
+			obj, ok := sunJobGroupMap[name]
+			if ok {
+				subGroupCreateID[name] = obj.ID
+				_, ok := crateIDForTableGroupMachines[obj.ID]
+				if !ok {
+					crateIDForTableGroupMachines[obj.ID] = []int{}
+				}
+				for _, i := range ipList {
+					crateIDForTableGroupMachines[obj.ID] = append(crateIDForTableGroupMachines[obj.ID], i.ID)
+				}
+				continue
+			}
+			jg := JobGroup{
+				ID:       0,
+				JobsID:   j.ID,
+				Name:     name,
+				Enabled:  true,
+				UpdateAt: time.Now(),
+				UpdateBy: user.Username,
+			}
+			tx = db.Table("job_group").Create(&jg)
+			if tx.Error != nil {
+				config.Log.Error(tx.Error)
+				return ErrCreateDBData
+			}
+			subGroupCreateID[name] = jg.ID
+			sunJobGroupMap[name] = &jg
+			_, ok = crateIDForTableGroupMachines[jg.ID]
+			if !ok {
+				crateIDForTableGroupMachines[jg.ID] = []int{}
+			}
+			for _, i := range ipList {
+				crateIDForTableGroupMachines[jg.ID] = append(crateIDForTableGroupMachines[jg.ID], i.ID)
+			}
+		}
+		// 在表group_machines中写入IP及子组的对应关系
+		for jobID, machineIDs := range crateIDForTableGroupMachines {
+			for _, mid := range machineIDs {
+				wData := JobGroupIP{
+					ID:         0,
+					JobGroupID: jobID,
+					MachinesID: mid,
+					UpdateAt:   time.Now(),
+				}
+				tx = db.Table("group_machines").Create(&wData)
+				if tx.Error != nil {
+					config.Log.Error(tx.Error)
+					continue // 因为有可能会创建到一样的机器与子组的关联关系,所以遇到错误就直接跳过
+					// return ErrCreateDBData
+				}
+			}
+		}
+		// 在表group_labels中创建数据
+		for key, obj := range subGroupCreateKeyVal {
+			wData := GroupLabels{
+				ID:         0,
+				JobGroupID: subGroupCreateID[key],
+				Key:        obj["idc"],
+				Value:      obj["line"],
+				Enabled:    true,
+				UpdateAt:   time.Now(),
+				UpdateBy:   user.Username,
+			}
+			tx = db.Table("group_labels").Create(&wData)
+			if tx.Error != nil {
+				config.Log.Error(tx.Error)
+				// return ErrCreateDBData // 因为有可能会创建到一样的标签,所以遇到错误就直接跳过
+			}
+		}
+	}
+	return Success
+}

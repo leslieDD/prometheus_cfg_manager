@@ -142,6 +142,7 @@ func initApiRouter() {
 
 	v1.PUT("/idc/update/netinfo/all", updateNetInfoAll)
 	v1.PUT("/idc/update/netinfo/part", updateNetInfoPart)
+	v1.PUT("/idc/create/label", createLabelForAllIPs)
 }
 
 func getTest(c *gin.Context) {
@@ -1944,5 +1945,11 @@ func updateNetInfoAll(c *gin.Context) {
 func updateNetInfoPart(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	bf := models.UpdateAllIPAddrs(user, true)
+	resComm(c, bf, nil)
+}
+
+func createLabelForAllIPs(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	bf := models.CreateLabelForAllIPs(user)
 	resComm(c, bf, nil)
 }

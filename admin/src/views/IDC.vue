@@ -7,6 +7,7 @@
           <span>
             <el-button type="warning" plain size="small" class="button" @click="updateAllIPAddrs"> 更新所有IP </el-button>
             <el-button type="info" plain size="small" class="button" @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
+            <el-button type="info" plain size="small" class="button" @click="doCreateLabelForAllIPs"> 为IP在JOB组中生成标签 </el-button>
           </span>
           <el-button size="small" class="button" @click="idcAppend"> 增加机房 </el-button>
         </div>
@@ -95,7 +96,7 @@
   import { postLine, putLine, delLine } from '@/api/idc.js'
   import { updateAllIPAddrsNetInfo, updatePartIPAddrsNetInfo } from '@/api/idc.js'
   // import { getLine, getLines, postLine, putLine, delLine } from '@/api/idc.js'
-  import { getLineIpAddrs, putLineIpAddrs } from '@/api/idc.js'
+  import { getLineIpAddrs, putLineIpAddrs, createLabelForAllIPs } from '@/api/idc.js'
 
   export default {
     data() {
@@ -331,6 +332,15 @@
           this.$notify({
             title: '成功',
             message: '更新成功！',
+            type: 'success'
+          });
+        }).catch(e=>console.log(e))
+      },
+      doCreateLabelForAllIPs(){
+        createLabelForAllIPs().then(r=>{
+          this.$notify({
+            title: '成功',
+            message: '生成成功！',
             type: 'success'
           });
         }).catch(e=>console.log(e))

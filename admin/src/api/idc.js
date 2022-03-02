@@ -121,3 +121,10 @@ export function updatePartIPAddrsNetInfo (info) {
   })
 }
 
+export function createLabelForAllIPs (info) {
+  return request({
+    url: '/v1/idc/create/label',
+    method: 'put',
+    data: info
+  })
+}
