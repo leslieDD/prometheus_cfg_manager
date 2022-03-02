@@ -1,0 +1,5 @@
+ALTER TABLE `machines`
+ADD COLUMN `idc_name` VARCHAR(200) NULL DEFAULT NULL COMMENT '所在机房'
+AFTER `ipaddr`,
+  ADD COLUMN `line_name` VARCHAR(200) NULL DEFAULT NULL COMMENT '所在线路'
+AFTER `idc_name`;
