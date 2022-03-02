@@ -13,8 +13,11 @@
       </div>
       <div class="do_action">
         <div style="padding-right: 15px">
-          <el-button size="small" type="warning" plain @click="doBatchAdd()"
+          <el-button size="small" type="warning" plain @click="doBatchAddWeb()"
             >批量添加</el-button
+          >
+          <el-button size="small" type="warning" plain @click="doBatchAddFile()"
+            >批量添加(文件)</el-button
           >
           <el-button size="small" type="success" plain @click="doAdd()"
             >添加IP</el-button
@@ -411,6 +414,35 @@
         </div>
       </el-dialog>
     </div>
+    <div>
+      <el-dialog
+        title="批量导入IP地址"
+        v-model="dialogBatchImportVisible"
+        width="900px"
+      >
+        <div class="prompt-message"><el-tag type="warning">IP或者网段之间，使用英文封号（;）分隔开，自动跳过已经存在的IP地址</el-tag></div>
+        <el-form :model="batchImportIPAddr" :rules="webBatchRules" ref="batchImportIPAddr">
+          <el-form-item prop="content">
+            <el-input 
+              :autosize="{ minRows: 15, maxRows: 15 }" 
+              type="textarea" 
+              size="small" 
+              placeholder="" 
+              v-model="batchImportIPAddr.content" 
+              autocomplete="off">
+            </el-input>
+          </el-form-item>
+        </el-form>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button size="small" @click="dialogBatchImportVisible = false">取消</el-button>
+            <el-button size="small" type="primary" @click="doBatchAddWebSubmit('batchImportIPAddr')"
+              >确定</el-button
+            >
+          </span>
+        </template>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -424,6 +456,7 @@ import {
   enabledMachine,
   batchDeleteMachine,
   updatePosition,
+  batchImportIpAddrsWeb
 } from '@/api/machines'
 import { publish } from '@/api/publish'
 import JsonView from '@/components/JsonView.vue'
@@ -446,6 +479,18 @@ export default {
         }
       }
     }
+    function validateStr (rule, value, callback) {
+      if (value === '' || typeof value === 'undefined' || value == null) {
+        callback(new Error('请输入正确名称'))
+      } else {
+        const reg = /\s+/
+        if (reg.test(value)) {
+          callback(new Error('名称中不允许有空字符'))
+        } else {
+          callback()
+        }
+      }
+    };
     return {
       machines: [],
       jobs: [],
@@ -483,11 +528,22 @@ export default {
       ipStatusData: [],
       dialogIpStatusVisible: false,
       dialogIpPositionVisible: false,
+      dialogBatchImportVisible: false,
       currentIPStatus: '',
       currentIPPosition: '',
       ipStatusList: {},
       needWarning: {},
       jsonPositionInfo: null,
+      batchIpaddrs: '',
+      batchImportIPAddr: {
+        content: '',
+      },
+      formLabelWidth: '80px',
+      webBatchRules: {
+        content: [
+          { required: true, message: '请输入有效的IP地址或者网段，支持V4及V6', validator: validateStr, trigger: ['blur'] }
+        ],
+      },
     }
   },
   created () {
@@ -828,12 +884,30 @@ export default {
         this.machines = [...this.machines]
       }).catch(e => console.log(e))
     },
-    doBatchAdd () {
+    doBatchAddFile () {
       const params = {
         currentPage: this.currentPage,
         pageSize: this.pageSize
       }
       this.$router.push({ name: 'BatchOpt', params: params })
+    },
+    doBatchAddWeb(){
+      this.dialogBatchImportVisible = true
+    },
+    doBatchAddWebSubmit(formName){
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          batchImportIpAddrsWeb({content: this.batchImportIPAddr.content}).then(r=>{
+            this.$notify({
+              title: '成功',
+              message: '批量添加成功！',
+              type: 'success'
+            });
+          }).catch(e=>console.log(e))
+        } else {
+          return false
+        }
+      })
     },
     doBatchDel () {
       if (this.multipleSelection.length === 0) {
@@ -951,5 +1025,8 @@ el-dialog {
 }
 .el-button-color {
   color: red;
+}
+.prompt-message {
+  margin-top: -22px;
 }
 </style>

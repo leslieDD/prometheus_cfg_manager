@@ -59,6 +59,7 @@ func initApiRouter() {
 	v1.GET("/machines/all", getAllMachines)
 	v1.DELETE("/machines/selection", batchDeleteMachine)
 	v1.POST("/upload/machines", uploadMachines)
+	v1.POST("/machines/batch/import", batchImportIPAddrs)
 
 	v1.POST("/publish", publish)
 	v1.POST("/reload", reload)
@@ -984,6 +985,8 @@ func uploadMachines(c *gin.Context) {
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import ip", models.IsAdd, bf)
 	resComm(c, bf, result)
 }
+
+func batchImportIPAddrs(c *gin.Context) {}
 
 func publish(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
