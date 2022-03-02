@@ -977,8 +977,8 @@ func uploadMachines(c *gin.Context) {
 	}
 	info := models.UploadMachinesInfo{}
 	if err := c.BindJSON(&info); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import ip", models.IsAdd, models.ErrSplitParma)
-		resComm(c, models.ErrSplitParma, nil)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import ip", models.IsAdd, models.ErrUpdateData)
+		resComm(c, models.ErrUpdateData, nil)
 		return
 	}
 	result, bf := models.UploadMachines(user, &info)
@@ -988,7 +988,13 @@ func uploadMachines(c *gin.Context) {
 
 func batchImportIPAddrs(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
-	bf := models.BatchImportIPAddrs(user)
+	content := models.BatchImportIPaddrs{}
+	if err := c.BindJSON(&content); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import ip[web]", models.IsAdd, models.ErrUpdateData)
+		resComm(c, models.ErrUpdateData, nil)
+		return
+	}
+	bf := models.BatchImportIPAddrs(user, &content)
 	resComm(c, bf, nil)
 }
 

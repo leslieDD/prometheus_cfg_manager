@@ -539,7 +539,7 @@ func UpdateIPPosition(user *UserSessionInfo) *BriefMessage {
 	return Success
 }
 
-func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) (map[string]struct{}, *BriefMessage) {
+func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *BriefMessage {
 	items := strings.Split(content.Content, ";")
 	importIPs := map[string]struct{}{}
 	for _, item := range items {
@@ -583,8 +583,11 @@ func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) (map
 		return Success
 	}
 	umi := UploadMachinesInfo{
-		Opts: UploadOpts{false},
+		Opts:     UploadOpts{IgnoreErr: false},
+		JobsID:   []int{},
+		Machines: nil,
+		TongJi:   UploadResult{},
 	}
-	UploadMachines(user, importIPs)
+	UploadMachines(user, &umi)
 	return importIPs, Success
 }
