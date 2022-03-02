@@ -163,7 +163,7 @@ export default {
     this.yamlViewer.refresh()
     // editor.setSize('width','height');
     // this.yamlViewer.setSize('835px', '83vh');
-    this.yamlViewer.setSize('1120px', '83vh');
+    this.yamlViewer.setSize('100%', '83vh');
     this.yamlViewer.setValue(this.value)
     this.yamlViewer.on('change', (cm) => {
       this.$emit('changed', cm.getValue())
@@ -187,17 +187,17 @@ export default {
   height: 85vh;
 }
 .main-content {
-  width: 250px;
+  width: 290px;
   height: 84vh;
 }
 /* .card-scrollbar {
   height: 84vh;
   width: 250px;
 } */
-/* .yaml-viewer {
+.yaml-viewer {
   position: relative;
-  width: 1200px;
-} */
+  width: 100%;
+}
 .tree :deep() .el-tree-node {
   position: relative;
   padding-left: 0;

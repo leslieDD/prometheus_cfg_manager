@@ -292,7 +292,11 @@
           "line_id": this.currentPoolObj.id,
           "ipaddrs": this.ipaddrs_net_line
         }).then(r=>{
-          
+            this.$notify({
+              title: '成功',
+              message: '更新成功！',
+              type: 'success'
+            });
         }).catch(e=>console.log(e))
       }
     }

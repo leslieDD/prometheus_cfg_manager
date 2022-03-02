@@ -187,7 +187,7 @@ export default {
       scrollbarStyle: 'simple'
     }))
     // editor.setSize('width','height');
-    this.tmplEditor.setSize('1120px', '83vh');
+    this.tmplEditor.setSize('100%', '83vh');
     this.refresh()
     this.tmplEditor.setValue(this.value)
 

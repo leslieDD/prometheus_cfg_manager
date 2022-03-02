@@ -219,7 +219,7 @@ func GetLineIpAddrs(id *OnlyID) (*IPAddrsPool, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	pool := IPAddrsPool{}
-	tx := db.Table("pool").Where("id", id.ID).Find(&pool)
+	tx := db.Table("pool").Where("line_id", id.ID).Find(&pool)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
