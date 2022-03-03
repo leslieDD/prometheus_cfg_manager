@@ -420,7 +420,7 @@
         v-model="dialogBatchImportVisible"
         width="900px"
       >
-        <div class="prompt-message"><el-tag type="warning">IP或者网段之间，使用英文封号（;）分隔开，自动跳过已经存在的IP地址</el-tag></div>
+        <div class="prompt-message"><el-tag type="warning">IP或者网段之间，使用英文封号（;）分隔开，自动跳过已经存在的IP地址，如：192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1</el-tag></div>
         <el-form :model="batchImportIPAddr" :rules="webBatchRules" ref="batchImportIPAddr">
           <el-form-item prop="content">
             <el-input 
@@ -433,12 +433,48 @@
             </el-input>
           </el-form-item>
         </el-form>
+        <div>
+          <span>为以上新添加的地址分配到指定的组：</span>
+          <el-select
+            v-model="batchTypeSelect"
+            multiple
+            collapse-tags
+            style="margin-left: 20px"
+            placeholder="Select"
+            size="small"
+          >
+            <el-option
+              v-for="item in jobs"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </div>
         <template #footer>
           <span class="dialog-footer">
-            <el-button size="small" @click="dialogBatchImportVisible = false">取消</el-button>
-            <el-button size="small" type="primary" @click="doBatchAddWebSubmit('batchImportIPAddr')"
-              >确定</el-button
+            <el-button size="small" @click="dialogBatchImportVisible = false">关 闭</el-button>
+            <el-button
+              v-if="import_pushing === false"
+              style="margin-left: 10px"
+              size="small"
+              type="success"
+              icon="el-icon-upload"
+              @click="doBatchAddWebSubmit('batchImportIPAddr')"
+              >确 定</el-button
             >
+            <el-button
+              v-if="import_pushing === true"
+              style="margin-left: 10px"
+              size="small"
+              type="success"
+              icon="el-icon-loading"
+              >确 定</el-button
+            >
+            <!-- <el-button size="small" type="primary" @click="doBatchAddWebSubmit('batchImportIPAddr')"
+              >确 定</el-button
+            > -->
           </span>
         </template>
       </el-dialog>
@@ -496,6 +532,7 @@ export default {
       jobs: [],
       jobsMap: {},
       selectTypeValue: {},
+      batchTypeSelect: [],
       search: '',
       pageSize: 15,
       pageTotal: 0,
@@ -544,6 +581,7 @@ export default {
           { required: true, message: '请输入有效的IP地址或者网段，支持V4及V6', validator: validateStr, trigger: ['blur'] }
         ],
       },
+      import_pushing: false,
     }
   },
   created () {
@@ -892,17 +930,37 @@ export default {
       this.$router.push({ name: 'BatchOpt', params: params })
     },
     doBatchAddWeb(){
-      this.dialogBatchImportVisible = true
+      getJobs().then(
+        r => {
+          this.jobs = r.data
+          r.data.forEach(e => {
+            this.jobsMap[e.id] = e.name
+          })
+          this.import_pushing = false
+          this.dialogBatchImportVisible = true
+        }
+      ).catch(
+        e => {
+          console.log(e)
+        }
+      )
     },
     doBatchAddWebSubmit(formName){
       this.$refs[formName].validate((valid) => {
         if (valid) {
-          batchImportIpAddrsWeb({content: this.batchImportIPAddr.content}).then(r=>{
+          this.import_pushing = true
+          var jobIDSelect = []
+          for(var k in this.batchTypeSelect) {
+            jobIDSelect.push(this.batchTypeSelect[k])
+          }
+          batchImportIpAddrsWeb({content: this.batchImportIPAddr.content, jobs_id: jobIDSelect}).then(r=>{
             this.$notify({
               title: '成功',
               message: '批量添加成功！',
               type: 'success'
             });
+            this.doGetMechines()
+            this.import_pushing = false
           }).catch(e=>console.log(e))
         } else {
           return false
@@ -945,7 +1003,8 @@ export default {
         this.jsonPositionInfo = row.position
         this.dialogIpPositionVisible = true
       }
-    }
+    },
+    selectChange (event) {},
   }
 }
 </script>

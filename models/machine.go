@@ -68,6 +68,7 @@ type ListMachineMerge struct {
 
 type BatchImportIPaddrs struct {
 	Content string `json:"content"`
+	JobsID  []int  `json:"jobs_id"`
 }
 
 func GetMachine(machineID int) (*Machine, *BriefMessage) {
@@ -582,12 +583,22 @@ func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *Bri
 	if len(importIPs) == 0 {
 		return Success
 	}
+	machines := []*UploadMachine{}
+	for m, _ := range importIPs {
+		machines = append(machines, &UploadMachine{
+			ID:             0,
+			IpAddr:         m,
+			ImportInPool:   false,
+			ImportInJobNum: 0,
+			ImportError:    "",
+		})
+	}
 	umi := UploadMachinesInfo{
-		Opts:     UploadOpts{IgnoreErr: false},
-		JobsID:   []int{},
-		Machines: nil,
+		Opts:     UploadOpts{IgnoreErr: true},
+		JobsID:   content.JobsID,
+		Machines: machines,
 		TongJi:   UploadResult{},
 	}
-	UploadMachines(user, &umi)
-	return importIPs, Success
+	_, bf := UploadMachines(user, &umi)
+	return bf
 }

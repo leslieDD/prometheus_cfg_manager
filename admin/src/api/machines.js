@@ -63,10 +63,11 @@ export function batchDeleteMachine (ids) {
   })
 }
 
-export function batchImportIpAddrsWeb () {
+export function batchImportIpAddrsWeb (data) {
   return request({
     url: '/v1/machines/batch/import',
-    method: 'put'
+    method: 'put',
+    data: data,
   })
 }
 
