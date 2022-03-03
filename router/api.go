@@ -510,13 +510,26 @@ func putJobGroupMachines(c *gin.Context) {
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
+	jobIDStr, ok := c.GetQuery("job_id")
+	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group ip pool", models.IsUpdate, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	jobID, err := strconv.ParseInt(jobIDStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group ip pool", models.IsUpdate, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
 	gms := []models.JobGroupMachine{}
 	if err := c.BindJSON(&gms); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group ip pool", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutJobGroupMachines(jID, &gms)
+	bf := models.PutJobGroupMachines(jobID, jID, &gms)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group ip pool", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }

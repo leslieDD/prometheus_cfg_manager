@@ -36,7 +36,7 @@ export function getJobMachines (jobID) {
   return request({
     url: '/v1/job/machines',
     method: 'get',
-    params: {id: jobID}
+    params: { id: jobID }
   })
 }
 
@@ -44,15 +44,15 @@ export function getJobMachinesForGroup (groupID) {
   return request({
     url: '/v1/job/group/machines',
     method: 'get',
-    params: {id: groupID}
+    params: { id: groupID }
   })
 }
 
-export function putJobMachinesForGroup (gID, groupInfo) {
+export function putJobMachinesForGroup (gID, jobID, groupInfo) {
   return request({
     url: '/v1/job/group/machines',
     method: 'put',
-    params: {id: gID},
+    params: { id: gID, job_id: jobID },
     data: groupInfo
   })
 }
@@ -69,7 +69,7 @@ export function postGroupLabels (gID, jobGroupLablesInfo) {
   return request({
     url: '/v1/job/group/labels',
     method: 'post',
-    params: {id: gID},
+    params: { id: gID },
     data: jobGroupLablesInfo
   })
 }
@@ -78,7 +78,7 @@ export function putGroupLabels (gID, jobGroupLablesInfo) {
   return request({
     url: '/v1/job/group/labels',
     method: 'put',
-    params: {id: gID},
+    params: { id: gID },
     data: jobGroupLablesInfo
   })
 }
@@ -95,7 +95,7 @@ export function getGroupMachine (jobGroupID) {
   return request({
     url: '/v1/job/group/machine',
     method: 'get',
-    params: {id: jobGroupID}
+    params: { id: jobGroupID }
   })
 }
 

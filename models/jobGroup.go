@@ -303,41 +303,72 @@ func GetJobGroupMachines(gID int64) ([]*JobGroupMachine, *BriefMessage) {
 // 	ID int `json:"id" gorm:"column:id"`
 // }
 
-func PutJobGroupMachines(gID int64, pools *[]JobGroupMachine) *BriefMessage {
+func PutJobGroupMachines(jobID int64, gID int64, pools *[]JobGroupMachine) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	ids := map[int]struct{}{}
-	for _, p := range *pools {
-		if p.ID == 0 {
-			continue
-		}
-		ids[p.ID] = struct{}{}
-	}
-	gmIDs := []OnlyID{}
-	tx := db.Table("group_machines").Where("job_group_id=?", gID).Find(&gmIDs)
+	// ids := map[int]struct{}{}
+	// for _, p := range *pools {
+	// 	if p.ID == 0 {
+	// 		continue
+	// 	}
+	// 	ids[p.ID] = struct{}{}
+	// }
+	// 从表里面找出当前子组的所有元素，并删除，并把上传的IP写入表中。以下逻辑有点烦，不过不想改
+	// gmIDs := []OnlyID{}
+	// tx := db.Table("group_machines").Where("job_group_id=?", gID).Find(&gmIDs)
+	// if tx.Error != nil {
+	// 	config.Log.Error(tx.Error)
+	// 	return ErrSearchDBData
+	// }
+	// if len(gmIDs) != 0 {
+	// 	delIDs := []string{}
+	// 	for _, i := range gmIDs {
+	// 		_, ok := ids[i.ID]
+	// 		if !ok {
+	// 			delIDs = append(delIDs, fmt.Sprint(i.ID))
+	// 		}
+	// 	}
+	// 	if len(delIDs) != 0 {
+	// 		tx = db.Table("group_machines").Where("id in (" + strings.Join(delIDs, ",") + ")").Delete(nil)
+	// 		if tx.Error != nil {
+	// 			config.Log.Error(tx.Error)
+	// 			return ErrDelData
+	// 		}
+	// 	}
+	// }
+	subGroupID := []*OnlyID{}
+	tx := db.Table("job_group").Where("jobs_id=? ", jobID).Find(&subGroupID)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrSearchDBData
 	}
-	if len(gmIDs) != 0 {
-		delIDs := []string{}
-		for _, i := range gmIDs {
-			_, ok := ids[i.ID]
-			if !ok {
-				delIDs = append(delIDs, fmt.Sprint(i.ID))
-			}
-		}
-		if len(delIDs) != 0 {
-			tx = db.Table("group_machines").Where("id in (" + strings.Join(delIDs, ",") + ")").Delete(nil)
-			if tx.Error != nil {
-				config.Log.Error(tx.Error)
-				return ErrDelData
-			}
+	// subIDs := []int{}
+	// for _, s := range subGroupID {
+	// 	subIDs = append(subIDs, s.ID)
+	// }
+	ids := []int{}
+	for _, p := range *pools {
+		ids = append(ids, p.MachinesID)
+	}
+	// for _, each := range subIDs
+	// 删除其它子组中，包含本次提交上来的Machine ID，因为这些ID要写入此次提交的子组中，其它子组不允许拥有。
+	for _, s := range subGroupID {
+		tx = db.Table("group_machines").Where("job_group_id=? and machines_id in (?)", s.ID, ids).Delete(nil)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrDelData
 		}
 	}
+	// 清清此次提示的子组中的内容
+	tx = db.Table("group_machines").Where("job_group_id=?", gID).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	// 写入新成员
 	ist := []string{}
 	for _, p := range *pools {
 		ist = append(ist, fmt.Sprintf(`(%d, %d, %d)`, p.ID, gID, p.MachinesID))

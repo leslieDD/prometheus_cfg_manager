@@ -144,16 +144,12 @@ func doOptions_2() *BriefMessage {
 	// LEFT JOIN group_machines
 	// ON job_machines.machine_id=group_machines.machines_id
 	// WHERE group_machines.job_group_id IS NULL `
-	sql := `SELECT * FROM job_machines
-	LEFT JOIN jobs
-	ON job_machines.job_id=jobs.id
-	LEFT JOIN job_group
-	ON jobs.id=job_group.jobs_id
+	sql := `SELECT job_machines.machine_id, job_machines.job_id FROM job_machines
 	LEFT JOIN group_machines
-	ON group_machines.job_group_id=job_group.id
-	WHERE group_machines.job_group_id IS NULL `
+	ON job_machines.machine_id=group_machines.machines_id
+	WHERE job_group_id IS NULL`
 	jgs := []*JobIDAndMachinesID{}
-	tx := db.Table("job_machines").Exec(sql).Find(&jgs)
+	tx := db.Table("job_machines").Raw(sql).Find(&jgs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrSearchDBData

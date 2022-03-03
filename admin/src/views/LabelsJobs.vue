@@ -559,7 +559,6 @@ export default {
       let newValues = []
       this.editIPValue.forEach(machinedID => {
         const v = this.editIPValueMap[machinedID]
-        console.log("diandian", this.editIPDataMap[machinedID], v)
         if(!this.editIPDataMap[machinedID]) {
           return
         }
@@ -575,7 +574,7 @@ export default {
         newValues.push(newV)
       })
       // const jobID = this.jobInfo.id
-      putJobMachinesForGroup(this.jobGroupIDCurrent, newValues).then(r => {
+      putJobMachinesForGroup(this.jobGroupIDCurrent, this.jobInfo.id, newValues).then(r => {
         this.$notify({
           title: '成功',
           message: '更新子组成功！',
