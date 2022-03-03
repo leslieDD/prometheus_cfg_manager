@@ -988,6 +988,11 @@ func uploadMachines(c *gin.Context) {
 
 func batchImportIPAddrs(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "import")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	content := models.BatchImportIPaddrs{}
 	if err := c.BindJSON(&content); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "batch import ip[web]", models.IsAdd, models.ErrUpdateData)
