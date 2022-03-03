@@ -18,4 +18,4 @@ if [ ! -f /usr/local/prometheus_cfg_manager/config.yml ];then
 fi
 cp -rf ./admin/dist /usr/local/prometheus_cfg_manager/static
 # 启动服务，需要把pro_cfg_manager.service注册到系统中
-# systemctl restart pro_cfg_manager
+systemctl restart pro_cfg_manager
