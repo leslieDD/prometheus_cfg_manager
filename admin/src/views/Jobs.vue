@@ -76,7 +76,6 @@
       <el-table-column
         label="JOB组名称"
         prop="name"
-        width="220px"
         show-overflow-tooltip
       >
       </el-table-column>
