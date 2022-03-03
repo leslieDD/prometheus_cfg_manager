@@ -9,7 +9,8 @@
             <el-button type="info" plain size="small" class="button" @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
             <el-button type="info" plain size="small" class="button" @click="doCreateLabelForAllIPs"> 为IP在JOB组中生成标签 </el-button>
           </span>
-          <el-button size="small" class="button" @click="idcAppend"> 增加机房 </el-button>
+          <el-button size="small" type="info" class="button" @click="flushtree"> 刷新列表 </el-button>
+          <el-button size="small" type="success" class="button" @click="idcAppend"> 增加机房 </el-button>
         </div>
       </template>
       <div>
@@ -45,8 +46,9 @@
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span>IP地址列表（<el-tag size="mini" type="warning">以英文分号(;)隔开</el-tag>）：<el-tag v-if="currentTitle!==''" size="mini" type="danger">{{currentTitle}}</el-tag></span>
-          <el-button size="small" class="button" @click="putLineIPData"> 更新 </el-button>
+          <span>IP地址列表(<el-tag size="mini" type="warning">以英文分号(;)隔开;如:192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1</el-tag>):
+          <el-tag v-if="currentTitle!==''" size="mini" type="danger">{{currentTitle}}</el-tag></span>
+          <el-button size="small" type="success" class="button" @click="putLineIPData"> 更 新 </el-button>
         </div>
       </template>
       <div>
@@ -160,15 +162,30 @@
     },
 
     methods: {
-      doGetTree(){
+      doGetTree(show_notice){
         getIDCTree().then(r => {
           this.data = r.data.tree
           tree_id = r.data.id + 1
+          if (show_notice) {
+            this.$notify({
+              title: '成功',
+              message: show_notice,
+              type: 'success'
+            });
+          }
         }).catch(e => console.log(e))
       },
       append(data) {
         this.currentDataPoint = data
+        // this.Lineform.id = data.id
         this.idcName = '添加线路：' + data.label
+        this.Lineform = {
+          id: data.id,    // 因为是增加新的，此时这个ID指向idc_id
+          tree_id: 0,
+          tree_type: 'line',
+          label: '',
+          children: [],
+        },
         this.idEdit = false
         this.dialogLineVisible = true
       },
@@ -176,7 +193,7 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             if (this.idEdit === false) {
-              postLine({label: this.Lineform.label, id: this.Lineform.id}).then(r=>{
+              postLine({label: this.Lineform.label, idc_id: this.Lineform.id}).then(r=>{
                 this.doGetTree()
                 this.dialogLineVisible = false
               }).catch(e=>{
@@ -227,6 +244,9 @@
         this.idEdit = false
         this.dialogIDCVisible = true
       },
+      flushtree(){
+        this.doGetTree('刷新列表成功！')
+      },
       removeIDC(node, data) {
         this.$confirm('是否确定删除？', '确认信息', {
           distinguishCancelAndClose: true,
@@ -243,10 +263,6 @@
           }).catch(e=>{
             console.log(e)
           })
-          // const parent = node.parent;
-          // const children = parent.data.children || parent.data;
-          // const index = children.findIndex(d => d.tree_id === data.tree_id);
-          // children.splice(index, 1);
         }).catch(e => console.log(e))
       },
       removeLine(node, data){
@@ -265,10 +281,6 @@
           }).catch(e=>{
             console.log(e)
           })
-          // const parent = node.parent;
-          // const children = parent.data.children || parent.data;
-          // const index = children.findIndex(d => d.tree_id === data.tree_id);
-          // children.splice(index, 1);
         }).catch(e => console.log(e))
       },
       edit(node, data){

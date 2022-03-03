@@ -44,6 +44,33 @@ func RangeBeginToEnd(begin, end string) ([]string, error) {
 	return pools, nil
 }
 
+func BigIntBeginAndEnd(begin, end string) (*big.Int, *big.Int, error) {
+	b := net.ParseIP(begin)
+	if b == nil {
+		return nil, nil, errors.New("need valid ip")
+	}
+	e := net.ParseIP(end)
+	if e == nil {
+		return nil, nil, errors.New("need valid ip")
+	}
+	bType := V4OrV6(begin)
+	eType := V4OrV6(end)
+	if bType != eType || bType == 0 {
+		return nil, nil, errors.New("need valid ip")
+	}
+	if bType == 4 {
+		bInt64 := big.NewInt(0)
+		bInt64.SetBytes(b.To4())
+		eInt64 := big.NewInt(0)
+		eInt64.SetBytes(e.To4())
+		return bInt64, eInt64, nil
+	} else {
+		bBigInt := IP6toInt(b)
+		eBigInt := IP6toInt(e)
+		return bBigInt, eBigInt, nil
+	}
+}
+
 // IPV6
 func IP6toInt(IPv6Address net.IP) *big.Int {
 	IPv6Int := big.NewInt(0)
@@ -95,6 +122,11 @@ func InetAtoN(ip string) int64 {
 	ret := big.NewInt(0)
 	ret.SetBytes(net.ParseIP(ip).To4())
 	return ret.Int64()
+}
+
+func InetToBigInt(ip net.IP) *big.Int {
+	bInt64 := big.NewInt(0)
+	return bInt64.SetBytes(ip.To4())
 }
 
 func V4OrV6(s string) int {

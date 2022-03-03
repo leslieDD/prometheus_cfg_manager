@@ -2,9 +2,11 @@ package models
 
 import (
 	"fmt"
+	"math/big"
 	"net"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
+	"pro_cfg_manager/utils"
 	"strings"
 	"time"
 
@@ -351,9 +353,15 @@ type NetInfo struct {
 	IPNetParsed *TypeGroupIP `json:"-" gorm:"-"`
 }
 
+type NetRange struct {
+	Begin *big.Int // 起始IP
+	End   *big.Int // 结束IP
+}
+
 type TypeGroupIP struct {
-	IP  map[string]*net.IP    // 只是单个IP
-	Net map[string]*net.IPNet // IPV4的地址段
+	IP    map[string]*net.IP    // 只是单个IP
+	Net   map[string]*net.IPNet // IPV4的地址段 x.x.x.x/24
+	Range []*NetRange           // 指定范围，如：192.168.1.0~192.168.2.0
 }
 
 func GetNetParams() ([]*IDC, map[int][]*Line, map[int]*TypeGroupIP, *BriefMessage) {
@@ -395,8 +403,9 @@ func GetNetParams() ([]*IDC, map[int][]*Line, map[int]*TypeGroupIP, *BriefMessag
 	tgis := map[int]*TypeGroupIP{} // map中的int是指线路的ID
 	for _, p := range pools {
 		tgi := TypeGroupIP{
-			IP:  map[string]*net.IP{},
-			Net: map[string]*net.IPNet{},
+			IP:    map[string]*net.IP{},
+			Net:   map[string]*net.IPNet{},
+			Range: []*NetRange{},
 		}
 		// 分割IP地址
 		iplist := strings.Split(p.Ipaddrs, ";")
@@ -409,6 +418,19 @@ func GetNetParams() ([]*IDC, map[int][]*Line, map[int]*TypeGroupIP, *BriefMessag
 					continue
 				}
 				tgi.Net[each] = nObj
+			} else if strings.Contains(each, "~") {
+				fields := strings.Split(currIP, "~")
+				if len(fields) != 2 {
+					config.Log.Errorf("ip pool err: %s", currIP)
+					continue
+				}
+				beginBig, endBig, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+				if err != nil {
+					config.Log.Error(err)
+					continue
+				}
+				nr := NetRange{Begin: beginBig, End: endBig}
+				tgi.Range = append(tgi.Range, &nr)
 			} else {
 				ipp := net.ParseIP(currIP)
 				if ipp == nil {
@@ -443,8 +465,9 @@ func GetNetParamsV2() ([]*NetInfo, *BriefMessage) {
 	}
 	for _, n := range netInfo {
 		tgi := TypeGroupIP{
-			IP:  map[string]*net.IP{},
-			Net: map[string]*net.IPNet{},
+			IP:    map[string]*net.IP{},
+			Net:   map[string]*net.IPNet{},
+			Range: []*NetRange{},
 		}
 		// 分割IP地址
 		iplist := strings.Split(n.Ipaddrs, ";")
@@ -457,6 +480,19 @@ func GetNetParamsV2() ([]*NetInfo, *BriefMessage) {
 					continue
 				}
 				tgi.Net[each] = nObj
+			} else if strings.Contains(each, "~") {
+				fields := strings.Split(currIP, "~")
+				if len(fields) != 2 {
+					config.Log.Errorf("ip pool err: %s", currIP)
+					continue
+				}
+				beginBig, endBig, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+				if err != nil {
+					config.Log.Error(err)
+					continue
+				}
+				nr := NetRange{Begin: beginBig, End: endBig}
+				tgi.Range = append(tgi.Range, &nr)
 			} else {
 				ipp := net.ParseIP(currIP)
 				if ipp == nil {
@@ -507,6 +543,21 @@ func UpdateAllIPAddrs(user *UserSessionInfo, updatePart bool) *BriefMessage {
 			} else {
 				for _, n := range pItem.IPNetParsed.Net {
 					if n.Contains(currIPParsed) {
+						i.IDCName = pItem.IDCLabel
+						i.LineName = pItem.LineLabel
+						matched = true
+						break
+					}
+				}
+				currIPParsedBigInt := utils.InetToBigInt(currIPParsed)
+				for _, rs := range pItem.IPNetParsed.Range {
+					if rs.Begin.Cmp(currIPParsedBigInt) == 0 || rs.End.Cmp(currIPParsedBigInt) == 0 {
+						i.IDCName = pItem.IDCLabel
+						i.LineName = pItem.LineLabel
+						matched = true
+						break
+					}
+					if rs.Begin.Cmp(currIPParsedBigInt) == -1 && rs.End.Cmp(currIPParsedBigInt) == 1 {
 						i.IDCName = pItem.IDCLabel
 						i.LineName = pItem.LineLabel
 						matched = true
