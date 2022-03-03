@@ -99,7 +99,7 @@ export default {
 .admin-board {
   /* position: absolute; */
   padding: 0;
-  max-width: 1400px;
+  max-width: 95%;
   margin: 0 auto;
 }
 .base-config-menu {
