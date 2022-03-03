@@ -200,7 +200,7 @@ export default {
 
 <style scoped>
 .admin-set-board {
-  width: 800px;
+  width: 100%;
 }
 .operate-area {
   display: flex;

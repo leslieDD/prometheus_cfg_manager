@@ -474,19 +474,19 @@ func getJobGroupMachines(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job sub group machines", models.IsUpdate, models.ErrQueryData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get sub group machines", models.IsUpdate, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	jID, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job sub group machines", models.IsUpdate, models.ErrQueryData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get sub group machines", models.IsUpdate, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	data, bf := models.GetJobGroupMachines(jID)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job sub group machines", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get sub group machines", models.IsUpdate, bf)
 	resComm(c, bf, data)
 }
 
@@ -610,12 +610,12 @@ func delGroupLabels(c *gin.Context) {
 	}
 	dinfo := models.DelGroupLables{}
 	if err := c.BindQuery(&dinfo); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job sub group lables", models.IsDel, models.ErrSplitParma)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete sub group lables", models.IsDel, models.ErrSplitParma)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	bf := models.DelGroupLabels(&dinfo)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job sub group lables", models.IsDel, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete sub group lables", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
@@ -723,7 +723,7 @@ func publishDefJobs(c *gin.Context) {
 		return
 	}
 	bf := models.AllowOneObj.DoPublishJobs(false)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update sub group", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish default jobs", models.IsPublish, bf)
 	resComm(c, bf, nil)
 }
 
@@ -990,11 +990,12 @@ func batchImportIPAddrs(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	content := models.BatchImportIPaddrs{}
 	if err := c.BindJSON(&content); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import ip[web]", models.IsAdd, models.ErrUpdateData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "batch import ip[web]", models.IsAdd, models.ErrUpdateData)
 		resComm(c, models.ErrUpdateData, nil)
 		return
 	}
 	bf := models.BatchImportIPAddrs(user, &content)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "batch import ip[web]", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
@@ -1067,8 +1068,8 @@ func fileContent(c *gin.Context) {
 	}
 	child := models.Child{}
 	if err := c.BindJSON(&child); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "view sd_file content", models.IsSearch, models.ErrSplitParma)
-		resComm(c, models.ErrSplitParma, nil)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "view sd_file content", models.IsSearch, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	data, bf := models.ReadFileContent(&child)
@@ -1097,8 +1098,8 @@ func ruleFileContent(c *gin.Context) {
 	}
 	child := models.Child{}
 	if err := c.BindJSON(&child); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get rule file content", models.IsSearch, models.ErrSplitParma)
-		resComm(c, models.ErrSplitParma, nil)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get rule file content", models.IsSearch, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	data, bf := models.ReadRuleFileContent(&child)
@@ -1327,19 +1328,19 @@ func postTreeUploadFileYaml(c *gin.Context) {
 	}
 	gidStr, ok := c.GetQuery("gid")
 	if !ok {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import rule from file", models.IsUpdate, models.ErrQueryData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import rule from file", models.IsAdd, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	gid, err := strconv.ParseInt(gidStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import rule from file", models.IsUpdate, models.ErrQueryData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import rule from file", models.IsAdd, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	r, bf := models.PostTreeUploadFileYaml(c, user, gid)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import rule from file", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import rule from file", models.IsAdd, bf)
 	resComm(c, bf, r)
 }
 
@@ -1829,21 +1830,40 @@ func ctlCreateAReload(c *gin.Context) {
 }
 
 func getIDC(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "get_idc")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	id := &models.OnlyID{}
 	if err := c.BindQuery(id); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "[getIDC] query params error", models.IsSearch, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	idc, bf := models.GetIDC(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get idc", models.IsSearch, bf)
 	resComm(c, bf, idc)
 }
 
 func getIDCs(c *gin.Context) {
-
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "get_idc")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get idcs", models.IsSearch, models.Success)
 }
 
 func postIDC(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "add_idc")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	newIDC := models.NewIDC{}
 	if err := c.BindJSON(&newIDC); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create new idc", models.IsAdd, models.ErrPostData)
@@ -1851,50 +1871,93 @@ func postIDC(c *gin.Context) {
 		return
 	}
 	bf := models.PostIDC(user, &newIDC)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create new idc", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
 func putIDC(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "update_idc")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	newIDC := models.NewIDC{}
 	if err := c.BindJSON(&newIDC); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc", models.IsUpdate, models.ErrPostData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc", models.IsUpdate, models.ErrUpdateData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
 	bf := models.PutIDC(user, &newIDC)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
 func delIDC(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "del_idc")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	id := &models.OnlyID{}
 	if err := c.BindQuery(id); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete idc", models.IsDel, models.ErrDelData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DelIDC(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
 func getIDCTree(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "get_idc_tree")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	treeData, bf := models.GetIDCTree()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get idc tree", models.IsSearch, bf)
 	resComm(c, bf, treeData)
 }
 
 func getLine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "get_line")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	id := &models.OnlyID{}
 	if err := c.BindQuery(id); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get line", models.IsSearch, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	idc, bf := models.GetLine(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get line", models.IsSearch, bf)
 	resComm(c, bf, idc)
 }
 
-func getLines(c *gin.Context) {}
+func getLines(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "get_line")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get lines", models.IsSearch, models.Success)
+}
 
 func postLine(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "add_line")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	newLine := models.NewLine{}
 	if err := c.BindJSON(&newLine); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create new line", models.IsAdd, models.ErrPostData)
@@ -1902,11 +1965,17 @@ func postLine(c *gin.Context) {
 		return
 	}
 	bf := models.PostLine(user, &newLine)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create new line", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 
 func putLine(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "update_line")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	newLine := models.NewLine{}
 	if err := c.BindJSON(&newLine); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line", models.IsUpdate, models.ErrPostData)
@@ -1914,31 +1983,53 @@ func putLine(c *gin.Context) {
 		return
 	}
 	bf := models.PutLine(user, &newLine)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
 func delLine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "del_line")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	id := &models.OnlyID{}
 	if err := c.BindQuery(id); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete line", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DelLine(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete line", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 
 func getLineIpAddrs(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "get_line_ipaddr")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	id := &models.OnlyID{}
 	if err := c.BindQuery(id); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get ip address of line", models.IsSearch, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	data, bf := models.GetLineIpAddrs(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get ip address of line", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 
 func putLineIpAddrs(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "update_line_ipaddr")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	newPool := models.NewPool{}
 	if err := c.BindJSON(&newPool); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line ip pool", models.IsUpdate, models.ErrPostData)
@@ -1946,23 +2037,42 @@ func putLineIpAddrs(c *gin.Context) {
 		return
 	}
 	bf := models.PutLineIpAddrs(user, &newPool)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line ip pool", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
 func updateNetInfoAll(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "update_label_all")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	bf := models.UpdateAllIPAddrs(user, false)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update position of all ip address", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
 func updateNetInfoPart(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "update_label_part")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	bf := models.UpdateAllIPAddrs(user, true)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update position of part ip address", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
 func createLabelForAllIPs(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "create_label_for_all_job")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	bf := models.CreateLabelForAllIPs(user)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create label and sub group of job", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }

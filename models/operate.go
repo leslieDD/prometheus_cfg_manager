@@ -150,7 +150,9 @@ func (o *OperateObj) RecodeLog(userName, ipaddr, optContent string, operateType 
 	r, ok := o.recodesLevel[operateType]
 	o.lock.Unlock()
 	if !ok || !r.Selected {
-		return
+		if opt_err == Success { // 有错误的都记录下来
+			return
+		}
 	}
 	opl := &OperationLogMess{
 		OptLog: &OperationLog{

@@ -5,9 +5,15 @@
         <div class="card-header">
           <span>机房及线路</span>
           <span>
-            <el-button type="warning" plain size="small" class="button" @click="updateAllIPAddrs"> 更新所有IP </el-button>
-            <el-button type="info" plain size="small" class="button" @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
-            <el-button type="info" plain size="small" class="button" @click="doCreateLabelForAllIPs"> 为IP在JOB组中生成标签 </el-button>
+            <el-button v-if="pushing_all===false" icon="el-icon-upload" type="warning" plain size="small" class="button" 
+              @click="updateAllIPAddrs"> 更新所有IP </el-button>
+            <el-button v-if="pushing_all===true" icon="el-icon-loading" type="warning" plain size="small" class="button" 
+              @click="updateAllIPAddrs"> 更新所有IP </el-button>
+            <el-button v-if="pushing_part===false" icon="el-icon-upload" type="info" plain size="small" class="button" 
+              @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
+            <el-button v-if="pushing_part===true" icon="el-icon-loading"  type="info" plain size="small" class="button" 
+              @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
+            <el-button type="info" plain size="small" class="button" @click="doCreateLabelForAllIPs"> 在JOB组中生成标签 </el-button>
           </span>
           <el-button size="small" type="info" class="button" @click="flushtree"> 刷新列表 </el-button>
           <el-button size="small" type="success" class="button" @click="idcAppend"> 增加机房 </el-button>
@@ -154,6 +160,8 @@
         idEdit: false,
         currentPoolObj: null,
         currentTitle: '',
+        pushing_all: false,
+        pushing_part: false,
       }
     },
 
@@ -335,22 +343,32 @@
         }).catch(e=>console.log(e))
       },
       updateAllIPAddrs(){
+        this.pushing_all = true
         updateAllIPAddrsNetInfo().then(r=>{
           this.$notify({
             title: '成功',
             message: '更新成功！',
             type: 'success'
           });
-        }).catch(e=>console.log(e))
+          this.pushing_all = false
+        }).catch(e=>{
+          console.log(e)
+          this.pushing_all = false
+        })
       },
       updatePartIPAddrs(){
+        this.pushing_part = true
         updatePartIPAddrsNetInfo().then(r=>{
           this.$notify({
             title: '成功',
             message: '更新成功！',
             type: 'success'
           });
-        }).catch(e=>console.log(e))
+          this.pushing_part = false
+        }).catch(e=>{
+          console.log(e)
+          this.pushing_part = false
+        })
       },
       doCreateLabelForAllIPs(){
         createLabelForAllIPs().then(r=>{
@@ -394,6 +412,6 @@
 }
 
 .box-card {
-  width: 49%;
+  width: 49.5%;
 }
 </style>

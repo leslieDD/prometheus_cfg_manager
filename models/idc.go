@@ -710,19 +710,23 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 			}
 		}
 		// 在表group_machines中写入IP及子组的对应关系
-		for jobID, machineIDs := range crateIDForTableGroupMachines {
+		for jobGrpID, machineIDs := range crateIDForTableGroupMachines {
+			tx = db.Table("group_machines").Where("job_group_id=?", jobGrpID).Delete(nil)
+			if tx.Error != nil {
+				config.Log.Error(tx.Error)
+				return ErrDelData
+			}
 			for _, mid := range machineIDs {
 				wData := JobGroupIP{
 					ID:         0,
-					JobGroupID: jobID,
+					JobGroupID: jobGrpID,
 					MachinesID: mid,
 					UpdateAt:   time.Now(),
 				}
 				tx = db.Table("group_machines").Create(&wData)
 				if tx.Error != nil {
 					config.Log.Error(tx.Error)
-					continue // 因为有可能会创建到一样的机器与子组的关联关系,所以遇到错误就直接跳过
-					// return ErrCreateDBData
+					return ErrCreateDBData
 				}
 			}
 		}
