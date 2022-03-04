@@ -320,7 +320,7 @@ export default {
 .main-board {
   /* position: absolute; */
   padding: 0;
-  max-width: 95%;
+  max-width: 99%;
   margin: 0 auto;
 }
 el-tabs {
