@@ -765,7 +765,7 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 		for key, obj := range subGroupCreateKeyVal {
 			for k, v := range obj {
 				if v == "" {
-					config.Log.Warnf("labels key: %s, value is empty, skip", k)
+					// config.Log.Warnf("labels key: %s, value is empty, skip", k)
 					continue
 				}
 				// wData := GroupLabels{
@@ -778,7 +778,7 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 				// 	UpdateBy:   user.Username,
 				// }
 				sql := fmt.Sprintf("insert ignore into `group_labels` "+
-					"(id, job_group_id, key, value, enabled, update_at, update_by) values(0, %d, '%s', '%s', 1, '%s', '%s')",
+					"(`id`, `job_group_id`, `key`, `value`, `enabled`, `update_at`, `update_by`) values(0, %d, '%s', '%s', 1, '%s', '%s')",
 					subGroupCreateID[key], k, v, time.Now().Format("2006-02-01 15:04:05"), user.Username)
 				tx = db.Table("group_labels").Exec(sql)
 				// tx = db.Table("group_labels").Create(&wData).
