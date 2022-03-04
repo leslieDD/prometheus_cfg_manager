@@ -744,7 +744,6 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 			config.Log.Infof("diandian=> job_group_id: %d, machines_id: %d", jobGrpID, len(machineIDs))
 			for _, mid := range machineIDs {
 				wData := JobGroupIP{
-					ID:         0,
 					JobGroupID: jobGrpID,
 					MachinesID: mid,
 					UpdateAt:   time.Now(),

@@ -112,7 +112,7 @@ func doOptions_1() *BriefMessage {
 			groupID = newJG.ID
 		}
 		jgm := JobGroupIP{
-			ID:         0,
+			// ID:         0,
 			MachinesID: jg.MachineID,
 			JobGroupID: groupID,
 			UpdateAt:   time.Now(),
@@ -188,7 +188,7 @@ func doOptions_2() *BriefMessage {
 			groupID = jobsIDMap[jg.JobID]
 		}
 		jgm := JobGroupIP{
-			ID:         0,
+			// ID:         0,
 			MachinesID: jg.MachineID,
 			JobGroupID: groupID,
 			UpdateAt:   time.Now(),

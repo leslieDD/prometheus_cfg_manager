@@ -563,7 +563,7 @@ type JobIDAndMachinesID struct {
 }
 
 type JobGroupIP struct {
-	ID         int       `json:"id" gorm:"column:id"`
+	// ID         int       `json:"id" gorm:"column:id"`
 	JobGroupID int       `json:"job_group_id" gorm:"column:job_group_id"`
 	MachinesID int       `json:"machines_id" gorm:"column:machines_id"`
 	UpdateAt   time.Time `json:"update_at" gorm:"column:update_at"`
