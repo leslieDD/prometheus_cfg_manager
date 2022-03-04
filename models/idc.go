@@ -735,13 +735,13 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 			}
 		}
 		// 在表group_machines中写入IP及子组的对应关系
-		config.Log.Infof("diandian=> createIDForTableGroupMachines: %d", len(createIDForTableGroupMachines))
 		for jobGrpID, machineIDs := range createIDForTableGroupMachines {
 			// tx = db.Table("group_machines").Where("job_group_id=?", jobGrpID).Delete(nil)
 			// if tx.Error != nil {
 			// 	config.Log.Error(tx.Error)
 			// 	return ErrDelData
 			// }
+			config.Log.Infof("diandian=> job_group_id: %d, machines_id: %d", jobGrpID, len(machineIDs))
 			for _, mid := range machineIDs {
 				wData := JobGroupIP{
 					ID:         0,
