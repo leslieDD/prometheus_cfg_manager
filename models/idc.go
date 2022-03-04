@@ -734,6 +734,12 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 				createIDForTableGroupMachines[jg.ID] = append(createIDForTableGroupMachines[jg.ID], i.ID)
 			}
 		}
+		///////////////////////////
+		db2 := dbs.DBObj.GetGoRM()
+		if db2 == nil {
+			config.Log.Error(InternalGetBDInstanceErr)
+			return ErrDataBase
+		}
 		// 在表group_machines中写入IP及子组的对应关系
 		for jobGrpID, machineIDs := range createIDForTableGroupMachines {
 			// tx = db.Table("group_machines").Where("job_group_id=?", jobGrpID).Delete(nil)
@@ -748,8 +754,8 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 					MachinesID: mid,
 					UpdateAt:   time.Now(),
 				}
-				tx = db.Table("group_machines").Create(&wData)
-				if tx.Error != nil {
+				tx2 := db2.Table("group_machines").Create(&wData)
+				if tx2.Error != nil {
 					config.Log.Error(tx.Error)
 					return ErrCreateDBData
 				}
@@ -771,12 +777,17 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 					UpdateAt:   time.Now(),
 					UpdateBy:   user.Username,
 				}
-				tx = db.Table("group_labels").Create(&wData)
+				sql := fmt.Sprintf("insert ignore into `group_labels` "+
+					"(id, job_group_id, key, value, enabled, update_at, update_by) values(0, %d, '%s', '%s', 1, '%s', '%s')",
+					subGroupCreateID[key], k, v, time.Now().Format("2006-02-01 15:04:05"), user.Username)
+				tx = db.Table("group_labels").Exec(sql)
+				// tx = db.Table("group_labels").Create(&wData).
 				if tx.Error != nil {
-					if !strings.Contains(tx.Error.Error(), "Duplicate entry") {
-						config.Log.Error(tx.Error)
-						// return ErrCreateDBData // 因为有可能会创建到一样的标签,所以遇到错误就直接跳过
-					}
+					config.Log.Error(tx.Error)
+					// if !strings.Contains(tx.Error.Error(), "Duplicate entry") {
+					// 	config.Log.Error(tx.Error)
+					// 	// return ErrCreateDBData // 因为有可能会创建到一样的标签,所以遇到错误就直接跳过
+					// }
 				}
 			}
 		}
