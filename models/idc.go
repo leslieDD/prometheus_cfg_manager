@@ -735,6 +735,7 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 			}
 		}
 		// 在表group_machines中写入IP及子组的对应关系
+		config.Log.Infof("diandian=> createIDForTableGroupMachines: %d", len(createIDForTableGroupMachines))
 		for jobGrpID, machineIDs := range createIDForTableGroupMachines {
 			// tx = db.Table("group_machines").Where("job_group_id=?", jobGrpID).Delete(nil)
 			// if tx.Error != nil {
