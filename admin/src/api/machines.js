@@ -77,3 +77,10 @@ export function updatePosition () {
     method: 'put'
   })
 }
+
+export function outputAllIP () {
+  return request({
+    url: '/v1/output/ip/list',
+    method: 'get'
+  })
+}

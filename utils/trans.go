@@ -71,6 +71,25 @@ func BigIntBeginAndEnd(begin, end string) (*big.Int, *big.Int, error) {
 	}
 }
 
+func IPAddrToBigInt(p string) *big.Int {
+	zero := big.NewInt(0)
+	b := net.ParseIP(p)
+	if b == nil {
+		return zero
+	}
+	bType := V4OrV6(p)
+	if bType == 4 {
+		bInt64 := big.NewInt(0)
+		bInt64.SetBytes(b.To4())
+
+		return bInt64
+	} else if bType == 6 {
+		bBigInt := IP6toInt(b)
+		return bBigInt
+	}
+	return zero
+}
+
 // IPV6
 func IP6toInt(IPv6Address net.IP) *big.Int {
 	IPv6Int := big.NewInt(0)

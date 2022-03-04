@@ -10,6 +10,13 @@
           @click="doBatchDel()"
           >删除选中项</el-button
         >
+        <el-button
+          icon="el-icon-download"
+          size="small"
+          type="text"
+          @click="doOutputAllIP()"
+          >导出所有IP</el-button
+        >
       </div>
       <div class="do_action">
         <div style="padding-right: 15px">
@@ -294,7 +301,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[15, 50, 100, 200]"
+        :page-sizes="[15, 20, 50, 100, 200]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="pageTotal"
@@ -492,7 +499,8 @@ import {
   enabledMachine,
   batchDeleteMachine,
   updatePosition,
-  batchImportIpAddrsWeb
+  batchImportIpAddrsWeb,
+  outputAllIP
 } from '@/api/machines'
 import { publish } from '@/api/publish'
 import JsonView from '@/components/JsonView.vue'
@@ -534,7 +542,7 @@ export default {
       selectTypeValue: {},
       batchTypeSelect: [],
       search: '',
-      pageSize: 15,
+      pageSize: 20,
       pageTotal: 0,
       currentPage: 1,
       selectOption: '1',
@@ -1005,6 +1013,30 @@ export default {
       }
     },
     selectChange (event) {},
+    doOutputAllIP(){
+      outputAllIP().then(r=>{
+        let data = r.data.data;  //csv数据
+        let filename = r.data.name  //导出的文件名
+        let type = "";                      //头部数据类型
+        let file = new Blob(["\ufeff" + data], { type: type });
+        if (window.navigator.msSaveOrOpenBlob)
+            // IE10+
+            window.navigator.msSaveOrOpenBlob(file, filename);
+          else {
+            // Others
+            let a = document.createElement("a"),
+                url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);
+            }, 0);
+          }
+      })
+    }
   }
 }
 </script>

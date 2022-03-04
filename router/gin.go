@@ -32,6 +32,7 @@ func init() {
 	initCommonRouter()
 	initApiRouter()
 	initManagerApi()
+	initOutputData()
 }
 
 // ListenAndServer ListenAndServer
