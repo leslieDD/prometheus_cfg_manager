@@ -8,3 +8,7 @@ ALTER TABLE `job_group`
 	ADD UNIQUE INDEX `uniq_name_jobs_id` (`jobs_id`, `name`);
 ALTER TABLE `group_machines`
 	DROP COLUMN `id`;
+
+
+ALTER TABLE `group_machines`
+	DROP COLUMN `update_at`;

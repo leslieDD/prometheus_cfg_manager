@@ -112,10 +112,8 @@ func doOptions_1() *BriefMessage {
 			groupID = newJG.ID
 		}
 		jgm := JobGroupIP{
-			// ID:         0,
 			MachinesID: jg.MachineID,
 			JobGroupID: groupID,
-			UpdateAt:   time.Now(),
 		}
 		txCreate2 := shiwu.Table("group_machines").Create(&jgm)
 		if txCreate2.Error != nil {
@@ -191,12 +189,10 @@ func doOptions_2() *BriefMessage {
 			// ID:         0,
 			MachinesID: jg.MachineID,
 			JobGroupID: groupID,
-			UpdateAt:   time.Now(),
 		}
-		txCreate2 := shiwu.Exec("INSERT ignore INTO `group_machines` (`job_group_id`,`machines_id`,`update_at`) VALUES (?,?,?);",
+		txCreate2 := shiwu.Exec("INSERT ignore INTO `group_machines` (`job_group_id`,`machines_id`) VALUES (?,?);",
 			jgm.JobGroupID,
 			jgm.MachinesID,
-			jgm.UpdateAt,
 		)
 		// txCreate2 := shiwu.Table("group_machines").Create(&jgm)
 		if txCreate2.Error != nil {

@@ -633,9 +633,6 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 	}
 	// 处理每一个组
 	for _, j := range jobs {
-		// if !j.Enabled {
-		// 	continue
-		// }
 		// 获取组的所有IP地址
 		sql := fmt.Sprintf(`SELECT machines.* FROM job_machines
 		LEFT JOIN jobs 
@@ -685,18 +682,13 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 			config.Log.Error(tx.Error)
 			return ErrSearchDBData
 		}
+		subJobGroupIDs := []int{}
 		alreadyExistJobSubGroupMap := map[string]*JobGroup{}
 		for _, s := range sunJobGroup {
 			alreadyExistJobSubGroupMap[s.Name] = s
-		}
-		// 因为这是完全的重新创建子组，所以原来的子组中的IP地址都可以清空
-		tx = db.Table("group_machines").Where("1=1").Delete(nil)
-		if tx.Error != nil {
-			config.Log.Error(tx.Error)
-			return ErrDelData
+			subJobGroupIDs = append(subJobGroupIDs, s.ID)
 		}
 		// 创建子组
-		// labelsWillWrite := map[string]map[string]string{}
 		createIDForTableGroupMachines := map[int][]int{} // 记录子组ID及子组下的machine对应的ID
 		for name, ipList := range idcLineMap {
 			obj, ok := alreadyExistJobSubGroupMap[name] // 子组是否已经存在的不同处理
@@ -734,31 +726,11 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 				createIDForTableGroupMachines[jg.ID] = append(createIDForTableGroupMachines[jg.ID], i.ID)
 			}
 		}
-		///////////////////////////
-		db2 := dbs.DBObj.GetGoRM()
-		if db2 == nil {
-			config.Log.Error(InternalGetBDInstanceErr)
-			return ErrDataBase
-		}
 		// 在表group_machines中写入IP及子组的对应关系
 		for jobGrpID, machineIDs := range createIDForTableGroupMachines {
-			// tx = db.Table("group_machines").Where("job_group_id=?", jobGrpID).Delete(nil)
-			// if tx.Error != nil {
-			// 	config.Log.Error(tx.Error)
-			// 	return ErrDelData
-			// }
-			config.Log.Infof("diandian=> job_group_id: %d, machines_id: %d", jobGrpID, len(machineIDs))
-			for _, mid := range machineIDs {
-				wData := JobGroupIP{
-					JobGroupID: jobGrpID,
-					MachinesID: mid,
-					UpdateAt:   time.Now(),
-				}
-				tx2 := db2.Table("group_machines").Create(&wData)
-				if tx2.Error != nil {
-					config.Log.Error(tx.Error)
-					return ErrCreateDBData
-				}
+			bf := writeDataToGroupMachines(subJobGroupIDs, jobGrpID, machineIDs)
+			if bf != Success {
+				return bf
 			}
 		}
 		// 在表group_labels中创建数据
@@ -768,28 +740,47 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 					// config.Log.Warnf("labels key: %s, value is empty, skip", k)
 					continue
 				}
-				// wData := GroupLabels{
-				// 	ID:         0,
-				// 	JobGroupID: subGroupCreateID[key],
-				// 	Key:        k,
-				// 	Value:      v,
-				// 	Enabled:    true,
-				// 	UpdateAt:   time.Now(),
-				// 	UpdateBy:   user.Username,
-				// }
-				sql := fmt.Sprintf("insert ignore into `group_labels` "+
-					"(`id`, `job_group_id`, `key`, `value`, `enabled`, `update_at`, `update_by`) values(0, %d, '%s', '%s', 1, '%s', '%s')",
-					subGroupCreateID[key], k, v, time.Now().Format("2006-02-01 15:04:05"), user.Username)
-				tx = db.Table("group_labels").Exec(sql)
-				// tx = db.Table("group_labels").Create(&wData).
+				tx = db.Table("group_labels").Exec("insert ignore into `group_labels` "+
+					"(`id`, `job_group_id`, `key`, `value`, `enabled`, `update_at`, `update_by`) values(0, ?, ?, ?, 1, ?, ?)",
+					subGroupCreateID[key], k, v, time.Now(), user.Username)
 				if tx.Error != nil {
 					config.Log.Error(tx.Error)
-					// if !strings.Contains(tx.Error.Error(), "Duplicate entry") {
-					// 	config.Log.Error(tx.Error)
-					// 	// return ErrCreateDBData // 因为有可能会创建到一样的标签,所以遇到错误就直接跳过
-					// }
 				}
 			}
+		}
+	}
+	return Success
+}
+
+func writeDataToGroupMachines(subJobGroupIDs []int, jobGrpID int, machineIDs []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	// config.Log.Infof("diandian=> job_group_id: %d, machines_id: %d", jobGrpID, len(machineIDs))
+	needDelIDs := []int{}
+	wDatas := []*JobGroupIP{}
+	for _, mid := range machineIDs {
+		wData := JobGroupIP{
+			JobGroupID: jobGrpID,
+			MachinesID: mid,
+		}
+		needDelIDs = append(needDelIDs, mid)
+		wDatas = append(wDatas, &wData)
+	}
+	// 清理将要写入的子组的IP地址
+	tx := db.Table("group_machines").Where("job_group_id in (?) and machines_id in (?) ", subJobGroupIDs, needDelIDs).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	if len(wDatas) != 0 {
+		tx2 := db.Table("group_machines").Create(&wDatas)
+		// tx2.Commit()
+		if tx2.Error != nil {
+			config.Log.Error(tx2.Error)
+			return ErrCreateDBData
 		}
 	}
 	return Success
