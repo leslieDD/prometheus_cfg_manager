@@ -9,9 +9,9 @@
               @click="updateAllIPAddrs"> 更新所有IP </el-button>
             <el-button v-if="pushing_all===true" icon="el-icon-loading" type="warning" plain size="small" class="button" 
               @click="updateAllIPAddrs"> 更新所有IP </el-button>
-            <el-button v-if="pushing_part===false" icon="el-icon-upload" type="info" plain size="small" class="button" 
+            <el-button v-if="pushing_part===false" icon="el-icon-upload" type="warning" plain size="small" class="button" 
               @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
-            <el-button v-if="pushing_part===true" icon="el-icon-loading"  type="info" plain size="small" class="button" 
+            <el-button v-if="pushing_part===true" icon="el-icon-loading"  type="warning" plain size="small" class="button" 
               @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
             <el-button type="info" plain size="small" class="button" @click="doCreateLabelForAllIPs"> 在JOB组中生成标签 </el-button>
           </span>
@@ -52,18 +52,25 @@
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
-          <span>IP地址列表(<el-tag size="mini" type="warning">以英文分号(;)隔开;如:192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1</el-tag>):
-          <el-tag v-if="currentTitle!==''" size="mini" type="danger">{{currentTitle}}</el-tag></span>
-          <el-button size="small" type="success" class="button" @click="putLineIPData"> 更 新 </el-button>
+          <span>
+            当前选择机房：<el-tag v-if="currentIDCTitle!==''" size="mini" type="warning">{{currentIDCTitle}}</el-tag>
+            线路：<el-tag v-if="currentLineTitle!==''" size="mini" type="warning">{{currentLineTitle}}</el-tag>
+          </span>
+          <el-button size="small" type="success" class="button" @click="putIDCOrLineIPData"> 更 新 </el-button>
         </div>
       </template>
       <div>
-        <el-input
-          v-model="ipaddrs_net_line"
-          :autosize="{ minRows: 26 }"
-          type="textarea"
-          placeholder=""
-        />
+        <el-form
+          label-position="top"
+          :model="linedetailinfo"
+        >
+          <el-form-item label="IP列表：（以英文分号(;)隔开；如:192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1）">
+            <el-input :disabled="should_disabled" :autosize="{ minRows: 10, maxRows: 20 }" type="textarea" placeholder="" v-model="linedetailinfo.ipaddrs_net_line"></el-input>
+          </el-form-item>
+          <el-form-item label="备注信息：">
+            <el-input :autosize="{ minRows: 10, maxRows: 20 }" type="textarea" placeholder="" v-model="linedetailinfo.remark_info"></el-input>
+          </el-form-item>
+        </el-form>
       </div>
     </el-card>
     <el-dialog v-model="dialogLineVisible" :title="idcName" width="400px">
@@ -103,7 +110,7 @@
   let tree_id = 1000;
 
   // import { getIDC, getIDCs, postIDC, putIDC, deleteIDC } from '@/api/idc.js'
-  import { postIDC, putIDC, deleteIDC } from '@/api/idc.js'
+  import { getIDC, postIDC, putIDC, putIDCRemark, deleteIDC } from '@/api/idc.js'
   import { getIDCTree } from '@/api/idc.js'
   import { postLine, putLine, delLine } from '@/api/idc.js'
   import { updateAllIPAddrsNetInfo, updatePartIPAddrsNetInfo } from '@/api/idc.js'
@@ -127,7 +134,10 @@
       };
       return {
         data: JSON.parse(JSON.stringify(data)),
-        ipaddrs_net_line: '',
+        linedetailinfo: {
+          'ipaddrs_net_line': '',  // IP地址列表
+          'remark_info': ''  // 备注信息
+        },
         dialogLineVisible: false,
         dialogIDCVisible: false,
         Lineform: {
@@ -160,8 +170,11 @@
         idEdit: false,
         currentPoolObj: null,
         currentTitle: '',
+        currentIDCTitle: '',
+        currentLineTitle: '',
         pushing_all: false,
         pushing_part: false,
+        should_disabled: false,
       }
     },
 
@@ -313,34 +326,60 @@
         }, "Delete")));
       },
       nodeClick(node, tree, event){
-        if (node.tree_type !== 'line') {
-          this.currentTitle = tree.data.label
-          this.ipaddrs_net_line = ""
-          return
-        }
-        this.currentTitle = tree.parent.data.label + " > " + node.label
         this.currentPoolObj = node
-        getLineIpAddrs({id: node.id}).then(r=>{
-          this.ipaddrs_net_line = r.data.ipaddrs
-        }).catch(e=>{
-          console.log(e)
-        })
-      },
-      putLineIPData(){
-        if (!this.currentPoolObj) {
-          return
+        if (node.tree_type === 'idc') {
+          this.currentIDCTitle = tree.data.label
+          this.currentLineTitle = ''
+          this.should_disabled = true
+          getIDC({id: node.id}).then(r=>{
+            this.linedetailinfo = {
+              'ipaddrs_net_line': '请把此机房的IP信息填写入相应的线路中',  // IP地址列表
+              'remark_info': r.data.remark        // 备注信息
+            }
+          }).catch(e=>console.log(e))
+        } else if (node.tree_type === 'line') {
+          this.should_disabled = false
+          this.currentIDCTitle = tree.parent.data.label
+          this.currentLineTitle = node.label
+          getLineIpAddrs({id: node.id}).then(r=>{
+            this.linedetailinfo = {
+              'ipaddrs_net_line': r.data.ipaddrs,  // IP地址列表
+              'remark_info': r.data.remark        // 备注信息
+            }
+          }).catch(e=>{
+            console.log(e)
+          })
         }
-        putLineIpAddrs({
-          "id": this.currentPoolObj.idc_id,
-          "line_id": this.currentPoolObj.id,
-          "ipaddrs": this.ipaddrs_net_line
-        }).then(r=>{
-            this.$notify({
-              title: '成功',
-              message: '更新成功！',
-              type: 'success'
-            });
-        }).catch(e=>console.log(e))
+      },
+      putIDCOrLineIPData(){
+        // if (!this.currentPoolObj) {
+        //   return
+        // }
+        if (this.currentPoolObj.tree_type === 'idc') {
+          putIDCRemark({
+            "id": this.currentPoolObj.id,
+            "remark": this.linedetailinfo.remark_info
+          }).then(r=>{
+              this.$notify({
+                title: '成功',
+                message: '更新成功！',
+                type: 'success'
+              });
+          }).catch(e=>console.log(e))
+        } else if (this.currentPoolObj.tree_type === 'line') {
+          putLineIpAddrs({
+            "id": this.currentPoolObj.idc_id,
+            "line_id": this.currentPoolObj.id,
+            "ipaddrs": this.linedetailinfo.ipaddrs_net_line,
+            "remark": this.linedetailinfo.remark_info
+          }).then(r=>{
+              this.$notify({
+                title: '成功',
+                message: '更新成功！',
+                type: 'success'
+              });
+          }).catch(e=>console.log(e))
+        } 
       },
       updateAllIPAddrs(){
         this.pushing_all = true

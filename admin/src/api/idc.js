@@ -33,6 +33,14 @@ export function putIDC (info) {
   })
 }
 
+export function putIDCRemark (info) {
+  return request({
+    url: '/v1/idc/remark',
+    method: 'put',
+    data: info
+  })
+}
+
 export function deleteIDC (info) {
   return request({
     url: '/v1/idc',
