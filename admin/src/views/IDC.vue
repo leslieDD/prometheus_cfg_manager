@@ -13,7 +13,10 @@
               @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
             <el-button v-if="pushing_part===true" icon="el-icon-loading"  type="warning" plain size="small" class="button" 
               @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
-            <el-button type="info" plain size="small" class="button" @click="doCreateLabelForAllIPs"> 在JOB组中生成标签 </el-button>
+            <el-button v-if="pushing_create_label===false" icon="el-icon-upload" type="info" plain size="small" class="button" 
+              @click="doCreateLabelForAllIPs"> JOB组中生成标签 </el-button>
+            <el-button v-if="pushing_create_label===true" icon="el-icon-loading" type="info" plain size="small" class="button" 
+              @click="doCreateLabelForAllIPs"> JOB组中生成标签 </el-button>
           </span>
           <el-button size="small" type="info" class="button" @click="flushtree"> 刷新列表 </el-button>
           <el-button size="small" type="success" class="button" @click="idcAppend"> 增加机房 </el-button>
@@ -174,6 +177,7 @@
         currentLineTitle: '',
         pushing_all: false,
         pushing_part: false,
+        pushing_create_label: false,
         should_disabled: false,
       }
     },
@@ -410,13 +414,18 @@
         })
       },
       doCreateLabelForAllIPs(){
+        this.pushing_create_label = true
         createLabelForAllIPs().then(r=>{
           this.$notify({
             title: '成功',
             message: '生成成功！',
             type: 'success'
           });
-        }).catch(e=>console.log(e))
+          this.pushing_create_label = false
+        }).catch(e=>{
+          this.pushing_create_label = false
+          console.log(e)
+        })
       }
     }
   };
