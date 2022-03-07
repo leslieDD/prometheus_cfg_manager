@@ -304,7 +304,7 @@ func PutReLabels(user *UserSessionInfo, label *ReLabels) *BriefMessage {
 	tx := db.Table("relabels").
 		Where("id=?", label.ID).
 		Update("name", label.Name).
-		Update("code", label.Code).
+		// Update("code", label.Code).
 		Update("update_at", time.Now()).
 		Update("update_by", user.Username)
 	if tx.Error != nil {
