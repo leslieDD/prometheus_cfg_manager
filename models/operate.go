@@ -288,6 +288,9 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 		"sub_group",
 		"tmpl",
 		"tmpl_fields",
+		"idc",
+		"line",
+		"pool",
 	}
 	err = db.Transaction(func(tx *gorm.DB) error {
 		for _, tableName := range tableCleard {

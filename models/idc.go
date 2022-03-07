@@ -16,6 +16,7 @@ import (
 type IDC struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	Label    string    `json:"label" gorm:"column:label"`
+	Remark   string    `json:"remark" gorm:"column:remark"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
@@ -31,10 +32,10 @@ type Line struct {
 }
 
 type IPAddrsPool struct {
-	ID      int    `json:"id" gorm:"column:id"`
-	LineID  int    `json:"line_id" gorm:"column:line_id"`
-	Ipaddrs string `json:"ipaddrs" gorm:"column:ipaddrs"`
-	// Enabled  bool      `json:"enabled" gorm:"column:enabled"`
+	ID       int       `json:"id" gorm:"column:id"`
+	LineID   int       `json:"line_id" gorm:"column:line_id"`
+	Ipaddrs  string    `json:"ipaddrs" gorm:"column:ipaddrs"`
+	Remark   string    `json:"remark" gorm:"column:remark"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
@@ -54,6 +55,7 @@ type NewPool struct {
 	ID      int    `json:"id" gorm:"column:id"`
 	LineID  int    `json:"line_id" gorm:"column:line_id"`
 	Ipaddrs string `json:"ipaddrs" gorm:"column:ipaddrs"`
+	Remark  string `json:"remark" gorm:"column:remark"`
 }
 
 type idcTree struct {
@@ -122,6 +124,24 @@ func PutIDC(user *UserSessionInfo, newIDC *NewIDC) *BriefMessage {
 	}
 	tx := db.Table("idc").Where("id", newIDC.ID).
 		Update("label", newIDC.Label).
+		Update("enabled", true).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func PutIDCRemark(user *UserSessionInfo, idc *IDC) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("idc").Where("id", idc.ID).
+		Update("remark", idc.Remark).
 		Update("enabled", true).
 		Update("update_at", time.Now()).
 		Update("update_by", user.Username)
@@ -266,8 +286,8 @@ func PutLineIpAddrs(user *UserSessionInfo, newPool *NewPool) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	sql := fmt.Sprintf("replace into pool(line_id, ipaddrs, update_at, update_by) values(%d, '%s', '%s', '%s');",
-		newPool.LineID, newPool.Ipaddrs, time.Now().Format("2006-02-01 15:04:05"), user.Username)
+	sql := fmt.Sprintf("replace into pool(line_id, ipaddrs, remark, update_at, update_by) values(%d, '%s', '%s', '%s', '%s');",
+		newPool.LineID, newPool.Ipaddrs, newPool.Remark, time.Now().Format("2006-02-01 15:04:05"), user.Username)
 	tx := db.Table("pool").Exec(sql)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -613,9 +633,6 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 	}
 	// 处理每一个组
 	for _, j := range jobs {
-		if !j.Enabled {
-			continue
-		}
 		// 获取组的所有IP地址
 		sql := fmt.Sprintf(`SELECT machines.* FROM job_machines
 		LEFT JOIN jobs 
@@ -645,7 +662,6 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 			} else {
 				key = "默认子组"
 			}
-
 			_, ok := idcLineMap[key]
 			if !ok {
 				idcLineMap[key] = []*Machine{}
@@ -666,23 +682,24 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 			config.Log.Error(tx.Error)
 			return ErrSearchDBData
 		}
-		sunJobGroupMap := map[string]*JobGroup{}
+		subJobGroupIDs := []int{}
+		alreadyExistJobSubGroupMap := map[string]*JobGroup{}
 		for _, s := range sunJobGroup {
-			sunJobGroupMap[s.Name] = s
+			alreadyExistJobSubGroupMap[s.Name] = s
+			subJobGroupIDs = append(subJobGroupIDs, s.ID)
 		}
-		// 创建不存在的子组
-		// labelsWillWrite := map[string]map[string]string{}
-		crateIDForTableGroupMachines := map[int][]int{}
+		// 创建子组
+		createIDForTableGroupMachines := map[int][]int{} // 记录子组ID及子组下的machine对应的ID
 		for name, ipList := range idcLineMap {
-			obj, ok := sunJobGroupMap[name]
+			obj, ok := alreadyExistJobSubGroupMap[name] // 子组是否已经存在的不同处理
 			if ok {
 				subGroupCreateID[name] = obj.ID
-				_, ok := crateIDForTableGroupMachines[obj.ID]
+				_, ok := createIDForTableGroupMachines[obj.ID]
 				if !ok {
-					crateIDForTableGroupMachines[obj.ID] = []int{}
+					createIDForTableGroupMachines[obj.ID] = []int{}
 				}
 				for _, i := range ipList {
-					crateIDForTableGroupMachines[obj.ID] = append(crateIDForTableGroupMachines[obj.ID], i.ID)
+					createIDForTableGroupMachines[obj.ID] = append(createIDForTableGroupMachines[obj.ID], i.ID)
 				}
 				continue
 			}
@@ -700,58 +717,70 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 				return ErrCreateDBData
 			}
 			subGroupCreateID[name] = jg.ID
-			sunJobGroupMap[name] = &jg
-			_, ok = crateIDForTableGroupMachines[jg.ID]
+			alreadyExistJobSubGroupMap[name] = &jg
+			_, ok = createIDForTableGroupMachines[jg.ID]
 			if !ok {
-				crateIDForTableGroupMachines[jg.ID] = []int{}
+				createIDForTableGroupMachines[jg.ID] = []int{}
 			}
 			for _, i := range ipList {
-				crateIDForTableGroupMachines[jg.ID] = append(crateIDForTableGroupMachines[jg.ID], i.ID)
+				createIDForTableGroupMachines[jg.ID] = append(createIDForTableGroupMachines[jg.ID], i.ID)
 			}
 		}
 		// 在表group_machines中写入IP及子组的对应关系
-		for jobGrpID, machineIDs := range crateIDForTableGroupMachines {
-			tx = db.Table("group_machines").Where("job_group_id=?", jobGrpID).Delete(nil)
-			if tx.Error != nil {
-				config.Log.Error(tx.Error)
-				return ErrDelData
-			}
-			for _, mid := range machineIDs {
-				wData := JobGroupIP{
-					ID:         0,
-					JobGroupID: jobGrpID,
-					MachinesID: mid,
-					UpdateAt:   time.Now(),
-				}
-				tx = db.Table("group_machines").Create(&wData)
-				if tx.Error != nil {
-					config.Log.Error(tx.Error)
-					return ErrCreateDBData
-				}
+		for jobGrpID, machineIDs := range createIDForTableGroupMachines {
+			bf := writeDataToGroupMachines(subJobGroupIDs, jobGrpID, machineIDs)
+			if bf != Success {
+				return bf
 			}
 		}
 		// 在表group_labels中创建数据
 		for key, obj := range subGroupCreateKeyVal {
 			for k, v := range obj {
 				if v == "" {
-					config.Log.Warnf("labels key: %s, value is empty, skip", k)
+					// config.Log.Warnf("labels key: %s, value is empty, skip", k)
 					continue
 				}
-				wData := GroupLabels{
-					ID:         0,
-					JobGroupID: subGroupCreateID[key],
-					Key:        k,
-					Value:      v,
-					Enabled:    true,
-					UpdateAt:   time.Now(),
-					UpdateBy:   user.Username,
-				}
-				tx = db.Table("group_labels").Create(&wData)
+				tx = db.Table("group_labels").Exec("insert ignore into `group_labels` "+
+					"(`id`, `job_group_id`, `key`, `value`, `enabled`, `update_at`, `update_by`) values(0, ?, ?, ?, 1, ?, ?)",
+					subGroupCreateID[key], k, v, time.Now(), user.Username)
 				if tx.Error != nil {
 					config.Log.Error(tx.Error)
-					// return ErrCreateDBData // 因为有可能会创建到一样的标签,所以遇到错误就直接跳过
 				}
 			}
+		}
+	}
+	return Success
+}
+
+func writeDataToGroupMachines(subJobGroupIDs []int, jobGrpID int, machineIDs []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	// config.Log.Infof("diandian=> job_group_id: %d, machines_id: %d", jobGrpID, len(machineIDs))
+	needDelIDs := []int{}
+	wDatas := []*JobGroupIP{}
+	for _, mid := range machineIDs {
+		wData := JobGroupIP{
+			JobGroupID: jobGrpID,
+			MachinesID: mid,
+		}
+		needDelIDs = append(needDelIDs, mid)
+		wDatas = append(wDatas, &wData)
+	}
+	// 清理将要写入的子组的IP地址
+	tx := db.Table("group_machines").Where("job_group_id in (?) and machines_id in (?) ", subJobGroupIDs, needDelIDs).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	if len(wDatas) != 0 {
+		tx2 := db.Table("group_machines").Create(&wDatas)
+		// tx2.Commit()
+		if tx2.Error != nil {
+			config.Log.Error(tx2.Error)
+			return ErrCreateDBData
 		}
 	}
 	return Success

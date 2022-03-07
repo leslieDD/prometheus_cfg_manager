@@ -128,6 +128,7 @@ func initApiRouter() {
 	v1.GET("/idcs", getIDCs)
 	v1.POST("/idc", postIDC)
 	v1.PUT("/idc", putIDC)
+	v1.PUT("/idc/remark", putIDCRemark)
 	v1.DELETE("/idc", delIDC)
 
 	v1.GET("/idc/tree", getIDCTree)
@@ -1856,7 +1857,7 @@ func getIDC(c *gin.Context) {
 	}
 	id := &models.OnlyID{}
 	if err := c.BindQuery(id); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "[getIDC] query params error", models.IsSearch, models.ErrQueryData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get idc", models.IsSearch, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
@@ -1908,6 +1909,24 @@ func putIDC(c *gin.Context) {
 	}
 	bf := models.PutIDC(user, &newIDC)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func putIDCRemark(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "update_idc")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	idc := models.IDC{}
+	if err := c.BindJSON(&idc); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc remark", models.IsUpdate, models.ErrUpdateData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutIDCRemark(user, &idc)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc remark", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
