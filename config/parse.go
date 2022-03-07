@@ -1,7 +1,6 @@
 package config
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,7 +11,6 @@ import (
 
 func init() {
 	var err error
-	fmt.Printf("version: %s\n", Version)
 	rootDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
 	if err != nil {
 		log.Fatal(err)

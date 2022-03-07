@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+	config.DoParams()
 	config.InitLogger()
 	dbs.DBObj.Init()
 	models.InitApp()

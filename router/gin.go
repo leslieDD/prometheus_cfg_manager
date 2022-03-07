@@ -15,6 +15,7 @@ import (
 // GinDefault GinDefault
 var GinDefault *gin.Engine
 var v1 *gin.RouterGroup
+var apiNoAuth *gin.RouterGroup
 
 func init() {
 	gin.SetMode(gin.ReleaseMode)
@@ -29,6 +30,7 @@ func init() {
 	// GinDefault.Use(cors.Default())
 	v1 = GinDefault.Group("/v1")
 	v1.Use(Auth())
+	apiNoAuth = GinDefault.Group("/unauth")
 	initCommonRouter()
 	initApiRouter()
 	initManagerApi()
@@ -51,7 +53,7 @@ func ListenAndServer() {
 
 // ListenAndServe ListenAndServe
 func ListenAndServe(s *http.Server) {
-	config.Log.Printf("%s running: %s", config.Cfg.App.Name, config.Cfg.App.Listen)
+	// config.Log.Printf("%s running: %s", config.Cfg.App.Name, config.Cfg.App.Listen)
 	if err := s.ListenAndServe(); err != nil {
 		config.Log.Error(err)
 		os.Exit(1)

@@ -3,6 +3,9 @@
     <div class="login-title">
       <h2 class="platform-title">Prometheus配置管理平台</h2>
     </div>
+    <div class="login-version">
+      <span class="platform-version">{{system_version}}</span>
+    </div>
     <el-card class="box-card">
       <template #header>
         <div class="card-header">
@@ -48,7 +51,7 @@
 
 <script>
 
-import { login } from '@/api/login.js'
+import { login, version } from '@/api/login.js'
 // import { setToken } from '@/utils/auth.js'
 import { saveStorageUserInfo } from '@/utils/localStorage.js'
 
@@ -66,8 +69,14 @@ export default {
         password: [
           { required: true, message: '请输入密码', trigger: ['blur'] }
         ]
-      }
+      },
+      system_version: ''
     }
+  },
+  mounted() {
+    version().then(r=> {
+      this.system_version = r.data.version
+    })
   },
   methods: {
     doLogin (formName) {
@@ -109,5 +118,16 @@ export default {
 }
 .platform-title {
   color: wheat;
+}
+.login-version {
+  text-align: center;
+  margin-top: -20px;
+  margin-bottom: 10px;
+}
+.platform-version {
+    color:darkgray;
+    font-size: 10px;
+    margin-top: 10px;
+    margin-bottom: 10px;
 }
 </style>

@@ -1,6 +1,7 @@
 package router
 
 import (
+	"pro_cfg_manager/config"
 	"pro_cfg_manager/models"
 
 	"github.com/gin-gonic/gin"
@@ -8,6 +9,7 @@ import (
 
 func initOutputData() {
 	v1.GET("/output/ip/list", outputIPlist)
+	apiNoAuth.GET("/version", Version)
 }
 
 func outputIPlist(c *gin.Context) {
@@ -20,4 +22,8 @@ func outputIPlist(c *gin.Context) {
 	data, bf := models.OutputIPlist(c)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "download cvs", models.IsSearch, bf)
 	resComm(c, bf, data)
+}
+
+func Version(c *gin.Context) {
+	resComm(c, models.Success, map[string]string{"version": config.Version})
 }

@@ -24,3 +24,10 @@ export function register (regInfo) {
   })
 }
 
+export function version () {
+  return request({
+    url: '/unauth/version',
+    method: 'get'
+  })
+}
+

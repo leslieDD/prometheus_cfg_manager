@@ -25,6 +25,7 @@ func InitLogger() {
 	Log.AddHook(hook)
 	Log.SetFormatter(formatter(true))
 	Log.SetReportCaller(true)
+	Log.Printf("Version: %s", Version)
 }
 
 func formatter(isConsole bool) *nested.Formatter {
