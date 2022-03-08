@@ -193,6 +193,12 @@ const routes = [
         component: () => import('@/views/Group.vue')
       },
       {
+        path: '/session',
+        name: 'session',
+        title: '会话管理',
+        component: () => import('@/views/Session.vue')
+      },
+      {
         path: '/admin-set',
         name: 'adminSet',
         title: '设置',

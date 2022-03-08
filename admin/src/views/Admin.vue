@@ -33,6 +33,10 @@
                 <i class="el-icon-milk-tea"></i>
                 <template #title>组管理</template>
               </el-menu-item>
+              <el-menu-item index="session">
+                <i class="el-icon-chicken"></i>
+                <template #title>会话管理</template>
+              </el-menu-item>
               <el-menu-item index="adminSet">
                 <i class="el-icon-lollipop"></i>
                 <template #title>设置</template>
@@ -80,6 +84,8 @@ export default {
         this.$router.push({ name: 'user' })
       } else if (key === 'group') {
         this.$router.push({ name: 'group' })
+      } else if (key === 'session') {
+        this.$router.push({ name: 'session' })
       } else if (key === 'adminSet') {
         this.$router.push({ name: 'adminSet' })
       } else if (key === 'privileges') {
