@@ -4,6 +4,7 @@ import (
 	"io"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/models"
+	"pro_cfg_manager/sync"
 	"strconv"
 	"strings"
 
@@ -947,9 +948,14 @@ func updatePosition(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
+	if sync.AS.CanDo(sync.UpdateAllIPPosition) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
 	bf := models.UpdateIPPosition(user)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update ip position", models.IsUpdate, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.UpdateAllIPPosition)
 }
 
 func getAllMachines(c *gin.Context) {
@@ -1303,9 +1309,14 @@ func rulePublish(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
+	if sync.AS.CanDo(sync.PublishMonitorRules) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
 	bf := models.RulePublish()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish rule", models.IsPublish, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.PublishMonitorRules)
 }
 
 func emptyRulePublish(c *gin.Context) {
@@ -1315,9 +1326,14 @@ func emptyRulePublish(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
+	if sync.AS.CanDo(sync.PublishEmptyMonitorRules) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
 	bf := models.EmptyRulePublish()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish empty rule", models.IsPublish, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.PublishEmptyMonitorRules)
 }
 
 func putTreeNodeStatus(c *gin.Context) {
@@ -1795,6 +1811,10 @@ func optResetSystem(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
+	if sync.AS.CanDo(sync.ReSetAllData) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
 	code := models.ResetCode{}
 	if err := c.BindJSON(&code); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reset prometheus config data", models.IsReset, models.ErrPostData)
@@ -1804,6 +1824,7 @@ func optResetSystem(c *gin.Context) {
 	bf := models.OptResetSystem(user, &code)
 	models.OO.FlagLog(user.Username, c.Request.RemoteAddr, "reset prometheus config data", models.IsReset, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.ReSetAllData)
 }
 
 func ctlCreate(c *gin.Context) {
@@ -1813,9 +1834,14 @@ func ctlCreate(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
+	if sync.AS.CanDo(sync.ReCreateAllPrometheusConfig) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
 	bf := models.AllowOneObj.DoPublishJobs(false)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create prometheus config", models.IsPublish, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.ReCreateAllPrometheusConfig)
 }
 
 func ctlReload(c *gin.Context) {
@@ -1825,9 +1851,14 @@ func ctlReload(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
+	if sync.AS.CanDo(sync.ReloadAllPrometheusConfig) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
 	bf := models.Reload()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config", models.IsPublish, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.ReloadAllPrometheusConfig)
 }
 
 func ctlCreateAReload(c *gin.Context) {
@@ -1835,6 +1866,10 @@ func ctlCreateAReload(c *gin.Context) {
 	pass := models.CheckPriv(user, "control", "", "createAndreload")
 	if pass != models.Success {
 		resComm(c, pass, nil)
+		return
+	}
+	if sync.AS.CanDo(sync.ReCreateAndReloadPrometheusConfig) {
+		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
 	bf := models.AllowOneObj.DoPublishJobs(true)
@@ -1846,6 +1881,7 @@ func ctlCreateAReload(c *gin.Context) {
 	bf = models.Reload()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config", models.IsPublish, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.ReCreateAndReloadPrometheusConfig)
 }
 
 func getIDC(c *gin.Context) {
@@ -2085,9 +2121,14 @@ func updateNetInfoAll(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
+	if sync.AS.CanDo(sync.UpdateAllIPIDCAndLineInfo) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
 	bf := models.UpdateAllIPAddrs(user, false)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update position of all ip address", models.IsUpdate, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.UpdateAllIPIDCAndLineInfo)
 }
 
 func updateNetInfoPart(c *gin.Context) {
@@ -2097,9 +2138,14 @@ func updateNetInfoPart(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
+	if sync.AS.CanDo(sync.UpdatePartIPIDCAndLineInfo) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
 	bf := models.UpdateAllIPAddrs(user, true)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update position of part ip address", models.IsUpdate, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.UpdatePartIPIDCAndLineInfo)
 }
 
 func createLabelForAllIPs(c *gin.Context) {
@@ -2109,7 +2155,12 @@ func createLabelForAllIPs(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
+	if sync.AS.CanDo(sync.UpdateAllIPLabelsInJobGroup) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
 	bf := models.CreateLabelForAllIPs(user)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create label and sub group of job", models.IsUpdate, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.UpdateAllIPLabelsInJobGroup)
 }

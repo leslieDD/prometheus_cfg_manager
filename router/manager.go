@@ -3,6 +3,7 @@ package router
 import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/models"
+	"pro_cfg_manager/sync"
 	"strconv"
 
 	"github.com/gin-gonic/gin"
@@ -444,6 +445,10 @@ func postManagerResetAdmin(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
+	if sync.AS.CanDo(sync.ReSetAllPrivilegesData) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
 	code := models.ResetCode{}
 	if err := c.BindJSON(&code); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reset manager data", models.IsReset, models.ErrPostData)
@@ -453,6 +458,7 @@ func postManagerResetAdmin(c *gin.Context) {
 	bf := models.OptResetAdmin(&code, c.Request.RemoteAddr)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reset manager data", models.IsReset, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.ReSetAllPrivilegesData)
 }
 
 func postManagerResetSecret(c *gin.Context) {

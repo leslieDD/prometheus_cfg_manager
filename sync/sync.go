@@ -13,7 +13,7 @@ const (
 	BatchImportIpAddrFromWeb
 	UpdateAllIPPosition
 	UpdateAllIPIDCAndLineInfo
-	UpdateAllIPLineAndLineInfo
+	UpdatePartIPIDCAndLineInfo
 	UpdateAllIPLabelsInJobGroup
 	ReSetAllData
 	ReStartPrometheusService
@@ -29,7 +29,7 @@ type SyncStatus int
 
 const (
 	SyncRuning SyncStatus = iota + 1
-	SyncStop
+	SyncDone
 )
 
 type SyncInfo struct {
@@ -54,7 +54,7 @@ func NewActionSync() *ActionSync {
 	return as
 }
 
-func (a *ActionSync) Init(action ActionName) bool {
+func (a *ActionSync) CanDo(action ActionName) bool {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
@@ -72,7 +72,19 @@ func (a *ActionSync) Init(action ActionName) bool {
 	}
 	obj.EnterTime = time.Now()
 	obj.RunTimes += 1
+	obj.SyncStatus = SyncRuning
 	return true
+}
+
+func (a *ActionSync) Done(action ActionName) {
+	a.lock.Lock()
+	defer a.lock.Unlock()
+
+	obj, ok := a.Actions[action]
+	if !ok {
+		return
+	}
+	obj.SyncStatus = SyncDone
 }
 
 func (a *ActionSync) doClean() {
@@ -88,9 +100,12 @@ func (a *ActionSync) clear() {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
-	for _, obj := range a.Actions {
+	for actionType, obj := range a.Actions {
+		if obj.SyncStatus != SyncRuning {
+			continue
+		}
 		if time.Since(obj.EnterTime).Seconds() > 30 {
-			config.Log.Printf("action: %d, duration: %d", time.Since(obj.EnterTime).Seconds())
+			config.Log.Printf("action: %d, duration: %v", actionType, time.Since(obj.EnterTime).Seconds())
 		}
 	}
 }

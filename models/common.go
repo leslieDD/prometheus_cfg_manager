@@ -254,7 +254,7 @@ func GetIPPosition(ipAddr string) *IPPosition {
 	}
 	jsonData := strings.Split(content, "<html")
 	// config.Log.Print(string(resp.Header.Get("X-GeoIP")))
-	config.Log.Print(jsonData[0])
+	// config.Log.Print(jsonData[0])
 	if err := json.Unmarshal([]byte(jsonData[0]), &ipp); err != nil {
 		config.Log.Error(err)
 		return nil
