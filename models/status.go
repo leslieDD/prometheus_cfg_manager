@@ -29,6 +29,7 @@ const (
 
 var ErrDataBase = &BriefMessage{500000, "数据库出现错误，请稍后重试或者连接管理员处理"}
 var ErrGenToken = &BriefMessage{500000, "token生成失败"}
+var ErrLoginExpire = &BriefMessage{500000, "登录Session已经过期"}
 var ErrGenSalt = &BriefMessage{500000, "salt生成失败"}
 var ErrGenRsa = &BriefMessage{500000, "rsa生成失败"}
 var ErrCreateDBData = &BriefMessage{500000, "创建数据失败"}

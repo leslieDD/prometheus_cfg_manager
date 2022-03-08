@@ -107,6 +107,7 @@ func (s *SessionCache) Flush() {
 }
 
 type UserSessionInfo struct {
+	ID           int       `json:"id" gorm:"column:id"`
 	Token        string    `json:"token" gorm:"column:token"`
 	UserID       int       `json:"user_id" gorm:"column:user_id"`
 	UpdateAt     time.Time `json:"update_at" gorm:"column:update_at"`
@@ -145,8 +146,26 @@ func CheckUserSession(c *gin.Context, token string) *BriefMessage {
 	if bf != Success {
 		return ErrTokenNoFound
 	}
+	if time.Since(usi.UpdateAt).Hours() > 1 { // Session，一小时过期
+		return ErrLoginExpire
+	}
+	SyncSessionDate(usi)
 	c.Keys = Authentication{
 		"userInfo": usi,
+	}
+	return Success
+}
+
+func SyncSessionDate(user *UserSessionInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("session").Where("id=?", user.ID).Update("update_at", time.Now())
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
 	}
 	return Success
 }
