@@ -268,7 +268,6 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 	}
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
-		err = fmt.Errorf("%s", InternalGetBDInstanceErr)
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}

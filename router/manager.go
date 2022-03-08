@@ -445,7 +445,7 @@ func postManagerResetAdmin(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.ReSetAllPrivilegesData) {
+	if sync.AS.CanNoDo(sync.ReSetAllPrivilegesData) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}

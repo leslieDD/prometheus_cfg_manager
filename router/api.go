@@ -948,7 +948,7 @@ func updatePosition(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.UpdateAllIPPosition) {
+	if sync.AS.CanNoDo(sync.UpdateAllIPPosition) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
@@ -1309,7 +1309,7 @@ func rulePublish(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.PublishMonitorRules) {
+	if sync.AS.CanNoDo(sync.PublishMonitorRules) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
@@ -1326,7 +1326,7 @@ func emptyRulePublish(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.PublishEmptyMonitorRules) {
+	if sync.AS.CanNoDo(sync.PublishEmptyMonitorRules) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
@@ -1811,7 +1811,7 @@ func optResetSystem(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.ReSetAllData) {
+	if sync.AS.CanNoDo(sync.ReSetAllData) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
@@ -1834,7 +1834,7 @@ func ctlCreate(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.ReCreateAllPrometheusConfig) {
+	if sync.AS.CanNoDo(sync.ReCreateAllPrometheusConfig) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
@@ -1851,7 +1851,7 @@ func ctlReload(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.ReloadAllPrometheusConfig) {
+	if sync.AS.CanNoDo(sync.ReloadAllPrometheusConfig) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
@@ -1868,7 +1868,7 @@ func ctlCreateAReload(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.ReCreateAndReloadPrometheusConfig) {
+	if sync.AS.CanNoDo(sync.ReCreateAndReloadPrometheusConfig) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
@@ -2121,7 +2121,7 @@ func updateNetInfoAll(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.UpdateAllIPIDCAndLineInfo) {
+	if sync.AS.CanNoDo(sync.UpdateAllIPIDCAndLineInfo) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
@@ -2138,7 +2138,7 @@ func updateNetInfoPart(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.UpdatePartIPIDCAndLineInfo) {
+	if sync.AS.CanNoDo(sync.UpdatePartIPIDCAndLineInfo) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
@@ -2155,7 +2155,7 @@ func createLabelForAllIPs(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	if sync.AS.CanDo(sync.UpdateAllIPLabelsInJobGroup) {
+	if sync.AS.CanNoDo(sync.UpdateAllIPLabelsInJobGroup) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}

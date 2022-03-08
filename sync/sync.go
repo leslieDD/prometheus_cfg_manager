@@ -54,7 +54,7 @@ func NewActionSync() *ActionSync {
 	return as
 }
 
-func (a *ActionSync) CanDo(action ActionName) bool {
+func (a *ActionSync) CanNoDo(action ActionName) bool {
 	a.lock.Lock()
 	defer a.lock.Unlock()
 
@@ -65,15 +65,15 @@ func (a *ActionSync) CanDo(action ActionName) bool {
 			RunTimes:   1,
 			SyncStatus: SyncRuning,
 		}
-		return true
+		return false
 	}
 	if obj.SyncStatus == SyncRuning {
-		return false
+		return true
 	}
 	obj.EnterTime = time.Now()
 	obj.RunTimes += 1
 	obj.SyncStatus = SyncRuning
-	return true
+	return false
 }
 
 func (a *ActionSync) Done(action ActionName) {
