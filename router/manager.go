@@ -44,6 +44,8 @@ func initManagerApi() {
 
 	v1.POST("/manager/reset/admin", postManagerResetAdmin)
 	v1.POST("/manager/reset/secret", postManagerResetSecret)
+	v1.GET("/manager/session", getSession)
+	v1.DELETE("/manager/session", delSession)
 
 	v1.GET("/system/log/setting", getSystemRecodeSetting)
 	v1.PUT("/system/log/setting", putSystemRecodeSetting)
@@ -470,6 +472,42 @@ func postManagerResetSecret(c *gin.Context) {
 	}
 	bf := models.PreOptResetAdmin()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create manager reset secret", models.IsAdd, bf)
+	resComm(c, bf, nil)
+}
+
+func getSession(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "session", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get user session", models.IsSearch, models.ErrSplitParma)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.GetSession(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get user session", models.IsSearch, bf)
+	resComm(c, bf, data)
+}
+
+func delSession(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "session", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	id := &models.OnlyID{}
+	if err := c.BindQuery(id); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete user session", models.IsDel, models.ErrSplitParma)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.DelSession(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete user session", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 

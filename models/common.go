@@ -57,6 +57,10 @@ func CalSplitPage(sp *SplitPage, total int64, data interface{}) *ResSplitPage {
 	return &rsp
 }
 
+type SearchContent struct {
+	Content string `json:"content" form:"content" gorm:"column:content"`
+}
+
 func JsonToIntSlice(jsonData datatypes.JSON) ([]int, *BriefMessage) {
 	v, err := jsonData.MarshalJSON()
 	if err != nil {

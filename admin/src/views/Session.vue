@@ -4,9 +4,6 @@
       <div>
         <div class="do_action">
           <div style="padding-right: 15px">
-            <!-- <el-button size="small" type="success" plain @click="doAdd()"
-              >添加用户</el-button
-            > -->
           </div>
           <div>
             <el-input
@@ -31,7 +28,7 @@
               size="mini"
               highlight-current-row
               border
-              :data="ManagerUser"
+              :data="sessions"
               stripe
               :row-style="rowStyle"
               :cell-style="cellStyle"
@@ -41,9 +38,18 @@
                   {{ scope.$index + 1 }}
                 </template>
               </el-table-column>
-              <el-table-column label="会话Token" prop="username">
+              <el-table-column label="会话Token" prop="token">
               </el-table-column>
-              <el-table-column label="登录名" prop="nice_name"> </el-table-column>
+              <el-table-column label="登录名" prop="username">
+                <template v-slot="{ row }">
+                  <el-button
+                    size="mini"
+                    @click="routeToUser(row)"
+                    type="text"
+                    >{{ row.username }}</el-button
+                  >
+                </template>
+              </el-table-column>
               <el-table-column label="所属组" prop="group_name">
                 <template v-slot="{ row }">
                   <el-button
@@ -124,74 +130,29 @@
 <script>
 
 import {
-  getManagerUser,
-  putManagerUser,
-  postManagerUser,
-  deleteManagerUser,
-  enabledManagerUser,
-  getManangerGroupEnabled
-} from '@/api/manager.js'
+  getSession,
+  delSession
+} from '@/api/session.js'
 
 export default {
   name: 'ManagerUser',
   data () {
-    function validateStr (rule, value, callback) {
-      if (value === '' || typeof value === 'undefined' || value == null) {
-        callback(new Error('请输入正确名称'))
-      } else {
-        const reg = /\s+/
-        if (reg.test(value)) {
-          callback(new Error('名称中不允许有空字符'))
-        } else {
-          callback()
-        }
-      }
-    }
     return {
-      value: '',
-      ManagerGroup: [],
-      ManagerUser: [],
-      ManagerUserRef: {
-        id: 0,
-        username: '',
-        password: '',
-        group_id: null,
-        phone: ''
-      },
+      sessions: [],
       editCodeButVisable: {},
       pageSize: 20,
       pageTotal: 0,
       currentPage: 1,
       searchContent: '',
       deleteVisible: {},
-
       paginationShow: true
     }
   },
   mounted () {
-    if (this.$route.params.group_name) {
-      this.searchContent = this.$route.params.group_name
-    }
-    this.doGetManagerUser()
+    this.doGetSession()
   },
   methods: {
-    doAdd () {
-      this.ManagerUserRef = {
-        id: 0,
-        username: '',
-        password: '',
-        nice_name: '',
-        group_id: null,
-        phone: ''
-      }
-      getManangerGroupEnabled().then(r => {
-        this.ManagerGroup = r.data
-        this.buttonTitle = '创建'
-        this.dialogTitle = '增加用户'
-        this.dialogVisible = true
-      }).catch(e => console.log(e))
-    },
-    doGetManagerUser (getInfo) {
+    doGetSession (getInfo) {
       if (!getInfo) {
         getInfo = {
           'pageNo': this.currentPage,
@@ -199,31 +160,18 @@ export default {
           'search': this.searchContent
         }
       }
-      getManagerUser(getInfo).then(
-        r => {
-          this.ManagerUser = r.data.data
-          this.pageTotal = r.data.totalCount
-          this.currentPage = r.data.pageNo
-          this.pageSize = r.data.pageSize
-          this.paginationShow = false;//让分页隐藏
-          this.$nextTick(() => {//重新渲染分页
-            this.paginationShow = true;
-          });
-        }
-      ).catch(
-        e => {
-          console.log(e)
-        }
-      )
-    },
-    doEdit (scope) {
-      getManangerGroupEnabled().then(r => {
-        this.ManagerGroup = r.data
-        this.buttonTitle = '更新'
-        this.dialogTitle = '编辑用户'
-        this.ManagerUserRef = { ...scope.row }
-        this.dialogVisible = true
-      }).catch(e => console.log(e))
+      getSession(getInfo).then(r=>{
+        this.sessions = r.data.data
+        this.pageTotal = r.data.totalCount
+        this.currentPage = r.data.pageNo
+        this.pageSize = r.data.pageSize
+        this.paginationShow = false;//让分页隐藏
+        this.$nextTick(() => {//重新渲染分页
+          this.paginationShow = true;
+        });
+      }).catch(e=>{
+        console.log(e)
+      })
     },
     handleSizeChange (val) {
       let getInfo = {
@@ -231,7 +179,7 @@ export default {
         'pageSize': val,
         'search': this.searchContent
       }
-      this.doGetManagerUser(getInfo)
+      this.doGetSession(getInfo)
     },
     handleCurrentChange (val) {
       let getInfo = {
@@ -239,72 +187,24 @@ export default {
         'pageSize': this.pageSize,
         'search': this.searchContent
       }
-      this.doGetManagerUser(getInfo)
-    },
-    handleClose (done) {
-      this.dialogVisible = false
-    },
-    onSubmit (formName) {
-      this.$refs[formName].validate((valid) => {
-        if (valid) {
-          const postData = { ...this.ManagerUserRef }
-          if (this.buttonTitle === '创建' || this.buttonTitle === 'create') {
-            postManagerUser(postData).then(
-              r => {
-                this.$notify({
-                  title: '成功',
-                  message: '创建成功！',
-                  type: 'success'
-                });
-                this.doGetManagerUser()
-                this.dialogVisible = false
-                this.$refs[formName].resetFields()
-              }
-            ).catch(
-              e => { console.log(e) }
-            )
-          } else {
-            // postData['id'] = this.ManagerUserRef.id
-            putManagerUser(postData).then(
-              r => {
-                this.$notify({
-                  title: '成功',
-                  message: '更新成功！',
-                  type: 'success'
-                });
-                this.doGetManagerUser()
-                this.dialogVisible = false
-                this.$refs[formName].resetFields()
-              }
-            ).catch(
-              e => { console.log(e) }
-            )
-          }
-        } else {
-          return false
-        }
-      })
-    },
-    onCancel (formName) {
-      this.dialogVisible = false
-      this.$refs[formName].resetFields()
+      this.doGetSession(getInfo)
     },
     onSearch () {
-      this.doGetManagerUser()
+      this.doGetSession()
     },
     parseTimeSelf (t) {
       var time = new Date(Date.parse(t))
       return time.toLocaleDateString() + ' ' + time.toTimeString().split(' ')[0]
     },
     doYes (scope) {
-      deleteManagerUser({ id: scope.row.id }).then(
+      delSession({ id: scope.row.id }).then(
         r => {
           this.$notify({
             title: '成功',
             message: '删除成功！',
             type: 'success'
           });
-          this.doGetManagerUser()
+          this.doGetSession()
         }
       ).catch(
         e => {
@@ -331,24 +231,11 @@ export default {
       }
       return cs
     },
-    invocate (scope) {
-      const newStatus = !this.ManagerUser[scope.$index].enabled
-      const rInfo = {
-        id: scope.row.id,
-        enabled: newStatus
-      }
-      enabledManagerUser(rInfo).then(r => {
-        this.$notify({
-          title: '成功',
-          message: '更新状态成功！',
-          type: 'success'
-        });
-        this.ManagerUser[scope.$index].enabled = newStatus
-        this.ManagerUser = [...this.ManagerUser]
-      }).catch(e => console.log(e))
-    },
     routeToGroup (row) {
       this.$router.push({ name: 'group', params: { group_name: row.group_name } })
+    },
+    routeToUser(row){
+      this.$router.push({ name: 'user', params: { group_name: row.username } })
     }
   }
 };

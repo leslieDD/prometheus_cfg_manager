@@ -3,6 +3,7 @@ package models
 import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
+	"strings"
 	"sync"
 	"time"
 
@@ -166,6 +167,92 @@ func SyncSessionDate(user *UserSessionInfo) *BriefMessage {
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
+	}
+	return Success
+}
+
+type ManagerSession struct {
+	ID        int       `json:"id" gorm:"column:id"`
+	Token     string    `json:"token" gorm:"column:token"`
+	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
+	UserID    int       `json:"user_id" gorm:"column:user_id"`
+	GroupID   int       `json:"group_id" gorm:"column:group_id"`
+	Username  string    `json:"username" gorm:"column:username"`
+	Groupname string    `json:"group_name" gorm:"column:group_name"`
+}
+
+func GetSession(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	ss := []*ManagerSession{}
+	tokens := []*Session{}
+	tx := db.Table("session").Find(&tokens)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	count := int64(len(tokens))
+	if count == 0 {
+		return CalSplitPage(sp, 0, ss), Success
+	}
+	users := []*ManagerUser{}
+	tx = db.Table("manager_user").Find(&users)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	groups := []*ManagerGroup{}
+	tx = db.Table("manager_group").Find(&groups)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	usersMap := map[int]*ManagerUser{}
+	for _, u := range users {
+		usersMap[u.ID] = u
+	}
+	groupsMap := map[int]*ManagerGroup{}
+	for _, g := range groups {
+		groupsMap[g.ID] = g
+	}
+	for _, t := range tokens {
+		ms := ManagerSession{
+			ID:       t.ID,
+			Token:    t.Token,
+			UpdateAt: t.UpdateAt,
+			UserID:   t.UserID,
+		}
+		if u, ok := usersMap[t.UserID]; ok {
+			ms.Username = u.UserName
+			if g, ok := groupsMap[u.GroupID]; ok {
+				ms.GroupID = g.ID
+				ms.Groupname = g.Name
+			}
+		}
+		if sp.Search == "" {
+			ss = append(ss, &ms)
+			continue
+		}
+		if strings.Contains(ms.Groupname, sp.Search) || strings.Contains(ms.Username, sp.Search) || strings.Contains(ms.Token, sp.Search) {
+			ss = append(ss, &ms)
+		}
+	}
+	return CalSplitPage(sp, count, ss), Success
+}
+
+func DelSession(id *OnlyID) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("session").Where("id=?", id.ID).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
 	}
 	return Success
 }
