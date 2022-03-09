@@ -16,6 +16,7 @@ type Session struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	Token    string    `json:"token" gorm:"column:token"`
 	UserID   int       `json:"user_id" gorm:"column:user_id"`
+	IPAddr   string    `json:"ipaddr" gorm:"column:ipaddr"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 }
 
@@ -110,6 +111,7 @@ func (s *SessionCache) Flush() {
 type UserSessionInfo struct {
 	ID           int       `json:"id" gorm:"column:id"`
 	Token        string    `json:"token" gorm:"column:token"`
+	IPAddr       string    `json:"ipaddr" gorm:"column:ipaddr"`
 	UserID       int       `json:"user_id" gorm:"column:user_id"`
 	UpdateAt     time.Time `json:"update_at" gorm:"column:update_at"`
 	Username     string    `json:"username" gorm:"column:username"`
@@ -174,6 +176,7 @@ func SyncSessionDate(user *UserSessionInfo) *BriefMessage {
 type ManagerSession struct {
 	ID        int       `json:"id" gorm:"column:id"`
 	Token     string    `json:"token" gorm:"column:token"`
+	IPAddr    string    `json:"ipaddr" gorm:"column:ipaddr"`
 	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
 	UserID    int       `json:"user_id" gorm:"column:user_id"`
 	GroupID   int       `json:"group_id" gorm:"column:group_id"`
@@ -222,6 +225,7 @@ func GetSession(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		ms := ManagerSession{
 			ID:       t.ID,
 			Token:    t.Token,
+			IPAddr:   t.IPAddr,
 			UpdateAt: t.UpdateAt,
 			UserID:   t.UserID,
 		}
@@ -236,7 +240,9 @@ func GetSession(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 			ss = append(ss, &ms)
 			continue
 		}
-		if strings.Contains(ms.Groupname, sp.Search) || strings.Contains(ms.Username, sp.Search) || strings.Contains(ms.Token, sp.Search) {
+		if strings.Contains(ms.Groupname, sp.Search) ||
+			strings.Contains(ms.Username, sp.Search) ||
+			strings.Contains(ms.Token, sp.Search) {
 			ss = append(ss, &ms)
 		}
 	}

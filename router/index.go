@@ -23,7 +23,7 @@ func login(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	data, bf := models.Login(&ui)
+	data, bf := models.Login(&ui, c.Request.RemoteAddr)
 	models.OO.RecodeLog(ui.Username, c.Request.RemoteAddr, "login", models.IsLogin, bf)
 	resComm(c, bf, data)
 }

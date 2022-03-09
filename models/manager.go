@@ -366,7 +366,7 @@ func PostUserPassword(user *UserSessionInfo, cpi *ChangePasswordInfo) *BriefMess
 	return Success
 }
 
-func Login(ui *UserLogInfo) (*ManagerUserDetail, *BriefMessage) {
+func Login(ui *UserLogInfo, ipaddr string) (*ManagerUserDetail, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -393,6 +393,7 @@ func Login(ui *UserLogInfo) (*ManagerUserDetail, *BriefMessage) {
 	ss := &Session{
 		Token:    uuid.NewString(),
 		UserID:   u.ID,
+		IPAddr:   ipaddr,
 		UpdateAt: time.Now(),
 	}
 	u.Session = ss
@@ -469,9 +470,9 @@ func UpdateSession(s *Session) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("session").Exec("INSERT INTO session (`id`, `token`, `user_id`, `update_at`) VALUES " +
-		fmt.Sprintf("(%d, '%s', %d, '%s')", s.ID, s.Token, s.UserID, s.UpdateAt.Format("2006-01-02 15:04:05")) +
-		" ON DUPLICATE KEY UPDATE `token`=VALUES(token),`user_id`=VALUES(user_id), `update_at`=VALUES(update_at) ")
+	tx := db.Table("session").Exec("INSERT INTO session (`id`, `token`, `ipaddr`, `user_id`, `update_at`) VALUES " +
+		fmt.Sprintf("(%d, '%s', '%s', %d, '%s')", s.ID, s.Token, s.IPAddr, s.UserID, s.UpdateAt.Format("2006-01-02 15:04:05")) +
+		" ON DUPLICATE KEY UPDATE `token`=VALUES(token),`user_id`=VALUES(user_id), `ipaddr`=VALUES(ipaddr), `update_at`=VALUES(update_at) ")
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrCreateDBData

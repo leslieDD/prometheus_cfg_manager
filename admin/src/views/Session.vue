@@ -38,7 +38,9 @@
                   {{ scope.$index + 1 }}
                 </template>
               </el-table-column>
-              <el-table-column label="会话Token" prop="token">
+              <el-table-column label="会话Token" prop="token" width="260px">
+              </el-table-column>
+              <el-table-column label="登录地址" prop="ipaddr" width="270px">
               </el-table-column>
               <el-table-column label="登录名" prop="username">
                 <template v-slot="{ row }">
