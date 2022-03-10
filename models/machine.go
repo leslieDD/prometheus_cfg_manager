@@ -148,7 +148,8 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	LEFT JOIN jobs 
 	ON jobs.id=job_machines.job_id `, s)
 		like := `'%` + sp.Search + `%'`
-		whereLike := fmt.Sprintf(" AND (machines.ipaddr LIKE %s OR jobs.name LIKE %s OR machines.position LIKE %s) ", like, like, like)
+		whereLike := fmt.Sprintf(" AND (machines.ipaddr LIKE %s OR jobs.name LIKE %s OR machines.position LIKE %s OR machines.idc_name LIKE %s OR machines.line_name LIKE %s ) ",
+			like, like, like, like, like)
 		where := " WHERE (jobs.is_common=0 OR jobs.is_common IS NULL) " +
 			" %s " +
 			" GROUP BY machines.ipaddr " +
