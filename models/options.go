@@ -4,8 +4,6 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"time"
-
-	"gorm.io/gorm"
 )
 
 type Option struct {
@@ -133,96 +131,67 @@ func doOptions_1() *BriefMessage {
 	return Success
 }
 
+type GroupMachines struct {
+	JobGroupId int `json:"job_group_id" gorm:"column:job_group_id"`
+	MachinesId int `json:"machines_id" gorm:"column:machines_id"`
+}
+
 func doOptions_2() *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	err := db.Transaction(func(tx *gorm.DB) error {
-		jobs := []*Jobs{}
-		if err := tx.Table("jobs").Find(&jobs).Error; err != nil {
-			config.Log.Error(err)
-			return err
-		}
-		for _, j := range jobs {
-			sql := `SELECT * FROM job_machines
-			LEFT JOIN group_machines
-			ON job_machines.machine_id = group_machines.machines_id
-			WHERE group_machines.job_group_id IS NULL AND job_machines.job_id=?`
-			jgs := []*JobIDAndMachinesID{}
-			if err := db.Raw(sql, j.ID).Find(&jgs).Error; err != nil {
-				config.Log.Error(err)
-				return err
-			}
 
-		}
-	})
-	// 事务
-	sql := `SELECT job_machines.machine_id, job_machines.job_id FROM job_machines
-	LEFT JOIN group_machines
-	ON group_machines.machines_id=job_machines.machine_id
-	WHERE group_machines.job_group_id IS NULL`
-	jgs := []*JobIDAndMachinesID{}
-	tx := db.Table("job_machines").Raw(sql).Find(&jgs)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
+	jobs := []*Jobs{}
+	if err := db.Table("jobs").Find(&jobs).Error; err != nil {
+		config.Log.Error(err)
 		return ErrSearchDBData
 	}
-	shiwu := db.Begin()
-	defer func() {
-		if r := recover(); r != nil {
-			shiwu.Rollback()
+
+	for _, j := range jobs {
+		jobMachines := []*TableJobMachines{}
+		tx := db.Raw(`SELECT * FROM job_machines WHERE job_machines.job_id=? AND 
+			job_machines.machine_id NOT IN (SELECT group_machines.machines_id FROM group_machines 
+			LEFT JOIN job_group
+			ON job_group.id = group_machines.job_group_id
+		WHERE job_group.jobs_id = ?)`, j.ID, j.ID).Find(&jobMachines)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrSearchDBData
 		}
-	}()
-	jobsIDMap := map[int]int{}
-	for _, jg := range jgs {
-		// 检查是否有默认子组，如果有则加入第一个，如果没有则新建一个
-		groupID, ok := jobsIDMap[jg.JobID]
-		if !ok {
-			// 检查是不是有这么一个子组
-			id, bf := getJobGroupID("默认子组", jg.JobID)
-			if bf == Success {
-				jobsIDMap[jg.JobID] = id.ID
-			} else {
-				newJG := JobGroup{
-					ID:       0,
-					Name:     "默认子组",
-					JobsID:   jg.JobID,
-					Enabled:  true,
-					UpdateAt: time.Now(),
-				}
-				txCreate := shiwu.Table("job_group").Create(&newJG)
-				if txCreate.Error != nil {
-					config.Log.Error(txCreate.Error)
-					db.Rollback()
-					return ErrTransaction
-				}
-				jobsIDMap[jg.JobID] = newJG.ID
+		if len(jobMachines) == 0 {
+			continue
+		}
+		subJobGroupInfo, bf := getJobGroupID("默认子组", j.ID)
+		if bf != Success || subJobGroupInfo.ID == 0 {
+			newJG := JobGroup{
+				ID:       0,
+				Name:     "默认子组",
+				JobsID:   j.ID,
+				Enabled:  true,
+				UpdateAt: time.Now(),
 			}
-			groupID = jobsIDMap[jg.JobID]
+			if err := tx.Table("job_group").Create(&newJG).Error; err != nil {
+				if err != nil {
+					config.Log.Error(err)
+					return ErrCreateDBData
+				}
+			}
+			subJobGroupInfo.ID = newJG.ID
 		}
-		jgm := JobGroupIP{
-			// ID:         0,
-			MachinesID: jg.MachineID,
-			JobGroupID: groupID,
+		newJobGroupMembers := []*JobGroupIP{}
+		for _, m := range jobMachines {
+			newJobGroupMembers = append(newJobGroupMembers, &JobGroupIP{
+				JobGroupID: subJobGroupInfo.ID,
+				MachinesID: m.MachineID,
+			})
 		}
-		txCreate2 := shiwu.Exec("INSERT ignore INTO `group_machines` (`job_group_id`,`machines_id`) VALUES (?,?);",
-			jgm.JobGroupID,
-			jgm.MachinesID,
-		)
-		// txCreate2 := shiwu.Table("group_machines").Create(&jgm)
-		if txCreate2.Error != nil {
-			config.Log.Error(txCreate2.Error)
-			db.Rollback()
-			return ErrTransaction
+		tx = db.Table("group_machines").Create(&newJobGroupMembers)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrCreateDBData
 		}
-	}
-	r := shiwu.Commit()
-	if r.Error != nil {
-		config.Log.Error(r.Error)
-		db.Rollback()
-		return ErrTransaction
 	}
 	return Success
 }
