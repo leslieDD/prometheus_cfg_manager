@@ -26,6 +26,17 @@
           size="small"
           border
         >
+
+          <el-descriptions-item>
+            <template #label>
+              <!-- <el-icon><user /></el-icon> -->
+              <!-- <icon-svg icon-class="yezi" /> -->
+              <single-svg icon-class="prometheus"></single-svg>
+              打开Prometheus自带后台
+            </template>
+            <el-button size="small" type="info" @click="open_prometheus_self" plain>点击执行操作</el-button>
+          </el-descriptions-item>
+
           <el-descriptions-item>
             <template #label>
               <!-- <el-icon><user /></el-icon> -->
@@ -201,11 +212,13 @@
 
 <script>
 
-import {ctlCreate, ctlReloadPrometheus, ctlCreateAndReload} from '@/api/control.js'
+import {ctlCreate, ctlReloadPrometheus, ctlCreateAndReload, getPrometheusUrl} from '@/api/control.js'
+import SingleSvg from '../components/singleSvg.vue'
 
 export default {
   name: "Menu",
   data () {
+    SingleSvg
     return {
       activeTabName: 'ipManager',
       transitionName: 'slide-left',
@@ -272,6 +285,11 @@ export default {
     },
     handleClose(){
       this.dialogVisible = false
+    },
+    open_prometheus_self(){
+      getPrometheusUrl().then(r=>{
+        window.open(r.data, '_blank').location;
+      }).catch(e=> console.log(e))
     },
     create(){
       ctlCreate().then(

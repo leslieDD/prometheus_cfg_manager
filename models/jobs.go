@@ -712,3 +712,10 @@ func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessag
 	}
 	return Success
 }
+
+func GetPrometheusUrl() (string, *BriefMessage) {
+	if config.Cfg.PrometheusCfg.OpenAddress == "" {
+		return "", ErrNoDefined
+	}
+	return config.Cfg.PrometheusCfg.OpenAddress, Success
+}

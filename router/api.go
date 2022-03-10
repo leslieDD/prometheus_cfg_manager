@@ -125,6 +125,7 @@ func initApiRouter() {
 	v1.POST("/control/create", ctlCreate)
 	v1.POST("/control/reload", ctlReload)
 	v1.POST("/control/create/and/reload", ctlCreateAReload)
+	v1.GET("/control/prometheus/url", getPrometheusUrl)
 
 	v1.GET("/idc", getIDC)
 	v1.GET("/idcs", getIDCs)
@@ -1900,6 +1901,19 @@ func ctlCreateAReload(c *gin.Context) {
 	bf = models.Reload()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config", models.IsPublish, bf)
 	resComm(c, bf, nil)
+	sync.AS.Done(sync.ReCreateAndReloadPrometheusConfig)
+}
+
+func getPrometheusUrl(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "control", "", "get_prometheus_url")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	u, bf := models.GetPrometheusUrl()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get prometheus url", models.IsPublish, bf)
+	resComm(c, bf, u)
 	sync.AS.Done(sync.ReCreateAndReloadPrometheusConfig)
 }
 

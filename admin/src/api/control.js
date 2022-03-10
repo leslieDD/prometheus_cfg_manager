@@ -21,3 +21,9 @@ export function ctlCreateAndReload () {
   })
 }
 
+export function getPrometheusUrl () {
+  return request({
+    url: '/v1/control/prometheus/url',
+    method: 'get'
+  })
+} 
