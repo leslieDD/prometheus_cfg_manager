@@ -4,6 +4,8 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"time"
+
+	"gorm.io/gorm"
 )
 
 type Option struct {
@@ -137,6 +139,25 @@ func doOptions_2() *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
+	err := db.Transaction(func(tx *gorm.DB) error {
+		jobs := []*Jobs{}
+		if err := tx.Table("jobs").Find(&jobs).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		for _, j := range jobs {
+			sql := `SELECT * FROM job_machines
+			LEFT JOIN group_machines
+			ON job_machines.machine_id = group_machines.machines_id
+			WHERE group_machines.job_group_id IS NULL AND job_machines.job_id=?`
+			jgs := []*JobIDAndMachinesID{}
+			if err := db.Raw(sql, j.ID).Find(&jgs).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+
+		}
+	})
 	// 事务
 	sql := `SELECT job_machines.machine_id, job_machines.job_id FROM job_machines
 	LEFT JOIN group_machines
