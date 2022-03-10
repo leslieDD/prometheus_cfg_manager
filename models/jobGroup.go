@@ -283,12 +283,13 @@ func GetJobGroupMachines(gID int64) ([]*JobGroupMachine, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	jms := []*JobGroupMachine{}
-	tx := db.Table("group_machines").Raw(fmt.Sprintf(`
-	SELECT group_machines.id, ipaddr, machines.id as machines_id 
-	FROM group_machines 
-	LEFT JOIN machines 
-	ON group_machines.machines_id = machines.id 
-	WHERE group_machines.job_group_id=%d AND machines.ipaddr<>'' AND machines.ipaddr IS NOT NULL `, gID)).Find(&jms)
+	tx := db.Table("group_machines").Raw(`
+		SELECT ipaddr, machines.id as machines_id 
+		FROM group_machines 
+		LEFT JOIN machines 
+		ON group_machines.machines_id = machines.id 
+		WHERE group_machines.job_group_id=? AND machines.ipaddr<>'' AND machines.ipaddr IS NOT NULL `,
+		gID).Find(&jms)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
