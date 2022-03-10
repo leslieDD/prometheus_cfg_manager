@@ -77,6 +77,20 @@
         v-model="activeTabName"
         @tab-click="handleTabClick"
       >
+        <el-tab-pane label="JOB组管理" name="jobs">
+          <template #label>
+            <span>
+              <icon-svg icon-class="promgtxinxianshuiguo" />
+              <!-- <i class="iconfont prometheusshuiguopingguo"></i> -->
+              JOB组管理</span
+            >
+          </template>
+          <router-view name="jobs" v-slot="{ Component }">
+            <transition name="slide-fade">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </el-tab-pane>
         <el-tab-pane label="IP管理" name="ipManager">
           <template #label>
             <span>
@@ -100,20 +114,6 @@
             >
           </template>
           <router-view name="idc" v-slot="{ Component }">
-            <transition name="slide-fade">
-              <component :is="Component" />
-            </transition>
-          </router-view>
-        </el-tab-pane>
-        <el-tab-pane label="JOB组管理" name="jobs">
-          <template #label>
-            <span>
-              <icon-svg icon-class="promgtxinxianshuiguo" />
-              <!-- <i class="iconfont prometheusshuiguopingguo"></i> -->
-              JOB组管理</span
-            >
-          </template>
-          <router-view name="jobs" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
             </transition>
