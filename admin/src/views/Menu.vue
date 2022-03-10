@@ -236,7 +236,7 @@ export default {
   },
   mounted () {
     window.addEventListener('scroll', this.scrollToTop)
-    this.$router.push({ name: 'ipManager' })
+    this.$router.push({ name: 'jobs' })
   },
   activated () {
     console.log('activated')
