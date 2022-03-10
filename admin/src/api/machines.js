@@ -71,6 +71,14 @@ export function batchImportIpAddrsWeb (data) {
   })
 }
 
+export function batchImportDomainWeb (data) {
+  return request({
+    url: '/v1/machines/batch/import/domain',
+    method: 'put',
+    data: data,
+  })
+}
+
 export function updatePosition () {
   return request({
     url: '/v1/machines/position',

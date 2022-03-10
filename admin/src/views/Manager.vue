@@ -20,13 +20,16 @@
       </div>
       <div class="do_action">
         <div style="padding-right: 15px">
-          <el-button size="small" type="warning" plain @click="doBatchAddWeb()"
-            >批量添加</el-button
+          <el-button size="small" icon="el-icon-basketball" type="warning" plain @click="doBatchAddDomainWeb()"
+            >批量添加域名</el-button
           >
-          <el-button size="small" type="warning" plain @click="doBatchAddFile()"
-            >批量添加(文件)</el-button
+          <el-button size="small" icon="el-icon-football" type="warning" plain @click="doBatchAddWeb()"
+            >批量添加IP</el-button
           >
-          <el-button size="small" type="success" plain @click="doAdd()"
+          <el-button size="small" icon="el-icon-soccer" type="warning" plain @click="doBatchAddFile()"
+            >批量添加IP(文件)</el-button
+          >
+          <el-button size="small" icon="el-icon-baseball" type="success" plain @click="doAdd()"
             >添加IP</el-button
           >
           <el-button
@@ -138,7 +141,8 @@
         width="260px"
       >
         <template v-slot="scope">
-          <span v-if="scope.row.position.isp"><el-tag size="mini" type="info">{{scope.row.position.country}}{{scope.row.position.province}}{{scope.row.position.city}}{{scope.row.position.county}}</el-tag><el-tag type="warning" size="mini" >{{scope.row.position.isp}}</el-tag></span>
+          <span v-if="scope.row.position.error"><el-tag type="danger" size="mini" >{{scope.row.position.error}}</el-tag></span>
+          <span v-else-if="scope.row.position.isp"><el-tag size="mini" type="info">{{scope.row.position.country}}{{scope.row.position.province}}{{scope.row.position.city}}{{scope.row.position.county}}</el-tag><el-tag type="warning" size="mini" >{{scope.row.position.isp}}</el-tag></span>
           <span v-else><el-tag size="mini" type="info">{{scope.row.position.country}}{{scope.row.position.province}}{{scope.row.position.city}}{{scope.row.position.county}}{{scope.row.position.isp}}</el-tag></span>
         </template>
       </el-table-column>
@@ -486,6 +490,71 @@
         </template>
       </el-dialog>
     </div>
+    <div>
+      <el-dialog
+        title="批量导入域名"
+        v-model="dialogBatchImportDomainVisible"
+        width="900px"
+      >
+        <div class="prompt-message"><el-tag type="warning">域名之间使用英文分号(;)隔开，也可以包括IP，服务器不对导入的内容做检查</el-tag></div>
+        <el-form :model="batchImportDomain" :rules="webBatchDomainRules" ref="batchImportDomain">
+          <el-form-item prop="content">
+            <el-input 
+              :autosize="{ minRows: 15, maxRows: 15 }" 
+              type="textarea" 
+              size="small" 
+              placeholder="" 
+              v-model="batchImportDomain.content" 
+              autocomplete="off">
+            </el-input>
+          </el-form-item>
+        </el-form>
+        <div>
+          <span>为以上新添加的地址分配到指定的组：</span>
+          <el-select
+            v-model="batchDomainTypeSelect"
+            multiple
+            collapse-tags
+            style="margin-left: 20px"
+            placeholder="Select"
+            size="small"
+          >
+            <el-option
+              v-for="item in jobs"
+              :key="item.id"
+              :label="item.name"
+              :value="item.id"
+            >
+            </el-option>
+          </el-select>
+        </div>
+        <template #footer>
+          <span class="dialog-footer">
+            <el-button size="small" @click="dialogBatchImportDomainVisible = false">关 闭</el-button>
+            <el-button
+              v-if="import_domain_pushing === false"
+              style="margin-left: 10px"
+              size="small"
+              type="success"
+              icon="el-icon-upload"
+              @click="doBatchDomainAddWebSubmit('batchImportDomain')"
+              >确 定</el-button
+            >
+            <el-button
+              v-if="import_domain_pushing === true"
+              style="margin-left: 10px"
+              size="small"
+              type="success"
+              icon="el-icon-loading"
+              >确 定</el-button
+            >
+            <!-- <el-button size="small" type="primary" @click="doBatchDomainAddWebSubmit('batchImportDomain')"
+              >确 定</el-button
+            > -->
+          </span>
+        </template>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -500,6 +569,7 @@ import {
   batchDeleteMachine,
   updatePosition,
   batchImportIpAddrsWeb,
+  batchImportDomainWeb,
   outputAllIP
 } from '@/api/machines'
 import { publish } from '@/api/publish'
@@ -541,6 +611,7 @@ export default {
       jobsMap: {},
       selectTypeValue: {},
       batchTypeSelect: [],
+      batchDomainTypeSelect: [],
       search: '',
       pageSize: 20,
       pageTotal: 0,
@@ -574,6 +645,7 @@ export default {
       dialogIpStatusVisible: false,
       dialogIpPositionVisible: false,
       dialogBatchImportVisible: false,
+      dialogBatchImportDomainVisible: false,
       currentIPStatus: '',
       currentIPPosition: '',
       ipStatusList: {},
@@ -583,13 +655,22 @@ export default {
       batchImportIPAddr: {
         content: '',
       },
+      batchImportDomain: {
+        content: '',
+      },
       formLabelWidth: '80px',
       webBatchRules: {
         content: [
           { required: true, message: '请输入有效的IP地址或者网段，支持V4及V6', validator: validateStr, trigger: ['blur'] }
         ],
       },
+      webBatchDomainRules: {
+        content: [
+          { required: true, message: '请输入内容', trigger: ['blur'] }
+        ],
+      },
       import_pushing: false,
+      import_domain_pushing: false,
     }
   },
   created () {
@@ -953,6 +1034,22 @@ export default {
         }
       )
     },
+    doBatchAddDomainWeb(){
+      getJobs().then(
+        r => {
+          this.jobs = r.data
+          r.data.forEach(e => {
+            this.jobsMap[e.id] = e.name
+          })
+          this.import_domain_pushing = false
+          this.dialogBatchImportDomainVisible = true
+        }
+      ).catch(
+        e => {
+          console.log(e)
+        }
+      )
+    },
     doBatchAddWebSubmit(formName){
       this.$refs[formName].validate((valid) => {
         if (valid) {
@@ -969,6 +1066,28 @@ export default {
             });
             this.doGetMechines()
             this.import_pushing = false
+          }).catch(e=>console.log(e))
+        } else {
+          return false
+        }
+      })
+    },
+    doBatchDomainAddWebSubmit(formName){
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.import_domain_pushing = true
+          var jobIDSelect = []
+          for(var k in this.batchDomainTypeSelect) {
+            jobIDSelect.push(this.batchDomainTypeSelect[k])
+          }
+          batchImportDomainWeb({content: this.batchImportDomain.content, jobs_id: jobIDSelect}).then(r=>{
+            this.$notify({
+              title: '成功',
+              message: '批量添加成功！',
+              type: 'success'
+            });
+            this.doGetMechines()
+            this.import_domain_pushing = false
           }).catch(e=>console.log(e))
         } else {
           return false

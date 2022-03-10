@@ -229,6 +229,7 @@ type IPPosition struct {
 	ProvinceCode string `json:"province_code"`
 	CityCode     string `json:"city_code"`
 	CountyCode   string `json:"county_code"`
+	Error        string `json:"error"`
 }
 
 func (i *IPPosition) String() string {

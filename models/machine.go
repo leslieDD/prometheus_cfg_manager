@@ -318,9 +318,9 @@ func PostMachine(user *UserSessionInfo, m *Machine) *BriefMessage {
 }
 
 func PutMachine(user *UserSessionInfo, m *Machine) *BriefMessage {
-	if utils.CheckIPAddr(m.IpAddr) {
-		return ErrIPAddr
-	}
+	// if utils.CheckIPAddr(m.IpAddr) {
+	// 	return ErrIPAddr
+	// }
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -511,6 +511,81 @@ func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Upl
 	return uploadInfo, Success
 }
 
+func UploadDomain(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*UploadMachinesInfo, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return uploadInfo, ErrDataBase
+	}
+	uploadInfo.TongJi.Total = len(uploadInfo.Machines)
+	db.Transaction(func(tx *gorm.DB) error {
+		for _, ipInfo := range uploadInfo.Machines {
+			// if net.ParseIP(ipInfo.IpAddr) == nil {
+			// 	ipInfo.ImportInPool = false
+			// 	err := errors.New("IP地址不能不合法，不能正常解析")
+			// 	ipInfo.ImportError = err.Error()
+			// 	uploadInfo.TongJi.Fail += 1
+			// 	config.Log.Error(err)
+			// 	if !uploadInfo.Opts.IgnoreErr {
+			// 		return err
+			// 	}
+			// 	continue
+			// }
+			m := Machine{
+				ID:       0,
+				IpAddr:   ipInfo.IpAddr,
+				Position: `{"error": "导入域名，未检测"}`,
+				Enabled:  true,
+				UpdateAt: time.Now(),
+				UpdateBy: user.Username,
+			}
+			// position := GetIPPosition(ipInfo.IpAddr)
+			// if position != nil {
+			// 	m.Position = position.String()
+			// }
+			if err := tx.Table("machines").Create(&m).Error; err != nil {
+				ipInfo.ImportInPool = false
+				ipInfo.ImportError = err.Error()
+				uploadInfo.TongJi.Fail += 1
+				config.Log.Error(err)
+				if !uploadInfo.Opts.IgnoreErr {
+					return err
+				}
+			} else {
+				uploadInfo.TongJi.Success += 1
+				ipInfo.ImportInPool = true
+				ipInfo.ImportError = "成功导入IP池"
+				ipInfo.ID = m.ID
+			}
+		}
+		if len(uploadInfo.JobsID) == 0 {
+			return nil
+		}
+		jobMachines := []*TableJobMachines{}
+		for _, jID := range uploadInfo.JobsID {
+			for _, ipInfo := range uploadInfo.Machines {
+				if !ipInfo.ImportInPool {
+					continue
+				}
+				ipInfo.ImportInJobNum += 1
+				jobMachines = append(jobMachines, &TableJobMachines{
+					JobID:     jID,
+					MachineID: ipInfo.ID,
+				})
+			}
+			if err := tx.Table("job_machines").Create(&jobMachines).Error; err != nil {
+				config.Log.Error(err)
+				if !uploadInfo.Opts.IgnoreErr {
+					return err
+				}
+			}
+		}
+		return nil
+	})
+	uploadInfo.TongJi.NoAction = uploadInfo.TongJi.Total - (uploadInfo.TongJi.Success + uploadInfo.TongJi.Fail)
+	return uploadInfo, Success
+}
+
 func UpdateIPPosition(user *UserSessionInfo) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -600,5 +675,34 @@ func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *Bri
 		TongJi:   UploadResult{},
 	}
 	_, bf := UploadMachines(user, &umi)
+	return bf
+}
+
+func BatchImportDomain(user *UserSessionInfo, content *BatchImportIPaddrs) *BriefMessage {
+	items := strings.Split(content.Content, ";")
+	importDomains := map[string]struct{}{}
+	// importIPs := map[string]struct{}{}
+	for _, item := range items {
+		currDomain := strings.TrimSpace(item)
+		importDomains[currDomain] = struct{}{}
+		// importDomains = append(currDomain, struct{})
+	}
+	machines := []*UploadMachine{}
+	for m, _ := range importDomains {
+		machines = append(machines, &UploadMachine{
+			ID:             0,
+			IpAddr:         m,
+			ImportInPool:   false,
+			ImportInJobNum: 0,
+			ImportError:    "",
+		})
+	}
+	umi := UploadMachinesInfo{
+		Opts:     UploadOpts{IgnoreErr: true},
+		JobsID:   content.JobsID,
+		Machines: machines,
+		TongJi:   UploadResult{},
+	}
+	_, bf := UploadDomain(user, &umi)
 	return bf
 }

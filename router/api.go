@@ -61,6 +61,7 @@ func initApiRouter() {
 	v1.DELETE("/machines/selection", batchDeleteMachine)
 	v1.POST("/upload/machines", uploadMachines)
 	v1.PUT("/machines/batch/import", batchImportIPAddrs)
+	v1.PUT("/machines/batch/import/domain", batchImportDomain)
 
 	v1.POST("/publish", publish)
 	v1.POST("/reload", reload)
@@ -1021,6 +1022,24 @@ func batchImportIPAddrs(c *gin.Context) {
 	}
 	bf := models.BatchImportIPAddrs(user, &content)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "batch import ip[web]", models.IsAdd, bf)
+	resComm(c, bf, nil)
+}
+
+func batchImportDomain(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "import")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	content := models.BatchImportIPaddrs{}
+	if err := c.BindJSON(&content); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "batch import domain", models.IsAdd, models.ErrUpdateData)
+		resComm(c, models.ErrUpdateData, nil)
+		return
+	}
+	bf := models.BatchImportDomain(user, &content)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "batch import domain", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
 

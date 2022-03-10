@@ -62,7 +62,8 @@
               :key="index"
               :label="index + 1"
               >{{ item.ip }}
-                <span v-if="item.position.isp"><el-tag size="mini" type="info">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}</el-tag><el-tag type="warning" size="mini" >{{item.position.isp}}</el-tag></span>
+                <span v-if="item.position.error"><el-tag type="danger" size="mini" >{{item.position.error}}</el-tag></span>
+                <span v-else-if="item.position.isp"><el-tag size="mini" type="info">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}</el-tag><el-tag type="warning" size="mini" >{{item.position.isp}}</el-tag></span>
                 <span v-else><el-tag size="mini" type="info">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}{{item.position.isp}}</el-tag></span>
               </el-descriptions-item
             >

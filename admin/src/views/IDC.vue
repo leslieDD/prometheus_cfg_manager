@@ -19,7 +19,7 @@
               @click="doCreateLabelForAllIPs"> JOB组中生成标签 </el-button>
           </span>
           <el-button size="small" type="info" class="button" @click="flushtree"> 刷新列表 </el-button>
-          <el-button size="small" type="success" class="button" @click="idcAppend"> 增加机房 </el-button>
+          <el-button size="small" type="success" icon="el-icon-baseball" class="button" @click="idcAppend"> 增加机房 </el-button>
         </div>
       </template>
       <div>
@@ -59,7 +59,7 @@
             当前选择机房：<el-tag v-if="currentIDCTitle!==''" size="mini" type="warning">{{currentIDCTitle}}</el-tag>
             线路：<el-tag v-if="currentLineTitle!==''" size="mini" type="warning">{{currentLineTitle}}</el-tag>
           </span>
-          <el-button size="small" type="success" class="button" @click="putIDCOrLineIPData"> 更 新 </el-button>
+          <el-button size="small" type="success" class="button" icon="el-icon-upload2" @click="putIDCOrLineIPData"> 更 新 </el-button>
         </div>
       </template>
       <div>
