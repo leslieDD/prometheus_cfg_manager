@@ -243,7 +243,7 @@ func GetReLabels(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	}
 	lists := []*ReLabels{}
 	tx2 := db.Table("relabels").Where("name like ?", fmt.Sprint("%", sp.Search, "%")).
-		Order("update_at desc").
+		// Order("update_at desc").
 		Offset((sp.PageNo - 1) * sp.PageSize).
 		Limit(sp.PageSize).
 		Find(&lists)
