@@ -152,7 +152,7 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		where := " WHERE (jobs.is_common=0 OR jobs.is_common IS NULL) " +
 			" %s " +
 			" GROUP BY machines.ipaddr " +
-			" ORDER BY machines.enabled desc, machines.update_at desc "
+			" ORDER BY machines.enabled desc " // machines.update_at desc
 		var likeSql string
 		if sp.Search != "" {
 			likeSql = sql + fmt.Sprintf(where, whereLike)
