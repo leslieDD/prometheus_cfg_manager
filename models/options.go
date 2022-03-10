@@ -138,14 +138,10 @@ func doOptions_2() *BriefMessage {
 		return ErrDataBase
 	}
 	// 事务
-	// sql := `SELECT job_machines.* FROM job_machines
-	// LEFT JOIN group_machines
-	// ON job_machines.machine_id=group_machines.machines_id
-	// WHERE group_machines.job_group_id IS NULL `
 	sql := `SELECT job_machines.machine_id, job_machines.job_id FROM job_machines
 	LEFT JOIN group_machines
-	ON job_machines.machine_id=group_machines.machines_id
-	WHERE job_group_id IS NULL`
+	ON group_machines.machines_id=job_machines.machine_id
+	WHERE group_machines.job_group_id IS NULL`
 	jgs := []*JobIDAndMachinesID{}
 	tx := db.Table("job_machines").Raw(sql).Find(&jgs)
 	if tx.Error != nil {
