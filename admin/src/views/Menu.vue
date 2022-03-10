@@ -220,7 +220,7 @@ export default {
   data () {
     SingleSvg
     return {
-      activeTabName: 'ipManager',
+      activeTabName: 'jobs',
       transitionName: 'slide-left',
       scrollBackShow: false,
       dialogVisible: false
