@@ -10,6 +10,7 @@
           size="small"
           :disabled="runningMod"
           type="danger"
+          icon="el-icon-warning-outline"
           @click="displayDialog"
           >重置所有数据</el-button
         >

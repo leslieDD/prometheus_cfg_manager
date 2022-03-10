@@ -4,7 +4,7 @@
       <div>
         <div class="do_action">
           <div style="padding-right: 15px">
-            <el-button size="small" type="success" plain @click="doAdd()"
+            <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()"
               >添加组</el-button
             >
           </div>

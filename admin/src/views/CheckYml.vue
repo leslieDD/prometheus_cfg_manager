@@ -7,7 +7,7 @@
           执行重启Prometheus服务
         </template>
         <div style="width: 250px">
-          <el-button type="warning" @click="restart" size="small"
+          <el-button type="warning" @click="restart" icon="el-icon-sunny" size="small"
             >重 启</el-button
           >
         </div>
@@ -18,7 +18,7 @@
           执行测试配置文件（prometheus.yml）
         </template>
         <div style="width: 250px">
-          <el-button type="primary" @click="check" size="small"
+          <el-button type="primary" @click="check" icon="el-icon-hot-water" size="small"
             >测 试</el-button
           >
         </div>

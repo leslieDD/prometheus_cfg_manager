@@ -28,7 +28,7 @@
             @click="publishJobsRunning()"
             >发布</el-button
           > -->
-          <el-button size="small" type="success" plain @click="doAdd()"
+          <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()"
             >添加默认组</el-button
           >
         </div>

@@ -29,7 +29,7 @@
           <i class="el-icon-refresh-left"></i>
           重置用户及权限管理成出产设置
         </template>
-        <el-button size="small" type="danger" @click="showResetDialog">
+        <el-button size="small" icon="el-icon-warning-outline" type="danger" @click="showResetDialog">
           重置数据
         </el-button>
       </el-descriptions-item>
