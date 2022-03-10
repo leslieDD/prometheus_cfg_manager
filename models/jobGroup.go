@@ -372,11 +372,11 @@ func PutJobGroupMachines(jobID int64, gID int64, pools *[]JobGroupMachine) *Brie
 	// 写入新成员
 	ist := []string{}
 	for _, p := range *pools {
-		ist = append(ist, fmt.Sprintf(`(%d, %d, %d)`, p.ID, gID, p.MachinesID))
+		ist = append(ist, fmt.Sprintf(`(%d, %d)`, gID, p.MachinesID))
 	}
 	if len(ist) != 0 {
 		values := strings.Join(ist, ",")
-		sql := "INSERT INTO group_machines(`id`,`job_group_id`,`machines_id`) VALUES " +
+		sql := "INSERT INTO group_machines(`job_group_id`,`machines_id`) VALUES " +
 			values +
 			" ON DUPLICATE KEY UPDATE `job_group_id`=VALUES(job_group_id),`machines_id`=VALUES(machines_id) "
 		tx2 := db.Table("group_machines").Exec(sql)
