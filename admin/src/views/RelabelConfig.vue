@@ -1,37 +1,45 @@
 <template>
   <div class="relabel-config-box">
-    <div class="main-content">
+    <div class="btn-action-area">
       <div>
-        <div class="btn-action-area">
-          <div>
-            <span class="explain-words">
-              说明：定义prometheus中的<el-tag size="mini" type="warning"
-                >relabel_configs</el-tag
-              >规则，可以在<el-tag size="mini">JOB组管理</el-tag>中使用</span
+        <span class="explain-words">
+        说明：定义prometheus中的<el-tag size="mini" type="warning"
+          >relabel_configs</el-tag
+        >规则，可以在<el-tag size="mini">JOB组管理</el-tag>中使用</span>
+      </div>
+      <div>
+        <el-button
+          size="mini"
+          type="success"
+          @click="doPostReLablesCode()"
+          icon="el-icon-upload2"
+          >提 交</el-button
+        >
+      </div>
+    </div>
+    <div class="main-content">
+      <div class="page_left">
+        <div class="do_action">
+          <div style="padding-right: 15px">
+            <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()"
+              >添加规则</el-button
             >
           </div>
-          <div class="do_action">
-            <div style="padding-right: 15px">
-              <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()"
-                >添加规则</el-button
-              >
-            </div>
-            <div>
-              <el-input
-                size="small"
-                placeholder="请输入内容"
-                @keyup.enter="onSearch()"
-                v-model="searchContent"
-              >
-                <template #append>
-                  <el-button
-                    size="small"
-                    @click="onSearch()"
-                    icon="el-icon-search"
-                  ></el-button>
-                </template>
-              </el-input>
-            </div>
+          <div>
+            <el-input
+              size="small"
+              placeholder="请输入内容"
+              @keyup.enter="onSearch()"
+              v-model="searchContent"
+            >
+              <template #append>
+                <el-button
+                  size="small"
+                  @click="onSearch()"
+                  icon="el-icon-search"
+                ></el-button>
+              </template>
+            </el-input>
           </div>
         </div>
         <div class="table-show">
@@ -50,14 +58,14 @@
               </template>
             </el-table-column>
             <el-table-column label="名称" prop="name"> </el-table-column>
-            <el-table-column label="最新后新账号" prop="update_by">
+            <el-table-column label="更新账号" prop="update_by">
             </el-table-column>
-            <el-table-column label="最后更新时间" prop="update_at">
+            <el-table-column label="更新时间" prop="update_at">
               <template v-slot="{ row }">
                 <span>{{ parseTimeSelf(row.update_at) }}</span>
               </template>
             </el-table-column>
-            <el-table-column label="操作" align="center" width="400px">
+            <el-table-column label="操作" align="center" width="280px">
               <template v-slot="scope" align="center">
                 <div class="actioneara">
                   <div>
@@ -67,7 +75,8 @@
                       @click="doEdit(scope)"
                       plain
                       :disabled="editCodeButVisable[scope.row.id]"
-                      >编辑名称</el-button
+                      icon="el-icon-edit"
+                      >名称</el-button
                     >
                   </div>
                   <div>
@@ -77,16 +86,8 @@
                       @click="doEditReLablesCode(scope)"
                       :disabled="editCodeButVisable[scope.row.id]"
                       plain
-                      >编辑规则</el-button
-                    >
-                  </div>
-                  <div>
-                    <el-button
-                      size="mini"
-                      type="warning"
-                      :disabled="postCodeButVisable[scope.row.id]"
-                      @click="doPostReLablesCode(scope)"
-                      >提交规则</el-button
+                      icon="el-icon-edit"
+                      >规则</el-button
                     >
                   </div>
                   <div>
@@ -156,8 +157,10 @@
           </div>
         </div>
       </div>
-      <div class="yaml-relabel-edit">
-        <textarea ref="textareaREdit" />
+      <div class="page_right">
+        <div class="yaml-relabel-edit">
+          <textarea ref="textareaREdit" />
+        </div>
       </div>
     </div>
     <el-dialog
@@ -295,7 +298,8 @@ export default {
         name: [
           { required: true, message: '请输入正确的名称', validator: validateStr, trigger: ['blur'] }
         ]
-      }
+      },
+      currentID: 0,
     }
   },
   mounted () {
@@ -340,7 +344,7 @@ export default {
       scrollbarStyle: 'native'
     }))
     this.yamlRelabelEdit.refresh()
-    this.yamlRelabelEdit.setSize('1120px', '50vh');
+    this.yamlRelabelEdit.setSize('100%', '80vh');
     this.yamlRelabelEdit.setValue(this.value)
 
     this.yamlRelabelEdit.on('change', (cm) => {
@@ -517,13 +521,14 @@ export default {
             this.postCodeButVisable[key] = true
           }
         })
+        this.currentID = scape.row.id
         this.yamlRelabelEdit.setValue(scape.row.code)
         this.postCodeButVisable[scape.row.id] = false
       }).catch(e => console.log(e))
     },
-    doPostReLablesCode (scape) {
+    doPostReLablesCode() {
       const code = {
-        id: scape.row.id,
+        id: this.currentID,
         code: this.yamlRelabelEdit.getValue()
       }
       putReLabelsCode(code).then(
@@ -570,7 +575,19 @@ export default {
 }
 .main-content {
   width: 100%;
-  height: 40vh;
+  height: 80vh;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+.page_left {
+  margin-top: 10px;
+  width: 55%;
+  height: 100%;
+}
+.page_right {
+  width: 44.5%;
+  height: 100%;
 }
 .do_action {
   display: flex;
@@ -580,8 +597,9 @@ export default {
 }
 .actioneara {
   display: flex;
-  flex-wrap: nowrap;
-  justify-content: space-around;
+  /* flex-wrap: nowrap; */
+  flex-wrap: wrap;
+  /* justify-content:space-around; */
 }
 .el-pagination {
   text-align: center;
@@ -600,6 +618,9 @@ export default {
   font: 0.9em Arial, Tahoma, Verdana;
   color: #777;
 }
+/* .table-show {
+  width: 100%;
+} */
 .btn-action-area {
   display: flex;
   flex-wrap: nowrap;
