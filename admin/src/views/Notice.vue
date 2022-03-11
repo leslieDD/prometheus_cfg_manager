@@ -979,7 +979,7 @@ export default {
   padding: 5px 10px 5px 10px;
 }
 .node-content {
-  width: 900px;
+  width: 100%;
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
@@ -989,6 +989,7 @@ export default {
   z-index: 98;
   align-content: center;
   text-align: center;
+  width: 100%;
 }
 .empty-board {
   width: 800px;
@@ -1027,6 +1028,7 @@ export default {
   min-width: 150%;
 }
 .card-scrollbar-right {
+  padding-right: 12px;
   height: 75vh;
   width: 100%;
 }

@@ -1,7 +1,7 @@
 <template>
   <div class="box-card">
     <div class="box-member">
-      <el-descriptions :column="1" size="mini" border>
+      <el-descriptions :column="1" size="small" border>
         <el-descriptions-item>
           <template #label>
             <span>规则功能描述：</span>
@@ -37,7 +37,7 @@
             type="textarea"
             size="mini"
             wrap="off"
-            :rows="4"
+            :autosize="{ minRows: 10, maxRows: 10 }" 
             maxlength="5000"
             show-word-limit
             v-model="formData.expr"
@@ -123,7 +123,7 @@
                 size="mini"
                 icon="el-icon-circle-plus"
                 @click="addLables('labels')"
-                >增加</el-button
+                ></el-button
               >
             </div>
           </div>
@@ -208,7 +208,7 @@
                 plain
                 @click="addLables('annotations')"
                 icon="el-icon-circle-plus"
-                >增加</el-button
+                ></el-button
               >
             </div>
           </div>
@@ -711,7 +711,7 @@ annotations:
   width: 79%;
 }
 .rule-edit-area {
-  width: 680px;
+  width: 100%;
   align-content: right;
   text-align: right;
 }
@@ -738,7 +738,7 @@ annotations:
 .box-card {
   /* width: 98%; */
   margin-left: 5px;
-  width: 840px;
+  width: 100%;
   padding: 0px 0px;
 }
 .box-member :deep() .el-form-item__label {
