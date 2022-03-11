@@ -656,7 +656,6 @@ func ChangeIPAddrUseID(ipContents string) (*UpdateIPForJob, *BriefMessage) {
 	}
 	uif := UpdateIPForJob{}
 	for _, ipAddr := range ipAddrList {
-		config.Log.Error(ipAddr)
 		m := Machine{}
 		tx := db.Table("machines").Where("ipaddr", ipAddr).Find(&m)
 		if tx.Error != nil {
@@ -696,6 +695,16 @@ func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessag
 			})
 		}
 		if err := db.Table("job_machines").Create(&tjms).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		// 在group_machines中，清除已经不存在的IP记录
+		if err := db.Exec(`DELETE FROM group_machines WHERE group_machines.machines_id NOT IN ? AND group_machines.job_group_id IN (
+			SELECT job_group_id FROM group_machines 
+			LEFT JOIN job_group
+			ON group_machines.job_group_id=job_group.id
+			WHERE job_group.jobs_id=?
+			)`, cInfo.MachinesIDs, cInfo.JobID).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
