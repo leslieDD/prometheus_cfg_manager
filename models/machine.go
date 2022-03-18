@@ -617,7 +617,11 @@ func UpdateIPPosition(user *UserSessionInfo) *BriefMessage {
 }
 
 func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *BriefMessage {
-	items := strings.Split(content.Content, ";")
+	// items := strings.Split(content.Content, ";")
+	items := []string{}
+	for _, each := range strings.FieldsFunc(content.Content, Split) {
+		items = append(items, strings.TrimSpace(each))
+	}
 	importIPs := map[string]struct{}{}
 	for _, item := range items {
 		currIP := strings.TrimSpace(item)
@@ -635,6 +639,20 @@ func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *Bri
 			}
 		} else if strings.Contains(currIP, "~") {
 			fields := strings.Split(currIP, "~")
+			if len(fields) != 2 {
+				config.Log.Errorf("ip pool err: %s", currIP)
+				continue
+			}
+			ps, err := utils.RangeBeginToEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+			if err != nil {
+				config.Log.Error(err)
+				continue
+			}
+			for _, p := range ps {
+				importIPs[p] = struct{}{}
+			}
+		} else if strings.Contains(currIP, "-") {
+			fields := strings.Split(currIP, "-")
 			if len(fields) != 2 {
 				config.Log.Errorf("ip pool err: %s", currIP)
 				continue
@@ -680,7 +698,11 @@ func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *Bri
 }
 
 func BatchImportDomain(user *UserSessionInfo, content *BatchImportIPaddrs) *BriefMessage {
-	items := strings.Split(content.Content, ";")
+	// items := strings.Split(content.Content, ";")
+	items := []string{}
+	for _, each := range strings.FieldsFunc(content.Content, Split) {
+		items = append(items, strings.TrimSpace(each))
+	}
 	importDomains := map[string]struct{}{}
 	// importIPs := map[string]struct{}{}
 	for _, item := range items {

@@ -266,3 +266,7 @@ func GetIPPosition(ipAddr string) *IPPosition {
 	}
 	return &ipp
 }
+
+func Split(r rune) bool {
+	return r == ';' || r == '\n'
+}

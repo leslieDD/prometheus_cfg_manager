@@ -431,7 +431,7 @@
         v-model="dialogBatchImportVisible"
         width="900px"
       >
-        <div class="prompt-message"><el-tag type="warning">IP或者网段之间，使用英文封号（;）分隔开，自动跳过已经存在的IP地址，如：192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1</el-tag></div>
+        <div class="prompt-message"><el-tag size="mini" type="warning">IP或者网段之间，使用英文分号（;）分隔开或者单独一行，自动跳过已经存在的IP地址，如：</el-tag><br><el-tag size="mini">192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1;172.16.1.1-172.16.2.1</el-tag></div>
         <el-form :model="batchImportIPAddr" :rules="webBatchRules" ref="batchImportIPAddr">
           <el-form-item prop="content">
             <el-input 
