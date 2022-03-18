@@ -661,7 +661,7 @@ export default {
       formLabelWidth: '80px',
       webBatchRules: {
         content: [
-          { required: true, message: '请输入有效的IP地址或者网段，支持V4及V6', validator: validateStr, trigger: ['blur'] }
+          { required: true, message: '请输入有效的IP地址或者网段，支持V4及V6', trigger: ['blur'] }
         ],
       },
       webBatchDomainRules: {
