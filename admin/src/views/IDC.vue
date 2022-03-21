@@ -459,11 +459,11 @@
   margin-bottom: 18px;
 }
 .box-card-left {
-  width: 52%;
+  width: 55%;
 }
 
 .box-card-right {
-  width: 47%;
+  width: 44%;
 }
 
 .card-scrollbar {
