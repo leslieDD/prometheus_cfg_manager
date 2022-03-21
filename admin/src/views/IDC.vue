@@ -1,6 +1,6 @@
 <template>
   <div class="box-board">
-    <el-card class="box-card">
+    <el-card class="box-card-left">
       <template #header>
         <div class="card-header">
           <span>机房及线路</span>
@@ -54,7 +54,7 @@
         </el-scrollbar>
       </div>
     </el-card>
-    <el-card class="box-card">
+    <el-card class="box-card-right">
       <template #header>
         <div class="card-header">
           <span>
@@ -458,11 +458,15 @@
 .item {
   margin-bottom: 18px;
 }
-.box-card {
-  width: 49.5%;
+.box-card-left {
+  width: 52%;
+}
+
+.box-card-right {
+  width: 47%;
 }
 
 .card-scrollbar {
-  height: 80vh;
+  height: 75vh;
 }
 </style>
