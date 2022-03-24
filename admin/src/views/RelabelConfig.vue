@@ -148,7 +148,7 @@
               @size-change="handleSizeChange"
               @current-change="handleCurrentChange"
               :current-page="currentPage"
-              :page-sizes="[10]"
+              :page-sizes="[18, 25, 30]"
               :page-size="pageSize"
               layout="total, sizes, prev, pager, next, jumper"
               :total="pageTotal"
@@ -286,7 +286,7 @@ export default {
       postCodeButVisable: {},
       editCodeButVisable: {},
       defaultRuleID: 0,
-      pageSize: 10,
+      pageSize: 18,
       pageTotal: 0,
       currentPage: 1,
       searchContent: '',

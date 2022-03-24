@@ -95,20 +95,20 @@ export default {
 </script>
 
 <style scoped>
-.base-config-menu {
-  width: 300px;
-  /* margin-right: 10px; */
-}
-.base-config-router {
-  width: 100%;
-  height: 85vh;
-}
 .base-config-board {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   width: 100%;
   /* justify-content: space-between; */
+}
+.base-config-menu {
+  width: 180px;
+  min-width: 180px;  /* margin-right: 10px; */
+}
+.base-config-router {
+  width: 100%;
+  height: 85vh;
 }
 .slide-fade-enter-active {
   transition: all 0.3s ease-in;

@@ -688,7 +688,13 @@ func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessag
 			return nil
 		}
 		tjms := []*TableJobMachines{}
+		// 去重用的
+		delMutil := map[int]struct{}{}
 		for _, m := range cInfo.MachinesIDs {
+			if _, ok := delMutil[m]; ok {
+				continue
+			}
+			delMutil[m] = struct{}{}
 			tjms = append(tjms, &TableJobMachines{
 				JobID:     cInfo.JobID,
 				MachineID: m,
