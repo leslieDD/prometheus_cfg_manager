@@ -7,7 +7,7 @@
           >relabel_configs</el-tag
         >规则，可以在<el-tag size="mini">JOB组管理</el-tag>中使用</span>
       </div>
-      <div>
+      <!-- <div>
         <el-button
           size="mini"
           type="success"
@@ -15,7 +15,7 @@
           icon="el-icon-upload2"
           >提 交</el-button
         >
-      </div>
+      </div> -->
     </div>
     <div class="main-content">
       <div class="page_left">
@@ -42,127 +42,165 @@
             </el-input>
           </div>
         </div>
-        <div class="table-show">
-          <el-table
-            size="mini"
-            highlight-current-row
-            border
-            :data="ReLabels"
-            stripe
-            :row-style="rowStyle"
-            :cell-style="cellStyle"
-          >
-            <el-table-column label="序号" width="50px">
-              <template v-slot="scope">
-                {{ scope.$index + 1 }}
-              </template>
-            </el-table-column>
-            <el-table-column label="名称" prop="name"> </el-table-column>
-            <el-table-column label="更新账号" prop="update_by">
-            </el-table-column>
-            <el-table-column label="更新时间" prop="update_at">
-              <template v-slot="{ row }">
-                <span>{{ parseTimeSelf(row.update_at) }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column label="操作" align="center" width="280px">
-              <template v-slot="scope" align="center">
-                <div class="actioneara">
-                  <div>
-                    <el-button
-                      size="mini"
-                      type="primary"
-                      @click="doEdit(scope)"
-                      plain
-                      :disabled="editCodeButVisable[scope.row.id]"
-                      icon="el-icon-edit"
-                      >名称</el-button
-                    >
-                  </div>
-                  <div>
-                    <el-button
-                      size="mini"
-                      type="primary"
-                      @click="doEditReLablesCode(scope)"
-                      :disabled="editCodeButVisable[scope.row.id]"
-                      plain
-                      icon="el-icon-edit"
-                      >规则</el-button
-                    >
-                  </div>
-                  <div>
-                    <el-button
-                      size="mini"
-                      type="info"
-                      v-if="scope.row.enabled === true"
-                      @click="invocate(scope)"
-                      plain
-                      :disabled="editCodeButVisable[scope.row.id]"
-                      >禁用</el-button
-                    >
-                    <el-button
-                      size="mini"
-                      type="warning"
-                      v-if="scope.row.enabled === false"
-                      @click="invocate(scope)"
-                      plain
-                      :disabled="editCodeButVisable[scope.row.id]"
-                      >启用</el-button
-                    >
-                  </div>
-                  <div>
-                    <el-popover
-                      :visible="deleteVisible[scope.$index]"
-                      placement="top"
-                    >
-                      <p>确定删除吗？</p>
-                      <div style="text-align: right; margin: 0">
-                        <el-button size="mini" type="text" @click="doNo(scope)"
-                          >取消</el-button
-                        >
-                        <el-button
-                          type="primary"
-                          size="mini"
-                          @click="doYes(scope)"
-                          >确定</el-button
-                        >
-                      </div>
-                      <template #reference>
-                        <el-button
-                          size="mini"
-                          type="danger"
-                          plain
-                          @click="doDelete(scope)"
-                          :disabled="editCodeButVisable[scope.row.id]"
-                          >删除</el-button
-                        >
-                      </template>
-                    </el-popover>
-                  </div>
-                </div>
-              </template>
-            </el-table-column>
-          </el-table>
-          <div class="block">
-            <el-pagination
-              @size-change="handleSizeChange"
-              @current-change="handleCurrentChange"
-              :current-page="currentPage"
-              :page-sizes="[18, 25, 30]"
-              :page-size="pageSize"
-              layout="total, sizes, prev, pager, next, jumper"
-              :total="pageTotal"
+        <el-scrollbar class="card-scrollbar">
+          <div class="table-show">
+            <el-table
+              size="mini"
+              highlight-current-row
+              border
+              :data="ReLabels"
+              stripe
+              :row-style="rowStyle"
+              :cell-style="cellStyle"
             >
-            </el-pagination>
+              <el-table-column label="序号" width="50px">
+                <template v-slot="scope">
+                  {{ scope.$index + 1 }}
+                </template>
+              </el-table-column>
+              <el-table-column label="名称" prop="name"> </el-table-column>
+              <el-table-column label="更新账号" prop="update_by">
+              </el-table-column>
+              <el-table-column label="更新时间" prop="update_at">
+                <template v-slot="{ row }">
+                  <span>{{ parseTimeSelf(row.update_at) }}</span>
+                </template>
+              </el-table-column>
+              <el-table-column label="操作" align="center" width="320px">
+                <template v-slot="scope" align="center">
+                  <div class="actioneara">
+                    <div>
+                      <el-button
+                        size="mini"
+                        type="primary"
+                        @click="doEdit(scope)"
+                        plain
+                        :disabled="editCodeButVisable[scope.row.id]"
+                        icon="el-icon-edit"
+                        >名称</el-button
+                      >
+                    </div>
+                    <div>
+                      <el-button
+                        size="mini"
+                        type="primary"
+                        @click="doEditReLablesCode(scope)"
+                        :disabled="editCodeButVisable[scope.row.id]"
+                        plain
+                        icon="el-icon-edit"
+                        >规则</el-button
+                      >
+                    </div>
+                    <div>
+                      <el-button
+                        size="mini"
+                        type="info"
+                        v-if="scope.row.enabled === true"
+                        @click="invocate(scope)"
+                        plain
+                        :disabled="editCodeButVisable[scope.row.id]"
+                        >禁用</el-button
+                      >
+                      <el-button
+                        size="mini"
+                        type="warning"
+                        v-if="scope.row.enabled === false"
+                        @click="invocate(scope)"
+                        plain
+                        :disabled="editCodeButVisable[scope.row.id]"
+                        >启用</el-button
+                      >
+                    </div>
+                    <div>
+                      <el-popover
+                        :visible="deleteVisible[scope.$index]"
+                        placement="top"
+                      >
+                        <p>确定删除吗？</p>
+                        <div style="text-align: right; margin: 0">
+                          <el-button size="mini" type="text" @click="doNo(scope)"
+                            >取消</el-button
+                          >
+                          <el-button
+                            type="primary"
+                            size="mini"
+                            @click="doYes(scope)"
+                            >确定</el-button
+                          >
+                        </div>
+                        <template #reference>
+                          <el-button
+                            size="mini"
+                            type="danger"
+                            plain
+                            @click="doDelete(scope)"
+                            :disabled="editCodeButVisable[scope.row.id]"
+                            >删除</el-button
+                          >
+                        </template>
+                      </el-popover>
+                    </div>
+                  </div>
+                </template>
+              </el-table-column>
+            </el-table>
+            <div class="block">
+              <el-pagination
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage"
+                :page-sizes="[18, 25, 30]"
+                :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="pageTotal"
+              >
+              </el-pagination>
+            </div>
           </div>
-        </div>
-      </div>
-      <div class="page_right">
-        <div class="yaml-relabel-edit">
-          <textarea ref="textareaREdit" />
-        </div>
+        </el-scrollbar>
       </div>
     </div>
+    <el-dialog
+      :title="dialogEditRuleTitle"
+      v-model="dialogEditRuleVisible"
+      width="900px"
+      modal
+      :before-close="handleEditRuleClose"
+    >
+      <span>
+        <el-form
+          label-position="right"
+          ref="editRuleInfo"
+          :model="editRuleInfo"
+          label-width="20px"
+          size="small"
+        >
+          <el-form-item label="" prop="rules">
+            <el-input
+              style="width: 820px"
+              :autosize="{ minRows: 20, maxRows: 20 }" type="textarea" placeholder=""
+              v-model="editRuleInfo.rules"
+            ></el-input>
+          </el-form-item>
+          <el-form-item size="small">
+            <div class="dialog_edit_rule_action">
+              <el-button
+                size="small"
+                type="primary"
+                @click="oneditRuleSubmit('editRuleInfo')"
+                >更新规则</el-button
+              >
+              <el-button
+                size="small"
+                type="info"
+                @click="oneditRuleCancel('editRuleInfo')"
+                >取消</el-button
+              >
+            </div>
+          </el-form-item>
+        </el-form>
+      </span>
+    </el-dialog>
     <el-dialog
       :title="dialogTitle"
       v-model="dialogVisible"
@@ -206,49 +244,6 @@
 </template>
 
 <script>
-import CodeMirror from "codemirror";
-import "codemirror/lib/codemirror.css";
-// JSON代码高亮需要由JavaScript插件支持
-import "codemirror/mode/javascript/javascript.js";
-// 选择IDEA主题样式，还有其他很多主题可选
-import "codemirror/theme/idea.css";
-// 支持使用Sublime快捷键
-import "codemirror/keymap/sublime.js";
-// 搜索功能的依赖
-import "codemirror/addon/dialog/dialog.js";
-import "codemirror/addon/dialog/dialog.css";
-// 支持搜索功能
-import "codemirror/addon/search/search";
-import "codemirror/addon/search/searchcursor.js";
-// 支持各种代码折叠
-import "codemirror/addon/fold/foldgutter.css";
-import "codemirror/addon/fold/foldcode.js";
-import "codemirror/addon/fold/foldgutter.js";
-import "codemirror/addon/fold/brace-fold.js";
-import "codemirror/addon/fold/comment-fold.js";
-// 支持代码区域全屏功能
-import "codemirror/addon/display/fullscreen.css";
-import "codemirror/addon/display/fullscreen.js";
-// 支持括号自动匹配
-import "codemirror/addon/edit/matchbrackets.js";
-import "codemirror/addon/edit/closebrackets.js";
-// 支持代码自动补全
-import "codemirror/addon/hint/show-hint.css";
-import "codemirror/addon/hint/show-hint.js";
-import "codemirror/addon/hint/anyword-hint.js";
-// 行注释
-import "codemirror/addon/comment/comment.js";
-// JSON错误检查
-import "codemirror/addon/lint/lint.css";
-import "codemirror/addon/lint/lint.js";
-import 'codemirror/addon/lint/yaml-lint'
-import 'codemirror/theme/monokai.css'
-import 'codemirror/mode/yaml/yaml'
-
-import { markRaw } from 'vue'
-
-import * as js_yaml from "js-yaml"
-window.jsyaml = js_yaml
 
 import {
   getReLabels,
@@ -276,14 +271,16 @@ export default {
       }
     }
     return {
-      yamlRelabelEdit: false,
       value: '',
       ReLabels: [],
       editRelabelInfo: {
         'id': 0,
         'name': ''
       },
-      postCodeButVisable: {},
+      editRuleInfo: {
+        id: 0,
+        rules: '',
+      },
       editCodeButVisable: {},
       defaultRuleID: 0,
       pageSize: 18,
@@ -292,8 +289,10 @@ export default {
       searchContent: '',
       deleteVisible: {},
       dialogVisible: false,
+      dialogEditRuleVisible: false,
       buttonTitle: '',
       dialogTitle: '',
+      dialogEditRuleTitle: '',
       rules: {
         name: [
           { required: true, message: '请输入正确的名称', validator: validateStr, trigger: ['blur'] }
@@ -303,54 +302,6 @@ export default {
     }
   },
   mounted () {
-    this.yamlRelabelEdit = markRaw(CodeMirror.fromTextArea(this.$refs.textareaREdit, {
-      mode: 'text/x-yaml', // 语法model
-      indentUnit: 2, // 缩进单位，默认2
-      smartIndent: true, // 是否智能缩进
-      // 显示行号
-      styleActiveLine: true,
-      lineNumbers: true,
-      // 设置主题
-      theme: "idea",
-      // 绑定sublime快捷键
-      keyMap: "sublime",
-      // 开启代码折叠
-      lineWrapping: false,
-      foldGutter: true,
-      gutters: [
-        "CodeMirror-linenumbers",
-        "CodeMirror-foldgutter",
-        "CodeMirror-lint-markers",
-      ],
-      // CodeMirror-lint-markers是实现语法报错功能
-      lint: true,
-
-      // 全屏模式
-      fullScreen: false,
-
-      // 括号匹配
-      matchBrackets: true,
-      autoCloseBrackets: true,
-      extraKeys: {
-        F11: (cm) => {
-          cm.setOption("fullScreen", !cm.getOption("fullScreen"));
-        },
-        Esc: (cm) => {
-          if (cm.getOption("fullScreen")) {
-            cm.setOption("fullScreen", false);
-          }
-        },
-      },
-      scrollbarStyle: 'native'
-    }))
-    this.yamlRelabelEdit.refresh()
-    this.yamlRelabelEdit.setSize('100%', '80vh');
-    this.yamlRelabelEdit.setValue(this.value)
-
-    this.yamlRelabelEdit.on('change', (cm) => {
-      this.$emit('changed', cm.getValue())
-      this.$emit('input', cm.getValue())
-    })
     this.doGetReLabels()
   },
   methods: {
@@ -373,12 +324,9 @@ export default {
       }
       getReLabels(getInfo).then(
         r => {
-          this.postCodeButVisable = {}
           r.data.data.forEach(element => {
-            this.postCodeButVisable[element.id] = true
             if (element.name === "空规则") {
               this.editCodeButVisable[element.id] = true
-              // this.defaultRuleID = element.id
             } else {
               this.editCodeButVisable[element.id] = false
             }
@@ -419,6 +367,12 @@ export default {
     },
     handleClose (done) {
       this.dialogVisible = false
+    },
+    handleEditRuleClose(){
+      this.dialogEditRuleVisible = false
+    },
+    oneditRuleSubmit(formName){
+      this.doPostReLablesCode()
     },
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
@@ -466,6 +420,10 @@ export default {
       this.dialogVisible = false
       this.$refs[formName].resetFields()
     },
+    oneditRuleCancel(formName){
+      this.dialogEditRuleVisible = false
+      this.$refs[formName].resetFields()
+    },
     onSearch () {
       this.doGetReLabels()
     },
@@ -500,9 +458,6 @@ export default {
       let rs = {
         'padding': '0'
       }
-      // if (row.rowIndex % 2 === 0) {
-      //   rs['background'] = '#f2eada'
-      // }
       return rs
     },
     cellStyle (column) {
@@ -512,24 +467,22 @@ export default {
       return cs
     },
     refresh () {
-      this.yamlRelabelEdit.refresh()
     },
     doEditReLablesCode (scape) {
       checkViewCodePriv().then(r => {
-        Object.keys(this.postCodeButVisable).forEach(key => {
-          if (key !== scape.row.id) {
-            this.postCodeButVisable[key] = true
-          }
-        })
+        this.dialogEditRuleTitle = scape.row.name
         this.currentID = scape.row.id
-        this.yamlRelabelEdit.setValue(scape.row.code)
-        this.postCodeButVisable[scape.row.id] = false
+        this.editRuleInfo = {
+          id: scape.row.id,
+          rules: scape.row.code,
+        }
+        this.dialogEditRuleVisible = true
       }).catch(e => console.log(e))
     },
     doPostReLablesCode() {
       const code = {
-        id: this.currentID,
-        code: this.yamlRelabelEdit.getValue()
+        id: this.editRuleInfo.id,
+        code: this.editRuleInfo.rules,
       }
       putReLabelsCode(code).then(
         r => {
@@ -563,9 +516,6 @@ export default {
       }).catch(e => console.log(e))
     }
   }
-  // beforeUnmount () {
-  //   this.yamlRelabelEdit.destroy();
-  // }
 };
 </script>
 
@@ -582,7 +532,7 @@ export default {
 }
 .page_left {
   margin-top: 10px;
-  width: 55%;
+  width: 100%;
   height: 100%;
 }
 .page_right {
@@ -599,7 +549,7 @@ export default {
   display: flex;
   /* flex-wrap: nowrap; */
   flex-wrap: wrap;
-  /* justify-content:space-around; */
+  justify-content:space-around;
 }
 .el-pagination {
   text-align: center;
@@ -625,5 +575,14 @@ export default {
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
+}
+
+.dialog_edit_rule_action {
+  display: flex;
+  justify-content: right;
+  margin-right: 20px;
+}
+.card-scrollbar {
+  height: 90%;
 }
 </style>
