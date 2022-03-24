@@ -103,8 +103,8 @@ export default {
   /* justify-content: space-between; */
 }
 .base-config-menu {
-  width: 180px;
-  min-width: 180px;  /* margin-right: 10px; */
+  width: 280px;
+  min-width: 280px;  /* margin-right: 10px; */
 }
 .base-config-router {
   width: 100%;
