@@ -186,15 +186,15 @@
             <div class="dialog_edit_rule_action">
               <el-button
                 size="small"
-                type="primary"
-                @click="oneditRuleSubmit('editRuleInfo')"
-                >更新规则</el-button
-              >
-              <el-button
-                size="small"
                 type="info"
                 @click="oneditRuleCancel('editRuleInfo')"
                 >取消</el-button
+              >
+              <el-button
+                size="small"
+                type="primary"
+                @click="oneditRuleSubmit('editRuleInfo')"
+                >更新规则</el-button
               >
             </div>
           </el-form-item>
