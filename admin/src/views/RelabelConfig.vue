@@ -22,7 +22,7 @@
         <div class="do_action">
           <div style="padding-right: 15px">
             <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()"
-              >添加规则</el-button
+              >添加规则条目</el-button
             >
           </div>
           <div>
@@ -470,7 +470,7 @@ export default {
     },
     doEditReLablesCode (scape) {
       checkViewCodePriv().then(r => {
-        this.dialogEditRuleTitle = scape.row.name
+        this.dialogEditRuleTitle = '当前编辑的规则条目：' + scape.row.name
         this.currentID = scape.row.id
         this.editRuleInfo = {
           id: scape.row.id,
