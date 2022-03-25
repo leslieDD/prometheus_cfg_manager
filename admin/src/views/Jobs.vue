@@ -336,7 +336,7 @@
     <el-dialog
       :title="'编辑IP列表 - ' + editIPListDialog"
       v-model="editIPListVisible"
-      width="700px"
+      width="900px"
       modal
       :before-close="clearIPListClose"
       custom-class="editIPListDialog"
@@ -356,14 +356,14 @@
           type="info"
           size="small"
           @click="clearIPListClose"
-          >关闭</el-button
+          >关 闭</el-button
         >
         <el-button
           class="ip-list-push-btn2"
           type="warning"
           size="small"
           @click="updateJobIPListV2"
-          >提交</el-button
+          >提 交</el-button
         >
       </div>
     </el-dialog>
@@ -955,14 +955,14 @@ el-tabs {
   text-align: right;
 }
 .ip-list-push-btn {
-  margin-right: 26px;
+  /* margin-right: 20px; */
 }
 .ip-list-close-btn {
   margin-right: 8px;
 }
 .ip-list-push-btn2 {
   margin-top: 7px;
-  margin-right: 26px;
+  /* margin-right: 26px; */
 }
 .ip-list-close-btn2 {
   margin-top: 7px;

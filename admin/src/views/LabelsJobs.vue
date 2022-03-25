@@ -174,7 +174,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[10, 15, 30, 50]"
+        :page-sizes="[15, 20, 30, 50]"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="pageTotal"
@@ -498,7 +498,7 @@ export default {
       subGroups: [],
       jobInfo: {},
       relabelList: [],
-      pageSize: 15,
+      pageSize: 20,
       pageTotal: 0,
       currentPage: 1,
       searchContent: '',

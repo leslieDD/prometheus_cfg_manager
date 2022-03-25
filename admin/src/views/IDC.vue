@@ -28,7 +28,6 @@
             :data="data"
             node-key="id"
             highlight-current
-            default-expand-all
             :expand-on-click-node="false"
             @node-click="nodeClick"
           >
