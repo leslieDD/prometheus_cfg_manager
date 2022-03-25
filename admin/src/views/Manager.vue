@@ -1191,8 +1191,13 @@ el-dialog {
 .searchSelect {
   width: 90px;
 }
-.el-input__inner {
+.borderNone :deep() .el-input__inner {
   width: 130px;
+  height: 28px;
+  margin-top: 0px;
+  margin-bottom: 0px;
+  padding-top: 0px;
+  padding-bottom: 0px;
 }
 .el-pagination {
   text-align: center;
