@@ -14,22 +14,50 @@
           <div class="fg"></div>
         </div>
         <div class="meBox-text">
-          <el-descriptions title="" :column="1" size="">
-            <el-descriptions-item label="登录账号">{{
-              userInfo.username
-            }}</el-descriptions-item>
-            <el-descriptions-item label="手机号">{{
+          <el-descriptions title="" :column="1" size="" >
+            <el-descriptions-item>
+              <template #label>
+                <span class="cell-item">
+                  <i class="el-icon-user"></i>
+                  登录账号
+                </span>
+              </template>
+              {{ userInfo.username }}
+            </el-descriptions-item>
+            <el-descriptions-item>
+            <template #label>
+              <span class="cell-item">
+                <i class="el-icon-mobile-phone"></i>
+                手机号
+              </span>
+            </template>{{
               userInfo.phone
             }}</el-descriptions-item>
-            <el-descriptions-item label="所属组">{{
+            <el-descriptions-item>
+            <template #label>
+              <span class="cell-item">
+                <i class="el-icon-office-building"></i>
+                所属组
+              </span>
+            </template>{{
               userInfo.group_name
             }}</el-descriptions-item>
-            <el-descriptions-item label="注册时间">{{
+            <el-descriptions-item>
+            <template #label>
+              <span class="cell-item">
+                <i class="el-icon-alarm-clock"></i>
+                注册时间
+              </span>
+            </template>{{
               parseTimeSelf(userInfo.register_time)
             }}</el-descriptions-item>
-            <el-descriptions-item label="登录时间">{{
-              parseTimeSelf(userInfo.login_time)
-            }}</el-descriptions-item>
+            <el-descriptions-item>
+            <template #label>
+              <span class="cell-item">
+                <i class="el-icon-alarm-clock"></i>
+                登录时间
+              </span>
+            </template>{{ parseTimeSelf(userInfo.login_time) }}</el-descriptions-item>
           </el-descriptions>
         </div>
         <div class="meBox-Button">
@@ -52,14 +80,6 @@
             <span style="color: blue"># </span>
             <span style="color: rgb(39, 39, 39)">./tianqi.sh</span>
             <br />
-            <!-- <iframe
-              scrolling="no"
-              src="https://tianqiapi.com/api.php?style=tc&skin=pitaya"
-              frameborder="0"
-              width="350"
-              height="24"
-              allowtransparency="true"
-            ></iframe> -->
             <iframe scrolling="no" src="https://tianqiapi.com/api.php?style=tz&skin=pitaya" frameborder="0" width="100%" height="30" allowtransparency="true"></iframe>
             <br />
             <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
