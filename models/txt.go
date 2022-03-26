@@ -20,7 +20,7 @@ func GetProgramerSay() (*PersonCommonInfo, *BriefMessage) {
 		hostInfo := utils.HostInfo()
 		pci.Uname = fmt.Sprintf("%s %s", hostInfo.Platform, hostInfo.PlatformFamily)
 	} else {
-		_, output, err := utils.ExecCmd("uname", "-a")
+		_, output, err := utils.ExecCmd("uptime")
 		if err != nil {
 			config.Log.Error(err)
 			hostInfo := utils.HostInfo()

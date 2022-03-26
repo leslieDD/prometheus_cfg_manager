@@ -64,8 +64,8 @@
             <br />
             <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
             <span style="color: blue"># </span>
-            <span style="color: rgb(39, 39, 39)">uname</span>
-            <p>{{ uname }}</p>
+            <span style="color: rgb(39, 39, 39)">uptime</span>
+            <p>{{ uptime }}</p>
             <br />
             <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
             <span style="color: blue"># </span>
@@ -197,7 +197,7 @@ export default {
     }
     return {
       src: '/imgs/xiaohei.jpg',
-      uname: 'Linux 4.15.0-150-generic Unknow SMP Sat Jul 3 13:37:31 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux',
+      uptime: 'Linux 4.15.0-150-generic Unknow SMP Sat Jul 3 13:37:31 UTC 2021 x86_64 x86_64 x86_64 GNU/Linux',
       programmer_said: ['选择你能够承担的，承担你已经选择的'],
       sayWhat: [],
       timer: null,
@@ -279,7 +279,7 @@ export default {
     loadProgramerSay () {
       loadTxt().then(r => {
         this.programmer_said = r.data.programer_say
-        this.uname = r.data.uname
+        this.uptime = r.data.uname
         this.switchSay()
       }).catch(e => console.log(e))
     },
