@@ -52,14 +52,15 @@
             <span style="color: blue"># </span>
             <span style="color: rgb(39, 39, 39)">./tianqi.sh</span>
             <br />
-            <iframe
+            <!-- <iframe
               scrolling="no"
               src="https://tianqiapi.com/api.php?style=tc&skin=pitaya"
               frameborder="0"
               width="350"
               height="24"
               allowtransparency="true"
-            ></iframe>
+            ></iframe> -->
+            <iframe scrolling="no" src="https://tianqiapi.com/api.php?style=tz&skin=pitaya" frameborder="0" width="100%" height="30" allowtransparency="true"></iframe>
             <br />
             <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
             <span style="color: blue"># </span>
@@ -258,7 +259,7 @@ export default {
           phone: userInfo.phone,
           group_name: userInfo.group_name,
           register_time: userInfo.create_at,
-          login_time: userInfo.update_at
+          login_time: userInfo.session.login_at
         }
       }
     },

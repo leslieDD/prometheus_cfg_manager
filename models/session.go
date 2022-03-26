@@ -18,6 +18,7 @@ type Session struct {
 	UserID   int       `json:"user_id" gorm:"column:user_id"`
 	IPAddr   string    `json:"ipaddr" gorm:"column:ipaddr"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	LoginAt  time.Time `json:"login_at" gorm:"column:login_at"`
 }
 
 type ManagerUserDetail struct {
@@ -114,6 +115,7 @@ type UserSessionInfo struct {
 	IPAddr       string    `json:"ipaddr" gorm:"column:ipaddr"`
 	UserID       int       `json:"user_id" gorm:"column:user_id"`
 	UpdateAt     time.Time `json:"update_at" gorm:"column:update_at"`
+	LoginAt      time.Time `json:"login_at" gorm:"column:login_at"`
 	Username     string    `json:"username" gorm:"column:username"`
 	NiceName     string    `json:"nice_name" gorm:"column:nice_name"`
 	GroupID      int       `json:"group_id" gorm:"column:group_id"`
