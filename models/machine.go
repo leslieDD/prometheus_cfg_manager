@@ -625,7 +625,10 @@ func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *Bri
 	importIPs := map[string]struct{}{}
 	for _, item := range items {
 		currIP := strings.TrimSpace(item)
-		if strings.Contains(item, "/") {
+		if currIP == "" {
+			continue
+		}
+		if strings.Contains(currIP, "/") {
 			c, err := cidr.ParseCIDR(currIP)
 			if err != nil {
 				config.Log.Error(err)
@@ -671,7 +674,7 @@ func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *Bri
 				config.Log.Errorf("ip err: %s", currIP)
 				continue
 			}
-			importIPs[item] = struct{}{}
+			importIPs[currIP] = struct{}{}
 		}
 	}
 	if len(importIPs) == 0 {

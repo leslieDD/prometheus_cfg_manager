@@ -655,7 +655,11 @@ func ChangeIPAddrUseID(ipContents string) (*UpdateIPForJob, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	uif := UpdateIPForJob{}
-	for _, ipAddr := range ipAddrList {
+	for _, ipAddrOri := range ipAddrList {
+		ipAddr := strings.TrimSpace(ipAddrOri)
+		if ipAddr == "" {
+			continue
+		}
 		m := Machine{}
 		tx := db.Table("machines").Where("ipaddr", ipAddr).Find(&m)
 		if tx.Error != nil {
