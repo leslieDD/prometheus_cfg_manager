@@ -258,8 +258,9 @@ body {
 
 .cmd2 {
   position: relative;
-  top: -280px;
+  top: -200px;
   left: 100px;
+  /* margin-top: 80px; */
 }
 
 .cmd2 .cmdText .ul {
