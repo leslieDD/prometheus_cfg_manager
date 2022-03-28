@@ -16,10 +16,14 @@
           <!-- <el-button size="small" type="primary" @click="publishJobsfunc()"
             >发布此JOB组</el-button
           > -->
+          <el-button size="small" type="info" @click="doDelEmptySubJob()" icon="el-icon-delete"
+            >删除没有IP的子组</el-button
+          >
           <el-button
             size="small"
             type="success"
             plain
+            icon="el-icon-baseball"
             @click="doAddSubGroupShow()"
             >添加子组</el-button
           >
@@ -474,7 +478,8 @@ import {
   delGroupLabels,
   getAllIPAndLabels,
   enabledJobGroup,
-  enabledJobGroupLables
+  enabledJobGroupLables,
+  delEmptySubJob,
 } from '@/api/labelsJob.js'
 import { getDefaultEnableLables } from '@/api/monitor.js'
 // import { restartSrv } from '@/api/srv'
@@ -717,6 +722,15 @@ export default {
         this.editLabelsVisible = true
       }).catch(e => console.log(e))
     },
+    doDelEmptySubJob(){
+      delEmptySubJob().then(r=>{
+        this.$notify({
+          title: '成功',
+          message: '删除空子组成功！',
+          type: 'success'
+        })
+      }).catch(e=>console.log(e))
+    },
     doAddSubGroupShow () {
       this.buttonTitle = '创建'
       this.buttonType = 'primary'
@@ -732,6 +746,7 @@ export default {
           message: '创建子组成功！',
           type: 'success'
         })
+        this.doGetGroupLabels()
       }).catch(e => {
         console.log(e)
       })

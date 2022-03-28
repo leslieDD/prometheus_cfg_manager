@@ -130,3 +130,11 @@ export function enabledJobGroupLables (info) {
     data: info
   })
 }
+
+export function delEmptySubJob (info) {
+  return request({
+    url: '/v1/job/group/subgroup/emtpy',
+    method: 'delete',
+    params: info
+  })
+}

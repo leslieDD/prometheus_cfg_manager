@@ -38,6 +38,7 @@ func initApiRouter() {
 	v1.POST("/job/group", postJobGroup)
 	v1.PUT("/job/group", putJobGroup)
 	v1.DELETE("/job/group", delJobGroup)
+	v1.DELETE("/job/group/subgroup/emtpy", delJobEmptySubGroup)
 	v1.GET("/job/machines", getJobMachines)
 	v1.GET("/job/group/machines", getJobGroupMachines)
 	v1.PUT("/job/group/machines", putJobGroupMachines)
@@ -441,6 +442,24 @@ func delJobGroup(c *gin.Context) {
 	}
 	bf := models.DelJobGroup(info)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "del sub group", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
+func delJobEmptySubGroup(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "labelsJobs", "delete_empty_sub_group")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	info := &models.OnlyID{}
+	if err := c.BindQuery(info); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "del empty sub group", models.IsDel, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.DelJobEmptySubGroup(info)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "del empty sub group", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 

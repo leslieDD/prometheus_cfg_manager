@@ -194,6 +194,36 @@ func DelJobGroup(dInfo *DelJobGroupInfo) *BriefMessage {
 	return Success
 }
 
+func DelJobEmptySubGroup(info *OnlyID) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	emtpyIDs := []OnlyID{}
+	tx := db.Raw(`SELECT job_group.id FROM job_group
+	LEFT JOIN group_machines 
+	ON job_group.id = group_machines.job_group_id
+	WHERE group_machines.job_group_id IS NULL `).Find(&emtpyIDs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	if len(emtpyIDs) == 0 {
+		return Success
+	}
+	ids := []int{}
+	for _, i := range emtpyIDs {
+		ids = append(ids, i.ID)
+	}
+	tx = db.Table("job_group").Where("id in ?", ids).Delete(nil)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrDelData
+	}
+	return Success
+}
+
 func ClearGroupLabels(gID int) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
