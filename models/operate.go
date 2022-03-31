@@ -290,6 +290,7 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 		"idc",
 		"line",
 		"pool",
+		"number_options",
 	}
 	err = db.Transaction(func(tx *gorm.DB) error {
 		for _, tableName := range tableCleard {
@@ -319,6 +320,12 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 			{Key: "refresh_interval", Value: "15s", Enabled: true, UpdateAt: time.Now()},
 		}
 		if err := tx.Table("tmpl_fields").Create(&fields).Error; err != nil {
+			return err
+		}
+		fieldsNum := []BaseFieldsNumber{
+			{Key: "session_expire", Value: 3600},
+		}
+		if err := tx.Table("number_options").Create(&fieldsNum).Error; err != nil {
 			return err
 		}
 		return nil

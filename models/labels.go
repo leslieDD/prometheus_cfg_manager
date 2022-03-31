@@ -105,6 +105,11 @@ type BaseFields struct {
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
+type BaseFieldsNumber struct {
+	Key   string `json:"key" gorm:"column:key"`
+	Value int    `json:"value" gorm:"column:value"`
+}
+
 func GetBaseFields(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	if sp.PageSize <= 0 {
 		sp.PageSize = 15
