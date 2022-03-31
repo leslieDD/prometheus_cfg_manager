@@ -46,6 +46,8 @@ func initManagerApi() {
 	v1.POST("/manager/reset/secret", postManagerResetSecret)
 	v1.GET("/manager/session", getSession)
 	v1.DELETE("/manager/session", delSession)
+	v1.GET("/manager/session/params", getSessionParams)
+	v1.PUT("/manager/session/params", updateSessionParams)
 
 	v1.GET("/system/log/setting", getSystemRecodeSetting)
 	v1.PUT("/system/log/setting", putSystemRecodeSetting)
@@ -502,12 +504,42 @@ func delSession(c *gin.Context) {
 	}
 	id := &models.OnlyID{}
 	if err := c.BindQuery(id); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete user session", models.IsDel, models.ErrSplitParma)
-		resComm(c, models.ErrSplitParma, nil)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete user session", models.IsDel, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DelSession(id)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete user session", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
+func getSessionParams(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "session", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	data, bf := models.GetSessionParams()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get session params", models.IsUpdate, bf)
+	resComm(c, bf, data)
+}
+
+func updateSessionParams(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "admin", "session", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	id := &models.SessionParams{}
+	if err := c.BindJSON(id); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update session params", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.UpdateSessionParams(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update session params", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 

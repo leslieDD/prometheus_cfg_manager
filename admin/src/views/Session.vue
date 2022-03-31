@@ -4,6 +4,33 @@
       <div>
         <div class="do_action">
           <div style="padding-right: 15px">
+            <el-form
+              ref="sessionExpire"
+              :model="sessionExpire"
+              label-width="170px"
+              class="demo-ruleForm"
+              size="small"
+              :inline="true"
+            >
+              <el-form-item
+                label="会话过期时间(分钟)"
+                prop="expire"
+                :rules="[
+                  { required: true, message: '会话过期字段必须填写' },
+                  { type: 'number', message: '会话过期字段必须得是一个数字' },
+                ]"
+              >
+                <div class="expire_class">
+                  <el-input
+                    v-model.number="sessionExpire.expire"
+                    type="text"
+                    autocomplete="off"
+                    style="width: 120px;"
+                  />
+                  <el-button type="primary" @click="submitSessionExpire()">提交</el-button>
+                </div>
+              </el-form-item>
+            </el-form>
           </div>
           <div>
             <el-input
@@ -133,7 +160,9 @@
 
 import {
   getSession,
-  delSession
+  delSession,
+  updateSessionParams,
+  getSessionParams
 } from '@/api/session.js'
 
 export default {
@@ -147,11 +176,15 @@ export default {
       currentPage: 1,
       searchContent: '',
       deleteVisible: {},
-      paginationShow: true
+      paginationShow: true,
+      sessionExpire: {
+        expire: 0
+      }
     }
   },
   mounted () {
     this.doGetSession()
+    this.doGetSessionParams()
   },
   methods: {
     doGetSession (getInfo) {
@@ -238,6 +271,28 @@ export default {
     },
     routeToUser(row){
       this.$router.push({ name: 'user', params: { group_name: row.username } })
+    },
+    submitSessionExpire(){
+      // console.log(this.sessionExpire)
+      var data = {...this.sessionExpire}
+      updateSessionParams(data).then(r=>{
+          this.$notify({
+            title: '成功',
+            message: '提交成功！',
+            type: 'success'
+          });
+      }).catch(e=>console.log(e))
+    },
+    doGetSessionParams(){
+      getSessionParams().then(r=>{
+        r.data.forEach(element => {
+          if (element['key'] === 'session_expire') {
+            this.sessionExpire = {
+              expire: element['value']
+            }
+          }
+        });
+      })
     }
   }
 };
@@ -254,8 +309,14 @@ export default {
 .do_action {
   display: flex;
   flex-direction: row;
-  justify-content: flex-end;
+  justify-content: space-between;
   margin-bottom: 5px;
+}
+
+.expire_class {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: left;
 }
 .actioneara {
   display: flex;

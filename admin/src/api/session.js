@@ -16,4 +16,19 @@ export function delSession (info) {
   })
 }
 
+export function getSessionParams () {
+  return request({
+    url: '/v1/manager/session/params',
+    method: 'get'
+  })
+}
+
+
+export function updateSessionParams (data) {
+  return request({
+    url: '/v1/manager/session/params',
+    method: 'put',
+    data: data,
+  })
+}
 

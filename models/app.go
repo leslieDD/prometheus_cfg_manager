@@ -13,4 +13,6 @@ func InitApp() {
 	TmplObj = NewTmpl()
 	cmdArea = NewCmdArea()
 	PR = NewPR()
+	SPCache = NewSessionParamsCache()
+	SPCache.Update()
 }

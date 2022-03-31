@@ -28,6 +28,48 @@ type ManagerUserDetail struct {
 	ManagerUser
 }
 
+type SessionParams struct {
+	Expire int `json:"expire" gorm:"column:expire"`
+}
+
+type TableSessionParams struct {
+	Key    string `json:"key" gorm:"column:key"`
+	Value  int    `json:"value" gorm:"column:value"`
+	Commit string `json:"commit" gorm:"column:commit"`
+}
+
+type SessionParamsCache struct {
+	lock   sync.Mutex
+	Params map[string]int
+}
+
+func NewSessionParamsCache() *SessionParamsCache {
+	newSPC := SessionParamsCache{
+		lock:   sync.Mutex{},
+		Params: map[string]int{},
+	}
+	return &newSPC
+}
+
+func (s *SessionParamsCache) Update() {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+
+	n, bf := getSessionParams()
+	if bf != Success {
+		return
+	}
+	s.Params = n
+}
+
+func (s *SessionParamsCache) Get(key string) int {
+	s.lock.Lock()
+	defer s.lock.Unlock()
+	return s.Params[key]
+}
+
+var SPCache *SessionParamsCache
+
 type SessionCache struct {
 	lock           sync.Mutex
 	sessionsDetail map[string]*ManagerUserDetail
@@ -151,7 +193,8 @@ func CheckUserSession(c *gin.Context, token string) *BriefMessage {
 	if bf != Success {
 		return ErrTokenNoFound
 	}
-	if time.Since(usi.UpdateAt).Hours() > 1 { // Session，一小时过期
+	if time.Since(usi.UpdateAt).Minutes() > float64(SPCache.Get("session_expire")) { // Session，一小时过期
+		config.Log.Errorf("session used: %f, expire: %d", time.Since(usi.UpdateAt).Minutes(), SPCache.Get("session_expire"))
 		return ErrLoginExpire
 	}
 	SyncSessionDate(usi)
@@ -263,4 +306,46 @@ func DelSession(id *OnlyID) *BriefMessage {
 		return ErrDelData
 	}
 	return Success
+}
+
+func UpdateSessionParams(sp *SessionParams) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("number_options").Where("`key`='session_expire'").Update(`value`, sp.Expire)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	SPCache.Update()
+	return Success
+}
+
+func GetSessionParams() ([]*TableSessionParams, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	tsps := []*TableSessionParams{}
+	tx := db.Table("number_options").Find(&tsps)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrUpdateData
+	}
+	return tsps, Success
+}
+
+func getSessionParams() (map[string]int, *BriefMessage) {
+	data, bf := GetSessionParams()
+	if bf != Success {
+		return nil, bf
+	}
+	params := map[string]int{}
+	for _, item := range data {
+		params[item.Key] = item.Value
+	}
+	return params, Success
 }
