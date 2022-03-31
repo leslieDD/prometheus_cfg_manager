@@ -9,3 +9,4 @@ COMMENT='值为数据的选项'
 COLLATE='utf8mb3_general_ci'
 ENGINE=InnoDB
 ;
+INSERT INTO `pro_cfg_manager`.`number_options` (`key`, `value`, `commit`) VALUES ('session_expire', '100', '会话过期时间，为0时，表示不过期');
