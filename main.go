@@ -1,6 +1,7 @@
 package main
 
 import (
+	"pro_cfg_manager/collector"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/models"
@@ -8,6 +9,7 @@ import (
 )
 
 func main() {
+	collector.PaoPao()
 	config.DoParams()
 	config.InitLogger()
 	dbs.DBObj.Init()

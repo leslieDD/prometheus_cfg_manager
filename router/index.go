@@ -2,6 +2,7 @@ package router
 
 import (
 	"net/http"
+	"pro_cfg_manager/collector"
 	"pro_cfg_manager/models"
 
 	"github.com/gin-gonic/gin"
@@ -11,6 +12,7 @@ func initCommonRouter() {
 	GinDefault.GET("/", index)
 	GinDefault.POST("/login", login)
 	GinDefault.POST("/register", register)
+	GinDefault.GET("/metrics", getMetrics)
 }
 
 func index(c *gin.Context) {
@@ -37,4 +39,8 @@ func register(c *gin.Context) {
 	bf := models.Register(&r)
 	models.OO.RecodeLog("", c.Request.RemoteAddr, "register", models.IsLogin, bf)
 	resComm(c, bf, nil)
+}
+
+func getMetrics(c *gin.Context) {
+	collector.GetMetrics(c)
 }
