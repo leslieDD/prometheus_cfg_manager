@@ -14,5 +14,5 @@ func InitApp() {
 	cmdArea = NewCmdArea()
 	PR = NewPR()
 	SPCache = NewSessionParamsCache()
-	SPCache.Update()
+	go SPCache.Update(true)
 }

@@ -38,3 +38,4 @@ cdn
 __debug_*
 *.exe*
 config.yml
+pro_cfg_manager

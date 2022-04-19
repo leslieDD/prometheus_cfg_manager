@@ -51,12 +51,16 @@ func NewSessionParamsCache() *SessionParamsCache {
 	return &newSPC
 }
 
-func (s *SessionParamsCache) Update() {
+func (s *SessionParamsCache) Update(recycle bool) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-
+again:
 	n, bf := getSessionParams()
 	if bf != Success {
+		if recycle {
+			time.Sleep(5 * time.Second)
+			goto again
+		}
 		return
 	}
 	s.Params = n
@@ -319,7 +323,7 @@ func UpdateSessionParams(sp *SessionParams) *BriefMessage {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
 	}
-	SPCache.Update()
+	SPCache.Update(false)
 	return Success
 }
 
