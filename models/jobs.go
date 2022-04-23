@@ -30,6 +30,7 @@ type JobsWithRelabelNameAndCount struct {
 	ReLabelName string `json:"relabel_name" gorm:"column:relabel_name"`
 	IPCount     int64  `json:"ip_count" gorm:"column:ip_count"`
 	GroupCount  int64  `json:"group_count" gorm:"column:group_count"`
+	BlackCount  int64  `json:"black_count" gorm:"column:black_count"`
 	Jobs
 }
 
@@ -43,6 +44,11 @@ type JobsForTmpl struct {
 type JobCount struct {
 	Count int64          `json:"count" gorm:"column:count"`
 	JobId datatypes.JSON `json:"job_id" gorm:"column:job_id"`
+}
+
+type JobMachinesBlackCount struct {
+	JobID int64 `json:"job_id" gorm:"column:job_id"`
+	Count int64 `json:"count" gorm:"column:count"`
 }
 
 type OnlyID struct {
@@ -194,6 +200,22 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
+	}
+	jobMachinesBlackCount := []*JobMachinesBlackCount{}
+	tx = db.Raw(`SELECT job_id, COUNT(*) AS count FROM job_machines
+	WHERE job_machines.blacked=1
+	GROUP BY job_machines.job_id
+	ORDER BY job_machines.job_id`).Find(&jobMachinesBlackCount)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrCount
+	}
+	jobMachinesBlackCountMap := map[int64]int64{}
+	for _, each := range jobMachinesBlackCount {
+		jobMachinesBlackCountMap[each.JobID] = each.Count
+	}
+	for _, j := range jobs {
+		j.BlackCount = jobMachinesBlackCountMap[int64(j.ID)]
 	}
 	return CalSplitPage(sp, count, jobs), Success
 }
@@ -721,6 +743,33 @@ func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessag
 		if err := db.Table("jobs").Where("id=?", cInfo.JobID).
 			Update("update_at", time.Now()).
 			Update("update_by", user.Username).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func PostUpdateJobIPsBlack(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	err := db.Transaction(func(tx *gorm.DB) error {
+		if err := db.Table("job_machines").
+			Where("job_id=?", cInfo.JobID).
+			Update("blacked", 0).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		if err := db.Table("job_machines").
+			Where("job_id=? and machine_id in ?", cInfo.JobID, cInfo.MachinesIDs).
+			Update("blacked", 1).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}

@@ -271,13 +271,22 @@ func GetJobGroupIPInfo() ([]*JobGroupIPInfo, *BriefMessage) {
 	jgIPs := []*JobGroupIPInfo{}
 	tx := db.Table("group_machines").
 		Raw(
-			" SELECT job_group_id, machines_id, jobs_id, ipaddr " +
-				" FROM group_machines " +
-				" LEFT JOIN job_group " +
-				" ON group_machines.job_group_id=job_group.id " +
-				" LEFT JOIN machines " +
-				" ON machines.id=group_machines.machines_id " +
-				" WHERE job_group.enabled=1 AND machines.enabled=1 ").
+			// " SELECT job_group_id, machines_id, jobs_id, ipaddr " +
+			// 	" FROM group_machines " +
+			// 	" LEFT JOIN job_group " +
+			// 	" ON group_machines.job_group_id=job_group.id " +
+			// 	" LEFT JOIN machines " +
+			// 	" ON machines.id=group_machines.machines_id " +
+			// 	" WHERE job_group.enabled=1 AND machines.enabled=1 ").
+			`SELECT job_group_id, machines_id, jobs_id, ipaddr 
+			FROM group_machines
+			LEFT JOIN job_group
+			ON group_machines.job_group_id=job_group.id
+			LEFT JOIN machines
+			ON machines.id=group_machines.machines_id
+			LEFT JOIN job_machines
+			ON job_machines.job_id=job_group.jobs_id AND job_machines.machine_id=group_machines.machines_id
+			WHERE job_group.enabled=1 AND machines.enabled=1 AND job_machines.blacked=0`).
 		Find(&jgIPs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)

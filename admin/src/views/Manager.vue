@@ -8,7 +8,23 @@
           type="info"
           plain
           @click="doBatchDel()"
-          >删除选中项</el-button
+          >删除选中</el-button
+        >
+        <el-button
+          icon="el-icon-warning-outline"
+          size="small"
+          type="info"
+          plain
+          @click="doBatchDisable()"
+          >禁用选中</el-button
+        >
+        <el-button
+          icon="el-icon-warning-outline"
+          size="small"
+          type="success"
+          plain
+          @click="doBatchEnable()"
+          >启用选中</el-button
         >
         <el-button
           icon="el-icon-download"
@@ -567,6 +583,8 @@ import {
   putMachine,
   enabledMachine,
   batchDeleteMachine,
+  batchEnableMachine,
+  batchDisableMachine,
   updatePosition,
   batchImportIpAddrsWeb,
   batchImportDomainWeb,
@@ -1112,6 +1130,54 @@ export default {
           this.$notify({
             title: '成功',
             message: '删除所选项成功！',
+            type: 'success'
+          });
+          this.doGetMechines()
+        }).catch(e => console.log(e))
+      }).catch(e => console.log(e))
+    },
+    doBatchDisable(){
+      if (this.multipleSelection.length === 0) {
+        this.$notify({
+          title: '警告',
+          message: '未选中任何项！',
+          type: 'warning'
+        });
+        return false
+      }
+      this.$confirm('是否确定禁用？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '放弃'
+      }).then(_ => {
+        batchDisableMachine(this.multipleSelection).then(r => {
+          this.$notify({
+            title: '成功',
+            message: '禁用所选项成功！',
+            type: 'success'
+          });
+          this.doGetMechines()
+        }).catch(e => console.log(e))
+      }).catch(e => console.log(e))
+    },
+    doBatchEnable(){
+      if (this.multipleSelection.length === 0) {
+        this.$notify({
+          title: '警告',
+          message: '未选中任何项！',
+          type: 'warning'
+        });
+        return false
+      }
+      this.$confirm('是否确定启用？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '放弃'
+      }).then(_ => {
+        batchEnableMachine(this.multipleSelection).then(r => {
+          this.$notify({
+            title: '成功',
+            message: '启用所选项成功！',
             type: 'success'
           });
           this.doGetMechines()

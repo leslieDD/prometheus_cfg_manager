@@ -300,6 +300,38 @@ func GetJobMachines(jID int64) ([]*JobMachineSend, *BriefMessage) {
 	return jmsSend, Success
 }
 
+func GetJobMachinesBlack(jID int64) ([]*JobMachineSend, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	jms := []*JobMachine{}
+	tx := db.Table("job_machines").
+		Select("id, ipaddr, machines.position").
+		Joins("LEFT JOIN machines ON job_machines.machine_id=machines.id").
+		Where("job_machines.job_id=? and job_machines.blacked=1", jID).
+		Find(&jms)
+	jmsSend := []*JobMachineSend{}
+	for _, j := range jms {
+		ppi := &IPPosition{}
+		if err := json.Unmarshal([]byte(j.Position), ppi); err != nil {
+			config.Log.Error(err)
+			ppi = nil
+		}
+		jmsSend = append(jmsSend, &JobMachineSend{
+			ID:       j.ID,
+			IPAddr:   j.IPAddr,
+			Position: ppi,
+		})
+	}
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return jmsSend, Success
+}
+
 type JobGroupMachine struct {
 	ID         int    `json:"id" gorm:"column:id"`
 	IPAddr     string `json:"ipaddr" gorm:"column:ipaddr"`

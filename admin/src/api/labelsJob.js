@@ -40,6 +40,23 @@ export function getJobMachines (jobID) {
   })
 }
 
+export function getJobMachinesBlack (jobID) {
+  return request({
+    url: '/v1/job/machines/black',
+    method: 'get',
+    params: { id: jobID }
+  })
+}
+
+export function putJobMachinesBlack (jobID, balckData) {
+  return request({
+    url: '/v1/job/machines/black',
+    method: 'put',
+    params: { id: jobID },
+    data: balckData,
+  })
+}
+
 export function getJobMachinesForGroup (groupID) {
   return request({
     url: '/v1/job/group/machines',

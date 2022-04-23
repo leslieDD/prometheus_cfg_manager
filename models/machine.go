@@ -128,6 +128,34 @@ func BatchDeleteMachine(delIDs []int) *BriefMessage {
 	return Success
 }
 
+func BatchEnableMachine(enabledIDs []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("machines").Where("id in (?)", enabledIDs).Update("enabled", 1)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func BatchDisableMachine(disableIDs []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("machines").Where("id in (?)", disableIDs).Update("enabled", 0)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
 func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	if sp.PageSize <= 0 {
 		sp.PageSize = 15

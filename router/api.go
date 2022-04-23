@@ -40,6 +40,8 @@ func initApiRouter() {
 	v1.DELETE("/job/group", delJobGroup)
 	v1.DELETE("/job/group/subgroup/emtpy", delJobEmptySubGroup)
 	v1.GET("/job/machines", getJobMachines)
+	v1.GET("/job/machines/black", getJobMachinesBlack)
+	v1.PUT("/job/machines/black", putJobMachinesBlack)
 	v1.GET("/job/group/machines", getJobGroupMachines)
 	v1.PUT("/job/group/machines", putJobGroupMachines)
 	v1.GET("/job/group/labels", getGroupLabels)
@@ -60,6 +62,8 @@ func initApiRouter() {
 	v1.PUT("/machines/position", updatePosition)
 	v1.GET("/machines/all", getAllMachines)
 	v1.DELETE("/machines/selection", batchDeleteMachine)
+	v1.PUT("/machines/selection/enable", batchEnableMachine)
+	v1.PUT("/machines/selection/disable", batchDisableMachine)
 	v1.POST("/upload/machines", uploadMachines)
 	v1.PUT("/machines/batch/import", batchImportIPAddrs)
 	v1.PUT("/machines/batch/import/domain", batchImportDomain)
@@ -486,6 +490,65 @@ func getJobMachines(c *gin.Context) {
 	data, bf := models.GetJobMachines(jID)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job machines", models.IsSearch, bf)
 	resComm(c, bf, data)
+}
+
+func getJobMachinesBlack(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_search_black")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job black machines", models.IsSearch, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	jID, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job black machines", models.IsSearch, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	data, bf := models.GetJobMachinesBlack(jID)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job black machines", models.IsSearch, bf)
+	resComm(c, bf, data)
+}
+
+func putJobMachinesBlack(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "ip_pool")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	jobID := models.OnlyID{}
+	if err := c.BindQuery(&jobID); err != nil {
+		config.Log.Error("job id error")
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	// 把IP替换成对应的ID编号
+	body, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	cInfo, bf := models.ChangeIPAddrUseID(string(body))
+	if bf != models.Success {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, models.ErrPostData)
+		resComm(c, bf, nil)
+		return
+	}
+	cInfo.JobID = jobID.ID
+	bf = models.PostUpdateJobIPsBlack(user, cInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, bf)
+	resComm(c, bf, nil)
 }
 
 func getJobGroupMachines(c *gin.Context) {
@@ -1006,6 +1069,42 @@ func batchDeleteMachine(c *gin.Context) {
 	}
 	bf := models.BatchDeleteMachine(ids)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete ip batch", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
+func batchEnableMachine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ids := []int{}
+	if err := c.BindJSON(&ids); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable ip batch", models.IsDel, models.ErrSplitParma)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.BatchEnableMachine(ids)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable ip batch", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
+func batchDisableMachine(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "ipManager", "", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ids := []int{}
+	if err := c.BindJSON(&ids); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable ip batch", models.IsDel, models.ErrSplitParma)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.BatchDisableMachine(ids)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable ip batch", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 

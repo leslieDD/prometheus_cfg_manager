@@ -103,6 +103,11 @@
           }}</el-button>
         </template>
       </el-table-column>
+      <el-table-column label="加黑" width="55px">
+        <template v-slot="scope">
+          <span>{{scope.row.black_count}}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="子组数" width="65px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
@@ -148,7 +153,7 @@
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="350px">
+      <el-table-column label="操作" align="center" width="420px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
@@ -182,6 +187,11 @@
             <div>
               <el-button size="mini" type="primary" @click="doPool(scope)" plain
                 >IP池</el-button
+              >
+            </div>
+            <div>
+              <el-button size="mini" type="info" @click="doBlack(scope)" plain
+                >黑名单</el-button
               >
             </div>
             <div>
@@ -334,7 +344,7 @@
       </div>
     </el-dialog>
     <el-dialog
-      :title="'编辑IP列表 - ' + editIPListDialog"
+      :title="editIPListDialog"
       v-model="editIPListVisible"
       width="900px"
       modal
@@ -362,7 +372,7 @@
           class="ip-list-push-btn2"
           type="warning"
           size="small"
-          @click="updateJobIPListV2"
+          @click="doUpdateAction"
           >提 交</el-button
         >
       </div>
@@ -381,11 +391,15 @@ import {
   enabledJob,
   updateIPForJob,
   updateIPV2ForJob,
-  getAllReLabels
+  getAllReLabels,
 } from '@/api/jobs.js'
 import { allIPList } from '@/api/machines.js'
 import { restartSrv } from '@/api/srv'
-import { getJobMachines } from '@/api/labelsJob.js'
+import { 
+  getJobMachines, 
+  getJobMachinesBlack, 
+  putJobMachinesBlack,
+} from '@/api/labelsJob.js'
 
 export default {
   name: 'Jobs',
@@ -445,7 +459,8 @@ export default {
         // display_order: [
         //   { type: 'number', min: 1, message: '请输入排序号[>=1]', trigger: ['blur'] }
         // ]
-      }
+      },
+      flags: '',
     }
   },
   created () {
@@ -783,6 +798,7 @@ export default {
     },
     clearIPListClose(scope){
       this.editIPListVisible = false
+      this.flags = ''
     },
     doEditPool(scope){
       getJobMachines(scope.row.id).then(r => {
@@ -792,7 +808,7 @@ export default {
         })
         this.ipListConetnt = currentIPValue.join(';')
         this.currentJobId = scope.row.id
-        this.editIPListDialog = scope.row.name
+        this.editIPListDialog = '编辑IP列表 - ' + scope.row.name
         this.editIPListVisible = true
       }).catch(
         e => console.log(e)
@@ -824,6 +840,21 @@ export default {
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
+    doBlack(scope){
+      getJobMachinesBlack(scope.row.id).then(r=>{
+        let currentIPValue = []
+        r.data.forEach(item => {
+          currentIPValue.push(item.ipaddr)
+        })
+        this.ipListConetnt = currentIPValue.join(';')
+        this.currentJobId = scope.row.id
+        this.editIPListDialog = '编辑黑名单列表 - ' + scope.row.name
+        this.flags = 'black'
+        this.editIPListVisible = true
+      }).catch(
+        e=>console.log(e)
+      )
+    },
     updateJobIPList () {
       let clearInfo = {
         job_id: this.currentJobId,
@@ -843,11 +874,28 @@ export default {
         this.doGetJobs()
       }).catch(e => console.log(e))
     },
+    doUpdateAction(){
+      if(this.flags === 'black') {
+        this.updateJobIPListV2Black()
+      } else {
+        this.updateJobIPListV2()
+      }
+    },
     updateJobIPListV2(){
       updateIPV2ForJob(this.ipListConetnt, this.currentJobId).then(r => {
         this.$notify({
           title: '成功',
           message: '整理成功！',
+          type: 'success'
+        })
+        this.doGetJobs()
+      }).catch(e => console.log(e))
+    },
+    updateJobIPListV2Black(){
+      putJobMachinesBlack(this.currentJobId, this.ipListConetnt).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '整理黑名单成功！',
           type: 'success'
         })
         this.doGetJobs()
