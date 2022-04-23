@@ -26,6 +26,7 @@ func initApiRouter() {
 	v1.PUT("/jobs/status", putJobsStatus)
 	v1.POST("/jobs/update-ips", postUpdateJobIPs)
 	v1.POST("/jobs/update-ips/v2", postUpdateJobIPsV2)
+	v1.PUT("/job/update/subgroup", updateJobSubGroup)
 
 	v1.GET("/jobs/default/split", getDefJobsSplit)
 	v1.POST("/job/default", postDefJob)
@@ -900,6 +901,25 @@ func postUpdateJobIPsV2(c *gin.Context) {
 	cInfo.JobID = int(jobIDInt)
 	bf = models.PostUpdateJobIPs(user, cInfo)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func updateJobSubGroup(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "update_job_subgroup")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	jobID := models.OnlyID{}
+	if err := c.BindQuery(&jobID); err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job subgroup", models.IsUpdate, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	bf := models.UpdateJobSubGroup(user, &jobID)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job subgroup", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -2310,7 +2330,7 @@ func createLabelForAllIPs(c *gin.Context) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
-	bf := models.CreateLabelForAllIPs(user)
+	bf := models.CreateLabelForAllIPs(user, nil)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create label and sub group of job", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 	sync.AS.Done(sync.UpdateAllIPLabelsInJobGroup)

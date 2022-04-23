@@ -153,12 +153,32 @@
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="420px">
+      <el-table-column label="操作" align="center" width="500px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
               <el-button size="mini" type="primary" @click="doEdit(scope)" plain
                 >编辑</el-button
+              >
+            </div>
+            <div>
+              <el-button size="mini" type="primary" @click="doEditPool(scope)" plain
+                >编辑IP列表</el-button
+              >
+            </div>
+            <div>
+              <el-button size="mini" type="primary" @click="doPool(scope)" plain
+                >IP池</el-button
+              >
+            </div>
+            <div>
+              <el-button size="mini" type="success" @click="doUpdateSubGroup(scope)" plain
+                >更新子组</el-button
+              >
+            </div>
+            <div>
+              <el-button size="mini" type="warning" @click="doBlack(scope)" plain
+                >黑名单</el-button
               >
             </div>
             <div>
@@ -177,21 +197,6 @@
                 @click="invocate(scope)"
                 plain
                 >启用</el-button
-              >
-            </div>
-            <div>
-              <el-button size="mini" type="primary" @click="doEditPool(scope)" plain
-                >编辑IP列表</el-button
-              >
-            </div>
-            <div>
-              <el-button size="mini" type="primary" @click="doPool(scope)" plain
-                >IP池</el-button
-              >
-            </div>
-            <div>
-              <el-button size="mini" type="info" @click="doBlack(scope)" plain
-                >黑名单</el-button
               >
             </div>
             <div>
@@ -392,6 +397,7 @@ import {
   updateIPForJob,
   updateIPV2ForJob,
   getAllReLabels,
+  updateSubGroup,
 } from '@/api/jobs.js'
 import { allIPList } from '@/api/machines.js'
 import { restartSrv } from '@/api/srv'
@@ -839,6 +845,16 @@ export default {
           })
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
+    },
+    doUpdateSubGroup(scope){
+      updateSubGroup(scope.row.id).then(r=>{
+        this.$notify({
+          title: '成功',
+          message: '整理成功！',
+          type: 'success'
+        })
+        this.doGetJobs()
+      }).catch(e=>console.log(e))
     },
     doBlack(scope){
       getJobMachinesBlack(scope.row.id).then(r=>{

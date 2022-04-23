@@ -94,3 +94,11 @@ export function getAllReLabels () {
     method: 'get'
   })
 }
+
+export function updateSubGroup (jobID) {
+  return request({
+    url: '/v1/job/update/subgroup',
+    method: 'put',
+    params: { id: jobID }
+  })
+}

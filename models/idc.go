@@ -618,7 +618,7 @@ func WriteNetInfoToMachines(user *UserSessionInfo, ms []*Machine) *BriefMessage 
 	return Success
 }
 
-func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
+func CreateLabelForAllIPs(user *UserSessionInfo, onlyThisJobId *OnlyID) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -626,10 +626,18 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 	}
 	// 获取所有的组
 	jobs := []*Jobs{}
-	tx := db.Table("jobs").Find(&jobs)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
-		return ErrSearchDBData
+	if onlyThisJobId != nil {
+		tx := db.Table("jobs").Where("id=?", onlyThisJobId.ID).Find(&jobs)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrSearchDBData
+		}
+	} else {
+		tx := db.Table("jobs").Find(&jobs)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrSearchDBData
+		}
 	}
 	// 处理每一个组
 	for _, j := range jobs {
@@ -642,7 +650,7 @@ func CreateLabelForAllIPs(user *UserSessionInfo) *BriefMessage {
 		WHERE jobs.id = %d AND machines.enabled = 1
 		`, j.ID)
 		ipAddrsForJob := []*Machine{}
-		tx = db.Table("machines").Raw(sql).Find(&ipAddrsForJob)
+		tx := db.Table("machines").Raw(sql).Find(&ipAddrsForJob)
 		if tx.Error != nil {
 			config.Log.Error(tx.Error)
 			return ErrSearchDBData

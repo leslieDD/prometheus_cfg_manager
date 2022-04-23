@@ -515,8 +515,8 @@ func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Upl
 		if len(uploadInfo.JobsID) == 0 {
 			return nil
 		}
-		jobMachines := []*TableJobMachines{}
 		for _, jID := range uploadInfo.JobsID {
+			jobMachines := []*TableJobMachines{}
 			for _, ipInfo := range uploadInfo.Machines {
 				if !ipInfo.ImportInPool {
 					continue

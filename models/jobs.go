@@ -754,6 +754,16 @@ func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessag
 	return Success
 }
 
+func UpdateJobSubGroup(user *UserSessionInfo, jobID *OnlyID) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	bf := CreateLabelForAllIPs(user, jobID)
+	return bf
+}
+
 func PostUpdateJobIPsBlack(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
