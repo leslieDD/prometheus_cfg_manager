@@ -177,7 +177,7 @@
               >
             </div>
             <div>
-              <el-button size="mini" type="warning" @click="doBlack(scope)" plain
+              <el-button size="mini" type="info" @click="doBlack(scope)" plain
                 >黑名单</el-button
               >
             </div>
