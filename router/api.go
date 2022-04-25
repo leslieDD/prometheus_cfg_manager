@@ -27,6 +27,9 @@ func initApiRouter() {
 	v1.POST("/jobs/update-ips", postUpdateJobIPs)
 	v1.POST("/jobs/update-ips/v2", postUpdateJobIPsV2)
 	v1.PUT("/job/update/subgroup", updateJobSubGroup)
+	v1.DELETE("/job/selection", batchDeleteJob)
+	v1.PUT("/job/selection/enable", batchEnableJob)
+	v1.PUT("/job/selection/disable", batchDisableJob)
 
 	v1.GET("/jobs/default/split", getDefJobsSplit)
 	v1.POST("/job/default", postDefJob)
@@ -920,6 +923,60 @@ func updateJobSubGroup(c *gin.Context) {
 	}
 	bf := models.UpdateJobSubGroup(user, &jobID)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job subgroup", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func batchDeleteJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ids := []int{}
+	if err := c.BindJSON(&ids); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job batch", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.BatchDeleteJob(ids)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job batch", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func batchEnableJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ids := []int{}
+	if err := c.BindJSON(&ids); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable job batch", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.BatchEnableJob(ids)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable job batch", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func batchDisableJob(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ids := []int{}
+	if err := c.BindJSON(&ids); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable job batch", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.BatchDisableJob(ids)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable job batch", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 

@@ -39,5 +39,21 @@
   "explorer.confirmDelete": false,
   "explorer.confirmDragAndDrop": false,
   "editor.renderControlCharacters": true,
-  "editor.renderWhitespace": "all"
+  // "editor.renderWhitespace": "all",
+  "sqltools.connections": [
+    {
+      "mysqlOptions": {
+        "authProtocol": "default"
+      },
+      "previewLimit": 50,
+      "server": "127.0.0.1",
+      "port": 3306,
+      "driver": "MariaDB",
+      "name": "prometheus",
+      "group": "prometheus",
+      "database": "pro_cfg_manager",
+      "username": "root",
+      "password": "littleboy"
+    }
+  ],
 }

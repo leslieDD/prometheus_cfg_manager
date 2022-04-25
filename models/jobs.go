@@ -764,6 +764,48 @@ func UpdateJobSubGroup(user *UserSessionInfo, jobID *OnlyID) *BriefMessage {
 	return bf
 }
 
+func BatchDeleteJob(deleteIDs []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("jobs").Where("id in (?)", deleteIDs).Update("enabled", 1)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func BatchEnableJob(enabledIDs []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("jobs").Where("id in (?)", enabledIDs).Update("enabled", 1)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func BatchDisableJob(disableIDs []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("jobs").Where("id in (?)", disableIDs).Update("enabled", 0)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
 func PostUpdateJobIPsBlack(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
