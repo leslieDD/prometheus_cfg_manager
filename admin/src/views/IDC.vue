@@ -5,52 +5,71 @@
         <div class="card-header">
           <span>机房及线路</span>
           <span>
-            <el-button v-if="pushing_all===false" icon="el-icon-upload" type="warning" plain size="small" class="button" 
-              @click="updateAllIPAddrs"> 更新所有IP </el-button>
-            <el-button v-if="pushing_all===true" icon="el-icon-loading" type="warning" plain size="small" class="button" 
-              @click="updateAllIPAddrs"> 更新所有IP </el-button>
-            <el-button v-if="pushing_part===false" icon="el-icon-upload" type="warning" plain size="small" class="button" 
-              @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
-            <el-button v-if="pushing_part===true" icon="el-icon-loading"  type="warning" plain size="small" class="button" 
-              @click="updatePartIPAddrs"> 只更新未设置IP </el-button>
-            <el-button v-if="pushing_create_label===false" icon="el-icon-upload" type="info" plain size="small" class="button" 
-              @click="doCreateLabelForAllIPs"> JOB组中生成标签 </el-button>
-            <el-button v-if="pushing_create_label===true" icon="el-icon-loading" type="info" plain size="small" class="button" 
-              @click="doCreateLabelForAllIPs"> JOB组中生成标签 </el-button>
+            <el-input
+              size="small"
+              placeholder="请输入内容"
+              @keyup.enter="onSearch()"
+              v-model="searchContent"
+              style="width: 300px"
+            >
+              <template #append>
+                <el-button
+                  size="small"
+                  @click="onSearch()"
+                  icon="el-icon-search"
+                ></el-button>
+              </template>
+            </el-input>
           </span>
-          <el-button size="small" type="info" class="button" @click="flushtree"> 刷新列表 </el-button>
-          <el-button size="small" type="success" icon="el-icon-baseball" class="button" @click="idcAppend"> 增加机房 </el-button>
         </div>
       </template>
-      <div height="100%">
-        <el-scrollbar class="card-scrollbar">
-          <el-tree
-            :data="data"
-            node-key="id"
-            highlight-current
-            :expand-on-click-node="false"
-            @node-click="nodeClick"
-          >
-            <template #default="{ node, data }">
-              <span class="custom-tree-node">
-                <span>
-                  <span v-if="data.tree_type === 'idc'"><svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M512 128L128 447.936V896h255.936V640H640v256h255.936V447.936z"></path></svg></span>
-                  <span v-if="data.tree_type === 'line'"><svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M679.872 348.8l-301.76 188.608a127.808 127.808 0 015.12 52.16l279.936 104.96a128 128 0 11-22.464 59.904l-279.872-104.96a128 128 0 11-16.64-166.272l301.696-188.608a128 128 0 1133.92 54.272z"></path></svg></span>
-                  {{ node.label }}
+      <div height="100%" class="box-card-left-body">
+        <div class="box-card-left-body-content">
+          <el-scrollbar class="card-scrollbar">
+            <el-tree
+              :data="data"
+              node-key="id"
+              highlight-current
+              :expand-on-click-node="false"
+              @node-click="nodeClick"
+            >
+              <template #default="{ node, data }">
+                <span class="custom-tree-node">
+                  <span>
+                    <span v-if="data.tree_type === 'idc'"><svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M512 128L128 447.936V896h255.936V640H640v256h255.936V447.936z"></path></svg></span>
+                    <span v-if="data.tree_type === 'line'"><svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M679.872 348.8l-301.76 188.608a127.808 127.808 0 015.12 52.16l279.936 104.96a128 128 0 11-22.464 59.904l-279.872-104.96a128 128 0 11-16.64-166.272l301.696-188.608a128 128 0 1133.92 54.272z"></path></svg></span>
+                    {{ node.label }}
+                  </span>
+                  <span v-if="data.tree_type === 'idc'">
+                    <el-tag size="small" @click="append(data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M832 384H576V128H192v768h640V384zm-26.496-64L640 154.496V320h165.504zM160 64h480l256 256v608a32 32 0 01-32 32H160a32 32 0 01-32-32V96a32 32 0 0132-32zm320 512V448h64v128h128v64H544v128h-64V640H352v-64h128z"></path></svg> </el-tag>
+                    <el-tag size="small" @click="edit(node, data)"><svg t="1639990532110" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12171" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13" data-v-042ca774=""><path d="M199.04 672.64l193.984 112 224-387.968-193.92-112-224 388.032z m-23.872 60.16l32.896 148.288 144.896-45.696-177.792-102.592zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936-383.936 665.088h0.064l-248.448 78.336-56.448-254.336z m384 254.272v-64h448v64h-448z" p-id="12172"></path></svg> </el-tag>
+                    <el-tag size="small" type="danger" @click="removeIDC(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
+                  </span>
+                  <span v-if="data.tree_type === 'line'">
+                    <el-tag size="small" @click="editLine(node, data)"><svg t="1639990532110" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12171" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13" data-v-042ca774=""><path d="M199.04 672.64l193.984 112 224-387.968-193.92-112-224 388.032z m-23.872 60.16l32.896 148.288 144.896-45.696-177.792-102.592zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936-383.936 665.088h0.064l-248.448 78.336-56.448-254.336z m384 254.272v-64h448v64h-448z" p-id="12172"></path></svg></el-tag>
+                    <el-tag size="small" type="danger" @click="removeLine(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
+                  </span>
                 </span>
-                <span v-if="data.tree_type === 'idc'">
-                  <el-tag size="small" @click="append(data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M832 384H576V128H192v768h640V384zm-26.496-64L640 154.496V320h165.504zM160 64h480l256 256v608a32 32 0 01-32 32H160a32 32 0 01-32-32V96a32 32 0 0132-32zm320 512V448h64v128h128v64H544v128h-64V640H352v-64h128z"></path></svg> </el-tag>
-                  <el-tag size="small" @click="edit(node, data)"><svg t="1639990532110" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12171" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13" data-v-042ca774=""><path d="M199.04 672.64l193.984 112 224-387.968-193.92-112-224 388.032z m-23.872 60.16l32.896 148.288 144.896-45.696-177.792-102.592zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936-383.936 665.088h0.064l-248.448 78.336-56.448-254.336z m384 254.272v-64h448v64h-448z" p-id="12172"></path></svg> </el-tag>
-                  <el-tag size="small" type="danger" @click="removeIDC(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
-                </span>
-                <span v-if="data.tree_type === 'line'">
-                  <el-tag size="small" @click="editLine(node, data)"><svg t="1639990532110" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12171" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13" data-v-042ca774=""><path d="M199.04 672.64l193.984 112 224-387.968-193.92-112-224 388.032z m-23.872 60.16l32.896 148.288 144.896-45.696-177.792-102.592zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936-383.936 665.088h0.064l-248.448 78.336-56.448-254.336z m384 254.272v-64h448v64h-448z" p-id="12172"></path></svg></el-tag>
-                  <el-tag size="small" type="danger" @click="removeLine(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
-                </span>
-              </span>
-            </template>
-          </el-tree>
-        </el-scrollbar>
+              </template>
+            </el-tree>
+          </el-scrollbar>
+        </div>
+        <div class="box-card-left-body-action">
+          <el-button size="small" type="success" icon="el-icon-baseball" class="button" @click="idcAppend">增加机房</el-button>
+          <el-button size="small" type="info" plain class="button" @click="flushtree">刷新列表</el-button>
+          <el-button v-if="pushing_all===false" icon="el-icon-upload" type="warning" plain size="small" class="button" 
+            @click="updateAllIPAddrs">更新所有IP</el-button>
+          <el-button v-if="pushing_all===true" icon="el-icon-loading" type="warning" plain size="small" class="button" 
+            @click="updateAllIPAddrs">更新所有IP</el-button>
+          <el-button v-if="pushing_part===false" icon="el-icon-upload" type="warning" plain size="small" class="button" 
+            @click="updatePartIPAddrs">只更新未设置IP</el-button>
+          <el-button v-if="pushing_part===true" icon="el-icon-loading"  type="warning" plain size="small" class="button" 
+            @click="updatePartIPAddrs">只更新未设置IP</el-button>
+          <el-button v-if="pushing_create_label===false" icon="el-icon-upload" type="info" plain size="small" class="button" 
+            @click="doCreateLabelForAllIPs">JOB组中生成标签</el-button>
+          <el-button v-if="pushing_create_label===true" icon="el-icon-loading" type="info" plain size="small" class="button" 
+            @click="doCreateLabelForAllIPs">JOB组中生成标签</el-button>
+        </div>
       </div>
     </el-card>
     <el-card class="box-card-right">
@@ -200,6 +219,9 @@
             });
           }
         }).catch(e => console.log(e))
+      },
+      onSearch(){
+        
       },
       append(data) {
         this.currentDataPoint = data
@@ -460,7 +482,25 @@
 .box-card-left {
   width: 55%;
 }
-
+.box-card-left-body{
+  display: flex;
+  flex-wrap: nowrap;
+}
+.box-card-left-body-content {
+  width: 85%;
+}
+.box-card-left-body-action {
+  display: flex;
+  flex-wrap: wrap;
+  flex-direction: column;
+  width: 150px;
+  max-width: 150px;
+  /* border-left: 1px solid #F00 */
+}
+.box-card-left-body-action :deep() .el-button {
+  margin-bottom: 20px;
+  margin-left: 10px!important;
+}
 .box-card-right {
   width: 44%;
 }
