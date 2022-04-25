@@ -2219,7 +2219,13 @@ func getIDCTree(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	treeData, bf := models.GetIDCTree()
+	search := models.SearchContent{}
+	if err := c.BindQuery(&search); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get idc tree", models.IsSearch, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	treeData, bf := models.GetIDCTree(&search)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get idc tree", models.IsSearch, bf)
 	resComm(c, bf, treeData)
 }

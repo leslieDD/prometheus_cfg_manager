@@ -296,7 +296,7 @@ func PutLineIpAddrs(user *UserSessionInfo, newPool *NewPool) *BriefMessage {
 	return Success
 }
 
-func GetIDCTree() (*idcTreeWithID, *BriefMessage) {
+func GetIDCTree(search *SearchContent) (*idcTreeWithID, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -311,7 +311,11 @@ func GetIDCTree() (*idcTreeWithID, *BriefMessage) {
 	}
 	// Line
 	lines := []*Line{}
-	tx = db.Table("line").Find(&lines)
+	tx = db.Table("line")
+	if search.Content != "" {
+		tx = tx.Where("label like '%" + search.Content + "%'")
+	}
+	tx = tx.Find(&lines)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
@@ -352,6 +356,11 @@ func GetIDCTree() (*idcTreeWithID, *BriefMessage) {
 			node.Children = obj
 		} else {
 			node.Children = []*lineTree{}
+		}
+		if search.Content != "" {
+			if !strings.Contains(node.Label, search.Content) && len(node.Children) == 0 {
+				continue
+			}
 		}
 		idcTreeResp = append(idcTreeResp, node)
 	}

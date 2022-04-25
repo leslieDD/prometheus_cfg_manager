@@ -199,6 +199,7 @@
         pushing_part: false,
         pushing_create_label: false,
         should_disabled: false,
+        searchContent: '',
       }
     },
 
@@ -208,7 +209,7 @@
 
     methods: {
       doGetTree(show_notice){
-        getIDCTree().then(r => {
+        getIDCTree({content: this.searchContent}).then(r => {
           this.data = r.data.tree
           tree_id = r.data.id + 1
           if (show_notice) {
@@ -221,7 +222,7 @@
         }).catch(e => console.log(e))
       },
       onSearch(){
-        
+         this.doGetTree()
       },
       append(data) {
         this.currentDataPoint = data
