@@ -102,3 +102,27 @@ export function updateSubGroup (jobID) {
     params: { id: jobID }
   })
 }
+
+export function batchDeleteJob (ids) {
+  return request({
+    url: '/v1/job/selection',
+    method: 'delete',
+    data: ids
+  })
+}
+
+export function batchEnableJob (ids) {
+  return request({
+    url: '/v1/job/selection/enable',
+    method: 'put',
+    data: ids
+  })
+}
+
+export function batchDisableJob (ids) {
+  return request({
+    url: '/v1/job/selection/disable',
+    method: 'put',
+    data: ids
+  })
+}

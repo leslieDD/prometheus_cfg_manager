@@ -770,7 +770,7 @@ func BatchDeleteJob(deleteIDs []int) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("jobs").Where("id in (?)", deleteIDs).Update("enabled", 1)
+	tx := db.Table("jobs").Where("id in (?)", deleteIDs).Delete(nil)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData

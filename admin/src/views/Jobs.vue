@@ -1,37 +1,45 @@
 <template>
   <div class="jobs-board">
     <div class="do_action">
-      <div style="padding-right: 15px">
-        <!-- <el-button size="small" type="warning" @click="restartServer()"
-          >让Prometheus服务重新加载配置</el-button
+      <div class="action-btn-del">
+        <el-button
+          icon="el-icon-lightning"
+          size="small"
+          type="info"
+          plain
+          @click="doBatchDel()"
+          >删除选中</el-button
         >
         <el-button
-          v-if="publishMode === false"
+          icon="el-icon-warning-outline"
           size="small"
-          icon="el-icon-upload"
-          type="primary"
-          @click="publishJobsfunc()"
-          >发布</el-button
+          type="info"
+          plain
+          @click="doBatchDisable()"
+          >禁用选中</el-button
         >
         <el-button
-          v-if="publishMode === true"
-          icon="el-icon-loading"
+          icon="el-icon-warning-outline"
           size="small"
-          type="primary"
-          @click="publishJobsRunning()"
-          >发布</el-button
-        > -->
-        <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()"
-          >添加组</el-button
+          type="success"
+          plain
+          @click="doBatchEnable()"
+          >启用选中</el-button
         >
       </div>
-      <div>
-        <div>
+      <div class="do-action-search">
+        <span style="padding-right: 15px">
+          <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()"
+            >添加组</el-button
+          >
+        </span>
+        <span>
           <el-input
             size="small"
             placeholder="请输入内容"
             @keyup.enter="onSearch()"
             v-model="searchContent"
+            style="width: 300px"
           >
             <template #append>
               <el-button
@@ -41,7 +49,7 @@
               ></el-button>
             </template>
           </el-input>
-        </div>
+        </span>
       </div>
     </div>
     <el-table
@@ -53,7 +61,9 @@
       :row-style="rowStyle"
       :cell-style="cellStyle"
       @expand-change="expandChange"
+      @selection-change="handleSelectionChange"
     >
+      <el-table-column type="selection" width="40"> </el-table-column>
       <el-table-column type="expand">
         <template #default="props">
           <el-descriptions title="IP列表" size="mini" :column="4" border>
@@ -398,6 +408,9 @@ import {
   updateIPV2ForJob,
   getAllReLabels,
   updateSubGroup,
+  batchDeleteJob,
+  batchEnableJob,
+  batchDisableJob,
 } from '@/api/jobs.js'
 import { allIPList } from '@/api/machines.js'
 import { restartSrv } from '@/api/srv'
@@ -467,6 +480,7 @@ export default {
         // ]
       },
       flags: '',
+      multipleSelection: [],
     }
   },
   created () {
@@ -648,6 +662,84 @@ export default {
     },
     doDelete (scope) {
       this.deleteVisible[scope.$index] = true
+    },
+    handleSelectionChange (val) {
+      this.multipleSelection = []
+      val.forEach(each => {
+        this.multipleSelection.push(each.id)
+      })
+    },
+    doBatchDel () {
+      if (this.multipleSelection.length === 0) {
+        this.$notify({
+          title: '警告',
+          message: '未选中任何项！',
+          type: 'warning'
+        });
+        return false
+      }
+      this.$confirm('是否确定删除？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '放弃'
+      }).then(_ => {
+        batchDeleteJob(this.multipleSelection).then(r => {
+          this.$notify({
+            title: '成功',
+            message: '删除所选项成功！',
+            type: 'success'
+          });
+          this.doGetJobs()
+        }).catch(e => console.log(e))
+      }).catch(e => console.log(e))
+    },
+    doBatchDisable(){
+      if (this.multipleSelection.length === 0) {
+        this.$notify({
+          title: '警告',
+          message: '未选中任何项！',
+          type: 'warning'
+        });
+        return false
+      }
+      this.$confirm('是否确定禁用？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '放弃'
+      }).then(_ => {
+        batchDisableJob(this.multipleSelection).then(r => {
+          this.$notify({
+            title: '成功',
+            message: '禁用所选项成功！',
+            type: 'success'
+          });
+          this.doGetJobs()
+        }).catch(e => console.log(e))
+      }).catch(e => console.log(e))
+    },
+    doBatchEnable(){
+      if (this.multipleSelection.length === 0) {
+        this.$notify({
+          title: '警告',
+          message: '未选中任何项！',
+          type: 'warning'
+        });
+        return false
+      }
+      this.$confirm('是否确定启用？', '确认信息', {
+        distinguishCancelAndClose: true,
+        confirmButtonText: '确定',
+        cancelButtonText: '放弃'
+      }).then(_ => {
+        batchEnableJob(this.multipleSelection).then(r => {
+          this.$notify({
+            title: '成功',
+            message: '启用所选项成功！',
+            type: 'success'
+          });
+          this.doGetJobs()
+        }).catch(e => console.log(e))
+      }).catch(e => console.log(e))
     },
     rowStyle (row) {
       let rs = {
@@ -942,9 +1034,19 @@ export default {
 
 <style scoped>
 .do_action {
-  text-align: right;
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-between;
   margin-top: -5px;
   padding-bottom: 8px;
+}
+.do-action-search {
+  display: inline-block;
+  /* display: flex;
+  flex-wrap: nowrap;
+  justify-content: flex-end; */
+  /* margin-top: -5px;
+  padding-bottom: 8px; */
 }
 el-dialog {
   padding: 0px;
