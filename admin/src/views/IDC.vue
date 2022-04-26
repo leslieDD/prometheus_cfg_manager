@@ -62,7 +62,7 @@
         </div>
         <div class="box-card-left-body-action">
           <el-button size="small" type="success" icon="el-icon-baseball" class="button" @click="idcAppend">增加机房</el-button>
-          <el-button size="small" type="info" plain class="button" @click="flushtree">刷新列表</el-button>
+          <el-button size="small" type="info" icon="el-icon-refresh" plain class="button" @click="flushtree">刷新列表</el-button>
           <el-button v-if="pushing_all===false" icon="el-icon-upload" type="warning" plain size="small" class="button" 
             @click="updateAllIPAddrs">更新所有IP</el-button>
           <el-button v-if="pushing_all===true" icon="el-icon-loading" type="warning" plain size="small" class="button" 
