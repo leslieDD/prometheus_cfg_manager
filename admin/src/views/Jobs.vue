@@ -359,6 +359,42 @@
       </div>
     </el-dialog>
     <el-dialog
+      :title="'JOB组内编辑 - ' + editIPInJobDialog"
+      v-model="editIPInJobVisible"
+      width="700px"
+      modal
+      :before-close="clearIPInJobClose"
+    >
+      <el-row type="flex" align="middle" justify="center">
+        <el-transfer
+          v-model="currentIPInJobValue"
+          filterable
+          :filter-method="filterIPMethod"
+          filter-placeholder="请输入关键字"
+          :data="allIPInJobData"
+          @change="transferInJobChange"
+          :titles="['JOB组IP池', '加黑IP列表']"
+        >
+        </el-transfer>
+      </el-row>
+      <div class="ip-list-push-box">
+        <el-button
+          class="ip-list-close-btn"
+          type="info"
+          size="small"
+          @click="clearIPInJobClose"
+          >关闭</el-button
+        >
+        <el-button
+          class="ip-list-push-btn"
+          type="warning"
+          size="small"
+          @click="updateJobIPInJobList"
+          >提交</el-button
+        >
+      </div>
+    </el-dialog>
+    <el-dialog
       :title="editIPListDialog"
       v-model="editIPListVisible"
       width="900px"
@@ -406,6 +442,7 @@ import {
   enabledJob,
   updateIPForJob,
   updateIPV2ForJob,
+  updateIPInJobForJob,
   getAllReLabels,
   updateSubGroup,
   batchDeleteJob,
@@ -454,12 +491,17 @@ export default {
       dialogTitle: '',
       jobAllIPList: {},
       currentIPValue: [],
+      currentIPInJobValue: [],
       allIPData: [],
       allIPDataMap: {},
+      allIPInJobData: [],
+      allIPInJobDataMap: {},
       currentJobId: 0,
       editIPVisible: false,
       editIPListVisible: false,
+      editIPInJobVisible: false,
       transferChanged: false,
+      transferInJobChanged: false,
       editIPDialog: '未设置',
       editIPListDialog: '未设置',
       ipListConetnt: '',
@@ -481,6 +523,8 @@ export default {
       },
       flags: '',
       multipleSelection: [],
+      editIPInJobDialog: '',
+      editIPInJobVisible: false,
     }
   },
   created () {
@@ -894,6 +938,12 @@ export default {
       }
       this.editIPVisible = false
     },
+    clearIPInJobClose(){
+      if (this.transferInJobChanged) {
+        this.doGetJobs()
+      }
+      this.editIPInJobVisible = false
+    },
     clearIPListClose(scope){
       this.editIPListVisible = false
       this.flags = ''
@@ -928,13 +978,13 @@ export default {
               disabled: false
             }
             allIPData.push(defVal)
-            this.currentJobId = scope.row.id
-            this.allIPData = allIPData
-            this.currentIPValue = currentIPValue
-            this.transferChanged = false
-            this.editIPDialog = scope.row.name
-            this.editIPVisible = true
           })
+          this.currentJobId = scope.row.id
+          this.allIPData = allIPData
+          this.currentIPValue = currentIPValue
+          this.transferChanged = false
+          this.editIPDialog = scope.row.name
+          this.editIPVisible = true
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
@@ -949,19 +999,28 @@ export default {
       }).catch(e=>console.log(e))
     },
     doBlack(scope){
-      getJobMachinesBlack(scope.row.id).then(r=>{
-        let currentIPValue = []
+      let currentIPBlackedValue = []
+      let allIPInJobData = []
+      getJobMachines(scope.row.id).then(r => {
         r.data.forEach(item => {
-          currentIPValue.push(item.ipaddr)
+          let defVal = {
+            label: item.ipaddr,
+            key: item.id,
+            spell: item.ipaddr,
+            disabled: false
+          }
+          allIPInJobData.push(defVal)
+          if (item.blacked === 1) {
+            currentIPBlackedValue.push(item.id)
+          }
         })
-        this.ipListConetnt = currentIPValue.join(';')
         this.currentJobId = scope.row.id
-        this.editIPListDialog = '编辑黑名单列表 - ' + scope.row.name
-        this.flags = 'black'
-        this.editIPListVisible = true
-      }).catch(
-        e=>console.log(e)
-      )
+        this.allIPInJobData = allIPInJobData
+        this.currentIPInJobValue = currentIPBlackedValue
+        this.transferInJobChanged = false
+        this.editIPInJobDialog = scope.row.name
+        this.editIPInJobVisible = true
+      }).catch(e => console.log(e))
     },
     updateJobIPList () {
       let clearInfo = {
@@ -974,6 +1033,25 @@ export default {
         }
       })
       updateIPForJob(clearInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '整理成功！',
+          type: 'success'
+        })
+        this.doGetJobs()
+      }).catch(e => console.log(e))
+    },
+    updateJobIPInJobList(){
+      let clearInfo = {
+        job_id: this.currentJobId,
+        machines_ids: []
+      }
+      this.currentIPInJobValue.forEach(item => {
+        if (item) {
+          clearInfo.machines_ids.push(item)
+        }
+      })
+      updateIPInJobForJob(clearInfo).then(r => {
         this.$notify({
           title: '成功',
           message: '整理成功！',

@@ -79,6 +79,14 @@ export function updateIPForJob (uInfo) {
   })
 }
 
+export function updateIPInJobForJob (uInfo) {
+  return request({
+    url: '/v1/jobs/update-ips/black',
+    method: 'post',
+    data: uInfo
+  })
+}
+
 export function updateIPV2ForJob (uInfo, jobID) {
   return request({
     url: '/v1/jobs/update-ips/v2',

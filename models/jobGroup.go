@@ -260,12 +260,14 @@ type JobMachine struct {
 	ID       int    `json:"id" gorm:"column:id"`
 	Position string `json:"position" gorm:"position"`
 	IPAddr   string `json:"ipaddr" gorm:"column:ipaddr"`
+	Blacked  int    `json:"blacked" gorm:"column:blacked"`
 }
 
 type JobMachineSend struct {
 	ID       int         `json:"id" gorm:"column:id"`
 	Position *IPPosition `json:"position" gorm:"position"`
 	IPAddr   string      `json:"ipaddr" gorm:"column:ipaddr"`
+	Blacked  int         `json:"blacked" gorm:"column:blacked"`
 }
 
 func GetJobMachines(jID int64) ([]*JobMachineSend, *BriefMessage) {
@@ -276,7 +278,7 @@ func GetJobMachines(jID int64) ([]*JobMachineSend, *BriefMessage) {
 	}
 	jms := []*JobMachine{}
 	tx := db.Table("job_machines").
-		Select("id, ipaddr, machines.position").
+		Select("id, ipaddr, blacked, machines.position").
 		Joins("LEFT JOIN machines ON job_machines.machine_id=machines.id").
 		Where("job_machines.job_id=?", jID).
 		Find(&jms)
@@ -291,6 +293,7 @@ func GetJobMachines(jID int64) ([]*JobMachineSend, *BriefMessage) {
 			ID:       j.ID,
 			IPAddr:   j.IPAddr,
 			Position: ppi,
+			Blacked:  j.Blacked,
 		})
 	}
 	if tx.Error != nil {

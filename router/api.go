@@ -25,6 +25,7 @@ func initApiRouter() {
 	v1.POST("/jobs/publish", publishJobs)
 	v1.PUT("/jobs/status", putJobsStatus)
 	v1.POST("/jobs/update-ips", postUpdateJobIPs)
+	v1.POST("/jobs/update-ips/black", postUpdateJobIPsBlack)
 	v1.POST("/jobs/update-ips/v2", postUpdateJobIPsV2)
 	v1.PUT("/job/update/subgroup", updateJobSubGroup)
 	v1.DELETE("/job/selection", batchDeleteJob)
@@ -523,7 +524,7 @@ func getJobMachinesBlack(c *gin.Context) {
 
 func putJobMachinesBlack(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
-	pass := models.CheckPriv(user, "jobs", "jobs", "ip_pool")
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_update_black")
 	if pass != models.Success {
 		resComm(c, pass, nil)
 		return
@@ -862,6 +863,24 @@ func postUpdateJobIPs(c *gin.Context) {
 		return
 	}
 	bf := models.PostUpdateJobIPs(user, &cInfo)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func postUpdateJobIPsBlack(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "job_update_black")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	cInfo := models.UpdateIPForJob{}
+	if err := c.BindJSON(&cInfo); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostUpdateJobIPsBlack(user, &cInfo)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
