@@ -128,13 +128,16 @@ func BatchDeleteMachine(delIDs []int) *BriefMessage {
 	return Success
 }
 
-func BatchEnableMachine(enabledIDs []int) *BriefMessage {
+func BatchEnableMachine(user *UserSessionInfo, enabledIDs []int) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("machines").Where("id in (?)", enabledIDs).Update("enabled", 1)
+	tx := db.Table("machines").Where("id in (?)", enabledIDs).
+		Update("enabled", 1).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -142,13 +145,16 @@ func BatchEnableMachine(enabledIDs []int) *BriefMessage {
 	return Success
 }
 
-func BatchDisableMachine(disableIDs []int) *BriefMessage {
+func BatchDisableMachine(user *UserSessionInfo, disableIDs []int) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("machines").Where("id in (?)", disableIDs).Update("enabled", 0)
+	tx := db.Table("machines").Where("id in (?)", disableIDs).
+		Update("enabled", 0).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData

@@ -976,7 +976,7 @@ func batchEnableJob(c *gin.Context) {
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
-	bf := models.BatchEnableJob(ids)
+	bf := models.BatchEnableJob(user, ids)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable job batch", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
@@ -994,7 +994,7 @@ func batchDisableJob(c *gin.Context) {
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
-	bf := models.BatchDisableJob(ids)
+	bf := models.BatchDisableJob(user, ids)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable job batch", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
@@ -1181,7 +1181,7 @@ func batchEnableMachine(c *gin.Context) {
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
-	bf := models.BatchEnableMachine(ids)
+	bf := models.BatchEnableMachine(user, ids)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable ip batch", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
@@ -1199,7 +1199,7 @@ func batchDisableMachine(c *gin.Context) {
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
-	bf := models.BatchDisableMachine(ids)
+	bf := models.BatchDisableMachine(user, ids)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable ip batch", models.IsDel, bf)
 	resComm(c, bf, nil)
 }

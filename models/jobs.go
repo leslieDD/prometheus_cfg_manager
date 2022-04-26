@@ -778,13 +778,15 @@ func BatchDeleteJob(deleteIDs []int) *BriefMessage {
 	return Success
 }
 
-func BatchEnableJob(enabledIDs []int) *BriefMessage {
+func BatchEnableJob(user *UserSessionInfo, enabledIDs []int) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("jobs").Where("id in (?)", enabledIDs).Update("enabled", 1)
+	tx := db.Table("jobs").Where("id in (?)", enabledIDs).Update("enabled", 1).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -792,13 +794,15 @@ func BatchEnableJob(enabledIDs []int) *BriefMessage {
 	return Success
 }
 
-func BatchDisableJob(disableIDs []int) *BriefMessage {
+func BatchDisableJob(user *UserSessionInfo, disableIDs []int) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	tx := db.Table("jobs").Where("id in (?)", disableIDs).Update("enabled", 0)
+	tx := db.Table("jobs").Where("id in (?)", disableIDs).Update("enabled", 0).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
@@ -815,12 +819,16 @@ func PostUpdateJobIPsBlack(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefM
 	err := db.Transaction(func(tx *gorm.DB) error {
 		if err := db.Table("job_machines").
 			Where("job_id=?", cInfo.JobID).
+			Update("update_at", time.Now()).
+			Update("update_by", user.Username).
 			Update("blacked", 0).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
 		if err := db.Table("job_machines").
 			Where("job_id=? and machine_id in ?", cInfo.JobID, cInfo.MachinesIDs).
+			Update("update_at", time.Now()).
+			Update("update_by", user.Username).
 			Update("blacked", 1).Error; err != nil {
 			config.Log.Error(err)
 			return err
