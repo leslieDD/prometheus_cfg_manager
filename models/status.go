@@ -108,6 +108,7 @@ var ErrAlreadyRunning = &BriefMessage{400000, "服务正在运行，请稍后重
 var ErrNoPrivRequest = &BriefMessage{400000, "未授权的访问"}
 var ErrNoVaildData = &BriefMessage{400000, "未找到有效的数据"}
 var ErrNoDefined = &BriefMessage{400000, "没有定义URL"}
+var ErrIPAddrPost = &BriefMessage{400000, "提交的IP地址不正确"}
 
 // --------------------------------------------------------------
 // ---------------- 300xxx 链接错误 ------------------------------

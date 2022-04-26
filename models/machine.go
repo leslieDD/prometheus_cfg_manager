@@ -648,6 +648,9 @@ func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *Bri
 	// items := strings.Split(content.Content, ";")
 	items := []string{}
 	for _, each := range strings.FieldsFunc(content.Content, Split) {
+		if strings.TrimSpace(each) == "" {
+			continue
+		}
 		items = append(items, strings.TrimSpace(each))
 	}
 	importIPs := map[string]struct{}{}
@@ -732,6 +735,9 @@ func BatchImportDomain(user *UserSessionInfo, content *BatchImportIPaddrs) *Brie
 	// items := strings.Split(content.Content, ";")
 	items := []string{}
 	for _, each := range strings.FieldsFunc(content.Content, Split) {
+		if strings.TrimSpace(each) == "" {
+			continue
+		}
 		items = append(items, strings.TrimSpace(each))
 	}
 	importDomains := map[string]struct{}{}

@@ -5,6 +5,8 @@
         <div class="card-header">
           <span>机房及线路</span>
           <span>
+            <span style="margin-right: 10px"><el-checkbox v-model="search_ip" label="同时搜索线路地址池" size="small" /></span>
+            <span>
             <el-input
               size="small"
               placeholder="请输入内容"
@@ -20,6 +22,7 @@
                 ></el-button>
               </template>
             </el-input>
+          </span>
           </span>
         </div>
       </template>
@@ -111,7 +114,7 @@
         </span>
       </template>
     </el-dialog>
-    <el-dialog v-model="dialogIDCVisible" title="添加新机房" width="400px">
+    <el-dialog v-model="dialogIDCVisible" :title="dialogIDCTitle" width="400px">
       <el-form :model="IDCform" :rules="IDCRules" ref="IDCform">
         <el-form-item label="机房名称" :label-width="formLabelWidth" prop="label">
           <el-input size="small" v-model="IDCform.label" autocomplete="off"></el-input>
@@ -163,6 +166,7 @@
         },
         dialogLineVisible: false,
         dialogIDCVisible: false,
+        dialogIDCTitle: '',
         Lineform: {
           id: 0,
           tree_id: 0,
@@ -200,6 +204,7 @@
         pushing_create_label: false,
         should_disabled: false,
         searchContent: '',
+        search_ip: false,
       }
     },
 
@@ -209,7 +214,7 @@
 
     methods: {
       doGetTree(show_notice){
-        getIDCTree({content: this.searchContent}).then(r => {
+        getIDCTree({content: this.searchContent, search_ip: this.search_ip}).then(r => {
           this.data = r.data.tree
           tree_id = r.data.id + 1
           if (show_notice) {
@@ -291,6 +296,7 @@
       idcAppend(data){
         this.currentDataPoint = data
         this.idEdit = false
+        this.dialogIDCTitle = '增加机房: '
         this.dialogIDCVisible = true
       },
       flushtree(){
@@ -336,6 +342,7 @@
         // console.log(data)
         this.IDCform = {...data}
         this.idEdit = true
+        this.dialogIDCTitle = '编辑机房属性: ' + data.label
         this.dialogIDCVisible = true
       },
       editLine(node, data){

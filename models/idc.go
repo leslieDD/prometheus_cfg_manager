@@ -10,6 +10,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/3th1nk/cidr"
 	"gorm.io/gorm"
 )
 
@@ -29,6 +30,11 @@ type Line struct {
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 	IDCID    int       `json:"idc_id" gorm:"column:idc_id"`
+}
+
+type LineForSearch struct {
+	Ipaddrs string `json:"ipaddrs" gorm:"column:ipaddrs"`
+	Line
 }
 
 type IPAddrsPool struct {
@@ -286,8 +292,66 @@ func PutLineIpAddrs(user *UserSessionInfo, newPool *NewPool) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
+	items := map[string]struct{}{}
+	for _, each := range strings.FieldsFunc(newPool.Ipaddrs, Split) {
+		if strings.TrimSpace(each) == "" {
+			continue
+		}
+		// items = append(items, strings.TrimSpace(each))
+		items[strings.TrimSpace(each)] = struct{}{}
+	}
+	vaildItems := []string{}
+	for item, _ := range items {
+		currIP := strings.TrimSpace(item)
+		if currIP == "" {
+			continue
+		}
+		if strings.Contains(currIP, "/") {
+			_, err := cidr.ParseCIDR(currIP)
+			if err != nil {
+				config.Log.Error(err)
+				return ErrIPAddrPost
+			}
+			vaildItems = append(vaildItems, currIP)
+		} else if strings.Contains(currIP, "~") {
+			fields := strings.Split(currIP, "~")
+			if len(fields) != 2 {
+				config.Log.Errorf("ip pool err: %s", currIP)
+				return ErrIPAddrPost
+			}
+			_, err := utils.RangeBeginToEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+			if err != nil {
+				config.Log.Error(err)
+				return ErrIPAddrPost
+			}
+			vaildItems = append(vaildItems, currIP)
+		} else if strings.Contains(currIP, "-") {
+			fields := strings.Split(currIP, "-")
+			if len(fields) != 2 {
+				config.Log.Errorf("ip pool err: %s", currIP)
+				return ErrIPAddrPost
+			}
+			_, err := utils.RangeBeginToEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+			if err != nil {
+				config.Log.Error(err)
+				return ErrIPAddrPost
+			}
+			vaildItems = append(vaildItems, currIP)
+		} else {
+			ipObj := net.ParseIP(currIP)
+			if ipObj == nil {
+				config.Log.Errorf("ip err: %s", currIP)
+				return ErrIPAddrPost
+			}
+			vaildItems = append(vaildItems, currIP)
+		}
+	}
+	if len(vaildItems) == 0 {
+		return Success
+	}
+	postIpAddr := strings.Join(vaildItems, ";\n")
 	sql := fmt.Sprintf("replace into pool(line_id, ipaddrs, remark, update_at, update_by) values(%d, '%s', '%s', '%s', '%s');",
-		newPool.LineID, newPool.Ipaddrs, newPool.Remark, time.Now().Format("2006-01-02 15:04:05"), user.Username)
+		newPool.LineID, postIpAddr, newPool.Remark, time.Now().Format("2006-01-02 15:04:05"), user.Username)
 	tx := db.Table("pool").Exec(sql)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -296,7 +360,7 @@ func PutLineIpAddrs(user *UserSessionInfo, newPool *NewPool) *BriefMessage {
 	return Success
 }
 
-func GetIDCTree(search *SearchContent) (*idcTreeWithID, *BriefMessage) {
+func GetIDCTree(search *SearchContent2) (*idcTreeWithID, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -310,15 +374,16 @@ func GetIDCTree(search *SearchContent) (*idcTreeWithID, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	// Line
-	lines := []*Line{}
-	tx = db.Table("line")
-	if search.Content != "" {
-		tx = tx.Where("label like '%" + search.Content + "%'")
-	}
-	tx = tx.Find(&lines)
+	lines := []*LineForSearch{}
+	tx = db.Raw(`select line.*, pool.ipaddrs from line left join pool on  line.id=pool.line_id;`).Find(&lines)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
+	}
+
+	linesMap := map[int]*LineForSearch{}
+	for _, obj := range lines {
+		linesMap[obj.ID] = obj
 	}
 
 	maxIDCID := 0
@@ -340,7 +405,14 @@ func GetIDCTree(search *SearchContent) (*idcTreeWithID, *BriefMessage) {
 		lineTreeResp[line.IDCID] = append(lineTreeResp[line.IDCID], &lineTree{
 			TreeID:   finalID, // 这样ID就不会有重复的，而且ID也不会变更
 			TreeType: "line",
-			Line:     *line,
+			Line: Line{
+				ID:       line.ID,
+				Label:    line.Label,
+				Enabled:  line.Enabled,
+				UpdateAt: line.UpdateAt,
+				UpdateBy: line.UpdateBy,
+				IDCID:    line.IDCID,
+			},
 		})
 	}
 
@@ -357,9 +429,43 @@ func GetIDCTree(search *SearchContent) (*idcTreeWithID, *BriefMessage) {
 		} else {
 			node.Children = []*lineTree{}
 		}
+		// 搜索规则，搜索IDC和Line，
+		// 如果搜索的内容为空：
+		//    直接返回全部数据
+		// 如果搜索的内容不为空：
+		//    先匹配IDC的Lable,匹配成功，刚再匹配此IDC中所有Line，
+		//       如果Line中有匹配的，则返回匹配的，
+		//       如果没有匹配的，则返回全部
+		//    如果IDC中的Label没有匹配成功，也会再匹配此IDC中的所有Line
+		//       如果Line中有匹配的，则返回匹配的，
+		//       如果没有匹配的，则不返回
 		if search.Content != "" {
-			if !strings.Contains(node.Label, search.Content) && len(node.Children) == 0 {
-				continue
+			if strings.Contains(node.Label, search.Content) {
+				matchLine := []*lineTree{}
+				for _, eachLine := range obj {
+					if strings.Contains(eachLine.Label, search.Content) {
+						matchLine = append(matchLine, eachLine)
+					} else if search.SearchIP && strings.Contains(linesMap[eachLine.ID].Ipaddrs, search.Content) {
+						matchLine = append(matchLine, eachLine)
+					}
+				}
+				if len(matchLine) != 0 {
+					node.Children = matchLine
+				}
+			} else {
+				matchLine := []*lineTree{}
+				for _, eachLine := range obj {
+					if strings.Contains(eachLine.Label, search.Content) {
+						matchLine = append(matchLine, eachLine)
+					} else if search.SearchIP && strings.Contains(linesMap[eachLine.ID].Ipaddrs, search.Content) {
+						matchLine = append(matchLine, eachLine)
+					}
+				}
+				if len(matchLine) != 0 {
+					node.Children = matchLine
+				} else {
+					continue // 不返回数据
+				}
 			}
 		}
 		idcTreeResp = append(idcTreeResp, node)
@@ -499,7 +605,14 @@ func GetNetParamsV2() ([]*NetInfo, *BriefMessage) {
 			Range: []*NetRange{},
 		}
 		// 分割IP地址
-		iplist := strings.Split(n.Ipaddrs, ";")
+		iplist := []string{}
+		for _, each := range strings.FieldsFunc(n.Ipaddrs, Split) {
+			if strings.TrimSpace(each) == "" {
+				continue
+			}
+			iplist = append(iplist, strings.TrimSpace(each))
+		}
+		// iplist := strings.Split(n.Ipaddrs, ";")
 		for _, each := range iplist {
 			currIP := strings.TrimSpace(each)
 			if strings.Contains(each, "/") {
@@ -511,6 +624,19 @@ func GetNetParamsV2() ([]*NetInfo, *BriefMessage) {
 				tgi.Net[each] = nObj
 			} else if strings.Contains(each, "~") {
 				fields := strings.Split(currIP, "~")
+				if len(fields) != 2 {
+					config.Log.Errorf("ip pool err: %s", currIP)
+					continue
+				}
+				beginBig, endBig, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+				if err != nil {
+					config.Log.Error(err)
+					continue
+				}
+				nr := NetRange{Begin: beginBig, End: endBig}
+				tgi.Range = append(tgi.Range, &nr)
+			} else if strings.Contains(each, "-") {
+				fields := strings.Split(currIP, "-")
 				if len(fields) != 2 {
 					config.Log.Errorf("ip pool err: %s", currIP)
 					continue

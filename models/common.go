@@ -61,6 +61,11 @@ type SearchContent struct {
 	Content string `json:"content" form:"content" gorm:"column:content"`
 }
 
+type SearchContent2 struct {
+	Content  string `json:"content" form:"content" gorm:"column:content"`
+	SearchIP bool   `json:"search_ip" form:"search_ip" gorm:"column:search_ip"`
+}
+
 func JsonToIntSlice(jsonData datatypes.JSON) ([]int, *BriefMessage) {
 	v, err := jsonData.MarshalJSON()
 	if err != nil {
@@ -268,5 +273,5 @@ func GetIPPosition(ipAddr string) *IPPosition {
 }
 
 func Split(r rune) bool {
-	return r == ';' || r == '\n'
+	return r == ';' || r == '\n' || r == '\r'
 }
