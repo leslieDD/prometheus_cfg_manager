@@ -186,7 +186,7 @@
         },
         lineRules: {
           label: [
-            { required: true, message: '请输入机房名称', validator: validateStr, trigger: ['blur'] }
+            { required: true, message: '请输入线路名称', validator: validateStr, trigger: ['blur'] }
           ],
         },
         IDCRules: {
