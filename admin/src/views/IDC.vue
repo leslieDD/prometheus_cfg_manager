@@ -31,10 +31,13 @@
           <el-scrollbar class="card-scrollbar">
             <el-tree
               :data="data"
-              node-key="id"
-              highlight-current
-              :expand-on-click-node="false"
+              node-key="tree_id"
+              :highlight-current="true"
+              :expand-on-click-node="true"
+              :default-expanded-keys="defaultExpandedKeys"
               @node-click="nodeClick"
+              @node-expand="nodeExpand"
+              @node-collapse="nodeCollapse"
             >
               <template #default="{ node, data }">
                 <span class="custom-tree-node">
@@ -85,16 +88,16 @@
           <el-button size="small" type="success" class="button" icon="el-icon-upload2" @click="putIDCOrLineIPData"> 更 新 </el-button>
         </div>
       </template>
-      <div>
+      <div class="card-body">
         <el-form
           label-position="top"
           :model="linedetailinfo"
         >
           <el-form-item label="IP列表：（以英文分号(;)隔开；如:192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1）">
-            <el-input :disabled="should_disabled" :autosize="{ minRows: 10, maxRows: 20 }" type="textarea" placeholder="" v-model="linedetailinfo.ipaddrs_net_line"></el-input>
+            <el-input :disabled="should_disabled || onobject_disabled" resize="none" :rows="14" type="textarea" placeholder="" v-model="linedetailinfo.ipaddrs_net_line"></el-input>
           </el-form-item>
           <el-form-item label="备注信息：">
-            <el-input :autosize="{ minRows: 10, maxRows: 20 }" type="textarea" placeholder="" v-model="linedetailinfo.remark_info"></el-input>
+            <el-input :disabled="onobject_disabled" resize="none" :rows="14" type="textarea" placeholder="" v-model="linedetailinfo.remark_info"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -205,17 +208,22 @@
         should_disabled: false,
         searchContent: '',
         search_ip: false,
+        onobject_disabled: false,
+        defaultExpandedKeysStore: new Set(),
+        defaultExpandedKeys: [],
       }
     },
 
     mounted () {
       this.doGetTree()
+      this.onobject_disabled = true
     },
 
     methods: {
       doGetTree(show_notice){
         getIDCTree({content: this.searchContent, search_ip: this.search_ip}).then(r => {
           this.data = r.data.tree
+          this.defaultExpandedKeys = Array.from(this.defaultExpandedKeysStore)
           tree_id = r.data.id + 1
           if (show_notice) {
             this.$notify({
@@ -361,6 +369,7 @@
         }, "Delete")));
       },
       nodeClick(node, tree, event){
+        this.onobject_disabled = false
         this.currentPoolObj = node
         if (node.tree_type === 'idc') {
           this.currentIDCTitle = tree.data.label
@@ -385,6 +394,14 @@
             console.log(e)
           })
         }
+      },    
+      nodeExpand(data,node,ele){
+        this.defaultExpandedKeysStore.add(data.tree_id)
+        // console.log('nodeExpand', data,node,ele)
+      },
+      nodeCollapse(data,node,ele){
+        this.defaultExpandedKeysStore.delete(data.tree_id)
+        // console.log('nodeCollapse', data,node,ele)
       },
       putIDCOrLineIPData(){
         // if (!this.currentPoolObj) {
@@ -513,7 +530,10 @@
   width: 44%;
 }
 
+.card-body {
+  margin-top: -15px;
+}
 .card-scrollbar {
-  height: 75vh;
+  height: 78vh;
 }
 </style>
