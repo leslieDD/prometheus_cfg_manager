@@ -1,5 +1,6 @@
 #!/bin/bash
 # 编译前端
+git pull
 cd admin
 npm install
 npm run build
