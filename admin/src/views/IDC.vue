@@ -534,6 +534,6 @@
   margin-top: -15px;
 }
 .card-scrollbar {
-  height: 75vh;
+  height: 80vh;
 }
 </style>
