@@ -48,7 +48,7 @@
                   </span>
                   <span v-if="data.tree_type === 'idc'">
                     <el-tag size="small" @click="append(data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M832 384H576V128H192v768h640V384zm-26.496-64L640 154.496V320h165.504zM160 64h480l256 256v608a32 32 0 01-32 32H160a32 32 0 01-32-32V96a32 32 0 0132-32zm320 512V448h64v128h128v64H544v128h-64V640H352v-64h128z"></path></svg> </el-tag>
-                    <el-tag size="small" @click="edit(node, data)"><svg t="1639990532110" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12171" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13" data-v-042ca774=""><path d="M199.04 672.64l193.984 112 224-387.968-193.92-112-224 388.032z m-23.872 60.16l32.896 148.288 144.896-45.696-177.792-102.592zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936-383.936 665.088h0.064l-248.448 78.336-56.448-254.336z m384 254.272v-64h448v64h-448z" p-id="12172"></path></svg> </el-tag>
+                    <el-tag size="small" @click="edit(node, data)"> <svg t="1639990532110" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12171" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13" data-v-042ca774=""><path d="M199.04 672.64l193.984 112 224-387.968-193.92-112-224 388.032z m-23.872 60.16l32.896 148.288 144.896-45.696-177.792-102.592zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936-383.936 665.088h0.064l-248.448 78.336-56.448-254.336z m384 254.272v-64h448v64h-448z" p-id="12172"></path></svg> </el-tag>
                     <el-tag size="small" type="danger" @click="removeIDC(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
                   </span>
                   <span v-if="data.tree_type === 'line'">
@@ -94,10 +94,10 @@
           :model="linedetailinfo"
         >
           <el-form-item label="IP列表：（以英文分号(;)隔开；如:192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1）">
-            <el-input :disabled="should_disabled || onobject_disabled" resize="none" :rows="14" type="textarea" placeholder="" v-model="linedetailinfo.ipaddrs_net_line"></el-input>
+            <el-input :disabled="should_disabled || onobject_disabled" resize="none" :rows="12" type="textarea" placeholder="" v-model="linedetailinfo.ipaddrs_net_line"></el-input>
           </el-form-item>
           <el-form-item label="备注信息：">
-            <el-input :disabled="onobject_disabled" resize="none" :rows="14" type="textarea" placeholder="" v-model="linedetailinfo.remark_info"></el-input>
+            <el-input :disabled="onobject_disabled" resize="none" :rows="13" type="textarea" placeholder="" v-model="linedetailinfo.remark_info"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -492,6 +492,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
+  height: 770px;
 }
 .card-header {
   display: flex;
@@ -513,6 +514,7 @@
 }
 .box-card-left-body-content {
   width: 85%;
+  max-height: 82vh;
 }
 .box-card-left-body-action {
   display: flex;
@@ -534,6 +536,10 @@
   margin-top: -15px;
 }
 .card-scrollbar {
-  height: 80vh;
+  max-height: 100%;
+}
+
+.box-board :deep() .el-card__body {
+  padding-bottom: 0px;
 }
 </style>
