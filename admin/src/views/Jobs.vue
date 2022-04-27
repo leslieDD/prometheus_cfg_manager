@@ -433,7 +433,7 @@
       <el-dialog
         :title="'规则名称：' + currentJobReWriteRule +'，规则内容：'"
         v-model="dialogJobReWriteRuleVisible"
-        width="600px"
+        width="700px"
       >
         <!-- <div style="width: 550px">
           <el-scrollbar height="300px">
@@ -443,8 +443,8 @@
             <JsonView :json="reWriteRuleInfo"></JsonView>
           </el-scrollbar>
         </div> -->
-        <div style="width: 630px">
-          <el-scrollbar height="200px" class="flex-content">
+        <div style="width: 670px">
+          <el-scrollbar height="400px" class="flex-content">
             <pre v-highlight="reWriteRuleInfo"><code></code></pre>
           </el-scrollbar>
         </div>
@@ -1255,5 +1255,9 @@ el-tabs {
 }
 :deep() .editIPListDialog > div.el-dialog__body {
   padding-top: 6px;
+}
+.dialog-relabel-ruleshow :deep() .el-dialog__body {
+  padding-top: 5px;
+  /* padding-bottom: 5px; */
 }
 </style>
