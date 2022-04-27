@@ -105,6 +105,7 @@ func initApiRouter() {
 	v1.DELETE("/base/labels", delBaseLabels)
 
 	v1.GET("/base/relabels", getReLabels)
+	v1.GET("/base/relabel", getRelabel)
 	v1.GET("/base/relabels/all", getAllRelabels)
 	v1.POST("/base/relabels", postReLabels)
 	v1.PUT("/base/relabels", putReLabels)
@@ -1707,6 +1708,24 @@ func getReLabels(c *gin.Context) {
 	}
 	data, bf := models.GetReLabels(sp)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get reLabels", models.IsSearch, bf)
+	resComm(c, bf, data)
+}
+
+func getRelabel(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "reLabels", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	id := &models.OnlyID{}
+	if err := c.BindQuery(id); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get reLabel", models.IsSearch, models.ErrSplitParma)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.GetReLabel(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get reLabel", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 

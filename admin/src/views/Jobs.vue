@@ -62,6 +62,7 @@
       :cell-style="cellStyle"
       @expand-change="expandChange"
       @selection-change="handleSelectionChange"
+      @cell-click="clickcell"
     >
       <el-table-column type="selection" width="40"> </el-table-column>
       <el-table-column type="expand">
@@ -428,6 +429,27 @@
         >
       </div>
     </el-dialog>
+    <div class="dialog-relabel-ruleshow">
+      <el-dialog
+        :title="'规则名称：' + currentJobReWriteRule +'，规则内容：'"
+        v-model="dialogJobReWriteRuleVisible"
+        width="600px"
+      >
+        <!-- <div style="width: 550px">
+          <el-scrollbar height="300px">
+            <div v-if="showError">
+            <pre v-highlight="error"><code></code></pre>
+          </div>
+            <JsonView :json="reWriteRuleInfo"></JsonView>
+          </el-scrollbar>
+        </div> -->
+        <div style="width: 630px">
+          <el-scrollbar height="200px" class="flex-content">
+            <pre v-highlight="reWriteRuleInfo"><code></code></pre>
+          </el-scrollbar>
+        </div>
+      </el-dialog>
+    </div>
   </div>
 </template>
 
@@ -456,6 +478,8 @@ import {
   getJobMachinesBlack, 
   putJobMachinesBlack,
 } from '@/api/labelsJob.js'
+
+import {getReLabel} from '@/api/relabel.js'
 
 export default {
   name: 'Jobs',
@@ -525,6 +549,9 @@ export default {
       multipleSelection: [],
       editIPInJobDialog: '',
       editIPInJobVisible: false,
+      currentJobReWriteRule: '',
+      reWriteRuleInfo: null,
+      dialogJobReWriteRuleVisible: false,
     }
   },
   created () {
@@ -1105,7 +1132,16 @@ export default {
         this.jobs[scope.$index].enabled = newStatus
         this.jobs = [...this.jobs]
       }).catch(e => console.log(e))
-    }
+    },
+    clickcell(row, column, cell, event){
+      if (column.property === 'relabel_name') {
+        getReLabel({id: row.relabel_id}).then(r=>{
+          this.currentJobReWriteRule = r.data.name
+          this.reWriteRuleInfo = r.data.code
+          this.dialogJobReWriteRuleVisible = true
+        }).catch(e=>console.log(e))
+      }
+    },
   }
 }
 </script>

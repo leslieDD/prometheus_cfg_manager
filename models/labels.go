@@ -259,6 +259,21 @@ func GetReLabels(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	return CalSplitPage(sp, count, lists), Success
 }
 
+func GetReLabel(id *OnlyID) (*ReLabels, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	relabel := ReLabels{}
+	tx := db.Table("relabels").Where("id=?", id.ID).Find(&relabel)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return &relabel, Success
+}
+
 func GetAllReLabels() ([]*ReLabels, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {

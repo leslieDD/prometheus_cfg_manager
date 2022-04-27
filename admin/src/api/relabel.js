@@ -15,6 +15,14 @@ export function getReLabels (info) {
   })
 }
 
+export function getReLabel (info) {
+  return request({
+    url: '/v1/base/relabel',
+    method: 'get',
+    params: info
+  })
+}
+
 export function putReLabels (info) {
   return request({
     url: '/v1/base/relabels',
