@@ -131,6 +131,20 @@
         prop="relabel_name"
         show-overflow-tooltip
       >
+        <template #header>
+          <el-tooltip
+            content="在‘基本配置’选项卡下的‘标签重写’下定义"
+            placement="top"
+          >
+            <span type="warning"
+              >重写标签
+              <i
+                style="font-size: 13px; color: #0081ff"
+                class="el-icon-warning"
+              ></i
+            ></span>
+          </el-tooltip>
+        </template>
       </el-table-column>
       <!-- <el-table-column label="排序" width="75px" prop="display_order">
       </el-table-column>
