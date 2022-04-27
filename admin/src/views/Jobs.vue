@@ -444,7 +444,7 @@
           </el-scrollbar>
         </div> -->
         <div style="width: 670px">
-          <el-scrollbar height="400px" class="flex-content">
+          <el-scrollbar height="300px" class="flex-content">
             <pre v-highlight="reWriteRuleInfo"><code></code></pre>
           </el-scrollbar>
         </div>
