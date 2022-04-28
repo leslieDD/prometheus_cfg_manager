@@ -825,8 +825,6 @@ func PostUpdateJobIPsBlack(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefM
 		}
 		if err := db.Table("job_machines").
 			Where("job_id=? and machine_id in ?", cInfo.JobID, cInfo.MachinesIDs).
-			Update("update_at", time.Now()).
-			Update("update_by", user.Username).
 			Update("blacked", 1).Error; err != nil {
 			config.Log.Error(err)
 			return err
