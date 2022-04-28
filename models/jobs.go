@@ -819,8 +819,6 @@ func PostUpdateJobIPsBlack(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefM
 	err := db.Transaction(func(tx *gorm.DB) error {
 		if err := db.Table("job_machines").
 			Where("job_id=?", cInfo.JobID).
-			Update("update_at", time.Now()).
-			Update("update_by", user.Username).
 			Update("blacked", 0).Error; err != nil {
 			config.Log.Error(err)
 			return err
