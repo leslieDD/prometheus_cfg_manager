@@ -1290,7 +1290,7 @@ func reload(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	bf := models.Reload()
+	bf := models.Reload(config.Cfg.PrometheusCfg.Api)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus service", models.IsRunning, bf)
 	resComm(c, bf, nil)
 }
@@ -1302,7 +1302,7 @@ func defReload(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	bf := models.Reload()
+	bf := models.Reload(config.Cfg.PrometheusCfg.Api)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config[def]", models.IsRunning, bf)
 	resComm(c, bf, nil)
 }
@@ -2108,7 +2108,7 @@ func ctlReload(c *gin.Context) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
-	bf := models.Reload()
+	bf := models.Reload(config.Cfg.PrometheusCfg.Api)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config", models.IsPublish, bf)
 	resComm(c, bf, nil)
 	sync.AS.Done(sync.ReloadAllPrometheusConfig)
@@ -2131,7 +2131,7 @@ func ctlCreateAReload(c *gin.Context) {
 		resComm(c, bf, nil)
 		return
 	}
-	bf = models.Reload()
+	bf = models.Reload(config.Cfg.PrometheusCfg.Api)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config", models.IsPublish, bf)
 	resComm(c, bf, nil)
 	sync.AS.Done(sync.ReCreateAndReloadPrometheusConfig)

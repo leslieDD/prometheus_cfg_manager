@@ -35,6 +35,7 @@ func init() {
 	initApiRouter()
 	initManagerApi()
 	initOutputData()
+	initMonitorApi()
 }
 
 // ListenAndServer ListenAndServer

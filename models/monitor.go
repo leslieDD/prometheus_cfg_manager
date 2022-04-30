@@ -48,7 +48,8 @@ type activeTarget struct {
 }
 
 type TargetData struct {
-	ActiveTargets []*activeTarget `json:"activeTargets"`
+	ActiveTargets  []*activeTarget `json:"activeTargets"`
+	DroppedTargets []*activeTarget `json:"droppedTargets"`
 }
 
 type TargetInfo struct {
@@ -62,7 +63,7 @@ func (m *Monitor) Check(list *[]*ListMachineMerge) {
 	if m.info == nil || time.Since(m.syncTime).Minutes() > 5.0 {
 		config.Log.Print("sync prometheus data")
 		m.info = map[string][]*SrvStatus{}
-		info, err := m.target()
+		info, err := m.target(config.Cfg.PrometheusCfg.Api)
 		if err == nil {
 			for _, each := range info.Data.ActiveTargets {
 				host, _, sErr := net.SplitHostPort(each.DiscoveredLabels["__address__"])
@@ -98,7 +99,14 @@ func (m *Monitor) Check(list *[]*ListMachineMerge) {
 	}
 }
 
-func (m *Monitor) target() (*TargetInfo, error) {
+func (m *Monitor) target(target string) (*TargetInfo, error) {
+	return Target(target)
+}
+
+func Target(target string) (*TargetInfo, error) {
+	if err := PrometheusIsReady(target); err != nil {
+		return nil, err
+	}
 	reqUrl := fmt.Sprintf("http://%s/api/v1/targets?state=active", config.Cfg.PrometheusCfg.Api)
 	txtBytes, err := utils.ReqWithHeader("get", reqUrl, auth())
 	if err != nil {
@@ -114,7 +122,7 @@ func (m *Monitor) target() (*TargetInfo, error) {
 	return &info, nil
 }
 
-func Reload() *BriefMessage {
+func Reload(target string) *BriefMessage {
 	reqUrl := fmt.Sprintf("http://%s/-/reload", config.Cfg.PrometheusCfg.Api)
 	result, err := utils.ReqWithHeader("post", reqUrl, auth())
 	if err != nil {
@@ -127,6 +135,21 @@ func Reload() *BriefMessage {
 		return ErrMonitorApi
 	}
 	return Success
+}
+
+func PrometheusIsReady(target string) error {
+	reqUrl := fmt.Sprintf("http://%s/-/ready", target)
+	result, err := utils.ReqWithHeader("get", reqUrl, auth())
+	if err != nil {
+		config.Log.Error(err)
+		return err
+	}
+	rStr := string(result)
+	if strings.TrimSpace(rStr) != "Prometheus is Ready." {
+		config.Log.Error(rStr)
+		return err
+	}
+	return nil
 }
 
 func auth() map[string]string {

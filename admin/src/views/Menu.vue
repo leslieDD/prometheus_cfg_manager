@@ -119,6 +119,20 @@
             </transition>
           </router-view>
         </el-tab-pane>
+        <el-tab-pane label="其它实例" name="instance">
+          <template #label>
+            <span>
+              <icon-svg icon-class="promgtshengxianshuiguo" />
+              <!-- <i class="iconfont prometheusshengxianshuiguo"></i> -->
+              其它实例</span
+            >
+          </template>
+          <router-view name="instance" v-slot="{ Component }">
+            <transition name="slide-fade">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </el-tab-pane>
         <el-tab-pane label="基本配置" name="baseConfig">
           <template #label>
             <span>
@@ -266,6 +280,8 @@ export default {
         this.$router.push({ name: 'baseConfig' })
       } else if (tab.instance.props.name === 'idc') {
         this.$router.push({ name: 'idc' })
+      } else if (tab.instance.props.name === 'instance') {
+        this.$router.push({name: 'instance'})
       }
     },
     scrollToTop () {

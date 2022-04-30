@@ -50,6 +50,14 @@ const routes = [
         }
       },
       {
+        path: '/instance',
+        name: 'instance',
+        title: '其它实例',
+        components: {
+          instance: () => import('@/views/Instance.vue')
+        }
+      },
+      {
         path: '/jobs',
         name: 'jobs',
         title: '分组管理',

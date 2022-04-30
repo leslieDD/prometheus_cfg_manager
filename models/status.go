@@ -52,6 +52,7 @@ var ErrReloadPrometheus = &BriefMessage{500000, "重新加载监控服务失败"
 var ErrReadFile = &BriefMessage{500000, "读取文件失败"}
 var ErrGenUUID = &BriefMessage{500000, "uuid生成失败"}
 var ErrMonitorApi = &BriefMessage{500000, "调用监控服务的API出现错误"}
+var ErrProNoReady = &BriefMessage{500000, "Prometheus还没有准备好"}
 var ErrFileList = &BriefMessage{500000, "读取文件列表失败"}
 var ErrRFileContent = &BriefMessage{500000, "读取文件内容失败"}
 var ErrGroupNotEmpty = &BriefMessage{500000, "还有IP属于该组，不允许删除"}

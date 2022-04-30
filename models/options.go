@@ -270,7 +270,7 @@ func DoTmplAfter(needReload bool) *BriefMessage {
 		return bf
 	}
 	if needReload {
-		if bf := Reload(); bf != Success {
+		if bf := Reload(config.Cfg.PrometheusCfg.Api); bf != Success {
 			return bf
 		}
 	}
