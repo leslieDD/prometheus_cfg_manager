@@ -40,9 +40,13 @@ func GetInstanceTargets(itr *InstanceTargetsReq) (*InstanceTargetsResp, *BriefMe
 	}
 	jinfo := map[string]*JobsInfo{}
 	for name, targets := range activeTargetGroup {
+		for _, t := range targets {
+			
+		}
 		if _, ok := jinfo[name]; !ok {
 			jinfo[name] = &JobsInfo{}
 		}
+		
 	}
 	resp.Jobs = jobs
 	return &resp, Success
