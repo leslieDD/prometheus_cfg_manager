@@ -38,8 +38,11 @@ func GetInstanceTargets(itr *InstanceTargetsReq) (*InstanceTargetsResp, *BriefMe
 		}
 		activeTargetGroup[target.Labels["job"]] = append(activeTargetGroup[target.Labels["job"]], target)
 	}
+	jinfo := map[string]*JobsInfo{}
 	for name, targets := range activeTargetGroup {
-
+		if _, ok := jinfo[name]; !ok {
+			jinfo[name] = &JobsInfo{}
+		}
 	}
 	resp.Jobs = jobs
 	return &resp, Success
