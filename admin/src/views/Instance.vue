@@ -1,16 +1,19 @@
 <template>
   <div class="instance_box">
     <div class="instance_action">
-      <div><el-tag type="warning">功能说明：导入其它prometheus实例数据</el-tag></div>
-      <div class="instance_action_btn">
+      <div class="instance_action_btn_left">
+        <div><el-tag type="warning">功能说明：导入其它prometheus实例数据</el-tag></div>
         <el-form :inline="true" size="small" ref="instanceInfo" :model="instanceInfo" class="demo-form-inline-get">
           <el-form-item label="IP地址及端口号">
-            <el-input v-model="instanceInfo.addr" placeholder="IP地址及端口号" />
+            <el-input v-model="instanceInfo.instance" placeholder="IP地址及端口号" />
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-download" @click="onGetInstanceData('instanceInfo')">获取数据</el-button>
+            <el-button v-if="getDataStatus===false" type="primary" plain icon="el-icon-download" @click="onGetInstanceData('instanceInfo')">获取数据</el-button>
+            <el-button v-if="getDataStatus===true" type="primary" plain icon="el-icon-loading">获取数据</el-button>
           </el-form-item>
         </el-form>
+      </div>
+      <div class="instance_action_btn_right">
         <el-form :inline="true" size="small" :model="instanceInfo" class="demo-form-inline-put">
           <el-form-item label="" prop="type">
             <el-radio-group v-model="import_type">
@@ -18,11 +21,11 @@
               <el-radio label="all_ip_only">只导入IP</el-radio>
               <el-radio label="merge_group_ip">合并组</el-radio>
               <el-radio label="replace_group_ip">替换组</el-radio>
-              <el-radio label="user_defined">自定义</el-radio>
+              <!-- <el-radio label="user_defined">自定义</el-radio> -->
             </el-radio-group>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" icon="el-icon-upload2" @click="onSubmit">导入数据</el-button>
+            <el-button type="primary" plain icon="el-icon-upload2" @click="onSubmit">导入数据</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -58,12 +61,14 @@
               size="mini"
               highlight-current-row
               border
-              :data="uploadIPsSplit"
+              :data="currPageTargetsJobsData"
               stripe
               :row-style="rowStyle"
               :cell-style="cellStyle"
               header-align="center"
               @selection-change="handleSelectionChange"
+              ref="multipleTableRef"
+              :row-key="getRowKeys"
             >
               <el-table-column
                 label="序号"
@@ -75,38 +80,73 @@
                   {{ scope.$index + 1 }}
                 </template>
               </el-table-column>
+              <el-table-column type="expand">
+                <template #default="props">
+                  <el-descriptions title="IP列表" size="mini" :column="3" border>
+                    <el-descriptions-item
+                      v-for="(addr, i) in props.row.addrs"
+                      :key="i"
+                      :label="i+1"
+                      >{{ addr }}
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </template>
+              </el-table-column>
               <el-table-column
                 label="JOB组名"
-                prop="import_in_job_num"
-                align="center"
+                prop="name"
                 header-align="center"
                 show-overflow-tooltip
               >
               </el-table-column>
               <el-table-column
-                label="JOB组IP数"
-                prop="import_error"
+                label="端口号"
+                prop="port"
+                align="center"
+                width="120px"
+                header-align="center"
+              >
+              </el-table-column>
+              <el-table-column
+                label="IP数"
+                prop="addr_count"
+                align="center"
+                header-align="center"
+                width="80px"
+              >
+              </el-table-column>
+              <el-table-column
+                label="up"
+                prop="up"
+                align="center"
+                header-align="center"
+                width="60px"
+              >
+              </el-table-column>
+              <el-table-column
+                label="down"
+                prop="down"
                 align="center"
                 header-align="center"
                 show-overflow-tooltip
-                width="100px"
+                width="60px"
               >
               </el-table-column>
-              <el-table-column type="selection" label="选中提交" width="140"></el-table-column>
+              <el-table-column type="selection" :reserve-selection="true" label="选中提交" width="140"></el-table-column>
             </el-table>
           </el-scrollbar>
-            <div class="block">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="currentPage"
-                :page-sizes="[20, 30, 50, 100]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="pageTotal"
-              >
-              </el-pagination>
-            </div>
+          <div class="block">
+            <el-pagination
+              @size-change="handleSizeChange"
+              @current-change="handleCurrentChange"
+              :current-page="currentPage"
+              :page-sizes="[20, 30, 50, 100]"
+              :page-size="pageSize"
+              layout="total, sizes, prev, pager, next, jumper"
+              :total="pageTotal"
+            >
+            </el-pagination>
+          </div>
         </div>
       </el-card>
       <el-card class="box-card-right" shadow="never">
@@ -118,7 +158,7 @@
           </div>
         </template>
         <div class="card-body">
-            <el-scrollbar>
+            <el-scrollbar class="json-scrollbar">
               <JsonView :json="instanceRespData"></JsonView>
             </el-scrollbar>
         </div>
@@ -136,7 +176,7 @@ export default {
   data () {
     return {
       instanceInfo: {
-        addr: ''
+        instance: ''
       },
       rules: {
         addr: [
@@ -145,10 +185,15 @@ export default {
       },
       import_type: "merge_group_ip",
       targetsJobsData: [],
+      currPageTargetsJobsData: [],
       instanceRespData: {"result": "没有数据"},
       pageSize: 20,
       currentPage: 1,
       pageTotal: 0,
+      searchContent: '',
+      uploadIPsSplit: [],
+      multipleSelection: [],
+      getDataStatus: false,
     }
   },
   created () {
@@ -157,23 +202,53 @@ export default {
   },
   methods: {
     onGetInstanceData(formName){
+      this.getDataStatus = true
       this.$refs[formName].validate((valid) => {
         if (valid) {
           getInstanceTargets(this.instanceInfo).then(r => {
             this.targetsJobsData = r.data.jobs
             this.instanceRespData = r.data.data
-          })
+            this.currPageTargetsJobsData = this.targetsJobsData.slice(0, this.pageSize)
+            this.pageTotal = this.targetsJobsData.length
+            this.getDataStatus = false
+          }).catch(e=>{this.getDataStatus = false})
+        } else {
+          this.getDataStatus = false
         }
       })
+    },
+    onSubmit(){
+      console.log(this.multipleSelection)
+      if (this.multipleSelection.length === undefined || this.multipleSelection.length === 0) {
+        return
+      }
+      putInstanceTargets({type: this.import_type, data: this.multipleSelection}).then(r=>{
+        this.$notify({
+          title: '成功',
+          message: '更新成功！',
+          type: 'success'
+        });
+      }).catch(e=>console.log(e))
     },
     onSearch(){},
     handleSizeChange (val) {
       this.pageSize = val
-      this.tableData()
+      this.currPageTargetsJobsData = this.targetsJobsData.slice(this.pageSize * (this.currentPage - 1), this.pageSize * (this.currentPage - 1) + this.pageSize)
     },
     handleCurrentChange (val) {
       this.currentPage = val
-      this.tableData()
+      this.currPageTargetsJobsData = this.targetsJobsData.slice(this.pageSize * (this.currentPage - 1), this.pageSize * (this.currentPage - 1) + this.pageSize)
+    },
+    handleSelectionChange (selection) {
+      this.multipleSelection = selection
+      // this.import_type = 'user_defined'
+      // selection.forEach(each => {
+      //   // this.$refs['multipleTableRef'].toggleRowSelection(each, true)
+      //   this.multipleSelection.push(each)
+      // })
+    },
+    getRowKeys(row){
+      return row.name
     },
     rowStyle (row) {
       let rs = {
@@ -199,16 +274,18 @@ export default {
   display: flex;
   justify-content: space-between;
 }
-.demo-form-inline-get {
-  margin-right: 20px;
-}
+/* .demo-form-inline-get {
+  margin-right: 80px;
+} */
 .instance_action {
   display: flex;
   justify-content: space-between;
 }
 .instance_action_btn {
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-around;
+  flex-wrap: nowrap;
+  flex-direction: row;
 }
 
 .card-header {
@@ -217,7 +294,18 @@ export default {
   align-items: center;
 }
 
+.box-card-right :deep() .el-card__header {
+  padding-top: 16px;
+  padding-bottom: 17px;
+}
+
 .box-card-left {
+  width: 55%;
+}
+
+.instance_action_btn_left {
+  display: flex;
+  justify-content: space-between;
   width: 55%;
 }
 
@@ -229,6 +317,12 @@ export default {
   width: 45%;
 }
 
+.instance_action_btn_right {
+  width: 45%;
+  display: flex;
+  justify-content: flex-end;
+}
+
 :deep() .el-card__body {
   padding: 0px 0px 0px 0px;
 }
@@ -236,6 +330,14 @@ export default {
 .block {
   padding-top: 12px;
   text-align: center;
+}
+
+.json-scrollbar {
+  height: 770px;
+}
+
+.card-scrollbar {
+  height: 600px;
 }
 
 </style>

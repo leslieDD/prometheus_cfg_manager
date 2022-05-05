@@ -1,5 +1,11 @@
 package models
 
+import (
+	"fmt"
+	"net"
+	"sort"
+)
+
 type InstanceTargetsReq struct {
 	Instance string `json:"instance" form:"instance"`
 }
@@ -38,15 +44,40 @@ func GetInstanceTargets(itr *InstanceTargetsReq) (*InstanceTargetsResp, *BriefMe
 		}
 		activeTargetGroup[target.Labels["job"]] = append(activeTargetGroup[target.Labels["job"]], target)
 	}
+	keySort := []string{}
 	jinfo := map[string]*JobsInfo{}
 	for name, targets := range activeTargetGroup {
 		for _, t := range targets {
-			
+			host, port, err := net.SplitHostPort(t.DiscoveredLabels["__address__"])
+			if err != nil {
+				port = "0"
+				host = t.DiscoveredLabels["__address__"]
+			}
+			key := fmt.Sprintf("%s %s", name, port)
+			if _, ok := jinfo[key]; !ok {
+				keySort = append(keySort, key)
+				jinfo[key] = &JobsInfo{
+					Name:  name,
+					Addrs: []string{},
+					Port:  port,
+				}
+			}
+			jinfo[key].Addrs = append(jinfo[key].Addrs, host)
+			jinfo[key].AddrCount += 1
+			if t.Health == "up" {
+				jinfo[key].Up += 1
+			} else {
+				jinfo[key].Down += 1
+			}
 		}
-		if _, ok := jinfo[name]; !ok {
-			jinfo[name] = &JobsInfo{}
-		}
-		
+	}
+	sort.Strings(keySort)
+	jobs := make([]*JobsInfo, 0, len(keySort))
+	for _, k := range keySort {
+		jobs = append(jobs, jinfo[k])
+	}
+	for i := 1; i <= 100; i++ {
+		jobs = append(jobs, &JobsInfo{Name: fmt.Sprint(i), Addrs: []string{}})
 	}
 	resp.Jobs = jobs
 	return &resp, Success

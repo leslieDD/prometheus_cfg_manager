@@ -107,7 +107,7 @@ func Target(target string) (*TargetInfo, error) {
 	if err := PrometheusIsReady(target); err != nil {
 		return nil, err
 	}
-	reqUrl := fmt.Sprintf("http://%s/api/v1/targets?state=active", config.Cfg.PrometheusCfg.Api)
+	reqUrl := fmt.Sprintf("http://%s/api/v1/targets?state=active", target)
 	txtBytes, err := utils.ReqWithHeader("get", reqUrl, auth())
 	if err != nil {
 		config.Log.Error(err)
