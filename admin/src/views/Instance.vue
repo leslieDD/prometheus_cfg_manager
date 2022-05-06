@@ -3,9 +3,9 @@
     <div class="instance_action">
       <div class="instance_action_btn_left">
         <div><el-tag type="warning">功能说明：导入其它prometheus实例数据</el-tag></div>
-        <el-form :inline="true" size="small" ref="instanceInfo" :model="instanceInfo" class="demo-form-inline-get">
-          <el-form-item label="IP地址及端口号">
-            <el-input v-model="instanceInfo.instance" placeholder="IP地址及端口号" />
+        <el-form :inline="true" size="small" :rules="rules" ref="instanceInfo" :model="instanceInfo" class="demo-form-inline-get">
+          <el-form-item label="IP地址及端口号" prop="instance">
+            <el-input style="width: 250px;" v-model="instanceInfo.instance" placeholder="IP地址及端口号,如: 1.1.1.1:9090" />
           </el-form-item>
           <el-form-item>
             <el-button v-if="getDataStatus===false" type="primary" plain icon="el-icon-download" @click="onGetInstanceData('instanceInfo')">获取数据</el-button>
@@ -180,8 +180,8 @@ export default {
         instance: ''
       },
       rules: {
-        addr: [
-          { required: true, message: '请输入正确IP及端口号', trigger: ['blur'] }
+        instance: [
+          { required: true, message: '输入IP地址及端口号,如: 1.1.1.1:9090', trigger: ['blur'] }
         ],
       },
       import_type: "merge_group_ip",
