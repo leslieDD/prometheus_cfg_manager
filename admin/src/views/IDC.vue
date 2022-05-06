@@ -75,6 +75,10 @@
             @click="doCreateLabelForAllIPs">JOB组中生成标签</el-button>
           <el-button v-if="pushing_create_label===true" icon="el-icon-loading" type="info" plain size="small" class="button" 
             @click="doCreateLabelForAllIPs">JOB组中生成标签</el-button>
+          <el-button v-if="pushing_create_ips===false" icon="el-icon-upload" type="danger" plain size="small" class="button" 
+            @click="doCreateIPForAllJob">扩展所有组地址</el-button>
+          <el-button v-if="pushing_create_ips===true" icon="el-icon-loading" type="danger" plain size="small" class="button" 
+            @click="doCreateIPForAllJob">扩展所有组地址</el-button>
         </div>
       </div>
     </el-card>
@@ -82,8 +86,8 @@
       <template #header>
         <div class="card-header">
           <span>
-            当前选择机房：<el-tag v-if="currentIDCTitle!==''" size="mini" type="warning">{{currentIDCTitle}}</el-tag>
-            线路：<el-tag v-if="currentLineTitle!==''" size="mini" type="warning">{{currentLineTitle}}</el-tag>
+            当前选择机房：<el-tag v-if="currentIDCTitle!==''" size="mini" type="danger">{{currentIDCTitle}}</el-tag>
+            线路：<el-tag v-if="currentLineTitle!==''" size="mini" type="danger">{{currentLineTitle}}</el-tag>
           </span>
           <el-button size="small" type="success" class="button" icon="el-icon-upload2" @click="putIDCOrLineIPData"> 更 新 </el-button>
         </div>
@@ -92,12 +96,19 @@
         <el-form
           label-position="top"
           :model="linedetailinfo"
+          size="mini" 
         >
           <el-form-item label="IP列表：（以英文分号(;)隔开；如:192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1）">
-            <el-input :disabled="should_disabled || onobject_disabled" resize="none" :rows="12" type="textarea" placeholder="" v-model="linedetailinfo.ipaddrs_net_line"></el-input>
+            <template #label>
+              <div class="display-title">
+                <span>IP列表：（以英文分号(;)隔开；如:192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1）</span>
+                <el-button size="mini" plain type="danger" @click="expandIPAddr">扩展当前组选择项IP</el-button>
+              </div>
+            </template>
+            <el-input :disabled="should_disabled || onobject_disabled" resize="none" :rows="16" type="textarea" placeholder="" v-model="linedetailinfo.ipaddrs_net_line"></el-input>
           </el-form-item>
           <el-form-item label="备注信息：">
-            <el-input :disabled="onobject_disabled" resize="none" :rows="13" type="textarea" placeholder="" v-model="linedetailinfo.remark_info"></el-input>
+            <el-input :disabled="onobject_disabled" resize="none" :rows="15" type="textarea" placeholder="" v-model="linedetailinfo.remark_info"></el-input>
           </el-form-item>
         </el-form>
       </div>
@@ -144,7 +155,7 @@
   import { postLine, putLine, delLine } from '@/api/idc.js'
   import { updateAllIPAddrsNetInfo, updatePartIPAddrsNetInfo } from '@/api/idc.js'
   // import { getLine, getLines, postLine, putLine, delLine } from '@/api/idc.js'
-  import { getLineIpAddrs, putLineIpAddrs, createLabelForAllIPs } from '@/api/idc.js'
+  import { getLineIpAddrs, putLineIpAddrs, createLabelForAllIPs, createIPForJob } from '@/api/idc.js'
 
   export default {
     data() {
@@ -205,6 +216,7 @@
         pushing_all: false,
         pushing_part: false,
         pushing_create_label: false,
+        pushing_create_ips: false,
         should_disabled: false,
         searchContent: '',
         search_ip: false,
@@ -474,6 +486,12 @@
           this.pushing_create_label = false
           console.log(e)
         })
+      },
+      doCreateIPForAllJob(){
+        
+      },
+      doCreateIPForJob(){
+        createIPForJob(data) 
       }
     }
   };
@@ -514,7 +532,7 @@
 }
 .box-card-left-body-content {
   width: 85%;
-  max-height: 82vh;
+  height: 70vh;;
 }
 .box-card-left-body-action {
   display: flex;
@@ -541,5 +559,9 @@
 
 .box-board :deep() .el-card__body {
   padding-bottom: 0px;
+}
+.display-title {
+  display: flex;
+  justify-content: space-between;
 }
 </style>

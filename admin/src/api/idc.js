@@ -136,3 +136,11 @@ export function createLabelForAllIPs (info) {
     data: info
   })
 }
+
+export function createIPForJob (data) {
+  return request({
+    url: '/v1/idc/expand',
+    method: 'post',
+    data: data
+  })
+}
