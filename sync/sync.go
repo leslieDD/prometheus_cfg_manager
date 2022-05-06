@@ -15,6 +15,7 @@ const (
 	UpdateAllIPIDCAndLineInfo
 	UpdatePartIPIDCAndLineInfo
 	UpdateAllIPLabelsInJobGroup
+	ExpandIPAddress
 	ReSetAllData
 	ReStartPrometheusService
 	PublishMonitorRules

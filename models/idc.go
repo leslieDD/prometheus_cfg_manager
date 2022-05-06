@@ -928,3 +928,178 @@ func writeDataToGroupMachines(subJobGroupIDs []int, jobGrpID int, machineIDs []i
 	}
 	return Success
 }
+
+type ExpandDataReq struct {
+	IDC  []int `json:"idc"`
+	Line []int `json:"line"`
+	All  bool  `json:"all"`
+}
+
+func IDCExpand(user *UserSessionInfo, edr *ExpandDataReq) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	if edr.All {
+		return expandAllIDC(user)
+	}
+	// 指IDC下面所有线路
+	if len(edr.IDC) != 0 {
+		return expandSpecialIDC(user, edr.IDC)
+	}
+	if len(edr.Line) != 0 {
+		return expandSpecialLine(user, edr.Line)
+	}
+	return Success
+}
+
+type poolWithLineIDC struct {
+	ID        int    `json:"id" gorm:"column:id"`
+	LineID    int    `json:"line_id" gorm:"column:line_id"`
+	IDCID     int    `json:"idc_id" gorm:"column:idc_id"`
+	IPAddrs   string `json:"ipaddrs" gorm:"column:ipaddrs"`
+	IDCLabel  string `json:"idc_label" gorm:"column:idc_label"`
+	LineLabel string `json:"line_label" gorm:"column:line_label"`
+}
+
+func expandAllIDC(user *UserSessionInfo) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	pwli := []*poolWithLineIDC{}
+	tx := db.Table("pool").Raw(`select pool.id, pool.line_id, line.idc_id, pool.ipaddrs, 
+		line.label as line_label, 
+		idc.label as idc_label
+		from pool 
+		left join line 
+		on line.id = pool.line_id 
+		left join idc 
+		on idc.id=line.idc_id;`).Find(&pwli)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	machines := []*UploadMachine{}
+	for _, each := range pwli {
+		importIPs := ParseIPAddrsFromString(each.IPAddrs)
+		if len(importIPs) == 0 {
+			continue
+		}
+		for m, _ := range importIPs {
+			machines = append(machines, &UploadMachine{
+				ID:             0,
+				IpAddr:         m,
+				IDCLabel:       each.IDCLabel,
+				LineLabel:      each.LineLabel,
+				ImportInPool:   false,
+				ImportInJobNum: 0,
+				ImportError:    "",
+			})
+		}
+	}
+	umi := UploadMachinesInfo{
+		Opts:     UploadOpts{IgnoreErr: true},
+		JobsID:   []int{},
+		Machines: machines,
+		TongJi:   UploadResult{},
+	}
+	_, bf := UploadMachines(user, &umi)
+	return bf
+}
+
+func expandSpecialIDC(user *UserSessionInfo, idcIDs []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	pwli := []*poolWithLineIDC{}
+	tx := db.Table("pool").Raw(`select pool.id, pool.line_id, line.idc_id, pool.ipaddrs, 
+		line.label as line_label, 
+		idc.label as idc_label
+		from pool 
+		left join line 
+		on line.id = pool.line_id 
+		left join idc 
+		on idc.id=line.idc_id where idc.id in ?`, idcIDs).Find(&pwli)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	machines := []*UploadMachine{}
+	for _, each := range pwli {
+		importIPs := ParseIPAddrsFromString(each.IPAddrs)
+		if len(importIPs) == 0 {
+			continue
+		}
+		for m, _ := range importIPs {
+			machines = append(machines, &UploadMachine{
+				ID:             0,
+				IpAddr:         m,
+				IDCLabel:       each.IDCLabel,
+				LineLabel:      each.LineLabel,
+				ImportInPool:   false,
+				ImportInJobNum: 0,
+				ImportError:    "",
+			})
+		}
+	}
+	umi := UploadMachinesInfo{
+		Opts:     UploadOpts{IgnoreErr: true},
+		JobsID:   []int{},
+		Machines: machines,
+		TongJi:   UploadResult{},
+	}
+	_, bf := UploadMachines(user, &umi)
+	return bf
+}
+
+func expandSpecialLine(user *UserSessionInfo, lineIDs []int) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	pwli := []*poolWithLineIDC{}
+	tx := db.Table("pool").Raw(`select pool.id, pool.line_id, line.idc_id, pool.ipaddrs, 
+		line.label as line_label, 
+		idc.label as idc_label
+		from pool 
+		left join line 
+		on line.id = pool.line_id 
+		left join idc 
+		on idc.id=line.idc_id where line.id in ?`, lineIDs).Find(&pwli)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	machines := []*UploadMachine{}
+	for _, each := range pwli {
+		importIPs := ParseIPAddrsFromString(each.IPAddrs)
+		if len(importIPs) == 0 {
+			continue
+		}
+		for m, _ := range importIPs {
+			machines = append(machines, &UploadMachine{
+				ID:             0,
+				IpAddr:         m,
+				IDCLabel:       each.IDCLabel,
+				LineLabel:      each.LineLabel,
+				ImportInPool:   false,
+				ImportInJobNum: 0,
+				ImportError:    "",
+			})
+		}
+	}
+	umi := UploadMachinesInfo{
+		Opts:     UploadOpts{IgnoreErr: true},
+		JobsID:   []int{},
+		Machines: machines,
+		TongJi:   UploadResult{},
+	}
+	_, bf := UploadMachines(user, &umi)
+	return bf
+}

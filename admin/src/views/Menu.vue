@@ -124,7 +124,7 @@
             <span>
               <icon-svg icon-class="promgtshengxianshuiguo" />
               <!-- <i class="iconfont prometheusshengxianshuiguo"></i> -->
-              其它实例</span
+              实例导入</span
             >
           </template>
           <router-view name="instance" v-slot="{ Component }">

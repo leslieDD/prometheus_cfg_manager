@@ -159,6 +159,7 @@ func initApiRouter() {
 	v1.PUT("/idc/update/netinfo/all", updateNetInfoAll)
 	v1.PUT("/idc/update/netinfo/part", updateNetInfoPart)
 	v1.PUT("/idc/create/label", createLabelForAllIPs)
+	v1.POST("/idc/expand", idcExpand)
 }
 
 func getTest(c *gin.Context) {
@@ -2433,6 +2434,30 @@ func createLabelForAllIPs(c *gin.Context) {
 	}
 	bf := models.CreateLabelForAllIPs(user, nil)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create label and sub group of job", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+	sync.AS.Done(sync.UpdateAllIPLabelsInJobGroup)
+}
+
+func idcExpand(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "expand_ipaddr")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	if sync.AS.CanNoDo(sync.UpdateAllIPLabelsInJobGroup) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
+	edr := models.ExpandDataReq{}
+	if err := c.BindJSON(&edr); err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "expand ipaddr", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.IDCExpand(user, &edr)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "expand ipaddr", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 	sync.AS.Done(sync.UpdateAllIPLabelsInJobGroup)
 }

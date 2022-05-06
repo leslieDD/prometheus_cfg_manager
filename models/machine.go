@@ -12,7 +12,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/3th1nk/cidr"
 	"gorm.io/gorm"
 )
 
@@ -454,6 +453,8 @@ type UploadOpts struct {
 type UploadMachine struct {
 	ID             int    `json:"-" form:"-"`
 	IpAddr         string `json:"ipaddr" form:"ipaddr"`
+	IDCLabel       string `json:"idc_label" gorm:"column:idc_label"`
+	LineLabel      string `json:"line_label" gorm:"column:line_label"`
 	ImportInPool   bool   `json:"import_in_pool" form:"import_in_pool"`
 	ImportInJobNum int    `json:"import_in_job_num" form:"import_in_job_num"`
 	ImportError    string `json:"import_error" form:"import_error"`
@@ -496,6 +497,8 @@ func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Upl
 				ID:       0,
 				IpAddr:   ipInfo.IpAddr,
 				Enabled:  true,
+				IDCName:  ipInfo.IDCLabel,
+				LineName: ipInfo.LineLabel,
 				UpdateAt: time.Now(),
 				UpdateBy: user.Username,
 			}
@@ -511,6 +514,18 @@ func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Upl
 						ipInfo.ImportInPool = true
 						ipInfo.ImportError = "成功导入IP池(已存在)"
 						ipInfo.ID = m.ID
+						// 更新属性
+						if m.IDCName != "" || m.LineName != "" {
+							tx := db.Table("machines").
+								Where("id=?", m.ID).
+								Update("idc_name", m.IDCName).
+								Update("line_name", m.LineName).
+								Update("update_at", m.UpdateAt).
+								Update("update_by", m.UpdateBy)
+							if tx.Error != nil {
+								config.Log.Error(tx.Error)
+							}
+						}
 						continue
 					}
 				}
@@ -596,6 +611,8 @@ func UploadDomain(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Uploa
 				IpAddr:   ipInfo.IpAddr,
 				Position: `{"error": "导入域名，未检测"}`,
 				Enabled:  true,
+				IDCName:  ipInfo.IDCLabel,
+				LineName: ipInfo.LineLabel,
 				UpdateAt: time.Now(),
 				UpdateBy: user.Username,
 			}
@@ -676,69 +693,7 @@ func UpdateIPPosition(user *UserSessionInfo) *BriefMessage {
 }
 
 func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *BriefMessage {
-	// items := strings.Split(content.Content, ";")
-	items := []string{}
-	for _, each := range strings.FieldsFunc(content.Content, Split) {
-		if strings.TrimSpace(each) == "" {
-			continue
-		}
-		items = append(items, strings.TrimSpace(each))
-	}
-	importIPs := map[string]struct{}{}
-	for _, item := range items {
-		currIP := strings.TrimSpace(item)
-		if currIP == "" {
-			continue
-		}
-		if strings.Contains(currIP, "/") {
-			c, err := cidr.ParseCIDR(currIP)
-			if err != nil {
-				config.Log.Error(err)
-				continue
-			}
-			if err := c.ForEachIP(func(ip string) error {
-				importIPs[ip] = struct{}{}
-				return nil
-			}); err != nil {
-				config.Log.Error(err.Error())
-			}
-		} else if strings.Contains(currIP, "~") {
-			fields := strings.Split(currIP, "~")
-			if len(fields) != 2 {
-				config.Log.Errorf("ip pool err: %s", currIP)
-				continue
-			}
-			ps, err := utils.RangeBeginToEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
-			if err != nil {
-				config.Log.Error(err)
-				continue
-			}
-			for _, p := range ps {
-				importIPs[p] = struct{}{}
-			}
-		} else if strings.Contains(currIP, "-") {
-			fields := strings.Split(currIP, "-")
-			if len(fields) != 2 {
-				config.Log.Errorf("ip pool err: %s", currIP)
-				continue
-			}
-			ps, err := utils.RangeBeginToEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
-			if err != nil {
-				config.Log.Error(err)
-				continue
-			}
-			for _, p := range ps {
-				importIPs[p] = struct{}{}
-			}
-		} else {
-			ipObj := net.ParseIP(currIP)
-			if ipObj == nil {
-				config.Log.Errorf("ip err: %s", currIP)
-				continue
-			}
-			importIPs[currIP] = struct{}{}
-		}
-	}
+	importIPs := ParseIPAddrsFromString(content.Content)
 	if len(importIPs) == 0 {
 		return Success
 	}

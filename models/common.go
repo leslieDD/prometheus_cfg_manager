@@ -3,11 +3,13 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"net"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/utils"
 	"strconv"
 	"strings"
 
+	"github.com/3th1nk/cidr"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -270,6 +272,72 @@ func GetIPPosition(ipAddr string) *IPPosition {
 		return nil
 	}
 	return &ipp
+}
+
+func ParseIPAddrsFromString(content string) map[string]struct{} {
+	items := []string{}
+	for _, each := range strings.FieldsFunc(content, Split) {
+		if strings.TrimSpace(each) == "" {
+			continue
+		}
+		items = append(items, strings.TrimSpace(each))
+	}
+	importIPs := map[string]struct{}{}
+	for _, item := range items {
+		currIP := strings.TrimSpace(item)
+		if currIP == "" {
+			continue
+		}
+		if strings.Contains(currIP, "/") {
+			c, err := cidr.ParseCIDR(currIP)
+			if err != nil {
+				config.Log.Error(err)
+				continue
+			}
+			if err := c.ForEachIP(func(ip string) error {
+				importIPs[ip] = struct{}{}
+				return nil
+			}); err != nil {
+				config.Log.Error(err.Error())
+			}
+		} else if strings.Contains(currIP, "~") {
+			fields := strings.Split(currIP, "~")
+			if len(fields) != 2 {
+				config.Log.Errorf("ip pool err: %s", currIP)
+				continue
+			}
+			ps, err := utils.RangeBeginToEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+			if err != nil {
+				config.Log.Error(err)
+				continue
+			}
+			for _, p := range ps {
+				importIPs[p] = struct{}{}
+			}
+		} else if strings.Contains(currIP, "-") {
+			fields := strings.Split(currIP, "-")
+			if len(fields) != 2 {
+				config.Log.Errorf("ip pool err: %s", currIP)
+				continue
+			}
+			ps, err := utils.RangeBeginToEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+			if err != nil {
+				config.Log.Error(err)
+				continue
+			}
+			for _, p := range ps {
+				importIPs[p] = struct{}{}
+			}
+		} else {
+			ipObj := net.ParseIP(currIP)
+			if ipObj == nil {
+				config.Log.Errorf("ip err: %s", currIP)
+				continue
+			}
+			importIPs[currIP] = struct{}{}
+		}
+	}
+	return importIPs
 }
 
 func Split(r rune) bool {

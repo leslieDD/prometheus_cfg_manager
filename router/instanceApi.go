@@ -14,11 +14,11 @@ func initMonitorApi() {
 
 func getInstanceTargets(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
-	// pass := models.CheckPriv(user, "instance", "", "get_data")
-	// if pass != models.Success {
-	// 	resComm(c, pass, nil)
-	// 	return
-	// }
+	pass := models.CheckPriv(user, "instance", "", "get_data")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	itr := models.InstanceTargetsReq{}
 	if err := c.BindQuery(&itr); err != nil {
 		config.Log.Error(err)
@@ -32,11 +32,11 @@ func getInstanceTargets(c *gin.Context) {
 
 func putInstanceTargets(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
-	// pass := models.CheckPriv(user, "instance", "", "put_data")
-	// if pass != models.Success {
-	// 	resComm(c, pass, nil)
-	// 	return
-	// }
+	pass := models.CheckPriv(user, "instance", "", "put_data")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
 	data := models.InstanceTargetsUpdate{}
 	if err := c.BindJSON(&data); err != nil {
 		config.Log.Error(err)

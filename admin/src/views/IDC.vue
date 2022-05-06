@@ -487,11 +487,43 @@
           console.log(e)
         })
       },
-      doCreateIPForAllJob(){
-        
+      expandIPAddr(){
+        let expandData = {'idc': [], 'line': [], all: false}
+        let explain = ''
+        if (this.currentPoolObj.tree_type === 'idc') {
+          expandData.idc.push(this.currentPoolObj.id)
+          explain = '是否确定扩展IDC: "' + this.currentPoolObj.label + '"下所有线路地址？'
+        } else if (this.currentPoolObj.tree_type === 'line') {
+          expandData.line.push(this.currentPoolObj.idc_id)
+          explain = '是否确定扩展Line: "' + this.currentPoolObj.label + '"线路地址？'
+        }
+        this.$confirm(explain, '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '放弃'
+        }).then(_ => {
+          this.doCreateIPForJob(expandData)
+        }).catch(e => console.log(e))
       },
-      doCreateIPForJob(){
-        createIPForJob(data) 
+      doCreateIPForAllJob(){
+        this.$confirm('是否确定扩展所有IDC下所有线路地址？', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '放弃'
+        }).then(_ => {
+          this.doCreateIPForJob({'idc': [], 'line': [], all: true})
+        }).catch(e => console.log(e))
+      },
+      doCreateIPForJob(data){
+        createIPForJob(data).then(r=>{
+          this.$notify({
+            title: '成功',
+            message: '扩展成功！',
+            type: 'success'
+          });
+        }).catch(e=>{
+          console.log(e)
+        })
       }
     }
   };
