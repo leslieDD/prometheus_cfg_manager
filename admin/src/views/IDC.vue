@@ -1,6 +1,6 @@
 <template>
   <div class="box-board">
-    <el-card class="box-card-left">
+    <el-card class="box-card-left" shadow="never">
       <template #header>
         <div class="card-header">
           <span>机房及线路</span>
@@ -82,7 +82,7 @@
         </div>
       </div>
     </el-card>
-    <el-card class="box-card-right">
+    <el-card class="box-card-right" shadow="never">
       <template #header>
         <div class="card-header">
           <span>
@@ -555,16 +555,14 @@
 .item {
   margin-bottom: 18px;
 }
-.box-card-left {
-  width: 55%;
-}
 .box-card-left-body{
   display: flex;
   flex-wrap: nowrap;
 }
 .box-card-left-body-content {
+  border-left: 1px solid #ccc!important;border-color: #2196F3!important;
   width: 85%;
-  height: 70vh;;
+  height: 670px;;
 }
 .box-card-left-body-action {
   display: flex;
@@ -578,15 +576,18 @@
   margin-bottom: 20px;
   margin-left: 10px!important;
 }
+.box-card-left {
+  width: 45%;
+}
 .box-card-right {
-  width: 44%;
+  width: 55%;
 }
 
 .card-body {
   margin-top: -15px;
 }
 .card-scrollbar {
-  max-height: 100%;
+  max-height: 660px;
 }
 
 .box-board :deep() .el-card__body {
