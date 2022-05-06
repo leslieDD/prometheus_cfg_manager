@@ -17,7 +17,7 @@ func DoParams() {
 	pflag.BoolVarP(&Pflag.Version, "version", "v", false, "show version")
 	pflag.Parse()
 	if Pflag.Version {
-		fmt.Printf("Version: %s", Version)
+		fmt.Printf("Version: %s\n", Version)
 		os.Exit(0)
 	}
 }
