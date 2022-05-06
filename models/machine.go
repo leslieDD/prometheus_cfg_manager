@@ -483,7 +483,7 @@ func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Upl
 		for _, ipInfo := range uploadInfo.Machines {
 			if net.ParseIP(ipInfo.IpAddr) == nil {
 				ipInfo.ImportInPool = false
-				err := errors.New("IP地址不能不合法，不能正常解析")
+				err := errors.New("IP地址不合法，不能正常解析")
 				ipInfo.ImportError = err.Error()
 				uploadInfo.TongJi.Fail += 1
 				config.Log.Error(err)
@@ -504,6 +504,16 @@ func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Upl
 				m.Position = position.String()
 			}
 			if err := tx.Table("machines").Create(&m).Error; err != nil {
+				if strings.Contains(err.Error(), "Duplicate entry") {
+					tx := db.Table("machines").Where("ipaddr = ?", ipInfo.IpAddr).Find(&m)
+					if tx.Error == nil {
+						uploadInfo.TongJi.Success += 1
+						ipInfo.ImportInPool = true
+						ipInfo.ImportError = "成功导入IP池(已存在)"
+						ipInfo.ID = m.ID
+						continue
+					}
+				}
 				ipInfo.ImportInPool = false
 				ipInfo.ImportError = err.Error()
 				uploadInfo.TongJi.Fail += 1
@@ -522,23 +532,38 @@ func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Upl
 			return nil
 		}
 		for _, jID := range uploadInfo.JobsID {
-			jobMachines := []*TableJobMachines{}
+			// jobMachines := []*TableJobMachines{}
 			for _, ipInfo := range uploadInfo.Machines {
 				if !ipInfo.ImportInPool {
 					continue
 				}
 				ipInfo.ImportInJobNum += 1
-				jobMachines = append(jobMachines, &TableJobMachines{
+				// jobMachines = append(jobMachines, &TableJobMachines{
+				// 	JobID:     jID,
+				// 	MachineID: ipInfo.ID,
+				// })
+				if err := tx.Table("job_machines").Create(&TableJobMachines{
 					JobID:     jID,
 					MachineID: ipInfo.ID,
-				})
-			}
-			if err := tx.Table("job_machines").Create(&jobMachines).Error; err != nil {
-				config.Log.Error(err)
-				if !uploadInfo.Opts.IgnoreErr {
-					return err
+				}).Error; err != nil {
+					if strings.Contains(err.Error(), "Duplicate entry") {
+						continue
+					}
+					config.Log.Error(err)
+					if !uploadInfo.Opts.IgnoreErr {
+						return err
+					}
 				}
 			}
+			// if err := tx.Table("job_machines").Clauses(clause.OnConflict{
+			// 	Columns:   []clause.Column{{Name: "unique_mj"}},
+			// 	DoUpdates: clause.AssignmentColumns([]string{"name", "age"}),
+			// }).Create(&jobMachines).Error; err != nil {
+			// 	config.Log.Error(err)
+			// 	if !uploadInfo.Opts.IgnoreErr {
+			// 		return err
+			// 	}
+			// }
 		}
 		return nil
 	})

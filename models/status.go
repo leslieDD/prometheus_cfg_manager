@@ -64,6 +64,7 @@ var ErrConvertDataType = &BriefMessage{500000, "转换数据类型出错"}
 var ErrHaveInstanceRunning = &BriefMessage{500000, "有一个实例正在运行，请稍后重试"}
 var ErrHaveLine = &BriefMessage{500000, "此机房下还有线路存在，不允许直接删除"}
 var ErrReset = &BriefMessage{500000, "重置出现错误"}
+var ErrEmptyData = &BriefMessage{500000, "空数据"}
 
 // --------------------------------------------------------------
 // ---------------- 400xxx 客户端错误 ----------------------------

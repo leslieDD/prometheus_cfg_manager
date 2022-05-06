@@ -32,9 +32,18 @@ func getInstanceTargets(c *gin.Context) {
 
 func putInstanceTargets(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
-	pass := models.CheckPriv(user, "instance", "", "put_data")
-	if pass != models.Success {
-		resComm(c, pass, nil)
-		return
+	// pass := models.CheckPriv(user, "instance", "", "put_data")
+	// if pass != models.Success {
+	// 	resComm(c, pass, nil)
+	// 	return
+	// }
+	data := models.InstanceTargetsUpdate{}
+	if err := c.BindJSON(&data); err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import instance", models.IsUpdate, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
 	}
+	result, bf := models.PutInstanceTargets(user, &data)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "import instance", models.IsUpdate, bf)
+	resComm(c, bf, result)
 }

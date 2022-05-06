@@ -19,13 +19,14 @@
             <el-radio-group v-model="import_type">
               <el-radio label="group_name_only">只导入组名</el-radio>
               <el-radio label="all_ip_only">只导入IP</el-radio>
-              <el-radio label="merge_group_ip">合并组</el-radio>
-              <el-radio label="replace_group_ip">替换组</el-radio>
+              <el-radio label="merge_group_ip">合并组(会导入IP)</el-radio>
+              <el-radio label="replace_group_ip">替换组(会导入IP)</el-radio>
               <!-- <el-radio label="user_defined">自定义</el-radio> -->
             </el-radio-group>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" plain icon="el-icon-upload2" @click="onSubmit">导入数据</el-button>
+            <el-button v-if="putDataStatus===false" type="primary" plain icon="el-icon-upload2" @click="onSubmit">导入数据</el-button>
+            <el-button v-if="putDataStatus===true" type="primary" plain icon="el-icon-loading">导入数据</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -194,11 +195,20 @@ export default {
       uploadIPsSplit: [],
       multipleSelection: [],
       getDataStatus: false,
+      putDataStatus: false,
     }
   },
   created () {
   },
   mounted () {
+  },
+  computed() {
+
+  },
+  watch: {
+    searchContent: function (newVal, oldVal) {
+      this.searchData(newVal)
+    }
   },
   methods: {
     onGetInstanceData(formName){
@@ -222,30 +232,59 @@ export default {
       if (this.multipleSelection.length === undefined || this.multipleSelection.length === 0) {
         return
       }
+      this.putDataStatus = true
       putInstanceTargets({type: this.import_type, data: this.multipleSelection}).then(r=>{
         this.$notify({
           title: '成功',
           message: '更新成功！',
           type: 'success'
         });
-      }).catch(e=>console.log(e))
+        this.putDataStatus = false
+      }).catch(e=>{console.log(e); this.putDataStatus = false})
     },
-    onSearch(){},
+    onSearch(){
+      this.searchData(this.searchContent)
+    },
+    searchData(newVal){
+      let currPage = this.currentPage
+      let pageSize = this.pageSize
+      if (currPage === 0) {
+        currPage = 0
+      } else {
+        currPage -= 1
+      }
+      if (newVal === '') {
+        this.pageTotal = this.targetsJobsData.length
+        this.currPageTargetsJobsData = this.targetsJobsData.slice(currPage * pageSize, currPage * pageSize + pageSize)
+      } else {
+        let filterData = this.targetsJobsData.filter(x => {
+          if (x.name.indexOf(newVal) > -1) {
+            return true
+          } 
+          if (x.port.indexOf(newVal) > -1) {
+            return true
+          }
+          for (var k = 0, length = x.addrs.length; k < length; k++) {
+            if(x.addrs[k].indexOf(newVal) > -1) {
+              return true
+            }
+          }
+          return false
+        })
+        this.pageTotal = filterData.length
+        this.currPageTargetsJobsData = filterData.slice(currPage * pageSize, currPage * pageSize + pageSize)
+      }
+    },
     handleSizeChange (val) {
       this.pageSize = val
-      this.currPageTargetsJobsData = this.targetsJobsData.slice(this.pageSize * (this.currentPage - 1), this.pageSize * (this.currentPage - 1) + this.pageSize)
+      this.searchData(this.searchContent)
     },
     handleCurrentChange (val) {
       this.currentPage = val
-      this.currPageTargetsJobsData = this.targetsJobsData.slice(this.pageSize * (this.currentPage - 1), this.pageSize * (this.currentPage - 1) + this.pageSize)
+      this.searchData(this.searchContent)
     },
     handleSelectionChange (selection) {
       this.multipleSelection = selection
-      // this.import_type = 'user_defined'
-      // selection.forEach(each => {
-      //   // this.$refs['multipleTableRef'].toggleRowSelection(each, true)
-      //   this.multipleSelection.push(each)
-      // })
     },
     getRowKeys(row){
       return row.name
@@ -274,9 +313,7 @@ export default {
   display: flex;
   justify-content: space-between;
 }
-/* .demo-form-inline-get {
-  margin-right: 80px;
-} */
+
 .instance_action {
   display: flex;
   justify-content: space-between;
@@ -333,6 +370,7 @@ export default {
 }
 
 .json-scrollbar {
+  margin-left: 10px;
   height: 770px;
 }
 
