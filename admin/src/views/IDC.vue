@@ -494,7 +494,7 @@
           expandData.idc.push(this.currentPoolObj.id)
           explain = '是否确定扩展IDC: "' + this.currentPoolObj.label + '"下所有线路地址？'
         } else if (this.currentPoolObj.tree_type === 'line') {
-          expandData.line.push(this.currentPoolObj.idc_id)
+          expandData.line.push(this.currentPoolObj.id)
           explain = '是否确定扩展Line: "' + this.currentPoolObj.label + '"线路地址？'
         }
         this.$confirm(explain, '确认信息', {

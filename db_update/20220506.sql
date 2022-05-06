@@ -46,3 +46,7 @@ VALUES (
     'put_data',
     '导入实例数据'
   );
+insert options(opt_key, opt_value)
+values('position_ipaddr', 'false');
+insert options(opt_key, opt_value)
+values('sync_prometheus_status', false);

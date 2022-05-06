@@ -291,6 +291,7 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 		"line",
 		"pool",
 		"number_options",
+		"options",
 	}
 	err = db.Transaction(func(tx *gorm.DB) error {
 		for _, tableName := range tableCleard {
@@ -301,7 +302,17 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 				return err
 			}
 		}
-		if err := tx.Table("options").Where("1=1").Update("opt_value", "true").Error; err != nil {
+		opts := []Option{
+			{OptKey: "publish_at_null_subgroup", OptValue: "true"},
+			{OptKey: "publish_at_remain_subgroup", OptValue: "true"},
+			{OptKey: "publish_at_empty_nocreate_file", OptValue: "true"},
+			{OptKey: "publish_jobs_also_ips", OptValue: "true"},
+			{OptKey: "publish_jobs_also_reload_srv", OptValue: "true"},
+			{OptKey: "publish_ips_also_reload_srv", OptValue: "true"},
+			{OptKey: "position_ipaddr", OptValue: "false"},
+			{OptKey: "sync_prometheus_status", OptValue: "false"},
+		}
+		if err := tx.Table("options").Create(&opts).Error; err != nil {
 			return err
 		}
 		if err := tx.Table("relabels").Where("id<>1").Delete(nil).Error; err != nil {

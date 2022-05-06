@@ -103,6 +103,7 @@
             v-model="options.publish_jobs_also_reload_srv"
             active-color="#13ce66"
             inactive-color="#ff4949"
+            disabled
             @change="doPutOptions($event, 'publish_jobs_also_reload_srv')"
             active-value="true"
             inactive-value="false"
@@ -124,7 +125,48 @@
             v-model="options.publish_ips_also_reload_srv"
             active-color="#13ce66"
             inactive-color="#ff4949"
+            disabled
             @change="doPutOptions($event, 'publish_ips_also_reload_srv')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          7）执行IP地址定位功能
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.position_ipaddr"
+          placement="top"
+        >
+          <el-switch
+            v-model="options.position_ipaddr"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'position_ipaddr')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          8）获取IP、域名在Prometheus服务中的状态信息
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.sync_prometheus_status"
+          placement="top"
+        >
+          <el-switch
+            v-model="options.sync_prometheus_status"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'sync_prometheus_status')"
             active-value="true"
             inactive-value="false"
           >
@@ -146,7 +188,9 @@ export default {
         publish_at_empty_nocreate_file: 'false',
         publish_jobs_also_ips: 'false',
         publish_jobs_also_reload_srv: 'false',
-        publish_ips_also_reload_srv: 'false'
+        publish_ips_also_reload_srv: 'false',
+        position_ipaddr: 'false',
+        sync_prometheus_status: 'false'
       },
       titles: {
         publish_at_null_subgroup: '关闭',
@@ -154,7 +198,9 @@ export default {
         publish_at_empty_nocreate_file: '关闭',
         publish_jobs_also_ips: '关闭',
         publish_jobs_also_reload_srv: '关闭',
-        publish_ips_also_reload_srv: '关闭'
+        publish_ips_also_reload_srv: '关闭',
+        position_ipaddr: '关闭',
+        sync_prometheus_status: '关闭'
       }
     }
   },

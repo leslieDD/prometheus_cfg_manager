@@ -60,6 +60,23 @@ type TargetInfo struct {
 func (m *Monitor) Check(list *[]*ListMachineMerge) {
 	m.lock.Lock()
 	defer m.lock.Unlock()
+	if !CheckByFiledIsTrue("sync_prometheus_status") {
+		for _, each := range *list {
+			obj, ok := m.info[each.IpAddr]
+			if ok {
+				each.MSrvStatus = obj
+			} else {
+				each.MSrvStatus = []*SrvStatus{
+					{
+						Job:       "[未知]",
+						Health:    "[未知]",
+						LastError: "[未设置从Prometheus服务中同步状态]",
+					},
+				}
+			}
+		}
+		return
+	}
 	if m.info == nil || time.Since(m.syncTime).Minutes() > 5.0 {
 		config.Log.Print("sync prometheus data")
 		m.info = map[string][]*SrvStatus{}

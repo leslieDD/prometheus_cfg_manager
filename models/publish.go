@@ -8,6 +8,7 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/utils"
+	"strings"
 	"sync"
 )
 
@@ -251,6 +252,31 @@ func CheckByFiled(optKey string, optValue string) (bool, *BriefMessage) {
 		return false, Success
 	}
 	return true, Success
+}
+
+type Options struct {
+	OptKey   string `json:"opt_key" gorm:"column:opt_key"`
+	OptValue string `json:"opt_value" gorm:"column:opt_value"`
+}
+
+func CheckByFiledIsTrue(optKey string) bool {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return false
+	}
+	opts := []*Options{}
+	tx := db.Table("options").Where("opt_key=?", optKey).Find(&opts)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return false
+	}
+	for _, o := range opts {
+		if strings.ToLower(o.OptValue) == "true" {
+			return true
+		}
+	}
+	return false
 }
 
 func Preview() (string, *BriefMessage) {

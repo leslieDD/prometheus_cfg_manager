@@ -315,9 +315,13 @@ func PostMachine(user *UserSessionInfo, m *Machine) *BriefMessage {
 	m.UpdateAt = time.Now()
 	m.Enabled = true
 	m.UpdateBy = user.Username
-	position := GetIPPosition(m.IpAddr)
-	if position != nil {
-		m.Position = position.String()
+	if CheckByFiledIsTrue("position_ipaddr") {
+		position := GetIPPosition(m.IpAddr)
+		if position != nil {
+			m.Position = position.String()
+		}
+	} else {
+		m.Position = `{"error": "未开启获取IP定位功能的设置"}`
 	}
 	err := db.Transaction(func(tx *gorm.DB) error {
 		err := tx.Table("machines").Create(m).Error
@@ -502,10 +506,18 @@ func UploadMachines(user *UserSessionInfo, uploadInfo *UploadMachinesInfo) (*Upl
 				UpdateAt: time.Now(),
 				UpdateBy: user.Username,
 			}
-			position := GetIPPosition(ipInfo.IpAddr)
-			if position != nil {
-				m.Position = position.String()
+			if CheckByFiledIsTrue("position_ipaddr") {
+				position := GetIPPosition(ipInfo.IpAddr)
+				if position != nil {
+					m.Position = position.String()
+				}
+			} else {
+				m.Position = `{"error": "未开启获取IP定位功能的设置"}`
 			}
+			// position := GetIPPosition(ipInfo.IpAddr)
+			// if position != nil {
+			// 	m.Position = position.String()
+			// }
 			if err := tx.Table("machines").Create(&m).Error; err != nil {
 				if strings.Contains(err.Error(), "Duplicate entry") {
 					tx := db.Table("machines").Where("ipaddr = ?", ipInfo.IpAddr).Find(&m)
