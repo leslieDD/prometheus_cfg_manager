@@ -122,7 +122,7 @@
         <el-tab-pane label="其它实例" name="instance">
           <template #label>
             <span>
-              <icon-svg icon-class="promgtshengxianshuiguo" />
+              <icon-svg icon-class="promgtshuiguohuluobu" />
               <!-- <i class="iconfont prometheusshengxianshuiguo"></i> -->
               实例导入</span
             >
