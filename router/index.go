@@ -12,7 +12,7 @@ func initCommonRouter() {
 	GinDefault.GET("/", index)
 	GinDefault.POST("/login", login)
 	GinDefault.POST("/register", register)
-	GinDefault.GET("/metrics", getMetrics)
+	// GinDefault.GET("/metrics", getMetrics)
 }
 
 func index(c *gin.Context) {
