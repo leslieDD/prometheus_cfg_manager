@@ -49,4 +49,4 @@ VALUES (
 insert options(opt_key, opt_value)
 values('position_ipaddr', 'false');
 insert options(opt_key, opt_value)
-values('sync_prometheus_status', false);
+values('sync_prometheus_status', 'false');

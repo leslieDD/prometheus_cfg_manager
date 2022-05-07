@@ -282,6 +282,7 @@ func ParseIPAddrsFromString(content string) map[string]struct{} {
 		}
 		items = append(items, strings.TrimSpace(each))
 	}
+	expandSkipIPv6 := CheckByFiledIsTrue("expand_skip_ipv6")
 	importIPs := map[string]struct{}{}
 	for _, item := range items {
 		currIP := strings.TrimSpace(item)
@@ -292,6 +293,10 @@ func ParseIPAddrsFromString(content string) map[string]struct{} {
 			c, err := cidr.ParseCIDR(currIP)
 			if err != nil {
 				config.Log.Error(err)
+				continue
+			}
+			if utils.V4OrV6(currIP) == 6 && expandSkipIPv6 {
+				config.Log.Warnf("skip expand: %s", currIP)
 				continue
 			}
 			if err := c.ForEachIP(func(ip string) error {

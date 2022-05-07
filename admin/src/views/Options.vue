@@ -174,6 +174,26 @@
           </el-switch>
         </el-tooltip>
       </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          9）在“IDC机房”中扩展IP地址时，跳过IPV6段地址，如: X/48
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.expand_skip_ipv6"
+          placement="top"
+        >
+          <el-switch
+            v-model="options.expand_skip_ipv6"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'expand_skip_ipv6')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
     </el-descriptions>
   </div>
 </template>
@@ -191,7 +211,8 @@ export default {
         publish_jobs_also_reload_srv: 'false',
         publish_ips_also_reload_srv: 'false',
         position_ipaddr: 'false',
-        sync_prometheus_status: 'false'
+        sync_prometheus_status: 'false',
+        expand_skip_ipv6: 'false'
       },
       titles: {
         publish_at_null_subgroup: '关闭',
@@ -201,7 +222,8 @@ export default {
         publish_jobs_also_reload_srv: '关闭',
         publish_ips_also_reload_srv: '关闭',
         position_ipaddr: '关闭',
-        sync_prometheus_status: '关闭'
+        sync_prometheus_status: '关闭',
+        expand_skip_ipv6: '关闭'
       }
     }
   },
