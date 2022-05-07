@@ -161,6 +161,7 @@
                 placeholder="请输入JsonPath规则"
                 @keyup.enter="onSearchJson()"
                 v-model="searchJsonContent"
+                :class="currInputClass"
                 style="width: 300px"
               >
                 <template #append>
@@ -187,7 +188,7 @@
 <script>
 
 import {getInstanceTargets, putInstanceTargets} from '@/api/instance.js'
-import jp from 'jsonpath'
+import jsonpath from 'jsonpath'
 
 export default {
   name: 'Instance',
@@ -215,6 +216,7 @@ export default {
       multipleSelection: [],
       getDataStatus: false,
       putDataStatus: false,
+      currInputClass: ''
     }
   },
   created () {
@@ -304,8 +306,15 @@ export default {
     searchJsonData(newVal){
       if (newVal === '' || newVal === undefined || newVal === null) {
         this.currInstanceJsonData = this.instanceRespData
+        this.currInputClass = ''
       } else {
-        this.currInstanceJsonData = jp.query(this.instanceRespData, newVal)
+        try {
+          this.currInstanceJsonData = jsonpath.query(this.instanceRespData, newVal)
+          this.currInputClass = ''
+        } catch(e) {
+          this.currInputClass = 'change-input-color'
+          console.log(e)
+        }
       }
     },
     handleSizeChange (val) {
@@ -365,8 +374,8 @@ export default {
 }
 
 .box-card-right :deep() .el-card__header {
-  padding-top: 16px;
-  padding-bottom: 17px;
+  padding-top: 13px;
+  padding-bottom: 12px;
 }
 
 .box-card-left {
@@ -404,11 +413,15 @@ export default {
 
 .json-scrollbar {
   margin-left: 10px;
-  height: 770px;
+  height: 620px;
 }
 
 .card-scrollbar {
   height: 600px;
+}
+
+.change-input-color :deep() input{
+    border-color: #F56C6C;
 }
 
 </style>
