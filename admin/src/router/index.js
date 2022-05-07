@@ -55,6 +55,9 @@ const routes = [
         title: '其它实例',
         components: {
           instance: () => import('@/views/Instance.vue')
+        },
+        meta:{
+          keepAlive:true
         }
       },
       {

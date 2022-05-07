@@ -129,7 +129,9 @@
           </template>
           <router-view name="instance" v-slot="{ Component }">
             <transition name="slide-fade">
-              <component :is="Component" />
+              <keep-alive>
+                <component :is="Component" />
+              </keep-alive>
             </transition>
           </router-view>
         </el-tab-pane>
