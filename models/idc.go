@@ -260,18 +260,20 @@ func DelLine(delReqParams *IdAndRm) *BriefMessage {
 			config.Log.Error(err)
 			return err
 		}
-		pool := IPAddrsPool{}
-		if err := tx.Table("pool").Where("line_id", line.ID).Find(&pool).Error; err != nil {
-			config.Log.Error(err)
-			return err
-		}
-		ipLists := ParseIPAddrsFromString(pool.Ipaddrs)
-		ipStr := []string{}
-		for ip, _ := range ipLists {
-			ipStr = append(ipStr, ip)
-		}
-		if bf := DeleteMachineUseAddr(ipStr); bf != Success {
-			return errors.New(bf.String())
+		if delReqParams.RmAddrs {
+			pool := IPAddrsPool{}
+			if err := tx.Table("pool").Where("line_id", line.ID).Find(&pool).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			ipLists := ParseIPAddrsFromString(pool.Ipaddrs)
+			ipStr := []string{}
+			for ip, _ := range ipLists {
+				ipStr = append(ipStr, ip)
+			}
+			if bf := DeleteMachineUseAddr(ipStr); bf != Success {
+				return errors.New(bf.String())
+			}
 		}
 		if err := tx.Table("pool").Where("line_id", line.ID).Delete(nil).Error; err != nil {
 			config.Log.Error(err)
