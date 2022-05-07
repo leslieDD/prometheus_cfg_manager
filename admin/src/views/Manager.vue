@@ -140,6 +140,7 @@
         prop="idc_name"
         align="center"
         header-align="center"
+        show-overflow-tooltip
       >
       </el-table-column>
       <el-table-column
@@ -147,6 +148,7 @@
         prop="line_name"
         align="center"
         header-align="center"
+        show-overflow-tooltip
       >
       </el-table-column>
       <el-table-column
@@ -155,6 +157,7 @@
         align="center"
         header-align="center"
         width="260px"
+        show-overflow-tooltip
       >
         <template v-slot="scope">
           <span v-if="scope.row.position.error"><el-tag type="danger" size="mini" >{{scope.row.position.error}}</el-tag></span>
@@ -251,6 +254,7 @@
         align="center"
         header-align="center"
         width="100px"
+        show-overflow-tooltip
       ></el-table-column>
       <el-table-column
         label="最后更新时间"

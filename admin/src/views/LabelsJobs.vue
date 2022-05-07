@@ -93,7 +93,7 @@
       </el-table-column>
       <el-table-column label="标签数" prop="labels_count" width="160px">
       </el-table-column>
-      <el-table-column label="最后更新账号" prop="update_by" width="160px">
+      <el-table-column label="最后更新账号" prop="update_by" width="160px" show-overflow-tooltip>
       </el-table-column>
       <el-table-column label="最后更新时间" prop="update_at" width="240px">
         <template v-slot="{ row }">
@@ -367,9 +367,9 @@
               {{ scope.$index + 1 }}
             </template>
           </el-table-column>
-          <el-table-column property="key" label="标签名"></el-table-column>
-          <el-table-column property="value" label="标签值"></el-table-column>
-          <el-table-column property="update_by" label="最后更新账号">
+          <el-table-column property="key" label="标签名" show-overflow-tooltip></el-table-column>
+          <el-table-column property="value" label="标签值" show-overflow-tooltip></el-table-column>
+          <el-table-column property="update_by" label="最后更新账号" show-overflow-tooltip>
           </el-table-column>
           <el-table-column
             label="最后更新"

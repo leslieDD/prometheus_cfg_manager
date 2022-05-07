@@ -172,6 +172,7 @@
         label="最后更新账号"
         prop="update_by"
         width="100px"
+        show-overflow-tooltip
       ></el-table-column>
       <el-table-column label="最后更新时间" prop="update_at" width="160px">
         <template v-slot="{ row }">

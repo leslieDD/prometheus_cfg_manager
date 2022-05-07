@@ -41,7 +41,7 @@
                   {{ scope.$index + 1 }}
                 </template>
               </el-table-column>
-              <el-table-column label="组名" prop="name"> </el-table-column>
+              <el-table-column label="组名" prop="name" show-overflow-tooltip> </el-table-column>
               <el-table-column label="用户数" prop="user_count" width="150px">
                 <template v-slot="{ row }">
                   <el-button
@@ -56,6 +56,7 @@
                 label="最后更新账号"
                 align="center"
                 prop="update_by"
+                show-overflow-tooltip
               ></el-table-column>
               <el-table-column
                 label="最后更新时间"

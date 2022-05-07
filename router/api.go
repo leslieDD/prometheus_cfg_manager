@@ -2340,13 +2340,13 @@ func delLine(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	id := &models.OnlyID{}
-	if err := c.BindQuery(id); err != nil {
+	delReqParams := &models.IdAndRm{}
+	if err := c.BindQuery(delReqParams); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete line", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
-	bf := models.DelLine(id)
+	bf := models.DelLine(delReqParams)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete line", models.IsDel, bf)
 	resComm(c, bf, nil)
 }

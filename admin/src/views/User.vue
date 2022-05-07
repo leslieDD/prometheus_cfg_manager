@@ -41,7 +41,7 @@
                   {{ scope.$index + 1 }}
                 </template>
               </el-table-column>
-              <el-table-column label="登录名" prop="username">
+              <el-table-column label="登录名" prop="username" show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 label="密码"
@@ -49,9 +49,9 @@
                 prop="password"
               >
               </el-table-column>
-              <el-table-column label="姓名" prop="nice_name"> </el-table-column>
-              <el-table-column label="手机" prop="phone"> </el-table-column>
-              <el-table-column label="所属组" prop="group_name">
+              <el-table-column label="姓名" prop="nice_name" show-overflow-tooltip> </el-table-column>
+              <el-table-column label="手机" prop="phone" show-overflow-tooltip> </el-table-column>
+              <el-table-column label="所属组" prop="group_name" show-overflow-tooltip>
                 <template v-slot="{ row }">
                   <el-button
                     size="mini"
@@ -61,7 +61,7 @@
                   >
                 </template>
               </el-table-column>
-              <el-table-column label="最后更新账号" prop="update_by">
+              <el-table-column label="最后更新账号" prop="update_by" show-overflow-tooltip>
               </el-table-column>
               <el-table-column
                 label="最后更新时间"

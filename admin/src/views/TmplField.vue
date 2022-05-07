@@ -53,9 +53,9 @@
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column label="模板字段名称" prop="key"> </el-table-column>
-      <el-table-column label="模板字段值" prop="value"> </el-table-column>
-      <el-table-column label="最后更新账号" prop="update_by"> </el-table-column>
+      <el-table-column label="模板字段名称" prop="key" show-overflow-tooltip> </el-table-column>
+      <el-table-column label="模板字段值" prop="value" show-overflow-tooltip> </el-table-column>
+      <el-table-column label="最后更新账号" prop="update_by" show-overflow-tooltip> </el-table-column>
       <el-table-column label="最后更新时间" prop="update_at">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>

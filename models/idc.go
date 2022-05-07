@@ -1,6 +1,7 @@
 package models
 
 import (
+	"errors"
 	"fmt"
 	"math/big"
 	"net"
@@ -243,7 +244,7 @@ func PutLine(user *UserSessionInfo, newLine *NewLine) *BriefMessage {
 	return Success
 }
 
-func DelLine(id *OnlyID) *BriefMessage {
+func DelLine(delReqParams *IdAndRm) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -251,13 +252,26 @@ func DelLine(id *OnlyID) *BriefMessage {
 	}
 	err := db.Transaction(func(tx *gorm.DB) error {
 		line := Line{}
-		if err := tx.Table("line").Where("id", id.ID).Find(&line).Error; err != nil {
+		if err := tx.Table("line").Where("id", delReqParams.ID).Find(&line).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
-		if err := tx.Table("line").Where("id", id.ID).Delete(nil).Error; err != nil {
+		if err := tx.Table("line").Where("id", delReqParams.ID).Delete(nil).Error; err != nil {
 			config.Log.Error(err)
 			return err
+		}
+		pool := IPAddrsPool{}
+		if err := tx.Table("pool").Where("line_id", line.ID).Find(&pool).Error; err != nil {
+			config.Log.Error(err)
+			return err
+		}
+		ipLists := ParseIPAddrsFromString(pool.Ipaddrs)
+		ipStr := []string{}
+		for ip, _ := range ipLists {
+			ipStr = append(ipStr, ip)
+		}
+		if bf := DeleteMachineUseAddr(ipStr); bf != Success {
+			return errors.New(bf.String())
 		}
 		if err := tx.Table("pool").Where("line_id", line.ID).Delete(nil).Error; err != nil {
 			config.Log.Error(err)

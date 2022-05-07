@@ -400,6 +400,30 @@ func PutMachine(user *UserSessionInfo, m *Machine) *BriefMessage {
 	return ErrUpdateData
 }
 
+func DeleteMachineUseAddr(addrs []string) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	ids := []int{}
+	for _, addr := range addrs {
+		id := OnlyID{}
+		tx := db.Table("machines").Where("ipaddr=?", addr).Find(&id)
+		if tx.Error != nil {
+			return ErrSearchDBData
+		}
+		ids = append(ids, id.ID)
+	}
+	for _, i := range ids {
+		bf := DeleteMachine(i)
+		if bf != Success {
+			return bf
+		}
+	}
+	return Success
+}
+
 func DeleteMachine(mID int) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {

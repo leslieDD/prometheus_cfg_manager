@@ -55,6 +55,11 @@ type OnlyID struct {
 	ID int `json:"id" gorm:"column:id" form:"id"`
 }
 
+type IdAndRm struct {
+	ID      int  `json:"id" gorm:"column:id" form:"id"`
+	RmAddrs bool `json:"rm_addrs" gorm:"column:rm_addrs" form:"rm_addrs"`
+}
+
 type OnlyIDAndCount struct {
 	ID    int `json:"id" gorm:"column:id" form:"id"`
 	Count int `json:"count" gorm:"column:count" form:"count"`

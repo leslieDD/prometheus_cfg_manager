@@ -143,6 +143,16 @@
         </span>
       </template>
     </el-dialog>
+    <el-dialog v-model="delLineDialogVisable" title="确认信息" width="430px" :before-close="cancelRemoveLine">
+      <div class="confirm_rm_line"><span>是否确定删除？</span></div>
+      <div class="confirm_rm_line_cb"><el-checkbox v-model="delIpAddrsForLine">在“IP管理”同步删除此线路的所有地方</el-checkbox></div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button size="small" @click="cancelRemoveLine">放弃</el-button>
+          <el-button size="small" type="primary" @click="confirmRemoveLine">确定</el-button>
+        </span>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -223,6 +233,10 @@
         onobject_disabled: false,
         defaultExpandedKeysStore: new Set(),
         defaultExpandedKeys: [],
+        delLineDialogVisable: false,
+        delLineCurrNode: null,
+        delLineCurrData: null,
+        delIpAddrsForLine: false,
       }
     },
 
@@ -341,22 +355,43 @@
         }).catch(e => console.log(e))
       },
       removeLine(node, data){
-        this.$confirm('是否确定删除？', '确认信息', {
-          distinguishCancelAndClose: true,
-          confirmButtonText: '确定',
-          cancelButtonText: '放弃'
-        }).then(_ => {
-          delLine({id: data.id}).then(r=>{
+        this.delLineDialogVisable = true
+        // this.delLineCurrNode = node
+        this.delLineCurrData = data
+        // this.$confirm('是否确定删除？', '确认信息', {
+        //   distinguishCancelAndClose: true,
+        //   confirmButtonText: '确定',
+        //   cancelButtonText: '放弃'
+        // }).then(_ => {
+        //   delLine({id: data.id}).then(r=>{
+        //   this.$notify({
+        //     title: '成功',
+        //     message: '删除成功！',
+        //     type: 'success'
+        //   });
+        //     this.doGetTree()
+        //   }).catch(e=>{
+        //     console.log(e)
+        //   })
+        // }).catch(e => console.log(e))
+      },
+      confirmRemoveLine() {
+        let data = this.delLineCurrData
+        delLine({id: data.id, rm_addrs: this.delIpAddrsForLine}).then(r=>{
           this.$notify({
             title: '成功',
             message: '删除成功！',
             type: 'success'
           });
-            this.doGetTree()
-          }).catch(e=>{
-            console.log(e)
-          })
-        }).catch(e => console.log(e))
+          this.delLineDialogVisable = false
+          this.doGetTree()
+        }).catch(e=>{
+          this.delLineDialogVisable = false
+          console.log(e)
+        })
+      },
+      cancelRemoveLine(){
+        this.delLineDialogVisable = false
       },
       edit(node, data){
         // console.log(data)
@@ -560,7 +595,7 @@
   flex-wrap: nowrap;
 }
 .box-card-left-body-content {
-  border-left: 5px solid #ccc!important;border-color: #2196F3!important;
+  border-left: 5px solid #ccc!important;border-color: #DDDDDD!important;
   width: 85%;
   height: 670px;;
 }
@@ -596,5 +631,14 @@
 .display-title {
   display: flex;
   justify-content: space-between;
+}
+.confirm_rm_line {
+  margin-top: -20px;
+  margin-bottom: 10px;
+  margin-left: 30px;
+}
+.confirm_rm_line_cb {
+  margin-bottom: -20px;
+  margin-left: 30px;
 }
 </style>
