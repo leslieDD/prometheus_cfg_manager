@@ -8,7 +8,7 @@
             <el-input style="width: 250px;" v-model="instanceInfo.instance" placeholder="IP地址及端口号,如: 1.1.1.1:9090" />
           </el-form-item>
           <el-form-item>
-            <el-button v-if="getDataStatus===false" type="primary" plain icon="el-icon-download" @click="onGetInstanceData('instanceInfo')">获取数据</el-button>
+            <el-button v-if="getDataStatus===false" type="primary" @keyup.enter="onGetInstanceData('instanceInfo')" plain icon="el-icon-download" @click="onGetInstanceData('instanceInfo')">获取数据</el-button>
             <el-button v-if="getDataStatus===true" type="primary" plain icon="el-icon-loading">获取数据</el-button>
           </el-form-item>
         </el-form>
@@ -37,7 +37,6 @@
           <div class="card-header">
             <span>统计信息</span>
             <span>
-              <!-- <span style="margin-right: 10px"><el-checkbox v-model="search_ip" label="同时搜索线路地址池" size="small" /></span> -->
               <el-input
                 size="small"
                 placeholder="请输入内容"
@@ -154,13 +153,30 @@
         <template #header>
           <div class="card-header">
             <span>
-              实例返回内容
+              实例返回内容(JsonPath规则搜索)
+            </span>
+            <span>
+              <el-input
+                size="small"
+                placeholder="请输入JsonPath规则"
+                @keyup.enter="onSearchJson()"
+                v-model="searchJsonContent"
+                style="width: 300px"
+              >
+                <template #append>
+                  <el-button
+                    size="small"
+                    @click="onSearchJson()"
+                    icon="el-icon-search"
+                  ></el-button>
+                </template>
+              </el-input>
             </span>
           </div>
         </template>
         <div class="card-body">
             <el-scrollbar class="json-scrollbar">
-              <JsonView :json="instanceRespData"></JsonView>
+              <JsonView :json="currInstanceJsonData"></JsonView>
             </el-scrollbar>
         </div>
       </el-card>
@@ -170,7 +186,8 @@
 
 <script>
 
-import  {getInstanceTargets, putInstanceTargets} from '@/api/instance.js'
+import {getInstanceTargets, putInstanceTargets} from '@/api/instance.js'
+import jp from 'jsonpath'
 
 export default {
   name: 'Instance',
@@ -188,10 +205,12 @@ export default {
       targetsJobsData: [],
       currPageTargetsJobsData: [],
       instanceRespData: {"result": "没有数据"},
+      currInstanceJsonData: {"result": "没有数据"},
       pageSize: 20,
       currentPage: 1,
       pageTotal: 0,
       searchContent: '',
+      searchJsonContent: '',
       uploadIPsSplit: [],
       multipleSelection: [],
       getDataStatus: false,
@@ -208,6 +227,9 @@ export default {
   watch: {
     searchContent: function (newVal, oldVal) {
       this.searchData(newVal)
+    },
+    searchJsonContent: function(newVal, oldVal) {
+      this.searchJsonData(newVal)
     }
   },
   methods: {
@@ -218,6 +240,7 @@ export default {
           getInstanceTargets(this.instanceInfo).then(r => {
             this.targetsJobsData = r.data.jobs
             this.instanceRespData = r.data.data
+            this.searchJsonData(this.searchJsonContent)
             this.currPageTargetsJobsData = this.targetsJobsData.slice(0, this.pageSize)
             this.pageTotal = this.targetsJobsData.length
             this.getDataStatus = false
@@ -244,6 +267,9 @@ export default {
     },
     onSearch(){
       this.searchData(this.searchContent)
+    },
+    onSearchJson(){
+      this.searchJsonData(this.searchJsonContent)
     },
     searchData(newVal){
       let currPage = this.currentPage
@@ -273,6 +299,13 @@ export default {
         })
         this.pageTotal = filterData.length
         this.currPageTargetsJobsData = filterData.slice(currPage * pageSize, currPage * pageSize + pageSize)
+      }
+    },
+    searchJsonData(newVal){
+      if (newVal === '' || newVal === undefined || newVal === null) {
+        this.currInstanceJsonData = this.instanceRespData
+      } else {
+        this.currInstanceJsonData = jp.query(this.instanceRespData, newVal)
       }
     },
     handleSizeChange (val) {

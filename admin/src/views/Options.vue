@@ -83,6 +83,7 @@
             v-model="options.publish_jobs_also_ips"
             active-color="#13ce66"
             inactive-color="#ff4949"
+            disabled
             @change="doPutOptions($event, 'publish_jobs_also_ips')"
             active-value="true"
             inactive-value="false"
