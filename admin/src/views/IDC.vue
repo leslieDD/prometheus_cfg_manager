@@ -560,7 +560,7 @@
   flex-wrap: nowrap;
 }
 .box-card-left-body-content {
-  border-left: 1px solid #ccc!important;border-color: #2196F3!important;
+  border-left: 5px solid #ccc!important;border-color: #2196F3!important;
   width: 85%;
   height: 670px;;
 }
