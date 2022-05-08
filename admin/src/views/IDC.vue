@@ -145,7 +145,7 @@
     </el-dialog>
     <el-dialog v-model="delLineDialogVisable" title="确认信息" width="430px" :before-close="cancelRemoveLine">
       <div class="confirm_rm_line"><span>是否确定删除？</span></div>
-      <div class="confirm_rm_line_cb"><el-checkbox v-model="delIpAddrsForLine">在“IP管理”同步删除此线路的所有地方</el-checkbox></div>
+      <div class="confirm_rm_line_cb"><el-checkbox v-model="delIpAddrsForLine">在“IP管理”同步删除此线路的所有地址</el-checkbox></div>
       <template #footer>
         <span class="dialog-footer">
           <el-button size="small" @click="cancelRemoveLine">放弃</el-button>
