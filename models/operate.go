@@ -311,7 +311,7 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 			{OptKey: "publish_ips_also_reload_srv", OptValue: "true"},
 			{OptKey: "position_ipaddr", OptValue: "false"},
 			{OptKey: "sync_prometheus_status", OptValue: "false"},
-			{OptKey: "expand_skip_ipv6", OptValue: "false"},
+			{OptKey: "expand_skip_ipv6", OptValue: "true"},
 		}
 		if err := tx.Table("options").Create(&opts).Error; err != nil {
 			return err
