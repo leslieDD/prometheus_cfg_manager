@@ -48,7 +48,7 @@ CREATE TABLE IF NOT EXISTS `group_labels` (
   UNIQUE KEY `unique_groupid_key` (`key`,`job_group_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='子组标签列表';
 
--- 正在导出表  pro_cfg_manager.group_labels 的数据：~0 rows (大约)
+-- 正在导出表  pro_cfg_manager.group_labels 的数据：~3 rows (大约)
 DELETE FROM `group_labels`;
 /*!40000 ALTER TABLE `group_labels` DISABLE KEYS */;
 /*!40000 ALTER TABLE `group_labels` ENABLE KEYS */;
@@ -73,9 +73,9 @@ CREATE TABLE IF NOT EXISTS `group_priv` (
   `group_id` int(11) NOT NULL,
   `func_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=117 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=125 DEFAULT CHARSET=utf8mb3;
 
--- 正在导出表  pro_cfg_manager.group_priv 的数据：~116 rows (大约)
+-- 正在导出表  pro_cfg_manager.group_priv 的数据：~124 rows (大约)
 DELETE FROM `group_priv`;
 /*!40000 ALTER TABLE `group_priv` DISABLE KEYS */;
 INSERT INTO `group_priv` (`id`, `group_id`, `func_id`) VALUES
@@ -194,7 +194,15 @@ INSERT INTO `group_priv` (`id`, `group_id`, `func_id`) VALUES
 	(113, 1, 120),
 	(114, 1, 121),
 	(115, 1, 122),
-	(116, 1, 123);
+	(116, 1, 123),
+	(117, 1, 124),
+	(118, 1, 125),
+	(119, 1, 126),
+	(120, 1, 127),
+	(121, 1, 128),
+	(122, 1, 129),
+	(123, 1, 130),
+	(124, 1, 131);
 /*!40000 ALTER TABLE `group_priv` ENABLE KEYS */;
 
 -- 导出  表 pro_cfg_manager.idc 结构
@@ -261,6 +269,7 @@ DROP TABLE IF EXISTS `job_machines`;
 CREATE TABLE IF NOT EXISTS `job_machines` (
   `machine_id` int(11) NOT NULL,
   `job_id` int(11) NOT NULL,
+  `blacked` int(11) DEFAULT 0 COMMENT '是否禁用，在本组中',
   UNIQUE KEY `unique_mj` (`job_id`,`machine_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3;
 
@@ -363,7 +372,7 @@ CREATE TABLE IF NOT EXISTS `manager_group` (
 DELETE FROM `manager_group`;
 /*!40000 ALTER TABLE `manager_group` DISABLE KEYS */;
 INSERT INTO `manager_group` (`id`, `name`, `enabled`, `update_at`, `update_by`) VALUES
-	(1, 'administrator', 1, '2022-03-26 15:44:54', '');
+	(1, 'administrator', 1, '2022-05-08 13:20:51', '');
 /*!40000 ALTER TABLE `manager_group` ENABLE KEYS */;
 
 -- 导出  表 pro_cfg_manager.manager_set 结构
@@ -402,7 +411,7 @@ CREATE TABLE IF NOT EXISTS `manager_user` (
 DELETE FROM `manager_user`;
 /*!40000 ALTER TABLE `manager_user` DISABLE KEYS */;
 INSERT INTO `manager_user` (`id`, `username`, `nice_name`, `password`, `phone`, `salt`, `group_id`, `update_at`, `enabled`, `create_at`, `update_by`) VALUES
-	(1, 'admin', '管理员', 'ffb5ea6a45b09cadb5ac7c4eca8b4472', '10086', 'b9bc1895-8555-4246-aaa1-5926c993ec7c', 1, '2022-03-26 15:44:54', 1, '2022-03-26 15:44:54', '');
+	(1, 'admin', '管理员', 'd3af7695b6c3c977aafe904e99b789e7', '10086', 'da456512-0967-479d-9a26-05c1c98ad28e', 1, '2022-05-08 13:20:51', 1, '2022-05-08 13:20:51', '');
 /*!40000 ALTER TABLE `manager_user` ENABLE KEYS */;
 
 -- 导出  表 pro_cfg_manager.monitor_labels 结构
@@ -441,6 +450,22 @@ DELETE FROM `monitor_rules`;
 /*!40000 ALTER TABLE `monitor_rules` DISABLE KEYS */;
 /*!40000 ALTER TABLE `monitor_rules` ENABLE KEYS */;
 
+-- 导出  表 pro_cfg_manager.number_options 结构
+DROP TABLE IF EXISTS `number_options`;
+CREATE TABLE IF NOT EXISTS `number_options` (
+  `key` varchar(50) NOT NULL,
+  `value` int(11) NOT NULL DEFAULT 0,
+  `commit` varchar(100) DEFAULT NULL,
+  UNIQUE KEY `uniq_key` (`key`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='值为数据的选项';
+
+-- 正在导出表  pro_cfg_manager.number_options 的数据：~1 rows (大约)
+DELETE FROM `number_options`;
+/*!40000 ALTER TABLE `number_options` DISABLE KEYS */;
+INSERT INTO `number_options` (`key`, `value`, `commit`) VALUES
+	('session_expire', 3600, NULL);
+/*!40000 ALTER TABLE `number_options` ENABLE KEYS */;
+
 -- 导出  表 pro_cfg_manager.operation_log 结构
 DROP TABLE IF EXISTS `operation_log`;
 CREATE TABLE IF NOT EXISTS `operation_log` (
@@ -453,11 +478,14 @@ CREATE TABLE IF NOT EXISTS `operation_log` (
   `operate_at` datetime NOT NULL,
   `operate_error` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb3 COMMENT='操作日志';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3 COMMENT='操作日志';
 
--- 正在导出表  pro_cfg_manager.operation_log 的数据：~5 rows (大约)
+-- 正在导出表  pro_cfg_manager.operation_log 的数据：~1 rows (大约)
 DELETE FROM `operation_log`;
 /*!40000 ALTER TABLE `operation_log` DISABLE KEYS */;
+INSERT INTO `operation_log` (`id`, `username`, `operate_type`, `ipaddr`, `operate_content`, `operate_result`, `operate_at`, `operate_error`) VALUES
+	(6, 'admin', '', '127.0.0.1:55273', 'reset prometheus config data', 1, '2022-04-01 02:50:17', '成功'),
+	(7, 'admin', '', '127.0.0.1:62196', 'reset prometheus config data', 1, '2022-05-08 13:20:24', '成功');
 /*!40000 ALTER TABLE `operation_log` ENABLE KEYS */;
 
 -- 导出  表 pro_cfg_manager.options 结构
@@ -467,9 +495,9 @@ CREATE TABLE IF NOT EXISTS `options` (
   `opt_key` varchar(100) NOT NULL,
   `opt_value` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3 COMMENT='选项';
+) ENGINE=InnoDB AUTO_INCREMENT=10 DEFAULT CHARSET=utf8mb3 COMMENT='选项';
 
--- 正在导出表  pro_cfg_manager.options 的数据：~6 rows (大约)
+-- 正在导出表  pro_cfg_manager.options 的数据：~9 rows (大约)
 DELETE FROM `options`;
 /*!40000 ALTER TABLE `options` DISABLE KEYS */;
 INSERT INTO `options` (`id`, `opt_key`, `opt_value`) VALUES
@@ -478,7 +506,10 @@ INSERT INTO `options` (`id`, `opt_key`, `opt_value`) VALUES
 	(3, 'publish_at_empty_nocreate_file', 'true'),
 	(4, 'publish_jobs_also_ips', 'true'),
 	(5, 'publish_jobs_also_reload_srv', 'true'),
-	(6, 'publish_ips_also_reload_srv', 'true');
+	(6, 'publish_ips_also_reload_srv', 'true'),
+	(7, 'position_ipaddr', 'false'),
+	(8, 'sync_prometheus_status', 'false'),
+	(9, 'expand_skip_ipv6', 'false');
 /*!40000 ALTER TABLE `options` ENABLE KEYS */;
 
 -- 导出  表 pro_cfg_manager.page_function 结构
@@ -492,9 +523,9 @@ CREATE TABLE IF NOT EXISTS `page_function` (
   `func_name` varchar(100) NOT NULL,
   `func_nice_name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=124 DEFAULT CHARSET=utf8mb3 COMMENT='页面功能';
+) ENGINE=InnoDB AUTO_INCREMENT=132 DEFAULT CHARSET=utf8mb3 COMMENT='页面功能';
 
--- 正在导出表  pro_cfg_manager.page_function 的数据：~116 rows (大约)
+-- 正在导出表  pro_cfg_manager.page_function 的数据：~101 rows (大约)
 DELETE FROM `page_function`;
 /*!40000 ALTER TABLE `page_function` DISABLE KEYS */;
 INSERT INTO `page_function` (`id`, `page_name`, `page_nice_name`, `sub_page_name`, `sub_page_nice_name`, `func_name`, `func_nice_name`) VALUES
@@ -613,7 +644,15 @@ INSERT INTO `page_function` (`id`, `page_name`, `page_nice_name`, `sub_page_name
 	(120, 'ipManager', 'IP管理', '', '', 'download', '导出IP'),
 	(121, 'admin', '管理中心', 'session', '会话管理', 'search', '获取用户会话'),
 	(122, 'admin', '管理中心', 'session', '会话管理', 'delete', '删除用户会话'),
-	(123, 'control', '控制中心', '', '', 'get_prometheus_url', '打开Prometheus管理后台');
+	(123, 'control', '控制中心', '', '', 'get_prometheus_url', '打开Prometheus管理后台'),
+	(124, 'jobs', 'JOB组管理', 'labelsJobs', '分组标签', 'delete_empty_sub_group', '删除没有IP的空子组'),
+	(125, 'admin', '管理中心', 'session', '会话管理', 'update', '更新会话参数'),
+	(126, 'jobs', 'JOB组管理', 'jobs', 'JOB组管理', 'job_search_black', '查询组黑名单'),
+	(127, 'jobs', 'JOB组管理', 'jobs', 'JOB组管理', 'job_update_black', '更新组黑名单'),
+	(128, 'jobs', 'JOB组管理', 'jobs', 'JOB组管理', 'update_job_subgroup', '更新子组'),
+	(129, 'idc', 'IDC机房', '', '', 'expand_ipaddr', '扩展IP地址'),
+	(130, 'instance', '实例导入', '', '', 'get_data', '获取实例数据'),
+	(131, 'instance', '实例导入', '', '', 'put_data', '导入实例数据');
 /*!40000 ALTER TABLE `page_function` ENABLE KEYS */;
 
 -- 导出  表 pro_cfg_manager.pool 结构
@@ -681,13 +720,13 @@ CREATE TABLE IF NOT EXISTS `session` (
   `login_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8mb3 COMMENT='用户登录会话';
+) ENGINE=InnoDB AUTO_INCREMENT=136 DEFAULT CHARSET=utf8mb3 COMMENT='用户登录会话';
 
--- 正在导出表  pro_cfg_manager.session 的数据：~1 rows (大约)
+-- 正在导出表  pro_cfg_manager.session 的数据：~0 rows (大约)
 DELETE FROM `session`;
 /*!40000 ALTER TABLE `session` DISABLE KEYS */;
 INSERT INTO `session` (`id`, `token`, `ipaddr`, `user_id`, `update_at`, `login_at`) VALUES
-	(109, '957fee71-939e-41e5-8e2f-7bee7de8f5ee', '127.0.0.1:53845', 1, '2022-03-26 15:44:59', '0000-00-00 00:00:00');
+	(109, '62a2a974-caed-4ac1-9f8c-f35abe7d51e3', '127.0.0.1:57796', 1, '2022-05-08 13:20:54', '0000-00-00 00:00:00');
 /*!40000 ALTER TABLE `session` ENABLE KEYS */;
 
 -- 导出  表 pro_cfg_manager.sub_group 结构
@@ -719,9 +758,9 @@ CREATE TABLE IF NOT EXISTS `system_log` (
   `operate_at` datetime NOT NULL,
   `operate_error` text NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=327 DEFAULT CHARSET=utf8mb3 COMMENT='系统日志';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='系统日志';
 
--- 正在导出表  pro_cfg_manager.system_log 的数据：~151 rows (大约)
+-- 正在导出表  pro_cfg_manager.system_log 的数据：~0 rows (大约)
 DELETE FROM `system_log`;
 /*!40000 ALTER TABLE `system_log` DISABLE KEYS */;
 /*!40000 ALTER TABLE `system_log` ENABLE KEYS */;
@@ -734,11 +773,11 @@ CREATE TABLE IF NOT EXISTS `tmpl` (
   `update_by` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='prometheus.yml';
 
--- 正在导出表  pro_cfg_manager.tmpl 的数据：~1 rows (大约)
+-- 正在导出表  pro_cfg_manager.tmpl 的数据：~2 rows (大约)
 DELETE FROM `tmpl`;
 /*!40000 ALTER TABLE `tmpl` DISABLE KEYS */;
 INSERT INTO `tmpl` (`tmpl`, `update_at`, `update_by`) VALUES
-	('# my global config\nglobal:\n  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.\n  # scrape_timeout is set to the global default (10s).\n  # scrape_timeout: 60s\n\n# Alertmanager configuration\nalerting:\n  alertmanagers:\n  - static_configs:\n    - targets:\n      - 127.0.0.1:9093\n\n# Load rules once and periodically evaluate them according to the global \'evaluation_interval\'.\nrule_files:\n   - "{{.RelRuleDir}}/*.yml"\n  # - "first_rules.yml"\n  # - "second_rules.yml"\n\n# A scrape configuration containing exactly one endpoint to scrape:\n# Here it\'s Prometheus itself.\nscrape_configs:\n  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.\n  - job_name: \'监控服务本机\'\n\n    # metrics_path defaults to \'/metrics\'\n    # scheme defaults to \'http\'.\n\n    static_configs:\n    - targets: [\'localhost:9090\']\n{{ range .Jobs }}\n  - job_name: \'{{.Name}}\'\n    file_sd_configs:\n      - files:\n        - "{{$.AbsConfDir}}/{{.Name}}.json"\n        refresh_interval: {{$.Fields.refresh_interval}}\n{{.Code}}\n{{ end }}\n', '2022-03-26 15:44:31', 'administrator');
+	('# my global config\nglobal:\n  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.\n  # scrape_timeout is set to the global default (10s).\n  # scrape_timeout: 60s\n\n# Alertmanager configuration\nalerting:\n  alertmanagers:\n  - static_configs:\n    - targets:\n      - 127.0.0.1:9093\n\n# Load rules once and periodically evaluate them according to the global \'evaluation_interval\'.\nrule_files:\n   - "{{.RelRuleDir}}/*.yml"\n  # - "first_rules.yml"\n  # - "second_rules.yml"\n\n# A scrape configuration containing exactly one endpoint to scrape:\n# Here it\'s Prometheus itself.\nscrape_configs:\n  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.\n  - job_name: \'监控服务本机\'\n\n    # metrics_path defaults to \'/metrics\'\n    # scheme defaults to \'http\'.\n\n    static_configs:\n    - targets: [\'localhost:9090\']\n{{ range .Jobs }}\n  - job_name: \'{{.Name}}\'\n    file_sd_configs:\n      - files:\n        - "{{$.AbsConfDir}}/{{.Name}}.json"\n        refresh_interval: {{$.Fields.refresh_interval}}\n{{.Code}}\n{{ end }}\n', '2022-05-08 13:20:24', 'administrator');
 /*!40000 ALTER TABLE `tmpl` ENABLE KEYS */;
 
 -- 导出  表 pro_cfg_manager.tmpl_fields 结构
@@ -758,8 +797,8 @@ CREATE TABLE IF NOT EXISTS `tmpl_fields` (
 DELETE FROM `tmpl_fields`;
 /*!40000 ALTER TABLE `tmpl_fields` DISABLE KEYS */;
 INSERT INTO `tmpl_fields` (`id`, `key`, `value`, `enabled`, `update_at`, `update_by`) VALUES
-	(1, 'metrics', '/metrics', 1, '2022-03-26 15:44:31', ''),
-	(2, 'refresh_interval', '15s', 1, '2022-03-26 15:44:31', '');
+	(1, 'metrics', '/metrics', 1, '2022-05-08 13:20:24', ''),
+	(2, 'refresh_interval', '15s', 1, '2022-05-08 13:20:24', '');
 /*!40000 ALTER TABLE `tmpl_fields` ENABLE KEYS */;
 
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
