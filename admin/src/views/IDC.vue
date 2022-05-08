@@ -149,7 +149,8 @@
       <template #footer>
         <span class="dialog-footer">
           <el-button size="small" @click="cancelRemoveLine">放弃</el-button>
-          <el-button size="small" type="primary" @click="confirmRemoveLine">确定</el-button>
+          <el-button v-if="delIpAddrsForLineDoing === false" size="small" type="primary" @click="confirmRemoveLine">确定</el-button>
+          <el-button v-if="delIpAddrsForLineDoing === true" icon="el-icon-loading" size="small" type="primary" @click="confirmRemoveLine">提交中</el-button>
         </span>
       </template>
     </el-dialog>
@@ -237,6 +238,7 @@
         delLineCurrNode: null,
         delLineCurrData: null,
         delIpAddrsForLine: false,
+        delIpAddrsForLineDoing: false,
       }
     },
 
@@ -377,6 +379,7 @@
       },
       confirmRemoveLine() {
         let data = this.delLineCurrData
+        this.delIpAddrsForLineDoing = true
         delLine({id: data.id, rm_addrs: this.delIpAddrsForLine}).then(r=>{
           this.$notify({
             title: '成功',
@@ -384,9 +387,11 @@
             type: 'success'
           });
           this.delLineDialogVisable = false
+          this.delIpAddrsForLineDoing = false
           this.doGetTree()
         }).catch(e=>{
           this.delLineDialogVisable = false
+          this.delIpAddrsForLineDoing = false
           console.log(e)
         })
       },
