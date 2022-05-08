@@ -150,7 +150,7 @@
         <span class="dialog-footer">
           <el-button size="small" @click="cancelRemoveLine">放弃</el-button>
           <el-button v-if="delIpAddrsForLineDoing === false" size="small" type="primary" @click="confirmRemoveLine">确定</el-button>
-          <el-button v-if="delIpAddrsForLineDoing === true" icon="el-icon-loading" size="small" type="primary" @click="confirmRemoveLine">提交中</el-button>
+          <el-button v-if="delIpAddrsForLineDoing === true" icon="el-icon-loading" size="small" type="primary">提交中</el-button>
         </span>
       </template>
     </el-dialog>
