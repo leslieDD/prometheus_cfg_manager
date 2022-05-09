@@ -13,7 +13,7 @@ import (
 
 type JobGroup struct {
 	ID       int       `json:"id" gorm:"column:id"`
-	JobsID   int       `json:"jobs_id" gorm:"jobs_id"`
+	JobsID   int       `json:"jobs_id" gorm:"column:jobs_id"`
 	Name     string    `json:"name" gorm:"column:name"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
@@ -258,14 +258,14 @@ func ClearGroupIP(gID int) *BriefMessage {
 
 type JobMachine struct {
 	ID       int    `json:"id" gorm:"column:id"`
-	Position string `json:"position" gorm:"position"`
+	Position string `json:"position" gorm:"column:position"`
 	IPAddr   string `json:"ipaddr" gorm:"column:ipaddr"`
 	Blacked  int    `json:"blacked" gorm:"column:blacked"`
 }
 
 type JobMachineSend struct {
 	ID       int         `json:"id" gorm:"column:id"`
-	Position *IPPosition `json:"position" gorm:"position"`
+	Position *IPPosition `json:"position" gorm:"column:position"`
 	IPAddr   string      `json:"ipaddr" gorm:"column:ipaddr"`
 	Blacked  int         `json:"blacked" gorm:"column:blacked"`
 }

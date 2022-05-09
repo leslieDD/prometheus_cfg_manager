@@ -28,7 +28,7 @@ type Machine struct {
 }
 
 type TableJobMachines struct {
-	JobID     int `json:"job_id" gorm:"job_id"`
+	JobID     int `json:"job_id" gorm:"column:job_id"`
 	MachineID int `json:"machine_id" gorm:"column:machine_id"`
 }
 
@@ -36,10 +36,10 @@ type ListMachine struct {
 	ID        int       `json:"id" gorm:"column:id"`
 	Name      string    `json:"name" gorm:"column:name"`
 	IpAddr    string    `json:"ipaddr" gorm:"column:ipaddr"`
-	Position  string    `json:"position" gorm:"position"`
+	Position  string    `json:"position" gorm:"column:position"`
 	IDCName   string    `json:"idc_name" gorm:"column:idc_name"`
 	LineName  string    `json:"line_name" gorm:"column:line_name"`
-	JobsIdStr string    `json:"jobs_id_str" gorm:"jobs_id_str"`
+	JobsIdStr string    `json:"jobs_id_str" gorm:"column:jobs_id_str"`
 	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
 	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
 	UpdateBy  string    `json:"update_by" gorm:"column:update_by"`
@@ -55,8 +55,8 @@ type ListMachineMerge struct {
 	ID         int          `json:"id" gorm:"column:id"`
 	Name       string       `json:"name" gorm:"column:name"`
 	IpAddr     string       `json:"ipaddr" gorm:"column:ipaddr"`
-	JobsId     []int        `json:"jobs_id" gorm:"jobs_id"`
-	Position   *IPPosition  `json:"position" gorm:"position"`
+	JobsId     []int        `json:"jobs_id" gorm:"column:jobs_id"`
+	Position   *IPPosition  `json:"position" gorm:"column:position"`
 	IDCName    string       `json:"idc_name" gorm:"column:idc_name"`
 	LineName   string       `json:"line_name" gorm:"column:line_name"`
 	UpdateAt   time.Time    `json:"update_at" gorm:"column:update_at"`

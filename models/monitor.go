@@ -281,7 +281,7 @@ type TreeNodeFromCli struct {
 	ID     int    `json:"id" gorm:"column:id"`
 	Lable  string `json:"label" gorm:"column:label"`
 	Level  int    `json:"level" gorm:"column:level"`
-	Parent int    `json:"parent" gorm:"parent"`
+	Parent int    `json:"parent" gorm:"column:parent"`
 }
 
 func CreateTreeNode(user *UserSessionInfo, t *TreeNodeFromCli) *BriefMessage {

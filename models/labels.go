@@ -13,8 +13,8 @@ type BaseLabels struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	Label    string    `json:"label" gorm:"column:label"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
-	UpdateAt time.Time `json:"update_at" gorm:"update_at"`
-	UpdateBy string    `json:"update_by" gorm:"update_by"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
 func GetBaseLabels(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
