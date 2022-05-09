@@ -409,6 +409,7 @@
         // console.log(data)
         this.Lineform = {...data}
         this.idEdit = true
+        this.idcName = '编辑线路：' + data.label
         this.dialogLineVisible = true
       },
       renderContent(h, { node, data, store }) {
