@@ -107,6 +107,7 @@ func (a *ActionSync) clear() {
 		}
 		if time.Since(obj.EnterTime).Seconds() > 30 {
 			config.Log.Printf("action: %d, status: %d, duration: %v", actionType, obj.SyncStatus, time.Since(obj.EnterTime).Seconds())
+			obj.SyncStatus = SyncDone
 		}
 	}
 }
