@@ -172,7 +172,7 @@ func doOptions_2() *BriefMessage {
 				Enabled:  true,
 				UpdateAt: time.Now(),
 			}
-			if err := tx.Table("job_group").Create(&newJG).Error; err != nil {
+			if err := db.Table("job_group").Create(&newJG).Error; err != nil {
 				if err != nil {
 					config.Log.Error(err)
 					return ErrCreateDBData
