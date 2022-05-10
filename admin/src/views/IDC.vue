@@ -529,6 +529,9 @@
         })
       },
       expandIPAddr(){
+        if (!this.currentPoolObj) {
+          return 
+        }
         let expandData = {'idc': [], 'line': [], all: false}
         let explain = ''
         if (this.currentPoolObj.tree_type === 'idc') {
