@@ -156,12 +156,14 @@ func initApiRouter() {
 	v1.GET("/idc/line/ipaddrs", getLineIpAddrs)
 	v1.PUT("/idc/line/ipaddrs", putLineIpAddrs)
 	v1.PUT("/idc/line/expand/switch", idcUpdateLineExpandSwitch)
+	v1.PUT("/idc/line/view/switch", idcUpdateLineViewSwitch)
 
 	v1.PUT("/idc/update/netinfo/all", updateNetInfoAll)
 	v1.PUT("/idc/update/netinfo/part", updateNetInfoPart)
 	v1.PUT("/idc/create/label", createLabelForAllIPs)
 	v1.POST("/idc/expand", idcExpand)
 	v1.PUT("/idc/expand/switch", idcUpdateExpandSwitch)
+	v1.PUT("/idc/view/switch", idcUpdateViewSwitch)
 }
 
 func getTest(c *gin.Context) {
@@ -2473,12 +2475,30 @@ func idcUpdateLineExpandSwitch(c *gin.Context) {
 	}
 	newLine := models.ExpandSwitchReq{}
 	if err := c.BindJSON(&newLine); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line switch", models.IsUpdate, models.ErrPostData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line switch - expand", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutLineSwitch(user, &newLine)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line switch", models.IsUpdate, bf)
+	bf := models.PutLineExpandSwitch(user, &newLine)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line switch - expand", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func idcUpdateLineViewSwitch(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "update_line")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	newLine := models.ViewSwitchReq{}
+	if err := c.BindJSON(&newLine); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line switch - view", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutLineViewSwitch(user, &newLine)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line switch - view", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -2491,11 +2511,29 @@ func idcUpdateExpandSwitch(c *gin.Context) {
 	}
 	switchData := models.ExpandSwitchReq{}
 	if err := c.BindJSON(&switchData); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc switch", models.IsUpdate, models.ErrUpdateData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc switch - expand", models.IsUpdate, models.ErrUpdateData)
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	bf := models.PutIDCSwitch(user, &switchData)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc switch", models.IsUpdate, bf)
+	bf := models.PutIDCExpandSwitch(user, &switchData)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc switch - expand", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func idcUpdateViewSwitch(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "update_idc")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	switchData := models.ViewSwitchReq{}
+	if err := c.BindJSON(&switchData); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc switch - view", models.IsUpdate, models.ErrUpdateData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutIDCViewSwitch(user, &switchData)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc switch - view", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }

@@ -21,6 +21,7 @@ type IDC struct {
 	Remark   string    `json:"remark" gorm:"column:remark"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	Expand   bool      `json:"expand" gorm:"column:expand"`
+	View     bool      `json:"view" gorm:"column:view"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
@@ -30,6 +31,7 @@ type Line struct {
 	Label    string    `json:"label" gorm:"column:label"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
 	Expand   bool      `json:"expand" gorm:"column:expand"`
+	View     bool      `json:"view" gorm:"column:view"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 	IDCID    int       `json:"idc_id" gorm:"column:idc_id"`
@@ -53,6 +55,7 @@ type NewIDC struct {
 	ID     int    `json:"id" gorm:"column:id"`
 	Label  string `json:"label" gorm:"column:label"`
 	Expand bool   `json:"expand" gorm:"column:expand"`
+	View   bool   `json:"view" gorm:"column:view"`
 }
 
 type NewLine struct {
@@ -60,6 +63,7 @@ type NewLine struct {
 	IDCID  int    `json:"idc_id" gorm:"column:idc_id"`
 	Label  string `json:"label" gorm:"column:label"`
 	Expand bool   `json:"expand" gorm:"column:expand"`
+	View   bool   `json:"view" gorm:"column:view"`
 }
 
 type NewPool struct {
@@ -68,6 +72,7 @@ type NewPool struct {
 	Ipaddrs string `json:"ipaddrs" gorm:"column:ipaddrs"`
 	Remark  string `json:"remark" gorm:"column:remark"`
 	Expand  bool   `json:"expand" gorm:"column:expand"`
+	View    bool   `json:"view" gorm:"column:view"`
 }
 
 type idcTree struct {
@@ -89,6 +94,10 @@ type lineTree struct {
 }
 
 type ExpandSwitchReq struct {
+	ID     int  `json:"id"`
+	Switch bool `json:"switch"`
+}
+type ViewSwitchReq struct {
 	ID     int  `json:"id"`
 	Switch bool `json:"switch"`
 }
@@ -122,6 +131,7 @@ func PostIDC(user *UserSessionInfo, newIDC *NewIDC) *BriefMessage {
 		ID:       0,
 		Enabled:  true,
 		Expand:   newIDC.Expand,
+		View:     newIDC.View,
 		Label:    newIDC.Label,
 		UpdateAt: time.Now(),
 		UpdateBy: user.Username,
@@ -144,6 +154,7 @@ func PutIDC(user *UserSessionInfo, newIDC *NewIDC) *BriefMessage {
 		Update("label", newIDC.Label).
 		Update("enabled", true).
 		Update("expand", newIDC.Expand).
+		Update("view", newIDC.View).
 		Update("update_at", time.Now()).
 		Update("update_by", user.Username)
 	if tx.Error != nil {
@@ -227,6 +238,7 @@ func PostLine(user *UserSessionInfo, newLine *NewLine) *BriefMessage {
 		Label:    newLine.Label,
 		IDCID:    newLine.IDCID,
 		Expand:   newLine.Expand,
+		View:     newLine.View,
 		UpdateAt: time.Now(),
 		UpdateBy: user.Username,
 	}
@@ -248,6 +260,8 @@ func PutLine(user *UserSessionInfo, newLine *NewLine) *BriefMessage {
 		// Update("idc_id", 0)
 		Update("label", newLine.Label).
 		Update("enabled", true).
+		Update("expand", newLine.Expand).
+		Update("view", newLine.View).
 		Update("update_at", time.Now()).
 		Update("update_by", user.Username)
 	if tx.Error != nil {
@@ -442,6 +456,7 @@ func GetIDCTree(search *SearchContent2) (*idcTreeWithID, *BriefMessage) {
 				UpdateBy: line.UpdateBy,
 				IDCID:    line.IDCID,
 				Expand:   line.Expand,
+				View:     line.View,
 			},
 		})
 	}
@@ -1134,7 +1149,7 @@ func expandSpecialLine(user *UserSessionInfo, lineIDs []int) *BriefMessage {
 	return bf
 }
 
-func PutLineSwitch(user *UserSessionInfo, s *ExpandSwitchReq) *BriefMessage {
+func PutLineExpandSwitch(user *UserSessionInfo, s *ExpandSwitchReq) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -1151,7 +1166,24 @@ func PutLineSwitch(user *UserSessionInfo, s *ExpandSwitchReq) *BriefMessage {
 	return Success
 }
 
-func PutIDCSwitch(user *UserSessionInfo, s *ExpandSwitchReq) *BriefMessage {
+func PutLineViewSwitch(user *UserSessionInfo, s *ViewSwitchReq) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("line").Where("id=?", s.ID).
+		Update("view", s.Switch).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func PutIDCExpandSwitch(user *UserSessionInfo, s *ExpandSwitchReq) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
@@ -1159,6 +1191,23 @@ func PutIDCSwitch(user *UserSessionInfo, s *ExpandSwitchReq) *BriefMessage {
 	}
 	tx := db.Table("idc").Where("id=?", s.ID).
 		Update("expand", s.Switch).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func PutIDCViewSwitch(user *UserSessionInfo, s *ViewSwitchReq) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("idc").Where("id=?", s.ID).
+		Update("view", s.Switch).
 		Update("update_at", time.Now()).
 		Update("update_by", user.Username)
 	if tx.Error != nil {

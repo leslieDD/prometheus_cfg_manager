@@ -55,6 +55,12 @@
                       <el-tag v-if="data.expand === false" type="info" size="small" @click="do_expand_idc(data, true)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path fill="currentColor" d="M329.956 257.138a254.862 254.862 0 0 0 0 509.724h364.088a254.862 254.862 0 0 0 0-509.724H329.956zm0-72.818h364.088a327.68 327.68 0 1 1 0 655.36H329.956a327.68 327.68 0 1 1 0-655.36z"></path><path fill="currentColor" d="M329.956 621.227a109.227 109.227 0 1 0 0-218.454 109.227 109.227 0 0 0 0 218.454zm0 72.817a182.044 182.044 0 1 1 0-364.088 182.044 182.044 0 0 1 0 364.088z"></path></svg></el-tag>
                      </span>
                     </el-tooltip>
+                    <el-tooltip :content="view_idc_title[data.id]" placement="right">
+                     <span>
+                      <el-tag v-if="data.view === true" size="small" @click="do_expand_idc_view(data, false)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path fill="currentColor" d="M512 160c320 0 512 352 512 352S832 864 512 864 0 512 0 512s192-352 512-352zm0 64c-225.28 0-384.128 208.064-436.8 288 52.608 79.872 211.456 288 436.8 288 225.28 0 384.128-208.064 436.8-288-52.608-79.872-211.456-288-436.8-288zm0 64a224 224 0 1 1 0 448 224 224 0 0 1 0-448zm0 64a160.192 160.192 0 0 0-160 160c0 88.192 71.744 160 160 160s160-71.808 160-160-71.744-160-160-160z"></path></svg></el-tag>
+                      <el-tag v-if="data.view === false" type="info" size="small" @click="do_expand_idc_view(data, true)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path d="M876.8 156.8c0-9.6-3.2-16-9.6-22.4-6.4-6.4-12.8-9.6-22.4-9.6-9.6 0-16 3.2-22.4 9.6L736 220.8c-64-32-137.6-51.2-224-60.8-160 16-288 73.6-377.6 176C44.8 438.4 0 496 0 512s48 73.6 134.4 176c22.4 25.6 44.8 48 73.6 67.2l-86.4 89.6c-6.4 6.4-9.6 12.8-9.6 22.4 0 9.6 3.2 16 9.6 22.4 6.4 6.4 12.8 9.6 22.4 9.6 9.6 0 16-3.2 22.4-9.6l704-710.4c3.2-6.4 6.4-12.8 6.4-22.4Zm-646.4 528c-76.8-70.4-128-128-153.6-172.8 28.8-48 80-105.6 153.6-172.8C304 272 400 230.4 512 224c64 3.2 124.8 19.2 176 44.8l-54.4 54.4C598.4 300.8 560 288 512 288c-64 0-115.2 22.4-160 64s-64 96-64 160c0 48 12.8 89.6 35.2 124.8L256 707.2c-9.6-6.4-19.2-16-25.6-22.4Zm140.8-96c-12.8-22.4-19.2-48-19.2-76.8 0-44.8 16-83.2 48-112 32-28.8 67.2-48 112-48 28.8 0 54.4 6.4 73.6 19.2L371.2 588.8ZM889.599 336c-12.8-16-28.8-28.8-41.6-41.6l-48 48c73.6 67.2 124.8 124.8 150.4 169.6-28.8 48-80 105.6-153.6 172.8-73.6 67.2-172.8 108.8-284.8 115.2-51.2-3.2-99.2-12.8-140.8-28.8l-48 48c57.6 22.4 118.4 38.4 188.8 44.8 160-16 288-73.6 377.6-176C979.199 585.6 1024 528 1024 512s-48.001-73.6-134.401-176Z" fill="currentColor"></path><path d="M511.998 672c-12.8 0-25.6-3.2-38.4-6.4l-51.2 51.2c28.8 12.8 57.6 19.2 89.6 19.2 64 0 115.2-22.4 160-64 41.6-41.6 64-96 64-160 0-32-6.4-64-19.2-89.6l-51.2 51.2c3.2 12.8 6.4 25.6 6.4 38.4 0 44.8-16 83.2-48 112-32 28.8-67.2 48-112 48Z" fill="currentColor"></path></svg></el-tag>
+                     </span>
+                    </el-tooltip>
                     <el-tag size="small" type="danger" @click="removeIDC(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
                   </span>
                   <span v-if="data.tree_type === 'line'">
@@ -63,6 +69,12 @@
                      <span>
                       <el-tag v-if="data.expand === true" size="small" @click="do_expand_line(data, false)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path fill="currentColor" d="M329.956 257.138a254.862 254.862 0 0 0 0 509.724h364.088a254.862 254.862 0 0 0 0-509.724H329.956zm0-72.818h364.088a327.68 327.68 0 1 1 0 655.36H329.956a327.68 327.68 0 1 1 0-655.36z"></path><path fill="currentColor" d="M694.044 621.227a109.227 109.227 0 1 0 0-218.454 109.227 109.227 0 0 0 0 218.454zm0 72.817a182.044 182.044 0 1 1 0-364.088 182.044 182.044 0 0 1 0 364.088z"></path></svg></el-tag>
                       <el-tag v-if="data.expand === false" type="info" size="small" @click="do_expand_line(data, true)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path fill="currentColor" d="M329.956 257.138a254.862 254.862 0 0 0 0 509.724h364.088a254.862 254.862 0 0 0 0-509.724H329.956zm0-72.818h364.088a327.68 327.68 0 1 1 0 655.36H329.956a327.68 327.68 0 1 1 0-655.36z"></path><path fill="currentColor" d="M329.956 621.227a109.227 109.227 0 1 0 0-218.454 109.227 109.227 0 0 0 0 218.454zm0 72.817a182.044 182.044 0 1 1 0-364.088 182.044 182.044 0 0 1 0 364.088z"></path></svg></el-tag>
+                     </span>
+                    </el-tooltip>
+                    <el-tooltip :content="view_line_title[data.id]" placement="right">
+                     <span>
+                      <el-tag v-if="data.view === true" size="small" @click="do_expand_line_view(data, false)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path fill="currentColor" d="M512 160c320 0 512 352 512 352S832 864 512 864 0 512 0 512s192-352 512-352zm0 64c-225.28 0-384.128 208.064-436.8 288 52.608 79.872 211.456 288 436.8 288 225.28 0 384.128-208.064 436.8-288-52.608-79.872-211.456-288-436.8-288zm0 64a224 224 0 1 1 0 448 224 224 0 0 1 0-448zm0 64a160.192 160.192 0 0 0-160 160c0 88.192 71.744 160 160 160s160-71.808 160-160-71.744-160-160-160z"></path></svg></el-tag>
+                      <el-tag v-if="data.view === false" type="info" size="small" @click="do_expand_line_view(data, true)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path d="M876.8 156.8c0-9.6-3.2-16-9.6-22.4-6.4-6.4-12.8-9.6-22.4-9.6-9.6 0-16 3.2-22.4 9.6L736 220.8c-64-32-137.6-51.2-224-60.8-160 16-288 73.6-377.6 176C44.8 438.4 0 496 0 512s48 73.6 134.4 176c22.4 25.6 44.8 48 73.6 67.2l-86.4 89.6c-6.4 6.4-9.6 12.8-9.6 22.4 0 9.6 3.2 16 9.6 22.4 6.4 6.4 12.8 9.6 22.4 9.6 9.6 0 16-3.2 22.4-9.6l704-710.4c3.2-6.4 6.4-12.8 6.4-22.4Zm-646.4 528c-76.8-70.4-128-128-153.6-172.8 28.8-48 80-105.6 153.6-172.8C304 272 400 230.4 512 224c64 3.2 124.8 19.2 176 44.8l-54.4 54.4C598.4 300.8 560 288 512 288c-64 0-115.2 22.4-160 64s-64 96-64 160c0 48 12.8 89.6 35.2 124.8L256 707.2c-9.6-6.4-19.2-16-25.6-22.4Zm140.8-96c-12.8-22.4-19.2-48-19.2-76.8 0-44.8 16-83.2 48-112 32-28.8 67.2-48 112-48 28.8 0 54.4 6.4 73.6 19.2L371.2 588.8ZM889.599 336c-12.8-16-28.8-28.8-41.6-41.6l-48 48c73.6 67.2 124.8 124.8 150.4 169.6-28.8 48-80 105.6-153.6 172.8-73.6 67.2-172.8 108.8-284.8 115.2-51.2-3.2-99.2-12.8-140.8-28.8l-48 48c57.6 22.4 118.4 38.4 188.8 44.8 160-16 288-73.6 377.6-176C979.199 585.6 1024 528 1024 512s-48.001-73.6-134.401-176Z" fill="currentColor"></path><path d="M511.998 672c-12.8 0-25.6-3.2-38.4-6.4l-51.2 51.2c28.8 12.8 57.6 19.2 89.6 19.2 64 0 115.2-22.4 160-64 41.6-41.6 64-96 64-160 0-32-6.4-64-19.2-89.6l-51.2 51.2c3.2 12.8 6.4 25.6 6.4 38.4 0 44.8-16 83.2-48 112-32 28.8-67.2 48-112 48Z" fill="currentColor"></path></svg></el-tag>
                      </span>
                     </el-tooltip>
                     <el-tag size="small" type="danger" @click="removeLine(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
@@ -133,6 +145,9 @@
         <el-form-item label="是否扩展地址" :label-width="formLabelWidth" prop="expand">
           <el-switch v-model="Lineform.expand" class="ml-2" active-color="#13ce66" inactive-color="#ff4949"/>
         </el-form-item>
+        <el-form-item label="地址是否可见" :label-width="formLabelWidth" prop="view">
+          <el-switch v-model="Lineform.view" class="ml-2" active-color="#13ce66" inactive-color="#ff4949"/>
+        </el-form-item>
       </el-form>
       <template #footer>
         <span class="dialog-footer">
@@ -150,6 +165,9 @@
         </el-form-item>
         <el-form-item label="是否扩展地址" :label-width="formLabelWidth" prop="expand">
           <el-switch v-model="IDCform.expand" class="ml-2" active-color="#13ce66" inactive-color="#ff4949"/>
+        </el-form-item>
+        <el-form-item label="地址是否可见" :label-width="formLabelWidth" prop="view">
+          <el-switch v-model="IDCform.view" class="ml-2" active-color="#13ce66" inactive-color="#ff4949"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -179,7 +197,7 @@
   let tree_id = 1000;
 
   // import { getIDC, getIDCs, postIDC, putIDC, deleteIDC } from '@/api/idc.js'
-  import { getIDC, postIDC, putIDC, putIDCRemark, deleteIDC, putIdcExpand, putLineExpand } from '@/api/idc.js'
+  import { getIDC, postIDC, putIDC, putIDCRemark, deleteIDC, putIdcExpand, putLineExpand, putIdcView, putLineView } from '@/api/idc.js'
   import { getIDCTree } from '@/api/idc.js'
   import { postLine, putLine, delLine } from '@/api/idc.js'
   import { updateAllIPAddrsNetInfo, updatePartIPAddrsNetInfo } from '@/api/idc.js'
@@ -216,6 +234,7 @@
           tree_type: 'line',
           label: '',
           expand: false,
+          view: true,
           children: [],
         },
         IDCform: {
@@ -224,6 +243,7 @@
           tree_type: 'idc',
           label: '',
           expand: false,
+          view: true,
           children: [],
         },
         lineRules: {
@@ -261,6 +281,8 @@
         delIpAddrsForLineDoing: false,
         expand_idc_title: {},
         expand_line_title: {},
+        view_idc_title: {},
+        view_line_title: {}
       }
     },
 
@@ -278,11 +300,21 @@
             } else {
               this.expand_idc_title[each.id] = '不扩展，包括所有线路'
             }
+            if (each.view === true) {
+              this.view_idc_title[each.id] = '可见'
+            } else {
+              this.view_idc_title[each.id] = '不可见，包括所有线路'
+            }
             each.children.forEach(child => {
               if(child.expand === true) {
                 this.expand_line_title[child.id] = '扩展'
               } else {
                 this.expand_line_title[child.id] = '不扩展'
+              }
+              if (child.view === true) {
+                this.view_line_title[child.id] = '可见'
+              } else {
+                this.view_line_title[child.id] = '不可见'
               }
             })
           })
@@ -311,6 +343,7 @@
           tree_type: 'line',
           label: '',
           expand: false,
+          view: true,
           children: [],
         },
         this.idEdit = false
@@ -320,7 +353,12 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             if (this.idEdit === false) {
-              postLine({label: this.Lineform.label, idc_id: this.Lineform.id, expand: this.Lineform.expand}).then(r=>{
+              postLine({
+                label: this.Lineform.label, 
+                idc_id: this.Lineform.id, 
+                expand: this.Lineform.expand,
+                view: this.Lineform.view,
+              }).then(r=>{
                 this.doGetTree()
                 this.dialogLineVisible = false
               }).catch(e=>{
@@ -328,7 +366,12 @@
                 console.log(e)
               })
             } else {
-              putLine({label: this.Lineform.label, id: this.Lineform.id, expand: this.Lineform.expand}).then(r=>{
+              putLine({
+                label: this.Lineform.label, 
+                id: this.Lineform.id, 
+                expand: this.Lineform.expand,
+                view: this.Lineform.view,
+              }).then(r=>{
                 this.doGetTree()
                 this.dialogLineVisible = false
               }).catch(e=>{
@@ -345,7 +388,11 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             if (this.idEdit === false) {
-              postIDC({'label': this.IDCform.label, expand: this.IDCform.expand}).then(r=>{
+              postIDC({
+                'label': this.IDCform.label, 
+                expand: this.IDCform.expand,
+                view: this.IDCform.view,
+              }).then(r=>{
                 this.doGetTree()
                 this.dialogIDCVisible = false
               }).catch(e=> {
@@ -353,7 +400,12 @@
                 this.dialogIDCVisible = false
               })
             } else {
-              putIDC({'label': this.IDCform.label, 'id': this.IDCform.id, expand: this.IDCform.expand}).then(r=>{
+              putIDC({
+                'label': this.IDCform.label, 
+                'id': this.IDCform.id, 
+                expand: this.IDCform.expand,
+                view: this.IDCform.view,
+              }).then(r=>{
                 this.doGetTree()
                 this.dialogIDCVisible = false
               }).catch(e=> {
@@ -394,6 +446,28 @@
             this.expand_line_title[data.id] = '扩展地址'
           } else {
             this.expand_line_title[data.id] = '不扩展地址'
+          }
+        }).catch(e=>console.log(e))
+      },
+      do_expand_idc_view(data, v) {
+        putIdcView({id: data.id, switch: v}).then(
+          r => {
+            data.view = v
+            if (v===true) {
+              this.view_idc_title[data.id] = '可见'
+            } else {
+              this.view_idc_title[data.id] = '不可见，包括所有线路'
+            }
+          }
+        ).catch(e=>console.log(e))
+      },
+      do_expand_line_view(data, v) {
+        putLineView({id: data.id, switch: v}).then(r=>{
+          data.view = v
+          if (v===true) {
+            this.view_line_title[data.id] = '可见'
+          } else {
+            this.view_line_title[data.id] = '不可见'
           }
         }).catch(e=>console.log(e))
       },

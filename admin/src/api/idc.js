@@ -160,3 +160,19 @@ export function  putLineExpand (data) {
     data: data
   })
 }
+
+export function  putIdcView (data) {
+  return request({
+    url: '/v1/idc/view/switch',
+    method: 'put',
+    data: data
+  })
+}
+
+export function  putLineView (data) {
+  return request({
+    url: '/v1/idc/line/view/switch',
+    method: 'put',
+    data: data
+  })
+}
