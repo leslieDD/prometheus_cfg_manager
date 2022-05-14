@@ -65,6 +65,7 @@ var ErrHaveInstanceRunning = &BriefMessage{500000, "有一个实例正在运行�
 var ErrHaveLine = &BriefMessage{500000, "此机房下还有线路存在，不允许直接删除"}
 var ErrReset = &BriefMessage{500000, "重置出现错误"}
 var ErrEmptyData = &BriefMessage{500000, "空数据"}
+var ErrNoJobs = &BriefMessage{500000, "没有定义组"}
 
 // --------------------------------------------------------------
 // ---------------- 400xxx 客户端错误 ----------------------------

@@ -69,6 +69,7 @@ func (p *PublishResolve) formatData() (map[string]*[]*TargetList, *BriefMessage)
 	}
 	if len(jobsMap) == 0 {
 		config.Log.Warn("no job found")
+		return nil, ErrNoJobs
 	}
 	jobGp, bf := GetJobGroupIPInfo()
 	if bf != Success {

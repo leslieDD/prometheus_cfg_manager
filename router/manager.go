@@ -521,7 +521,7 @@ func getSessionParams(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetSessionParams()
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get session params", models.IsUpdate, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get session params", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
 

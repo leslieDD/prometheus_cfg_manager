@@ -2152,7 +2152,6 @@ func getPrometheusUrl(c *gin.Context) {
 	u, bf := models.GetPrometheusUrl()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get prometheus url", models.IsPublish, bf)
 	resComm(c, bf, u)
-	sync.AS.Done(sync.ReCreateAndReloadPrometheusConfig)
 }
 
 func getIDC(c *gin.Context) {
