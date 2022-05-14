@@ -457,12 +457,13 @@ func postManagerResetAdmin(c *gin.Context) {
 	if err := c.BindJSON(&code); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reset manager data", models.IsReset, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
+		sync.AS.Done(sync.ReSetAllPrivilegesData)
 		return
 	}
 	bf := models.OptResetAdmin(&code, c.Request.RemoteAddr)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reset manager data", models.IsReset, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.ReSetAllPrivilegesData)
+	resComm(c, bf, nil)
 }
 
 func postManagerResetSecret(c *gin.Context) {

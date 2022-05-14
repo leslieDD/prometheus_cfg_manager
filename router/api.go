@@ -1140,8 +1140,8 @@ func updatePosition(c *gin.Context) {
 	}
 	bf := models.UpdateIPPosition(user)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update ip position", models.IsUpdate, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.UpdateAllIPPosition)
+	resComm(c, bf, nil)
 }
 
 func getAllMachines(c *gin.Context) {
@@ -1555,8 +1555,8 @@ func rulePublish(c *gin.Context) {
 	}
 	bf := models.RulePublish()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish rule", models.IsPublish, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.PublishMonitorRules)
+	resComm(c, bf, nil)
 }
 
 func emptyRulePublish(c *gin.Context) {
@@ -1572,8 +1572,8 @@ func emptyRulePublish(c *gin.Context) {
 	}
 	bf := models.EmptyRulePublish()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish empty rule", models.IsPublish, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.PublishEmptyMonitorRules)
+	resComm(c, bf, nil)
 }
 
 func putTreeNodeStatus(c *gin.Context) {
@@ -2077,12 +2077,13 @@ func optResetSystem(c *gin.Context) {
 	if err := c.BindJSON(&code); err != nil {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reset prometheus config data", models.IsReset, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
+		sync.AS.Done(sync.ReSetAllData)
 		return
 	}
 	bf := models.OptResetSystem(user, &code)
 	models.OO.FlagLog(user.Username, c.Request.RemoteAddr, "reset prometheus config data", models.IsReset, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.ReSetAllData)
+	resComm(c, bf, nil)
 }
 
 func ctlCreate(c *gin.Context) {
@@ -2098,8 +2099,8 @@ func ctlCreate(c *gin.Context) {
 	}
 	bf := models.AllowOneObj.DoPublishJobs(false)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create prometheus config", models.IsPublish, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.ReCreateAllPrometheusConfig)
+	resComm(c, bf, nil)
 }
 
 func ctlReload(c *gin.Context) {
@@ -2115,8 +2116,8 @@ func ctlReload(c *gin.Context) {
 	}
 	bf := models.Reload(config.Cfg.PrometheusCfg.Api)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config", models.IsPublish, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.ReloadAllPrometheusConfig)
+	resComm(c, bf, nil)
 }
 
 func ctlCreateAReload(c *gin.Context) {
@@ -2133,13 +2134,14 @@ func ctlCreateAReload(c *gin.Context) {
 	bf := models.AllowOneObj.DoPublishJobs(true)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create prometheus config", models.IsPublish, bf)
 	if bf != models.Success {
+		sync.AS.Done(sync.ReCreateAndReloadPrometheusConfig)
 		resComm(c, bf, nil)
 		return
 	}
 	bf = models.Reload(config.Cfg.PrometheusCfg.Api)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "reload prometheus config", models.IsPublish, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.ReCreateAndReloadPrometheusConfig)
+	resComm(c, bf, nil)
 }
 
 func getPrometheusUrl(c *gin.Context) {
@@ -2403,8 +2405,8 @@ func updateNetInfoAll(c *gin.Context) {
 	}
 	bf := models.UpdateAllIPAddrs(user, false)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update position of all ip address", models.IsUpdate, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.UpdateAllIPIDCAndLineInfo)
+	resComm(c, bf, nil)
 }
 
 func updateNetInfoPart(c *gin.Context) {
@@ -2420,8 +2422,8 @@ func updateNetInfoPart(c *gin.Context) {
 	}
 	bf := models.UpdateAllIPAddrs(user, true)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update position of part ip address", models.IsUpdate, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.UpdatePartIPIDCAndLineInfo)
+	resComm(c, bf, nil)
 }
 
 func createLabelForAllIPs(c *gin.Context) {
@@ -2437,8 +2439,8 @@ func createLabelForAllIPs(c *gin.Context) {
 	}
 	bf := models.CreateLabelForAllIPs(user, nil)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create label and sub group of job", models.IsUpdate, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.UpdateAllIPLabelsInJobGroup)
+	resComm(c, bf, nil)
 }
 
 func idcExpand(c *gin.Context) {
@@ -2457,12 +2459,13 @@ func idcExpand(c *gin.Context) {
 		config.Log.Error(err)
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "expand ipaddr", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrPostData, nil)
+		sync.AS.Done(sync.UpdateAllIPLabelsInJobGroup)
 		return
 	}
 	bf := models.IDCExpand(user, &edr)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "expand ipaddr", models.IsUpdate, bf)
-	resComm(c, bf, nil)
 	sync.AS.Done(sync.UpdateAllIPLabelsInJobGroup)
+	resComm(c, bf, nil)
 }
 
 func idcUpdateLineExpandSwitch(c *gin.Context) {
