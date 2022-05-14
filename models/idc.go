@@ -20,6 +20,7 @@ type IDC struct {
 	Label    string    `json:"label" gorm:"column:label"`
 	Remark   string    `json:"remark" gorm:"column:remark"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
+	Expand   bool      `json:"expand" gorm:"column:expand"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
@@ -28,6 +29,7 @@ type Line struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	Label    string    `json:"label" gorm:"column:label"`
 	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
+	Expand   bool      `json:"expand" gorm:"column:expand"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 	IDCID    int       `json:"idc_id" gorm:"column:idc_id"`
@@ -48,14 +50,16 @@ type IPAddrsPool struct {
 }
 
 type NewIDC struct {
-	ID    int    `json:"id" gorm:"column:id"`
-	Label string `json:"label" gorm:"column:label"`
+	ID     int    `json:"id" gorm:"column:id"`
+	Label  string `json:"label" gorm:"column:label"`
+	Expand bool   `json:"expand" gorm:"column:expand"`
 }
 
 type NewLine struct {
-	ID    int    `json:"id" gorm:"column:id"`
-	IDCID int    `json:"idc_id" gorm:"column:idc_id"`
-	Label string `json:"label" gorm:"column:label"`
+	ID     int    `json:"id" gorm:"column:id"`
+	IDCID  int    `json:"idc_id" gorm:"column:idc_id"`
+	Label  string `json:"label" gorm:"column:label"`
+	Expand bool   `json:"expand" gorm:"column:expand"`
 }
 
 type NewPool struct {
@@ -63,6 +67,7 @@ type NewPool struct {
 	LineID  int    `json:"line_id" gorm:"column:line_id"`
 	Ipaddrs string `json:"ipaddrs" gorm:"column:ipaddrs"`
 	Remark  string `json:"remark" gorm:"column:remark"`
+	Expand  bool   `json:"expand" gorm:"column:expand"`
 }
 
 type idcTree struct {
@@ -81,6 +86,11 @@ type lineTree struct {
 	TreeID   int    `json:"tree_id"`
 	TreeType string `json:"tree_type"`
 	Line
+}
+
+type ExpandSwitchReq struct {
+	ID     int  `json:"id"`
+	Switch bool `json:"switch"`
 }
 
 func GetIDC(id *OnlyID) (*IDC, *BriefMessage) {
@@ -111,6 +121,7 @@ func PostIDC(user *UserSessionInfo, newIDC *NewIDC) *BriefMessage {
 	idc := IDC{
 		ID:       0,
 		Enabled:  true,
+		Expand:   newIDC.Expand,
 		Label:    newIDC.Label,
 		UpdateAt: time.Now(),
 		UpdateBy: user.Username,
@@ -132,6 +143,7 @@ func PutIDC(user *UserSessionInfo, newIDC *NewIDC) *BriefMessage {
 	tx := db.Table("idc").Where("id", newIDC.ID).
 		Update("label", newIDC.Label).
 		Update("enabled", true).
+		Update("expand", newIDC.Expand).
 		Update("update_at", time.Now()).
 		Update("update_by", user.Username)
 	if tx.Error != nil {
@@ -214,6 +226,7 @@ func PostLine(user *UserSessionInfo, newLine *NewLine) *BriefMessage {
 		Enabled:  true,
 		Label:    newLine.Label,
 		IDCID:    newLine.IDCID,
+		Expand:   newLine.Expand,
 		UpdateAt: time.Now(),
 		UpdateBy: user.Username,
 	}
@@ -428,6 +441,7 @@ func GetIDCTree(search *SearchContent2) (*idcTreeWithID, *BriefMessage) {
 				UpdateAt: line.UpdateAt,
 				UpdateBy: line.UpdateBy,
 				IDCID:    line.IDCID,
+				Expand:   line.Expand,
 			},
 		})
 	}
@@ -1118,4 +1132,38 @@ func expandSpecialLine(user *UserSessionInfo, lineIDs []int) *BriefMessage {
 	}
 	_, bf := UploadMachines(user, &umi)
 	return bf
+}
+
+func PutLineSwitch(user *UserSessionInfo, s *ExpandSwitchReq) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("line").Where("id=?", s.ID).
+		Update("expand", s.Switch).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
+}
+
+func PutIDCSwitch(user *UserSessionInfo, s *ExpandSwitchReq) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	tx := db.Table("idc").Where("id=?", s.ID).
+		Update("expand", s.Switch).
+		Update("update_at", time.Now()).
+		Update("update_by", user.Username)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	return Success
 }

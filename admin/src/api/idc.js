@@ -144,3 +144,19 @@ export function createIPForJob (data) {
     data: data
   })
 }
+
+export function  putIdcExpand (data) {
+  return request({
+    url: '/v1/idc/expand/switch',
+    method: 'put',
+    data: data
+  })
+}
+
+export function  putLineExpand (data) {
+  return request({
+    url: '/v1/idc/line/expand/switch',
+    method: 'put',
+    data: data
+  })
+}

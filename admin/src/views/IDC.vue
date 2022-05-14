@@ -49,10 +49,22 @@
                   <span v-if="data.tree_type === 'idc'">
                     <el-tag size="small" @click="append(data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M832 384H576V128H192v768h640V384zm-26.496-64L640 154.496V320h165.504zM160 64h480l256 256v608a32 32 0 01-32 32H160a32 32 0 01-32-32V96a32 32 0 0132-32zm320 512V448h64v128h128v64H544v128h-64V640H352v-64h128z"></path></svg> </el-tag>
                     <el-tag size="small" @click="edit(node, data)"> <svg t="1639990532110" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12171" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13" data-v-042ca774=""><path d="M199.04 672.64l193.984 112 224-387.968-193.92-112-224 388.032z m-23.872 60.16l32.896 148.288 144.896-45.696-177.792-102.592zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936-383.936 665.088h0.064l-248.448 78.336-56.448-254.336z m384 254.272v-64h448v64h-448z" p-id="12172"></path></svg> </el-tag>
+                    <el-tooltip :content="expand_idc_title[data.id]" placement="right">
+                     <span>
+                      <el-tag v-if="data.expand === true" size="small" @click="do_expand_idc(data, false)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path fill="currentColor" d="M329.956 257.138a254.862 254.862 0 0 0 0 509.724h364.088a254.862 254.862 0 0 0 0-509.724H329.956zm0-72.818h364.088a327.68 327.68 0 1 1 0 655.36H329.956a327.68 327.68 0 1 1 0-655.36z"></path><path fill="currentColor" d="M694.044 621.227a109.227 109.227 0 1 0 0-218.454 109.227 109.227 0 0 0 0 218.454zm0 72.817a182.044 182.044 0 1 1 0-364.088 182.044 182.044 0 0 1 0 364.088z"></path></svg></el-tag>
+                      <el-tag v-if="data.expand === false" type="info" size="small" @click="do_expand_idc(data, true)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path fill="currentColor" d="M329.956 257.138a254.862 254.862 0 0 0 0 509.724h364.088a254.862 254.862 0 0 0 0-509.724H329.956zm0-72.818h364.088a327.68 327.68 0 1 1 0 655.36H329.956a327.68 327.68 0 1 1 0-655.36z"></path><path fill="currentColor" d="M329.956 621.227a109.227 109.227 0 1 0 0-218.454 109.227 109.227 0 0 0 0 218.454zm0 72.817a182.044 182.044 0 1 1 0-364.088 182.044 182.044 0 0 1 0 364.088z"></path></svg></el-tag>
+                     </span>
+                    </el-tooltip>
                     <el-tag size="small" type="danger" @click="removeIDC(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
                   </span>
                   <span v-if="data.tree_type === 'line'">
                     <el-tag size="small" @click="editLine(node, data)"><svg t="1639990532110" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="12171" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13" data-v-042ca774=""><path d="M199.04 672.64l193.984 112 224-387.968-193.92-112-224 388.032z m-23.872 60.16l32.896 148.288 144.896-45.696-177.792-102.592zM455.04 229.248l193.92 112 56.704-98.112-193.984-112-56.64 98.112zM104.32 708.8l384-665.024 304.768 175.936-383.936 665.088h0.064l-248.448 78.336-56.448-254.336z m384 254.272v-64h448v64h-448z" p-id="12172"></path></svg></el-tag>
+                    <el-tooltip :content="expand_line_title[data.id]" placement="right">
+                     <span>
+                      <el-tag v-if="data.expand === true" size="small" @click="do_expand_line(data, false)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path fill="currentColor" d="M329.956 257.138a254.862 254.862 0 0 0 0 509.724h364.088a254.862 254.862 0 0 0 0-509.724H329.956zm0-72.818h364.088a327.68 327.68 0 1 1 0 655.36H329.956a327.68 327.68 0 1 1 0-655.36z"></path><path fill="currentColor" d="M694.044 621.227a109.227 109.227 0 1 0 0-218.454 109.227 109.227 0 0 0 0 218.454zm0 72.817a182.044 182.044 0 1 1 0-364.088 182.044 182.044 0 0 1 0 364.088z"></path></svg></el-tag>
+                      <el-tag v-if="data.expand === false" type="info" size="small" @click="do_expand_line(data, true)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path fill="currentColor" d="M329.956 257.138a254.862 254.862 0 0 0 0 509.724h364.088a254.862 254.862 0 0 0 0-509.724H329.956zm0-72.818h364.088a327.68 327.68 0 1 1 0 655.36H329.956a327.68 327.68 0 1 1 0-655.36z"></path><path fill="currentColor" d="M329.956 621.227a109.227 109.227 0 1 0 0-218.454 109.227 109.227 0 0 0 0 218.454zm0 72.817a182.044 182.044 0 1 1 0-364.088 182.044 182.044 0 0 1 0 364.088z"></path></svg></el-tag>
+                     </span>
+                    </el-tooltip>
                     <el-tag size="small" type="danger" @click="removeLine(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
                   </span>
                 </span>
@@ -113,10 +125,13 @@
         </el-form>
       </div>
     </el-card>
-    <el-dialog v-model="dialogLineVisible" :title="idcName" width="400px">
+    <el-dialog v-model="dialogLineVisible" :title="idcName" width="450px">
       <el-form :model="Lineform" :rules="lineRules" ref="Lineform">
         <el-form-item label="线路名称" :label-width="formLabelWidth" prop="label">
           <el-input size="small" v-model="Lineform.label" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="是否扩展地址" :label-width="formLabelWidth" prop="expand">
+          <el-switch v-model="Lineform.expand" class="ml-2" active-color="#13ce66" inactive-color="#ff4949"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -128,10 +143,13 @@
         </span>
       </template>
     </el-dialog>
-    <el-dialog v-model="dialogIDCVisible" :title="dialogIDCTitle" width="400px">
+    <el-dialog v-model="dialogIDCVisible" :title="dialogIDCTitle" width="450px">
       <el-form :model="IDCform" :rules="IDCRules" ref="IDCform">
         <el-form-item label="机房名称" :label-width="formLabelWidth" prop="label">
           <el-input size="small" v-model="IDCform.label" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="是否扩展地址" :label-width="formLabelWidth" prop="expand">
+          <el-switch v-model="IDCform.expand" class="ml-2" active-color="#13ce66" inactive-color="#ff4949"/>
         </el-form-item>
       </el-form>
       <template #footer>
@@ -161,7 +179,7 @@
   let tree_id = 1000;
 
   // import { getIDC, getIDCs, postIDC, putIDC, deleteIDC } from '@/api/idc.js'
-  import { getIDC, postIDC, putIDC, putIDCRemark, deleteIDC } from '@/api/idc.js'
+  import { getIDC, postIDC, putIDC, putIDCRemark, deleteIDC, putIdcExpand, putLineExpand } from '@/api/idc.js'
   import { getIDCTree } from '@/api/idc.js'
   import { postLine, putLine, delLine } from '@/api/idc.js'
   import { updateAllIPAddrsNetInfo, updatePartIPAddrsNetInfo } from '@/api/idc.js'
@@ -197,6 +215,7 @@
           tree_id: 0,
           tree_type: 'line',
           label: '',
+          expand: false,
           children: [],
         },
         IDCform: {
@@ -204,6 +223,7 @@
           tree_id: 0,
           tree_type: 'idc',
           label: '',
+          expand: false,
           children: [],
         },
         lineRules: {
@@ -217,7 +237,7 @@
           ],
         },
         currentDataPoint: null,
-        formLabelWidth: '80px',
+        formLabelWidth: '100px',
         idcName: '添加线路',
         idEdit: false,
         currentPoolObj: null,
@@ -239,6 +259,8 @@
         delLineCurrData: null,
         delIpAddrsForLine: false,
         delIpAddrsForLineDoing: false,
+        expand_idc_title: {},
+        expand_line_title: {},
       }
     },
 
@@ -250,6 +272,20 @@
     methods: {
       doGetTree(show_notice){
         getIDCTree({content: this.searchContent, search_ip: this.search_ip}).then(r => {
+          r.data.tree.forEach(each => {
+            if (each.expand === true) {
+              this.expand_idc_title[each.id] = '扩展'
+            } else {
+              this.expand_idc_title[each.id] = '不扩展，包括所有线路'
+            }
+            each.children.forEach(child => {
+              if(child.expand === true) {
+                this.expand_line_title[child.id] = '扩展'
+              } else {
+                this.expand_line_title[child.id] = '不扩展'
+              }
+            })
+          })
           this.data = r.data.tree
           this.defaultExpandedKeys = Array.from(this.defaultExpandedKeysStore)
           tree_id = r.data.id + 1
@@ -274,6 +310,7 @@
           tree_id: 0,
           tree_type: 'line',
           label: '',
+          expand: false,
           children: [],
         },
         this.idEdit = false
@@ -283,7 +320,7 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             if (this.idEdit === false) {
-              postLine({label: this.Lineform.label, idc_id: this.Lineform.id}).then(r=>{
+              postLine({label: this.Lineform.label, idc_id: this.Lineform.id, expand: this.Lineform.expand}).then(r=>{
                 this.doGetTree()
                 this.dialogLineVisible = false
               }).catch(e=>{
@@ -291,7 +328,7 @@
                 console.log(e)
               })
             } else {
-              putLine({label: this.Lineform.label, id: this.Lineform.id}).then(r=>{
+              putLine({label: this.Lineform.label, id: this.Lineform.id, expand: this.Lineform.expand}).then(r=>{
                 this.doGetTree()
                 this.dialogLineVisible = false
               }).catch(e=>{
@@ -308,7 +345,7 @@
         this.$refs[formName].validate((valid) => {
           if (valid) {
             if (this.idEdit === false) {
-              postIDC({'label': this.IDCform.label}).then(r=>{
+              postIDC({'label': this.IDCform.label, expand: this.IDCform.expand}).then(r=>{
                 this.doGetTree()
                 this.dialogIDCVisible = false
               }).catch(e=> {
@@ -316,7 +353,7 @@
                 this.dialogIDCVisible = false
               })
             } else {
-              putIDC({'label': this.IDCform.label, 'id': this.IDCform.id}).then(r=>{
+              putIDC({'label': this.IDCform.label, 'id': this.IDCform.id, expand: this.IDCform.expand}).then(r=>{
                 this.doGetTree()
                 this.dialogIDCVisible = false
               }).catch(e=> {
@@ -337,6 +374,28 @@
       },
       flushtree(){
         this.doGetTree('刷新列表成功！')
+      },
+      do_expand_idc(data, v){
+        putIdcExpand({id: data.id, switch: v}).then(
+          r => {
+            data.expand = v
+            if (v===true) {
+              this.expand_idc_title[data.id] = '扩展地址'
+            } else {
+              this.expand_idc_title[data.id] = '不扩展地址，包括所有线路'
+            }
+          }
+        ).catch(e=>console.log(e))
+      },
+      do_expand_line(data, v){
+        putLineExpand({id: data.id, switch: v}).then(r=>{
+          data.expand = v
+          if (v===true) {
+            this.expand_line_title[data.id] = '扩展地址'
+          } else {
+            this.expand_line_title[data.id] = '不扩展地址'
+          }
+        }).catch(e=>console.log(e))
       },
       removeIDC(node, data) {
         this.$confirm('是否确定删除？', '确认信息', {

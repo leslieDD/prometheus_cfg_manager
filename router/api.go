@@ -155,11 +155,13 @@ func initApiRouter() {
 
 	v1.GET("/idc/line/ipaddrs", getLineIpAddrs)
 	v1.PUT("/idc/line/ipaddrs", putLineIpAddrs)
+	v1.PUT("/idc/line/expand/switch", idcUpdateLineExpandSwitch)
 
 	v1.PUT("/idc/update/netinfo/all", updateNetInfoAll)
 	v1.PUT("/idc/update/netinfo/part", updateNetInfoPart)
 	v1.PUT("/idc/create/label", createLabelForAllIPs)
 	v1.POST("/idc/expand", idcExpand)
+	v1.PUT("/idc/expand/switch", idcUpdateExpandSwitch)
 }
 
 func getTest(c *gin.Context) {
@@ -2460,4 +2462,40 @@ func idcExpand(c *gin.Context) {
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "expand ipaddr", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 	sync.AS.Done(sync.UpdateAllIPLabelsInJobGroup)
+}
+
+func idcUpdateLineExpandSwitch(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "update_line")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	newLine := models.ExpandSwitchReq{}
+	if err := c.BindJSON(&newLine); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line switch", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutLineSwitch(user, &newLine)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update line switch", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func idcUpdateExpandSwitch(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "update_idc")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	switchData := models.ExpandSwitchReq{}
+	if err := c.BindJSON(&switchData); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc switch", models.IsUpdate, models.ErrUpdateData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutIDCSwitch(user, &switchData)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc switch", models.IsUpdate, bf)
+	resComm(c, bf, nil)
 }
