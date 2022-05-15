@@ -552,14 +552,14 @@ func GetNetParams() ([]*IDC, map[int][]*Line, map[int]*TypeGroupIP, *BriefMessag
 	}
 	// IDC
 	idcs := []*IDC{}
-	tx := db.Table("idc").Find(&idcs)
+	tx := db.Table("idc").Where("view=?", 1).Find(&idcs)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, nil, nil, ErrSearchDBData
 	}
 	// Line
 	lines := []*Line{}
-	tx = db.Table("line").Find(&lines)
+	tx = db.Table("line").Where("view=?", 1).Find(&lines)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, nil, nil, ErrSearchDBData
@@ -636,6 +636,7 @@ func GetNetParamsV2() ([]*NetInfo, *BriefMessage) {
 	ON pool.line_id=line.id
 	LEFT JOIN idc
 	ON line.idc_id = idc.id
+	WHERE line.view = 1 AND idc.view = 1
 	`
 	netInfo := []*NetInfo{}
 	tx := db.Table("pool").Raw(sql).Find(&netInfo)
@@ -981,11 +982,6 @@ type ExpandDataReq struct {
 }
 
 func IDCExpand(user *UserSessionInfo, edr *ExpandDataReq) *BriefMessage {
-	db := dbs.DBObj.GetGoRM()
-	if db == nil {
-		config.Log.Error(InternalGetBDInstanceErr)
-		return ErrDataBase
-	}
 	if edr.All {
 		return expandAllIDC(user)
 	}
@@ -1022,7 +1018,7 @@ func expandAllIDC(user *UserSessionInfo) *BriefMessage {
 		left join line 
 		on line.id = pool.line_id 
 		left join idc 
-		on idc.id=line.idc_id;`).Find(&pwli)
+		on idc.id=line.idc_id WHERE line.expand = 1 AND idc.expand = 1;`).Find(&pwli)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrSearchDBData
