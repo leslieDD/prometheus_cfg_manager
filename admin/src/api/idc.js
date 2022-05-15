@@ -145,7 +145,7 @@ export function createIPForJob (data) {
   })
 }
 
-export function  putIdcExpand (data) {
+export function putIdcExpand (data) {
   return request({
     url: '/v1/idc/expand/switch',
     method: 'put',
@@ -153,7 +153,7 @@ export function  putIdcExpand (data) {
   })
 }
 
-export function  putLineExpand (data) {
+export function putLineExpand (data) {
   return request({
     url: '/v1/idc/line/expand/switch',
     method: 'put',
@@ -161,7 +161,7 @@ export function  putLineExpand (data) {
   })
 }
 
-export function  putIdcView (data) {
+export function putIdcView (data) {
   return request({
     url: '/v1/idc/view/switch',
     method: 'put',
@@ -169,10 +169,17 @@ export function  putIdcView (data) {
   })
 }
 
-export function  putLineView (data) {
+export function putLineView (data) {
   return request({
     url: '/v1/idc/line/view/switch',
     method: 'put',
     data: data
+  })
+}
+
+export function outportXls() {
+  return request({
+    url: '/v1/idc/tree/xls',
+    method: 'get',
   })
 }

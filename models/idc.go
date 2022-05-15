@@ -1,6 +1,8 @@
 package models
 
 import (
+	"bytes"
+	"encoding/base64"
 	"errors"
 	"fmt"
 	"math/big"
@@ -12,6 +14,7 @@ import (
 	"time"
 
 	"github.com/3th1nk/cidr"
+	"github.com/xuri/excelize/v2"
 	"gorm.io/gorm"
 )
 
@@ -520,6 +523,136 @@ func GetIDCTree(search *SearchContent2) (*idcTreeWithID, *BriefMessage) {
 		Tree: idcTreeResp,
 	}
 	return respData, Success
+}
+
+type idcXlsDB struct {
+	ID        int    `json:"id" gorm:"column:id"`
+	IPAddrs   string `json:"ipaddrs" gorm:"column:ipaddrs"`
+	LineID    int    `json:"line_id" gorm:"column:line_id"`
+	LineLabel string `json:"line_label" gorm:"column:line_label"`
+	IDCID     int    `json:"idc_id" gorm:"column:idc_id"`
+	IDCLabel  string `json:"idc_label" gorm:"column:idc_label"`
+}
+
+type XlsDatResp struct {
+	Data string `json:"data"`
+	Name string `json:"name"`
+}
+
+func GetIDCXls() (*XlsDatResp, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	data := []*idcXlsDB{}
+	tx := db.Raw(`SELECT pool.id, pool.ipaddrs, line.label AS line_label, idc.label AS idc_label, line.id AS Line_id, idc.id AS idc_id FROM pool
+		LEFT JOIN line
+		ON line.id = pool.line_id
+		LEFT JOIN idc
+		ON line.idc_id = idc.id
+	`).Find(&data)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	treeData := map[int]map[int][]*idcXlsDB{}
+	for _, item := range data {
+		idc, ok := treeData[item.IDCID]
+		if !ok {
+			idc = map[int][]*idcXlsDB{}
+			treeData[item.IDCID] = idc
+		}
+		_, ok = idc[item.LineID]
+		if !ok {
+			idc[item.LineID] = []*idcXlsDB{}
+		}
+		idc[item.LineID] = append(idc[item.LineID], item)
+	}
+	currRow := 0
+	f := excelize.NewFile()
+	for _, lv1 := range treeData {
+		merL1Begin, err := excelize.CoordinatesToCellName(1, currRow+1)
+		if err != nil {
+			config.Log.Error(err)
+			return nil, ErrXLSComputerCell
+		}
+		for _, lv2 := range lv1 {
+			merL2Begin, err := excelize.CoordinatesToCellName(1, currRow+1)
+			if err != nil {
+				config.Log.Error(err)
+				return nil, ErrXLSComputerCell
+			}
+			for _, pool := range lv2 {
+				addrPools := map[string]struct{}{}
+				for _, each := range strings.FieldsFunc(pool.IPAddrs, Split) {
+					if strings.TrimSpace(each) == "" {
+						continue
+					}
+					addrPools[strings.TrimSpace(each)] = struct{}{}
+				}
+				// merL3Begin, err := excelize.CoordinatesToCellName(1, currRow+1)
+				// if err != nil {
+				// 	log.Fatal(err)
+				// }
+				for content, _ := range addrPools {
+					currRow += 1
+					position, err := excelize.CoordinatesToCellName(1, currRow)
+					if err != nil {
+						config.Log.Error(err)
+						return nil, ErrXLSWriteData
+					}
+					f.SetCellValue("Sheet1", position, pool.IDCLabel)
+					position, err = excelize.CoordinatesToCellName(2, currRow)
+					if err != nil {
+						config.Log.Error(err)
+						return nil, ErrXLSWriteData
+					}
+					f.SetCellValue("Sheet1", position, pool.LineLabel)
+					position, err = excelize.CoordinatesToCellName(3, currRow)
+					if err != nil {
+						config.Log.Error(err)
+						return nil, ErrXLSWriteData
+					}
+					f.SetCellValue("Sheet1", position, content)
+				}
+				// merL3End, err := excelize.CoordinatesToCellName(1, currRow)
+				// if err != nil {
+				// 	log.Fatal(err)
+				// }
+				// if err := f.MergeCell("Sheet1", merL3Begin, merL3End); err != nil {
+				// 	log.Fatal(err)
+				// }
+			}
+			merL2End, err := excelize.CoordinatesToCellName(1, currRow)
+			if err != nil {
+				config.Log.Error(err)
+				return nil, ErrXLSComputerCell
+			}
+			if err := f.MergeCell("Sheet1", merL2Begin, merL2End); err != nil {
+				config.Log.Error(err)
+				return nil, ErrXLSMergeCell
+			}
+		}
+		merL1End, err := excelize.CoordinatesToCellName(1, currRow)
+		if err != nil {
+			config.Log.Error(err)
+			return nil, ErrXLSComputerCell
+		}
+		if err := f.MergeCell("Sheet1", merL1Begin, merL1End); err != nil {
+			config.Log.Error(err)
+			return nil, ErrXLSMergeCell
+		}
+	}
+	buffer := new(bytes.Buffer)
+	if _, err := f.WriteTo(buffer); err != nil {
+		config.Log.Error(err)
+		return nil, ErrWriteCache
+	}
+	return &XlsDatResp{
+		Data: base64.StdEncoding.EncodeToString(buffer.Bytes()),
+		Name: fmt.Sprintf("机房及线路_%d.xlsx", time.Now().Unix()),
+	}, Success
 }
 
 // 更新IP所属机房及线路使用的结构体

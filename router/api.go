@@ -146,6 +146,7 @@ func initApiRouter() {
 	v1.DELETE("/idc", delIDC)
 
 	v1.GET("/idc/tree", getIDCTree)
+	v1.GET("/idc/tree/xls", getIDCTreeXls)
 
 	v1.GET("/idc/line", getLine)
 	v1.GET("/idc/lines", getLines)
@@ -2272,6 +2273,18 @@ func getIDCTree(c *gin.Context) {
 	treeData, bf := models.GetIDCTree(&search)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get idc tree", models.IsSearch, bf)
 	resComm(c, bf, treeData)
+}
+
+func getIDCTreeXls(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "get_idc_tree_xls")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	xlsData, bf := models.GetIDCXls()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get idc tree xls", models.IsSearch, bf)
+	resComm(c, bf, xlsData)
 }
 
 func getLine(c *gin.Context) {

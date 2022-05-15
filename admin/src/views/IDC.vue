@@ -3,7 +3,13 @@
     <el-card class="box-card-left" shadow="never">
       <template #header>
         <div class="card-header">
-          <span>机房及线路</span>
+          <span>机房及线路<span><el-button
+            icon="el-icon-download"
+            size="small"
+            type="text"
+            @click="doOutportXls()"
+          >导出</el-button
+        ></span></span>
           <span>
             <span style="margin-right: 10px"><el-checkbox v-model="search_ip" label="同时搜索线路地址池" size="small" /></span>
             <span>
@@ -194,15 +200,16 @@
 </template>
 
 <script>
-  let tree_id = 1000;
-
+  let tree_id = 1000
   // import { getIDC, getIDCs, postIDC, putIDC, deleteIDC } from '@/api/idc.js'
   import { getIDC, postIDC, putIDC, putIDCRemark, deleteIDC, putIdcExpand, putLineExpand, putIdcView, putLineView } from '@/api/idc.js'
-  import { getIDCTree } from '@/api/idc.js'
+  import { getIDCTree, outportXls } from '@/api/idc.js'
   import { postLine, putLine, delLine } from '@/api/idc.js'
   import { updateAllIPAddrsNetInfo, updatePartIPAddrsNetInfo } from '@/api/idc.js'
   // import { getLine, getLines, postLine, putLine, delLine } from '@/api/idc.js'
   import { getLineIpAddrs, putLineIpAddrs, createLabelForAllIPs, createIPForJob } from '@/api/idc.js'
+
+  import Base64 from '@/utils/base64.js'
 
   export default {
     data() {
@@ -700,6 +707,31 @@
           });
         }).catch(e=>{
           console.log(e)
+        })
+      },
+      doOutportXls(){
+        outportXls().then(r=>{
+          var base = new Base64()
+          let data = base.decode(r.data.data);  //csv数据
+          let filename = r.data.name  //导出的文件名
+          let type = "application/octet-stream";                      //头部数据类型
+          let file = new Blob([data], { type: type });
+          if (window.navigator.msSaveOrOpenBlob)
+              // IE10+
+              window.navigator.msSaveOrOpenBlob(file, filename);
+            else {
+              // Others
+              let a = document.createElement("a"),
+              url = URL.createObjectURL(file);
+              a.href = url;
+              a.download = filename;
+              document.body.appendChild(a);
+              a.click();
+              setTimeout(function() {
+                document.body.removeChild(a);
+                window.URL.revokeObjectURL(url);
+              }, 0);
+            }
         })
       }
     }

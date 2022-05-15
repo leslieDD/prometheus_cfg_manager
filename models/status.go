@@ -66,6 +66,10 @@ var ErrHaveLine = &BriefMessage{500000, "此机房下还有线路存在，不允
 var ErrReset = &BriefMessage{500000, "重置出现错误"}
 var ErrEmptyData = &BriefMessage{500000, "空数据"}
 var ErrNoJobs = &BriefMessage{500000, "没有定义组"}
+var ErrXLSComputerCell = &BriefMessage{500000, "单元格换算错误"}
+var ErrXLSWriteData = &BriefMessage{500000, "表格写入数据错误"}
+var ErrXLSMergeCell = &BriefMessage{500000, "合并单元格错误"}
+var ErrWriteCache = &BriefMessage{500000, "数据写入缓存错误"}
 
 // --------------------------------------------------------------
 // ---------------- 400xxx 客户端错误 ----------------------------

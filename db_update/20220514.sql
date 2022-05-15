@@ -16,3 +16,10 @@ AFTER `expand`;
 ALTER TABLE `pool`
 ADD COLUMN `view` TINYINT(4) NOT NULL DEFAULT '0'
 AFTER `expand`;
+INSERT INTO `pro_cfg_manager`.`page_function` (
+    `page_name`,
+    `page_nice_name`,
+    `func_name`,
+    `func_nice_name`
+  )
+VALUES ('idc', 'IDC机房', 'get_idc_tree_xls', '导出');
