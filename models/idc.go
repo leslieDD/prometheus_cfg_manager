@@ -633,6 +633,29 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 			return nil, ErrXLSMergeCell
 		}
 	}
+	style, err := f.NewStyle(&excelize.Style{Alignment: &excelize.Alignment{
+		Horizontal: "center",
+		Vertical:   "center",
+	}})
+	if err != nil {
+		config.Log.Error(err)
+	} else {
+		if err = f.SetColStyle("Sheet1", "A", style); err != nil {
+			config.Log.Error(err)
+		}
+		if err = f.SetColStyle("Sheet1", "B", style); err != nil {
+			config.Log.Error(err)
+		}
+	}
+	if err := f.SetColWidth("Sheet1", "A", "A", 25); err != nil {
+		config.Log.Error(err)
+	}
+	if err := f.SetColWidth("Sheet1", "B", "B", 30); err != nil {
+		config.Log.Error(err)
+	}
+	if err := f.SetColWidth("Sheet1", "C", "C", 50); err != nil {
+		config.Log.Error(err)
+	}
 	buffer := new(bytes.Buffer)
 	if _, err := f.WriteTo(buffer); err != nil {
 		config.Log.Error(err)
