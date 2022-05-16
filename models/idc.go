@@ -569,8 +569,48 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 		}
 		idc[item.LineID] = append(idc[item.LineID], item)
 	}
-	currRow := 0
+	sheelName := "Sheet1"
 	f := excelize.NewFile()
+	for n, title := range []string{"IDC", "Line", "IP地址"} {
+		position, err := excelize.CoordinatesToCellName(n+1, 1)
+		if err != nil {
+			config.Log.Error(err)
+			return nil, ErrXLSWriteData
+		}
+		if err := f.SetCellValue(sheelName, position, title); err != nil {
+			config.Log.Error(err)
+		}
+	}
+	if err := f.SetRowHeight(sheelName, 1, 20); err != nil {
+		config.Log.Error(err)
+	}
+	idcALineStyle, idcALineErr := f.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{
+			Horizontal: "center",
+			Vertical:   "center",
+		},
+		Border: []excelize.Border{
+			{Type: "left", Color: "#17202A", Style: 1},
+			{Type: "top", Color: "#17202A", Style: 1},
+			{Type: "bottom", Color: "#17202A", Style: 1},
+			{Type: "right", Color: "#17202A", Style: 1},
+		},
+	})
+	if idcALineErr != nil {
+		config.Log.Error(idcALineErr)
+	}
+	ipAddrStyle, ipAddrSErr := f.NewStyle(&excelize.Style{
+		Border: []excelize.Border{
+			{Type: "left", Color: "#17202A", Style: 1},
+			{Type: "top", Color: "#17202A", Style: 1},
+			{Type: "bottom", Color: "#17202A", Style: 1},
+			{Type: "right", Color: "#17202A", Style: 1},
+		},
+	})
+	if ipAddrSErr != nil {
+		config.Log.Error(ipAddrSErr)
+	}
+	currRow := 1
 	for _, lv1 := range treeData {
 		merL1Begin, err := excelize.CoordinatesToCellName(1, currRow+1)
 		if err != nil {
@@ -598,26 +638,41 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 						config.Log.Error(err)
 						return nil, ErrXLSWriteData
 					}
-					f.SetCellValue("Sheet1", position, pool.IDCLabel)
+					f.SetCellValue(sheelName, position, pool.IDCLabel)
+					if idcALineErr == nil {
+						if err := f.SetCellStyle(sheelName, position, position, idcALineStyle); err != nil {
+							config.Log.Error(err)
+						}
+					}
 					position, err = excelize.CoordinatesToCellName(2, currRow)
 					if err != nil {
 						config.Log.Error(err)
 						return nil, ErrXLSWriteData
 					}
-					f.SetCellValue("Sheet1", position, pool.LineLabel)
+					f.SetCellValue(sheelName, position, pool.LineLabel)
+					if idcALineErr == nil {
+						if err := f.SetCellStyle(sheelName, position, position, idcALineStyle); err != nil {
+							config.Log.Error(err)
+						}
+					}
 					position, err = excelize.CoordinatesToCellName(3, currRow)
 					if err != nil {
 						config.Log.Error(err)
 						return nil, ErrXLSWriteData
 					}
-					f.SetCellValue("Sheet1", position, content)
+					f.SetCellValue(sheelName, position, content)
+					if ipAddrSErr == nil {
+						if err := f.SetCellStyle(sheelName, position, position, ipAddrStyle); err != nil {
+							config.Log.Error(err)
+						}
+					}
 				}
 				merL2End, err := excelize.CoordinatesToCellName(2, currRow)
 				if err != nil {
 					config.Log.Error(err)
 					return nil, ErrXLSComputerCell
 				}
-				if err := f.MergeCell("Sheet1", merL2Begin, merL2End); err != nil {
+				if err := f.MergeCell(sheelName, merL2Begin, merL2End); err != nil {
 					config.Log.Error(err)
 					return nil, ErrXLSMergeCell
 				}
@@ -628,33 +683,51 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 			config.Log.Error(err)
 			return nil, ErrXLSComputerCell
 		}
-		if err := f.MergeCell("Sheet1", merL1Begin, merL1End); err != nil {
+		if err := f.MergeCell(sheelName, merL1Begin, merL1End); err != nil {
 			config.Log.Error(err)
 			return nil, ErrXLSMergeCell
 		}
 	}
-	style, err := f.NewStyle(&excelize.Style{Alignment: &excelize.Alignment{
-		Horizontal: "center",
-		Vertical:   "center",
-	}})
-	if err != nil {
+	if err := f.SetColWidth(sheelName, "A", "A", 25); err != nil {
 		config.Log.Error(err)
+	}
+	if err := f.SetColWidth(sheelName, "B", "B", 30); err != nil {
+		config.Log.Error(err)
+	}
+	if err := f.SetColWidth(sheelName, "C", "C", 50); err != nil {
+		config.Log.Error(err)
+	}
+	titleStyle, titleErr := f.NewStyle(&excelize.Style{
+		Alignment: &excelize.Alignment{
+			Horizontal: "center",
+			Vertical:   "center",
+		},
+		Font: &excelize.Font{
+			Bold: true,
+			// Family: "",
+		},
+		Fill: excelize.Fill{
+			Type:    "pattern",
+			Color:   []string{"#EB984E"},
+			Pattern: 1,
+		},
+		Border: []excelize.Border{
+			{Type: "left", Color: "#17202A", Style: 1},
+			{Type: "top", Color: "#17202A", Style: 1},
+			{Type: "bottom", Color: "#17202A", Style: 1},
+			{Type: "right", Color: "#17202A", Style: 1},
+		},
+	})
+	if titleErr != nil {
+		config.Log.Error(titleErr)
 	} else {
-		if err = f.SetColStyle("Sheet1", "A", style); err != nil {
-			config.Log.Error(err)
+		for _, pos := range []string{"A1", "B1", "C1"} {
+			if titleErr == nil {
+				if err := f.SetCellStyle(sheelName, pos, pos, titleStyle); err != nil {
+					config.Log.Error(err)
+				}
+			}
 		}
-		if err = f.SetColStyle("Sheet1", "B", style); err != nil {
-			config.Log.Error(err)
-		}
-	}
-	if err := f.SetColWidth("Sheet1", "A", "A", 25); err != nil {
-		config.Log.Error(err)
-	}
-	if err := f.SetColWidth("Sheet1", "B", "B", 30); err != nil {
-		config.Log.Error(err)
-	}
-	if err := f.SetColWidth("Sheet1", "C", "C", 50); err != nil {
-		config.Log.Error(err)
 	}
 	buffer := new(bytes.Buffer)
 	if _, err := f.WriteTo(buffer); err != nil {

@@ -3,12 +3,12 @@
     <el-card class="box-card-left" shadow="never">
       <template #header>
         <div class="card-header">
-          <span>机房及线路<span><el-button
+          <span class="title-left">机房及线路<span class="download-btn"><el-button
             icon="el-icon-download"
             size="small"
             type="text"
             @click="doOutportXls()"
-          >导出</el-button
+          >点击导出</el-button
         ></span></span>
           <span>
             <span style="margin-right: 10px"><el-checkbox v-model="search_ip" label="同时搜索线路地址池" size="small" /></span>
@@ -813,5 +813,8 @@
 .confirm_rm_line_cb {
   margin-bottom: -20px;
   margin-left: 30px;
+}
+.download-btn {
+  margin-left: 10px;
 }
 </style>
