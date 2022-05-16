@@ -578,7 +578,7 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 			return nil, ErrXLSComputerCell
 		}
 		for _, lv2 := range lv1 {
-			merL2Begin, err := excelize.CoordinatesToCellName(1, currRow+1)
+			merL2Begin, err := excelize.CoordinatesToCellName(2, currRow+1)
 			if err != nil {
 				config.Log.Error(err)
 				return nil, ErrXLSComputerCell
