@@ -591,10 +591,6 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 					}
 					addrPools[strings.TrimSpace(each)] = struct{}{}
 				}
-				// merL3Begin, err := excelize.CoordinatesToCellName(1, currRow+1)
-				// if err != nil {
-				// 	log.Fatal(err)
-				// }
 				for content, _ := range addrPools {
 					currRow += 1
 					position, err := excelize.CoordinatesToCellName(1, currRow)
@@ -616,15 +612,8 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 					}
 					f.SetCellValue("Sheet1", position, content)
 				}
-				// merL3End, err := excelize.CoordinatesToCellName(1, currRow)
-				// if err != nil {
-				// 	log.Fatal(err)
-				// }
-				// if err := f.MergeCell("Sheet1", merL3Begin, merL3End); err != nil {
-				// 	log.Fatal(err)
-				// }
 			}
-			merL2End, err := excelize.CoordinatesToCellName(1, currRow)
+			merL2End, err := excelize.CoordinatesToCellName(2, currRow)
 			if err != nil {
 				config.Log.Error(err)
 				return nil, ErrXLSComputerCell
@@ -649,7 +638,6 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 		config.Log.Error(err)
 		return nil, ErrWriteCache
 	}
-	config.Log.Print(base64.StdEncoding.EncodeToString(buffer.Bytes()))
 	return &XlsDatResp{
 		Data: base64.StdEncoding.EncodeToString(buffer.Bytes()),
 		Name: fmt.Sprintf("机房及线路_%d.xlsx", time.Now().Unix()),
