@@ -209,7 +209,7 @@
   // import { getLine, getLines, postLine, putLine, delLine } from '@/api/idc.js'
   import { getLineIpAddrs, putLineIpAddrs, createLabelForAllIPs, createIPForJob } from '@/api/idc.js'
 
-  import Base64 from '@/utils/base64.js'
+  import { Base64 } from 'js-base64';
 
   export default {
     data() {
@@ -711,27 +711,26 @@
       },
       doOutportXls(){
         outportXls().then(r=>{
-          var base = new Base64()
-          let data = base.decode(r.data.data);  //csv数据
+          let content = Base64.toUint8Array(r.data.data)
           let filename = r.data.name  //导出的文件名
-          let type = "application/octet-stream";                      //头部数据类型
-          let file = new Blob([data], { type: type });
+          let type = "application/vnd.ms-excel";                      //头部数据类型
+          let file = new Blob([content], { type: type });
           if (window.navigator.msSaveOrOpenBlob)
-              // IE10+
-              window.navigator.msSaveOrOpenBlob(file, filename);
-            else {
-              // Others
-              let a = document.createElement("a"),
-              url = URL.createObjectURL(file);
-              a.href = url;
-              a.download = filename;
-              document.body.appendChild(a);
-              a.click();
-              setTimeout(function() {
-                document.body.removeChild(a);
-                window.URL.revokeObjectURL(url);
-              }, 0);
-            }
+            // IE10+
+            window.navigator.msSaveOrOpenBlob(file, filename);
+          else {
+            // Others
+            let a = document.createElement("a"),
+            url = URL.createObjectURL(file);
+            a.href = url;
+            a.download = filename;
+            document.body.appendChild(a);
+            a.click();
+            setTimeout(function() {
+              document.body.removeChild(a);
+              window.URL.revokeObjectURL(url);
+            }, 0);
+          }
         })
       }
     }

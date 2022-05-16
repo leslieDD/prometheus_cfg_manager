@@ -649,6 +649,7 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 		config.Log.Error(err)
 		return nil, ErrWriteCache
 	}
+	config.Log.Print(base64.StdEncoding.EncodeToString(buffer.Bytes()))
 	return &XlsDatResp{
 		Data: base64.StdEncoding.EncodeToString(buffer.Bytes()),
 		Name: fmt.Sprintf("机房及线路_%d.xlsx", time.Now().Unix()),
