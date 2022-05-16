@@ -578,12 +578,12 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 			return nil, ErrXLSComputerCell
 		}
 		for _, lv2 := range lv1 {
-			merL2Begin, err := excelize.CoordinatesToCellName(2, currRow+1)
-			if err != nil {
-				config.Log.Error(err)
-				return nil, ErrXLSComputerCell
-			}
 			for _, pool := range lv2 {
+				merL2Begin, err := excelize.CoordinatesToCellName(2, currRow+1)
+				if err != nil {
+					config.Log.Error(err)
+					return nil, ErrXLSComputerCell
+				}
 				addrPools := map[string]struct{}{}
 				for _, each := range strings.FieldsFunc(pool.IPAddrs, Split) {
 					if strings.TrimSpace(each) == "" {
@@ -612,15 +612,15 @@ func GetIDCXls() (*XlsDatResp, *BriefMessage) {
 					}
 					f.SetCellValue("Sheet1", position, content)
 				}
-			}
-			merL2End, err := excelize.CoordinatesToCellName(2, currRow)
-			if err != nil {
-				config.Log.Error(err)
-				return nil, ErrXLSComputerCell
-			}
-			if err := f.MergeCell("Sheet1", merL2Begin, merL2End); err != nil {
-				config.Log.Error(err)
-				return nil, ErrXLSMergeCell
+				merL2End, err := excelize.CoordinatesToCellName(2, currRow)
+				if err != nil {
+					config.Log.Error(err)
+					return nil, ErrXLSComputerCell
+				}
+				if err := f.MergeCell("Sheet1", merL2Begin, merL2End); err != nil {
+					config.Log.Error(err)
+					return nil, ErrXLSMergeCell
+				}
 			}
 		}
 		merL1End, err := excelize.CoordinatesToCellName(1, currRow)
