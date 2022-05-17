@@ -728,10 +728,10 @@ func UpdateIPPosition(user *UserSessionInfo) *BriefMessage {
 	return Success
 }
 
-func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *BriefMessage {
+func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) (*UploadMachinesInfo, *BriefMessage) {
 	importIPs := ParseIPAddrsFromString(content.Content)
 	if len(importIPs) == 0 {
-		return Success
+		return nil, Success
 	}
 	machines := []*UploadMachine{}
 	for m, _ := range importIPs {
@@ -749,11 +749,11 @@ func BatchImportIPAddrs(user *UserSessionInfo, content *BatchImportIPaddrs) *Bri
 		Machines: machines,
 		TongJi:   UploadResult{},
 	}
-	_, bf := UploadMachines(user, &umi)
-	return bf
+	tj, bf := UploadMachines(user, &umi)
+	return tj, bf
 }
 
-func BatchImportDomain(user *UserSessionInfo, content *BatchImportIPaddrs) *BriefMessage {
+func BatchImportDomain(user *UserSessionInfo, content *BatchImportIPaddrs) (*UploadMachinesInfo, *BriefMessage) {
 	// items := strings.Split(content.Content, ";")
 	items := []string{}
 	for _, each := range strings.FieldsFunc(content.Content, Split) {
@@ -785,6 +785,6 @@ func BatchImportDomain(user *UserSessionInfo, content *BatchImportIPaddrs) *Brie
 		Machines: machines,
 		TongJi:   UploadResult{},
 	}
-	_, bf := UploadDomain(user, &umi)
-	return bf
+	tj, bf := UploadDomain(user, &umi)
+	return tj, bf
 }

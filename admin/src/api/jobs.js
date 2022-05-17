@@ -87,12 +87,12 @@ export function updateIPInJobForJob (uInfo) {
   })
 }
 
-export function updateIPV2ForJob (uInfo, jobID) {
+export function updateIPV2ForJob (uInfo, jobID, force_insert) {
   return request({
     url: '/v1/jobs/update-ips/v2',
     method: 'post',
     data: uInfo,
-    params: { id: jobID }
+    params: { id: jobID, force: force_insert}
   })
 }
 

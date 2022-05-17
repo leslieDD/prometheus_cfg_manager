@@ -2,6 +2,7 @@ package models
 
 import (
 	"fmt"
+	"net"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"strings"
@@ -674,7 +675,7 @@ type UpdateIPForJob struct {
 	MachinesIDs []int `json:"machines_ids" gorm:"column:machines_ids"`
 }
 
-func ChangeIPAddrUseID(ipContents string) (*UpdateIPForJob, *BriefMessage) {
+func ChangeIPAddrUseID(user *UserSessionInfo, ipContents string, forceInsert bool) (*UpdateIPForJob, *BriefMessage) {
 	ipAddrList := strings.Split(strings.TrimSpace(ipContents), ";")
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -682,6 +683,8 @@ func ChangeIPAddrUseID(ipContents string) (*UpdateIPForJob, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	uif := UpdateIPForJob{}
+	forceInsertIP := []string{}
+	forceInsertDomain := []string{}
 	for _, ipAddrOri := range ipAddrList {
 		ipAddr := strings.TrimSpace(ipAddrOri)
 		if ipAddr == "" {
@@ -694,10 +697,38 @@ func ChangeIPAddrUseID(ipContents string) (*UpdateIPForJob, *BriefMessage) {
 			return nil, ErrSearchDBData
 		}
 		if m.IpAddr != ipAddr {
+			if forceInsert {
+				if net.ParseIP(ipAddr) == nil {
+					forceInsertDomain = append(forceInsertDomain, ipAddr)
+				} else {
+					forceInsertIP = append(forceInsertIP, ipAddr)
+				}
+				continue
+			}
 			config.Log.Error("ip no found: " + ipAddr)
 			continue
 		}
 		uif.MachinesIDs = append(uif.MachinesIDs, m.ID)
+	}
+	if forceInsert {
+		if len(forceInsertDomain) != 0 {
+			tj, bf := BatchImportDomain(user, &BatchImportIPaddrs{Content: strings.Join(forceInsertDomain, ";"), JobsID: []int{}})
+			if bf != Success {
+				return nil, bf
+			}
+			for _, item := range tj.Machines {
+				uif.MachinesIDs = append(uif.MachinesIDs, item.ID)
+			}
+		}
+		if len(forceInsertIP) != 0 {
+			tj, bf := BatchImportIPAddrs(user, &BatchImportIPaddrs{Content: strings.Join(forceInsertIP, ";"), JobsID: []int{}})
+			if bf != Success {
+				return nil, bf
+			}
+			for _, item := range tj.Machines {
+				uif.MachinesIDs = append(uif.MachinesIDs, item.ID)
+			}
+		}
 	}
 	return &uif, Success
 }

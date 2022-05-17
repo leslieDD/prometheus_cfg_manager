@@ -551,7 +551,7 @@ func putJobMachinesBlack(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	cInfo, bf := models.ChangeIPAddrUseID(string(body))
+	cInfo, bf := models.ChangeIPAddrUseID(user, string(body), false)
 	if bf != models.Success {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, models.ErrPostData)
 		resComm(c, bf, nil)
@@ -913,6 +913,12 @@ func postUpdateJobIPsV2(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
+	var force bool
+	if strings.ToLower(c.Query("force")) == "true" {
+		force = true
+	} else {
+		force = false
+	}
 	// 把IP替换成对应的ID编号
 	body, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -921,7 +927,7 @@ func postUpdateJobIPsV2(c *gin.Context) {
 		resComm(c, models.ErrPostData, nil)
 		return
 	}
-	cInfo, bf := models.ChangeIPAddrUseID(string(body))
+	cInfo, bf := models.ChangeIPAddrUseID(user, string(body), force)
 	if bf != models.Success {
 		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job ip pool", models.IsUpdate, models.ErrPostData)
 		resComm(c, bf, nil)
@@ -1242,7 +1248,7 @@ func batchImportIPAddrs(c *gin.Context) {
 		resComm(c, models.ErrUpdateData, nil)
 		return
 	}
-	bf := models.BatchImportIPAddrs(user, &content)
+	_, bf := models.BatchImportIPAddrs(user, &content)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "batch import ip[web]", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }
@@ -1260,7 +1266,7 @@ func batchImportDomain(c *gin.Context) {
 		resComm(c, models.ErrUpdateData, nil)
 		return
 	}
-	bf := models.BatchImportDomain(user, &content)
+	_, bf := models.BatchImportDomain(user, &content)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "batch import domain", models.IsAdd, bf)
 	resComm(c, bf, nil)
 }

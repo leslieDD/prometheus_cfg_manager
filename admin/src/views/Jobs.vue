@@ -418,14 +418,17 @@
       :before-close="clearIPListClose"
       custom-class="editIPListDialog"
     >
-    <span><el-tag type="warning">IP以半角分号（;）隔开，只会添加在“IP管理”中已经有的IP地址</el-tag></span>
+      <span><el-tag type="warning">IP以半角分号（;）隔开，只会添加在“IP管理”中已经有的IP地址</el-tag></span>
       <div>
         <el-input
           type="textarea"
-          :autosize="{ minRows: 20, maxRows: 20}"
+          :autosize="{ minRows: 18, maxRows: 18}"
           placeholder="请输入内容"
           v-model="ipListConetnt">
         </el-input>
+      </div>
+      <div class="force-insert-ipaddr">
+        <el-checkbox v-model="force_insert" label="当填入的IP不在“IP管理”中时，强制插入" size="small" />
       </div>
       <div class="ip-list-push-box">
         <el-button
@@ -567,6 +570,7 @@ export default {
       currentJobReWriteRule: '',
       reWriteRuleInfo: null,
       dialogJobReWriteRuleVisible: false,
+      force_insert: false,
     }
   },
   created () {
@@ -1110,7 +1114,7 @@ export default {
       }
     },
     updateJobIPListV2(){
-      updateIPV2ForJob(this.ipListConetnt, this.currentJobId).then(r => {
+      updateIPV2ForJob(this.ipListConetnt, this.currentJobId, this.force_insert).then(r => {
         this.$notify({
           title: '成功',
           message: '整理成功！',
@@ -1271,6 +1275,12 @@ el-tabs {
 :deep() .editIPListDialog > div.el-dialog__body {
   padding-top: 6px;
 }
+
+.force-insert-ipaddr {
+  margin-top: 15px;
+  margin-bottom: 5px;
+}
+
 .dialog-relabel-ruleshow :deep() .el-dialog__body {
   padding-top: 5px;
   /* padding-bottom: 5px; */
