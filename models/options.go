@@ -224,7 +224,7 @@ func doOptions_3() ([]*OnlyIDAndCount, *BriefMessage) {
 	return idC, Success
 }
 
-func DoTmplBefore() *BriefMessage {
+func DoTmplBefore(user *UserSessionInfo) *BriefMessage {
 	// 在发布JOB组时，针对没有配置任何子组的JOB组，是否为此JOB组的所有IP生成无标签子组
 	r, bf := CheckByFiled("publish_at_null_subgroup", "true")
 	if bf != Success {
@@ -243,6 +243,22 @@ func DoTmplBefore() *BriefMessage {
 	if r {
 		if bf := doOptions_2(); bf != Success {
 			return bf
+		}
+	}
+	if CheckByFiledIsTrue("group_by_idc_line_label") {
+		if bf := CreateLabelForAllIPs(user, nil); bf != Success {
+			return bf
+		}
+	}
+	if CheckByFiledIsTrue("labeled_all_ip") {
+		if bf := UpdateAllIPAddrs(user, false); bf != Success {
+			return bf
+		}
+	} else {
+		if CheckByFiledIsTrue("labeled_ip_no_label") {
+			if bf := UpdateAllIPAddrs(user, true); bf != Success {
+				return bf
+			}
 		}
 	}
 	return Success

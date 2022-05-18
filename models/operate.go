@@ -312,6 +312,9 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 			{OptKey: "position_ipaddr", OptValue: "false"},
 			{OptKey: "sync_prometheus_status", OptValue: "false"},
 			{OptKey: "expand_skip_ipv6", OptValue: "true"},
+			{OptKey: "group_by_idc_line_label", OptValue: "true"},
+			{OptKey: "labeled_ip_no_label", OptValue: "true"},
+			{OptKey: "labeled_all_ip", OptValue: "false"},
 		}
 		if err := tx.Table("options").Create(&opts).Error; err != nil {
 			return err

@@ -194,6 +194,66 @@
           </el-switch>
         </el-tooltip>
       </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          9）在“控制中心”，点击生成规则时，为JOB组中的所有IP，根据标签进行分组
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.group_by_idc_line_label"
+          placement="top"
+        >
+          <el-switch
+            v-model="options.group_by_idc_line_label"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'group_by_idc_line_label')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          9）在“控制中心”，点击生成规则时，为所有IP打标签
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.labeled_all_ip"
+          placement="top"
+        >
+          <el-switch
+            v-model="options.labeled_all_ip"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'labeled_all_ip')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
+      <el-descriptions-item>
+        <template #label>
+          <!-- <i class="el-icon-mobile-phone"></i> -->
+          9）在“控制中心”，点击生成规则时，为还没有标签的IP打标签
+        </template>
+        <el-tooltip
+          :content="'当前:' + titles.labeled_ip_no_label"
+          placement="top"
+        >
+          <el-switch
+            v-model="options.labeled_ip_no_label"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+            @change="doPutOptions($event, 'labeled_ip_no_label')"
+            active-value="true"
+            inactive-value="false"
+          >
+          </el-switch>
+        </el-tooltip>
+      </el-descriptions-item>
     </el-descriptions>
   </div>
 </template>
@@ -212,7 +272,10 @@ export default {
         publish_ips_also_reload_srv: 'false',
         position_ipaddr: 'false',
         sync_prometheus_status: 'false',
-        expand_skip_ipv6: 'false'
+        expand_skip_ipv6: 'false',
+        group_by_idc_line_label: 'false',
+        labeled_all_ip: 'false',
+        labeled_ip_no_label: 'false'
       },
       titles: {
         publish_at_null_subgroup: '关闭',
@@ -223,7 +286,10 @@ export default {
         publish_ips_also_reload_srv: '关闭',
         position_ipaddr: '关闭',
         sync_prometheus_status: '关闭',
-        expand_skip_ipv6: '关闭'
+        expand_skip_ipv6: '关闭',
+        group_by_idc_line_label: '关闭',
+        labeled_all_ip: '关闭',
+        labeled_ip_no_label: '关闭'
       }
     }
   },

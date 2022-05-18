@@ -821,7 +821,7 @@ func publishJobs(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	bf := models.AllowOneObj.DoPublishJobs(false)
+	bf := models.AllowOneObj.DoPublishJobs(user, false)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish job", models.IsPublish, bf)
 	resComm(c, bf, nil)
 }
@@ -833,7 +833,7 @@ func publishDefJobs(c *gin.Context) {
 		resComm(c, pass, nil)
 		return
 	}
-	bf := models.AllowOneObj.DoPublishJobs(false)
+	bf := models.AllowOneObj.DoPublishJobs(user, false)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish default jobs", models.IsPublish, bf)
 	resComm(c, bf, nil)
 }
@@ -2104,7 +2104,7 @@ func ctlCreate(c *gin.Context) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
-	bf := models.AllowOneObj.DoPublishJobs(false)
+	bf := models.AllowOneObj.DoPublishJobs(user, false)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create prometheus config", models.IsPublish, bf)
 	sync.AS.Done(sync.ReCreateAllPrometheusConfig)
 	resComm(c, bf, nil)
@@ -2138,7 +2138,7 @@ func ctlCreateAReload(c *gin.Context) {
 		resComm(c, models.ErrAlreadyRunning, nil)
 		return
 	}
-	bf := models.AllowOneObj.DoPublishJobs(true)
+	bf := models.AllowOneObj.DoPublishJobs(user, true)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create prometheus config", models.IsPublish, bf)
 	if bf != models.Success {
 		sync.AS.Done(sync.ReCreateAndReloadPrometheusConfig)

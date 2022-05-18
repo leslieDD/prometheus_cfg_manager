@@ -94,11 +94,11 @@
           <el-button size="small" type="success" icon="el-icon-baseball" class="button" @click="idcAppend">增加机房</el-button>
           <el-button size="small" type="info" icon="el-icon-refresh" plain class="button" @click="flushtree">刷新列表</el-button>
           <el-button v-if="pushing_all===false" icon="el-icon-upload" type="warning" plain size="small" class="button" 
-            @click="updateAllIPAddrs">更新所有IP</el-button>
+            @click="updateAllIPAddrs">为所有IP打标签</el-button>
           <el-button v-if="pushing_all===true" icon="el-icon-loading" type="warning" plain size="small" class="button" 
-            @click="updateAllIPAddrs">更新所有IP</el-button>
+            @click="updateAllIPAddrs">为所有IP打标签</el-button>
           <el-button v-if="pushing_part===false" icon="el-icon-upload" type="warning" plain size="small" class="button" 
-            @click="updatePartIPAddrs">只更新未设置IP</el-button>
+            @click="updatePartIPAddrs">为没有标签IP打标签</el-button>
           <el-button v-if="pushing_part===true" icon="el-icon-loading"  type="warning" plain size="small" class="button" 
             @click="updatePartIPAddrs">只更新未设置IP</el-button>
           <el-button v-if="pushing_create_label===false" icon="el-icon-upload" type="info" plain size="small" class="button" 
