@@ -197,7 +197,7 @@
       <el-descriptions-item>
         <template #label>
           <!-- <i class="el-icon-mobile-phone"></i> -->
-          9）在“控制中心”，点击生成规则时，为JOB组中的所有IP，根据标签进行分组
+          10）在“控制中心”，点击生成规则时，为JOB组中的所有IP，根据标签进行分组
         </template>
         <el-tooltip
           :content="'当前:' + titles.group_by_idc_line_label"
@@ -217,7 +217,7 @@
       <el-descriptions-item>
         <template #label>
           <!-- <i class="el-icon-mobile-phone"></i> -->
-          9）在“控制中心”，点击生成规则时，为所有IP打标签
+          11）在“控制中心”，点击生成规则时，为所有IP打标签
         </template>
         <el-tooltip
           :content="'当前:' + titles.labeled_all_ip"
@@ -237,7 +237,7 @@
       <el-descriptions-item>
         <template #label>
           <!-- <i class="el-icon-mobile-phone"></i> -->
-          9）在“控制中心”，点击生成规则时，为还没有标签的IP打标签
+          12）在“控制中心”，点击生成规则时，为还没有标签的IP打标签
         </template>
         <el-tooltip
           :content="'当前:' + titles.labeled_ip_no_label"
