@@ -144,20 +144,20 @@
                 </template>
               </el-table-column>
             </el-table>
-            <div class="block">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="currentPage"
-                :page-sizes="[18, 25, 30]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="pageTotal"
-              >
-              </el-pagination>
-            </div>
           </div>
         </el-scrollbar>
+        <div class="block">
+          <el-pagination
+            @size-change="handleSizeChange"
+            @current-change="handleCurrentChange"
+            :current-page="currentPage"
+            :page-sizes="[18, 25, 30]"
+            :page-size="pageSize"
+            layout="total, sizes, prev, pager, next, jumper"
+            :total="pageTotal"
+          >
+          </el-pagination>
+        </div>
       </div>
     </div>
     <el-dialog
@@ -555,7 +555,7 @@ export default {
   text-align: center;
 }
 .block {
-  padding-top: 12px;
+  padding-top: 6px;
 }
 .yaml-relabel-edit {
   border: 1px solid burlywood;
