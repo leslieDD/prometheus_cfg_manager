@@ -114,7 +114,7 @@ export default {
 }
 .base-config-router {
   width: 100%;
-  height: 85vh;
+  height: 89vh;
 }
 .base-config-board {
   display: flex;

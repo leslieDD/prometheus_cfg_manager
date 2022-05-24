@@ -52,7 +52,7 @@
         ></el-input>
       </el-descriptions-item>
     </el-descriptions>
-    <el-scrollbar height="75vh" class="flex-content">
+    <el-scrollbar height="78vh" class="flex-content">
       <el-table
         size="mini"
         highlight-current-row
@@ -94,19 +94,19 @@
         >
         </el-table-column>
       </el-table>
-      <div class="block" v-if="paginationShow">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="[25, 50, 80, 100]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="pageTotal"
-        >
-        </el-pagination>
-      </div>
     </el-scrollbar>
+    <div class="block" v-if="paginationShow">
+      <el-pagination
+        @size-change="handleSizeChange"
+        @current-change="handleCurrentChange"
+        :current-page="currentPage"
+        :page-sizes="[25, 50, 80, 100]"
+        :page-size="pageSize"
+        layout="total, sizes, prev, pager, next, jumper"
+        :total="pageTotal"
+      >
+      </el-pagination>
+    </div>
   </div>
 </template>
 
@@ -246,7 +246,7 @@ export default {
   text-align: center;
 }
 .block {
-  padding-top: 12px;
+  padding-top: 6px;
 }
 .system-area {
   display: flex;
