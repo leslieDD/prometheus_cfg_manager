@@ -33,6 +33,16 @@
             >添加组</el-button
           >
         </span>
+        <span class="text-area">
+          <span class="type-title">只展示：</span>
+          <span class="mb-2 flex items-center text-sm">
+            <el-radio-group  v-model="displayJobType">
+              <el-radio label="all" size="small">所有</el-radio>
+              <el-radio label="enable" size="small">启用</el-radio>
+              <el-radio label="disable" size="small">禁用</el-radio>
+            </el-radio-group>
+          </span>
+        </span>
         <span>
           <el-input
             size="small"
@@ -571,6 +581,7 @@ export default {
       reWriteRuleInfo: null,
       dialogJobReWriteRuleVisible: false,
       force_insert: false,
+      displayJobType: 'enable',
     }
   },
   created () {
@@ -616,6 +627,9 @@ export default {
           'pageSize': this.pageSize,
           'search': this.searchContent
         }
+      }
+      if (!getInfo.type) {
+        getInfo.type = this.displayJobType
       }
       getJobsWithSplitPage(getInfo).then(
         r => {
@@ -1284,5 +1298,23 @@ el-tabs {
 .dialog-relabel-ruleshow :deep() .el-dialog__body {
   padding-top: 5px;
   /* padding-bottom: 5px; */
+}
+.type-title {
+  position:relative;letter-spacing:.07em;font-size:13px;font-weight:normal;margin:0 auto
+}
+.do-action-search :deep() .el-radio {
+  margin-right: 8px;
+}
+
+.do-action-search :deep() .el-radio__label {
+  padding-left: 1px;
+}
+.text-area {
+  padding-left: 12px;
+  padding-right: 8px;
+  padding-top: 5px;
+  padding-bottom: 8px;
+  border-radius: 3px;
+  border: 1px solid #dcdfe6;
 }
 </style>
