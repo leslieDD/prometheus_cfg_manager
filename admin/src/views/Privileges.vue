@@ -9,6 +9,7 @@
         style="width: 100%"
         :row-style="rowStyle"
         :cell-style="cellStyle"
+        height="88vh"
       >
         <el-table-column prop="page_nice_name" label="页面" width="120px">
         </el-table-column>

@@ -52,7 +52,7 @@
         ></el-input>
       </el-descriptions-item>
     </el-descriptions>
-    <el-scrollbar height="78vh" class="flex-content">
+    <!-- <el-scrollbar height="78vh" class="flex-content"> -->
       <el-table
         size="mini"
         highlight-current-row
@@ -61,6 +61,7 @@
         stripe
         :row-style="rowStyle"
         :cell-style="cellStyle"
+        height="78vh"
       >
         <el-table-column label="序号" width="50px">
           <template v-slot="scope">
@@ -94,7 +95,7 @@
         >
         </el-table-column>
       </el-table>
-    </el-scrollbar>
+    <!-- </el-scrollbar> -->
     <div class="block" v-if="paginationShow">
       <el-pagination
         @size-change="handleSizeChange"
