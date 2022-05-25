@@ -196,10 +196,26 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	GROUP BY t.id
 	ORDER BY t.id) AS t2 ORDER BY t2.display_order asc `
 	if sp.Search != "" {
-		sql = fmt.Sprintf(sql,
-			fmt.Sprintf(" jobs.name like '%s' and jobs.is_common=0 ", fmt.Sprint("%", sp.Search, "%")))
+		switch sp.Option {
+		case "enable":
+			sql = fmt.Sprintf(sql,
+				fmt.Sprintf(" jobs.enabled=1 and  jobs.name like '%s' and jobs.is_common=0 ", fmt.Sprint("%", sp.Search, "%")))
+		case "disable":
+			sql = fmt.Sprintf(sql,
+				fmt.Sprintf(" jobs.enabled=0 and jobs.name like '%s' and jobs.is_common=0 ", fmt.Sprint("%", sp.Search, "%")))
+		default:
+			sql = fmt.Sprintf(sql,
+				fmt.Sprintf(" jobs.name like '%s' and jobs.is_common=0 ", fmt.Sprint("%", sp.Search, "%")))
+		}
 	} else {
-		sql = fmt.Sprintf(sql, " is_common=0 ")
+		switch sp.Option {
+		case "enable":
+			sql = fmt.Sprintf(sql, " jobs.enabled=1 and jobs.is_common=0 ")
+		case "disable":
+			sql = fmt.Sprintf(sql, " jobs.enabled=0 and jobs.is_common=0 ")
+		default:
+			sql = fmt.Sprintf(sql, " jobs.is_common=0 ")
+		}
 	}
 	sql = sql + fmt.Sprintf(" LIMIT %d OFFSET %d ", sp.PageSize, (sp.PageNo-1)*sp.PageSize)
 	tx = db.Table("jobs").Raw(sql).Find(&jobs)

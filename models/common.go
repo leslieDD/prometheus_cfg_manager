@@ -14,20 +14,20 @@ import (
 	"gorm.io/gorm"
 )
 
-type OptionType int
+// type OptionType int
 
-const (
-	isIPAddr OptionType = 1
-	isGroup  OptionType = 2
-)
+// const (
+// 	isIPAddr OptionType = 1
+// 	isGroup  OptionType = 2
+// )
 
 // SplitPage SplitPage分页
 type SplitPage struct {
-	PageNo   int        `form:"pageNo"`
-	PageSize int        `form:"pageSize"`
-	Search   string     `form:"search"`
-	Option   OptionType `form:"option"`
-	ID       int        `form:"id"`
+	PageNo   int    `form:"pageNo"`
+	PageSize int    `form:"pageSize"`
+	Search   string `form:"search"`
+	Option   string `form:"option"`
+	ID       int    `form:"id"`
 }
 
 // ResSplitPage 返回的分页信息

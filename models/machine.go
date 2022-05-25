@@ -8,7 +8,6 @@ import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
 	"pro_cfg_manager/utils"
-	"strconv"
 	"strings"
 	"time"
 
@@ -180,15 +179,30 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	ON machines.id=job_machines.machine_id 
 	LEFT JOIN jobs 
 	ON jobs.id=job_machines.job_id `, s)
-		like := `'%` + sp.Search + `%'`
-		whereLike := fmt.Sprintf(" AND (machines.ipaddr LIKE %s OR jobs.name LIKE %s OR machines.position LIKE %s OR machines.idc_name LIKE %s OR machines.line_name LIKE %s ) ",
-			like, like, like, like, like)
-		where := " WHERE (jobs.is_common=0 OR jobs.is_common IS NULL) " +
-			" %s " +
-			" GROUP BY machines.ipaddr " +
-			" ORDER BY machines.enabled desc " // machines.update_at desc
+		var where string
+		switch sp.Option {
+		case "enable":
+			where = " WHERE machines.enabled=1 and (jobs.is_common=0 OR jobs.is_common IS NULL) " +
+				" %s " +
+				" GROUP BY machines.ipaddr " +
+				" ORDER BY machines.enabled desc " // machines.update_at desc
+		case "disable":
+			where = " WHERE machines.enabled=0 and (jobs.is_common=0 OR jobs.is_common IS NULL) " +
+				" %s " +
+				" GROUP BY machines.ipaddr " +
+				" ORDER BY machines.enabled desc " // machines.update_at desc
+		default:
+			where = " WHERE (is_common=0 OR is_common IS NULL) " +
+				" %s " +
+				" GROUP BY machines.ipaddr " +
+				" ORDER BY machines.enabled desc " // machines.update_at desc
+		}
+
 		var likeSql string
 		if sp.Search != "" {
+			like := `'%` + sp.Search + `%'`
+			whereLike := fmt.Sprintf(" AND (machines.ipaddr LIKE %s OR jobs.name LIKE %s OR machines.position LIKE %s OR machines.idc_name LIKE %s OR machines.line_name LIKE %s ) ",
+				like, like, like, like, like)
 			likeSql = sql + fmt.Sprintf(where, whereLike)
 		} else {
 			likeSql = sql + fmt.Sprintf(where, "")
@@ -244,64 +258,64 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	return CalSplitPage(sp, count, listsSend), Success
 }
 
-func GetMachines(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
-	if sp.PageSize <= 0 {
-		sp.PageSize = 15
-	}
-	if sp.PageNo <= 0 {
-		sp.PageNo = 1
-	}
-	db := dbs.DBObj.GetGoRM()
-	if db == nil {
-		config.Log.Error(InternalGetBDInstanceErr)
-		return nil, ErrDataBase
-	}
-	machines := []Machine{}
-	var jsonStr string
-	var count int64
-	var tx *gorm.DB
-	tx = db.Table("machines")
-	if sp.Search != "" {
-		if sp.Option == isGroup {
-			list, bf := getJobId(sp.Search)
-			if bf != Success {
-				return nil, ErrSearchDBData
-			}
-			if len(list) == 0 {
-				return CalSplitPage(sp, count, machines), Success
-			}
-			listStr := []string{}
-			for _, v := range list {
-				listStr = append(listStr, strconv.Itoa(v.ID))
-			}
-			jsonStr = "JSON_CONTAINS(JSON_ARRAY(" + strings.Join(listStr, ",") + "), job_id)"
-			tx = tx.Where(jsonStr)
-		} else {
-			tx = tx.Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%"))
-		}
-	}
-	tx = tx.Count(&count)
-	if tx.Error != nil {
-		config.Log.Error(tx.Error)
-		return nil, ErrCount
-	}
-	tx2 := db.Table("machines")
-	if sp.Search != "" {
-		if sp.Option == isGroup {
-			tx2 = tx2.Where(jsonStr)
-		} else {
-			tx2 = tx2.Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%"))
-		}
-	}
-	tx2 = tx2.Order("update_at desc").Offset((sp.PageNo - 1) * sp.PageSize).
-		Limit(sp.PageSize).
-		Find(&machines)
-	if tx2.Error != nil {
-		config.Log.Error(tx2.Error)
-		return nil, ErrSearchDBData
-	}
-	return CalSplitPage(sp, count, machines), Success
-}
+// func GetMachines(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
+// 	if sp.PageSize <= 0 {
+// 		sp.PageSize = 15
+// 	}
+// 	if sp.PageNo <= 0 {
+// 		sp.PageNo = 1
+// 	}
+// 	db := dbs.DBObj.GetGoRM()
+// 	if db == nil {
+// 		config.Log.Error(InternalGetBDInstanceErr)
+// 		return nil, ErrDataBase
+// 	}
+// 	machines := []Machine{}
+// 	var jsonStr string
+// 	var count int64
+// 	var tx *gorm.DB
+// 	tx = db.Table("machines")
+// 	if sp.Search != "" {
+// 		if sp.Option == isGroup {
+// 			list, bf := getJobId(sp.Search)
+// 			if bf != Success {
+// 				return nil, ErrSearchDBData
+// 			}
+// 			if len(list) == 0 {
+// 				return CalSplitPage(sp, count, machines), Success
+// 			}
+// 			listStr := []string{}
+// 			for _, v := range list {
+// 				listStr = append(listStr, strconv.Itoa(v.ID))
+// 			}
+// 			jsonStr = "JSON_CONTAINS(JSON_ARRAY(" + strings.Join(listStr, ",") + "), job_id)"
+// 			tx = tx.Where(jsonStr)
+// 		} else {
+// 			tx = tx.Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%"))
+// 		}
+// 	}
+// 	tx = tx.Count(&count)
+// 	if tx.Error != nil {
+// 		config.Log.Error(tx.Error)
+// 		return nil, ErrCount
+// 	}
+// 	tx2 := db.Table("machines")
+// 	if sp.Search != "" {
+// 		if sp.Option == isGroup {
+// 			tx2 = tx2.Where(jsonStr)
+// 		} else {
+// 			tx2 = tx2.Where("ipaddr like ?", fmt.Sprint("%", sp.Search, "%"))
+// 		}
+// 	}
+// 	tx2 = tx2.Order("update_at desc").Offset((sp.PageNo - 1) * sp.PageSize).
+// 		Limit(sp.PageSize).
+// 		Find(&machines)
+// 	if tx2.Error != nil {
+// 		config.Log.Error(tx2.Error)
+// 		return nil, ErrSearchDBData
+// 	}
+// 	return CalSplitPage(sp, count, machines), Success
+// }
 
 func PostMachine(user *UserSessionInfo, m *Machine) *BriefMessage {
 	if utils.CheckIPAddr(m.IpAddr) {

@@ -628,8 +628,8 @@ export default {
           'search': this.searchContent
         }
       }
-      if (!getInfo.type) {
-        getInfo.type = this.displayJobType
+      if (!getInfo.option) {
+        getInfo.option = this.displayJobType
       }
       getJobsWithSplitPage(getInfo).then(
         r => {

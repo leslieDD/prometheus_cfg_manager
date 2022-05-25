@@ -80,8 +80,9 @@
                 v-model="selectOption"
                 placeholder="请选择"
               >
-                <el-option label="IP地址" value="1"></el-option>
-                <el-option label="分组" value="2"></el-option>
+                <el-option label="所有" value="all"></el-option>
+                <el-option label="启用" value="enable"></el-option>
+                <el-option label="禁用" value="disable"></el-option>
               </el-select>
             </template>
             <template #append>
@@ -638,7 +639,7 @@ export default {
       pageSize: 20,
       pageTotal: 0,
       currentPage: 1,
-      selectOption: '1',
+      selectOption: 'enable',
       searchContent: '',
       dialogVisible: false,
       deleteVisible: {},
