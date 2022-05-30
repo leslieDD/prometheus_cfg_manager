@@ -27,8 +27,9 @@ type Machine struct {
 }
 
 type TableJobMachines struct {
-	JobID     int `json:"job_id" gorm:"column:job_id"`
-	MachineID int `json:"machine_id" gorm:"column:machine_id"`
+	JobID     int  `json:"job_id" gorm:"column:job_id"`
+	MachineID int  `json:"machine_id" gorm:"column:machine_id"`
+	Blacked   bool `json:"blacked" gorm:"column:blacked"`
 }
 
 type ListMachine struct {

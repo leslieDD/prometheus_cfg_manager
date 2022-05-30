@@ -758,12 +758,28 @@ func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessag
 		return ErrDataBase
 	}
 	err := db.Transaction(func(tx *gorm.DB) error {
-		if err := db.Table("job_machines").
-			Where("job_id=?", cInfo.JobID).
-			Delete(nil).Error; err != nil {
+		jms := []*TableJobMachines{}
+		if err := db.Table("job_machines").Where("job_id=?", cInfo.JobID).Find(&jms).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
+		updateIDs := map[int]struct{}{}
+		for _, obj := range jms {
+			updateIDs[obj.MachineID] = struct{}{}
+		}
+		newInt := make([]int, 0, len(cInfo.MachinesIDs))
+		for _, c := range cInfo.MachinesIDs {
+			if _, ok := updateIDs[c]; !ok {
+				newInt = append(newInt, c)
+			}
+		}
+		// if err := tx.Table("job_machines").
+		// 	Where("job_id=?", cInfo.JobID).
+		// 	Delete(nil).Error; err != nil {
+		// 	config.Log.Error(err)
+		// 	return err
+		// }
+		cInfo.MachinesIDs = newInt
 		if len(cInfo.MachinesIDs) == 0 {
 			return nil
 		}
