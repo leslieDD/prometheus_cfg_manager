@@ -79,6 +79,7 @@
                 class="searchSelect"
                 v-model="selectOption"
                 placeholder="请选择"
+                @change="selectOptionChange"
               >
                 <el-option label="所有" value="all"></el-option>
                 <el-option label="启用" value="enable"></el-option>
@@ -598,6 +599,8 @@ import {
 import { publish } from '@/api/publish'
 import JsonView from '@/components/JsonView.vue'
 
+import { getStorageVal, setStorageVal } from '@/utils/localStorage.js'
+
 export default {
   name: 'Manager',
   components: {
@@ -700,6 +703,12 @@ export default {
     // this.doGetMechines()
   },
   mounted () {
+    let selectOption = getStorageVal('displayIPType')
+    if (selectOption === null) {
+      this.selectOption = 'enable'
+    } else {
+      this.selectOption = selectOption
+    }
     if (this.$route.params.currentPage) {
       this.currentPage = parseInt(this.$route.params.currentPage)
     }
@@ -1226,6 +1235,9 @@ export default {
             }, 0);
           }
       })
+    },
+    selectOptionChange(val){
+      setStorageVal('displayIPType', val)
     }
   }
 }

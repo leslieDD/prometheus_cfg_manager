@@ -36,7 +36,7 @@
         <span class="text-area">
           <span class="type-title">只展示：</span>
           <span class="mb-2 flex items-center text-sm">
-            <el-radio-group  v-model="displayJobType">
+            <el-radio-group @change="displayJobTypeChange" v-model="displayJobType">
               <el-radio label="all" size="small">所有</el-radio>
               <el-radio label="enable" size="small">启用</el-radio>
               <el-radio label="disable" size="small">禁用</el-radio>
@@ -507,6 +507,8 @@ import {
   putJobMachinesBlack,
 } from '@/api/labelsJob.js'
 
+import { getStorageVal, setStorageVal } from '@/utils/localStorage.js'
+
 import {getReLabel} from '@/api/relabel.js'
 
 export default {
@@ -588,6 +590,12 @@ export default {
     // this.doGetJobs()
   },
   mounted () {
+    let displayJobType = getStorageVal('displayJobType')
+    if (displayJobType === null) {
+      this.displayJobType = 'enable'
+    } else {
+      this.displayJobType = displayJobType
+    }
     if (this.$route.params.currentPage) {
       this.currentPage = parseInt(this.$route.params.currentPage)
     }
@@ -1175,6 +1183,9 @@ export default {
         }).catch(e=>console.log(e))
       }
     },
+    displayJobTypeChange(val){
+      setStorageVal('displayJobType', val)
+    }
   }
 }
 </script>

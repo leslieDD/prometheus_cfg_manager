@@ -1,4 +1,6 @@
 const storage_key = 'userInfo'
+const job_search_type = 'job_search_type'
+const ip_search_type = 'ip_search_type'
 
 export function getStorageUserInfo() {
   const getLocalData = localStorage.getItem(storage_key)
@@ -27,3 +29,10 @@ export function getStorageToken() {
   return jsonObj.session.token
 }
 
+export function getStorageVal(key) {
+  return localStorage.getItem(key)
+}
+
+export function setStorageVal(key, value) {
+  localStorage.setItem(key, value)
+}
