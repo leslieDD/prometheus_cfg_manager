@@ -220,59 +220,59 @@ func ConvertOnlyIdToIntSlice(oi []OnlyID) []int {
 // 	"county_code": "350104"
 // }
 
-type IPPosition struct {
-	Country      string `json:"country"`
-	Province     string `json:"province"`
-	City         string `json:"city"`
-	County       string `json:"county"`
-	ISP          string `json:"isp"`
-	CountryCode  string `json:"country_code"`
-	CountryEN    string `json:"country_en"`
-	CityEN       string `json:"city_en"`
-	Longitude    string `json:"longitude"`
-	Latitude     string `json:"latitude"`
-	ISPCode      string `json:"isp_code"`
-	Routes       string `json:"routes"`
-	ProvinceCode string `json:"province_code"`
-	CityCode     string `json:"city_code"`
-	CountyCode   string `json:"county_code"`
-	Error        string `json:"error"`
-}
+// type IPPosition struct {
+// 	Country      string `json:"country"`
+// 	Province     string `json:"province"`
+// 	City         string `json:"city"`
+// 	County       string `json:"county"`
+// 	ISP          string `json:"isp"`
+// 	CountryCode  string `json:"country_code"`
+// 	CountryEN    string `json:"country_en"`
+// 	CityEN       string `json:"city_en"`
+// 	Longitude    string `json:"longitude"`
+// 	Latitude     string `json:"latitude"`
+// 	ISPCode      string `json:"isp_code"`
+// 	Routes       string `json:"routes"`
+// 	ProvinceCode string `json:"province_code"`
+// 	CityCode     string `json:"city_code"`
+// 	CountyCode   string `json:"county_code"`
+// 	Error        string `json:"error"`
+// }
 
-func (i *IPPosition) String() string {
-	c, err := json.Marshal(i)
-	if err != nil {
-		config.Log.Error(err)
-		return ""
-	}
-	return string(c)
-}
+// func (i *IPPosition) String() string {
+// 	c, err := json.Marshal(i)
+// 	if err != nil {
+// 		config.Log.Error(err)
+// 		return ""
+// 	}
+// 	return string(c)
+// }
 
-func GetIPPosition(ipAddr string) *IPPosition {
-	postData := []byte(fmt.Sprintf("ipaddr=%s&submit=xxxx", ipAddr))
-	resp, err := utils.PostForm(config.Cfg.Position, postData)
-	if err != nil {
-		config.Log.Error(err)
-		return nil
-	}
-	if len(resp) == 0 {
-		return nil
-	}
-	content := string(resp)
-	ipp := IPPosition{}
-	if !strings.Contains(content, "<html>") {
-		config.Log.Error("返回的数据可能不正确，内容中没有包括<html>")
-		return nil
-	}
-	jsonData := strings.Split(content, "<html")
-	// config.Log.Print(string(resp.Header.Get("X-GeoIP")))
-	// config.Log.Print(jsonData[0])
-	if err := json.Unmarshal([]byte(jsonData[0]), &ipp); err != nil {
-		config.Log.Error(err)
-		return nil
-	}
-	return &ipp
-}
+// func GetIPPosition(ipAddr string) *IPPosition {
+// 	postData := []byte(fmt.Sprintf("ipaddr=%s&submit=xxxx", ipAddr))
+// 	resp, err := utils.PostForm(config.Cfg.Position, postData)
+// 	if err != nil {
+// 		config.Log.Error(err)
+// 		return nil
+// 	}
+// 	if len(resp) == 0 {
+// 		return nil
+// 	}
+// 	content := string(resp)
+// 	ipp := IPPosition{}
+// 	if !strings.Contains(content, "<html>") {
+// 		config.Log.Error("返回的数据可能不正确，内容中没有包括<html>")
+// 		return nil
+// 	}
+// 	jsonData := strings.Split(content, "<html")
+// 	// config.Log.Print(string(resp.Header.Get("X-GeoIP")))
+// 	// config.Log.Print(jsonData[0])
+// 	if err := json.Unmarshal([]byte(jsonData[0]), &ipp); err != nil {
+// 		config.Log.Error(err)
+// 		return nil
+// 	}
+// 	return &ipp
+// }
 
 func ParseIPAddrsFromString(content string) map[string]struct{} {
 	items := []string{}

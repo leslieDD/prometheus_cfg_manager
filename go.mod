@@ -23,7 +23,6 @@ require (
 	github.com/spf13/pflag v1.0.5
 	github.com/tklauser/go-sysconf v0.3.7 // indirect
 	github.com/xuri/excelize/v2 v2.6.0
-	go.uber.org/atomic v1.6.0
 	golang.org/x/text v0.3.7
 	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
 	gorm.io/datatypes v1.0.1

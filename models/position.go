@@ -99,8 +99,7 @@ func NewGPS() *GPS {
 
 // GPS GPS
 type GPS struct {
-	geolock sync.Mutex
-	dbGeo   *geoip2.Reader
+	dbGeo *geoip2.Reader
 
 	ip2region   sync.Mutex
 	dbIP2Region *ip2region.Ip2Region
