@@ -174,9 +174,9 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	var tx *gorm.DB
 	tx = db.Table("jobs")
 	if sp.Search != "" {
-		tx = tx.Where("name like ? and is_common=0", fmt.Sprint("%", sp.Search, "%"))
+		tx = tx.Where("jobs.enabled=1 and name like ? and is_common=0", fmt.Sprint("%", sp.Search, "%"))
 	} else {
-		tx = tx.Where("is_common=0")
+		tx = tx.Where("jobs.enabled=1 and is_common=0")
 	}
 	tx = tx.Count(&count)
 	if tx.Error != nil {
