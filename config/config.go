@@ -14,6 +14,11 @@ type mysql struct {
 	URL string `json:"url" yaml:"url"`
 }
 
+type gps struct {
+	Geo       string `json:"geo" yaml:"geo"`
+	IP2region string `json:"ip2region" yaml:"ip2region"`
+}
+
 type prometheusCfg struct {
 	RootDir string `json:"dir" yaml:"dir"`
 	// TmplFile    string `json:"tmpl" yaml:"tmpl"`
@@ -38,6 +43,7 @@ type Config struct {
 	Mysql         mysql         `json:"mysql" yaml:"mysql"`
 	PrometheusCfg prometheusCfg `json:"prometheus_cfg" yaml:"prometheus_cfg"`
 	Position      string        `json:"position" yaml:"position"`
+	GPS           gps           `json:"gps" yaml:"gps"`
 	RuntimeParam  runtimeParam  `json:"-" yaml:"-"`
 }
 
