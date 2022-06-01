@@ -67,6 +67,7 @@
                       <el-tag v-if="data.view === false" type="info" size="small" @click="do_expand_idc_view(data, true)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path d="M876.8 156.8c0-9.6-3.2-16-9.6-22.4-6.4-6.4-12.8-9.6-22.4-9.6-9.6 0-16 3.2-22.4 9.6L736 220.8c-64-32-137.6-51.2-224-60.8-160 16-288 73.6-377.6 176C44.8 438.4 0 496 0 512s48 73.6 134.4 176c22.4 25.6 44.8 48 73.6 67.2l-86.4 89.6c-6.4 6.4-9.6 12.8-9.6 22.4 0 9.6 3.2 16 9.6 22.4 6.4 6.4 12.8 9.6 22.4 9.6 9.6 0 16-3.2 22.4-9.6l704-710.4c3.2-6.4 6.4-12.8 6.4-22.4Zm-646.4 528c-76.8-70.4-128-128-153.6-172.8 28.8-48 80-105.6 153.6-172.8C304 272 400 230.4 512 224c64 3.2 124.8 19.2 176 44.8l-54.4 54.4C598.4 300.8 560 288 512 288c-64 0-115.2 22.4-160 64s-64 96-64 160c0 48 12.8 89.6 35.2 124.8L256 707.2c-9.6-6.4-19.2-16-25.6-22.4Zm140.8-96c-12.8-22.4-19.2-48-19.2-76.8 0-44.8 16-83.2 48-112 32-28.8 67.2-48 112-48 28.8 0 54.4 6.4 73.6 19.2L371.2 588.8ZM889.599 336c-12.8-16-28.8-28.8-41.6-41.6l-48 48c73.6 67.2 124.8 124.8 150.4 169.6-28.8 48-80 105.6-153.6 172.8-73.6 67.2-172.8 108.8-284.8 115.2-51.2-3.2-99.2-12.8-140.8-28.8l-48 48c57.6 22.4 118.4 38.4 188.8 44.8 160-16 288-73.6 377.6-176C979.199 585.6 1024 528 1024 512s-48.001-73.6-134.401-176Z" fill="currentColor"></path><path d="M511.998 672c-12.8 0-25.6-3.2-38.4-6.4l-51.2 51.2c28.8 12.8 57.6 19.2 89.6 19.2 64 0 115.2-22.4 160-64 41.6-41.6 64-96 64-160 0-32-6.4-64-19.2-89.6l-51.2 51.2c3.2 12.8 6.4 25.6 6.4 38.4 0 44.8-16 83.2-48 112-32 28.8-67.2 48-112 48Z" fill="currentColor"></path></svg></el-tag>
                      </span>
                     </el-tooltip>
+                    <el-tag size="small" type="warning" @click="doNoBellIDC(node, data)"><svg t="1654053900480" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1533" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13"><path d="M926.293333 865.706667l-768-768-60.586666 60.586666 167.253333 166.826667A270.506667 270.506667 0 0 0 256 392.533333V682.666667H170.666667v85.333333h213.333333a128 128 0 0 0 256 0h67.84l157.866667 158.293333zM512 810.666667a42.666667 42.666667 0 0 1-42.666667-42.666667h85.333334a42.666667 42.666667 0 0 1-42.666667 42.666667z m-170.666667-128V401.493333L622.506667 682.666667zM512 213.333333a174.933333 174.933333 0 0 1 170.666667 179.2V512l85.333333 85.333333V392.533333A260.693333 260.693333 0 0 0 512 128a246.186667 246.186667 0 0 0-157.013333 56.32l60.586666 60.586667A162.133333 162.133333 0 0 1 512 213.333333z" p-id="1534"></path></svg></el-tag>
                     <el-tag size="small" type="danger" @click="removeIDC(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
                   </span>
                   <span v-if="data.tree_type === 'line'">
@@ -83,7 +84,8 @@
                       <el-tag v-if="data.view === false" type="info" size="small" @click="do_expand_line_view(data, true)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-78e17ca8=""><path d="M876.8 156.8c0-9.6-3.2-16-9.6-22.4-6.4-6.4-12.8-9.6-22.4-9.6-9.6 0-16 3.2-22.4 9.6L736 220.8c-64-32-137.6-51.2-224-60.8-160 16-288 73.6-377.6 176C44.8 438.4 0 496 0 512s48 73.6 134.4 176c22.4 25.6 44.8 48 73.6 67.2l-86.4 89.6c-6.4 6.4-9.6 12.8-9.6 22.4 0 9.6 3.2 16 9.6 22.4 6.4 6.4 12.8 9.6 22.4 9.6 9.6 0 16-3.2 22.4-9.6l704-710.4c3.2-6.4 6.4-12.8 6.4-22.4Zm-646.4 528c-76.8-70.4-128-128-153.6-172.8 28.8-48 80-105.6 153.6-172.8C304 272 400 230.4 512 224c64 3.2 124.8 19.2 176 44.8l-54.4 54.4C598.4 300.8 560 288 512 288c-64 0-115.2 22.4-160 64s-64 96-64 160c0 48 12.8 89.6 35.2 124.8L256 707.2c-9.6-6.4-19.2-16-25.6-22.4Zm140.8-96c-12.8-22.4-19.2-48-19.2-76.8 0-44.8 16-83.2 48-112 32-28.8 67.2-48 112-48 28.8 0 54.4 6.4 73.6 19.2L371.2 588.8ZM889.599 336c-12.8-16-28.8-28.8-41.6-41.6l-48 48c73.6 67.2 124.8 124.8 150.4 169.6-28.8 48-80 105.6-153.6 172.8-73.6 67.2-172.8 108.8-284.8 115.2-51.2-3.2-99.2-12.8-140.8-28.8l-48 48c57.6 22.4 118.4 38.4 188.8 44.8 160-16 288-73.6 377.6-176C979.199 585.6 1024 528 1024 512s-48.001-73.6-134.401-176Z" fill="currentColor"></path><path d="M511.998 672c-12.8 0-25.6-3.2-38.4-6.4l-51.2 51.2c28.8 12.8 57.6 19.2 89.6 19.2 64 0 115.2-22.4 160-64 41.6-41.6 64-96 64-160 0-32-6.4-64-19.2-89.6l-51.2 51.2c3.2 12.8 6.4 25.6 6.4 38.4 0 44.8-16 83.2-48 112-32 28.8-67.2 48-112 48Z" fill="currentColor"></path></svg></el-tag>
                      </span>
                     </el-tooltip>
-                    <el-tag size="small" type="danger" @click="removeLine(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag >
+                    <el-tag size="small" type="warning" @click="doNoBellLine(node, data)"><svg t="1654053900480" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="1533" xmlns:xlink="http://www.w3.org/1999/xlink" width="13" height="13"><path d="M926.293333 865.706667l-768-768-60.586666 60.586666 167.253333 166.826667A270.506667 270.506667 0 0 0 256 392.533333V682.666667H170.666667v85.333333h213.333333a128 128 0 0 0 256 0h67.84l157.866667 158.293333zM512 810.666667a42.666667 42.666667 0 0 1-42.666667-42.666667h85.333334a42.666667 42.666667 0 0 1-42.666667 42.666667z m-170.666667-128V401.493333L622.506667 682.666667zM512 213.333333a174.933333 174.933333 0 0 1 170.666667 179.2V512l85.333333 85.333333V392.533333A260.693333 260.693333 0 0 0 512 128a246.186667 246.186667 0 0 0-157.013333 56.32l60.586666 60.586667A162.133333 162.133333 0 0 1 512 213.333333z" p-id="1534"></path></svg></el-tag>
+                    <el-tag size="small" type="danger" @click="removeLine(node, data)"> <svg class="icon" width="13" height="13" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" data-v-042ca774=""><path fill="currentColor" d="M352 192V95.936a32 32 0 0132-32h256a32 32 0 0132 32V192h256a32 32 0 110 64H96a32 32 0 010-64h256zm64 0h192v-64H416v64zM192 960a32 32 0 01-32-32V256h704v672a32 32 0 01-32 32H192zm224-192a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32zm192 0a32 32 0 0032-32V416a32 32 0 00-64 0v320a32 32 0 0032 32z"></path></svg> </el-tag>
                   </span>
                 </span>
               </template>
@@ -208,11 +210,14 @@
   import { updateAllIPAddrsNetInfo, updatePartIPAddrsNetInfo } from '@/api/idc.js'
   // import { getLine, getLines, postLine, putLine, delLine } from '@/api/idc.js'
   import { getLineIpAddrs, putLineIpAddrs, createLabelForAllIPs, createIPForJob } from '@/api/idc.js'
+  import { noBellIDC, noBellLine } from '@/api/idc.js'
+  // import SingleSvg from '../components/singleSvg.vue'
 
   import { Base64 } from 'js-base64';
 
   export default {
     data() {
+      // SingleSvg
       const data = [];
       function validateStr (rule, value, callback) {
         if (value === '' || typeof value === 'undefined' || value == null) {
@@ -516,6 +521,36 @@
         //     console.log(e)
         //   })
         // }).catch(e => console.log(e))
+      },
+      doNoBellIDC(node, data){
+        this.$confirm('确认设置此IDC下，所有线路IP都不报警', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '放弃'
+        }).then(_ => {
+          noBellIDC({id: data.id}).then(r=>{
+            this.$notify({
+              title: '成功',
+              message: '以下IDC中IP已加黑',
+              type: 'success'
+            });
+          }).catch(e=>console.log(e))
+        }).catch(e => console.log(e))
+      },
+      doNoBellLine(node, data){
+        this.$confirm('确认设置此线路中IP都不报警', '确认信息', {
+          distinguishCancelAndClose: true,
+          confirmButtonText: '确定',
+          cancelButtonText: '放弃'
+        }).then(_ => {
+          noBellLine({id: data.id}).then(r=>{
+            this.$notify({
+              title: '成功',
+              message: '此线路IP已加黑',
+              type: 'success'
+            });
+          }).catch(e=>console.log(e))
+        }).catch(e => console.log(e))
       },
       confirmRemoveLine() {
         let data = this.delLineCurrData

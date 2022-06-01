@@ -348,3 +348,65 @@ func ParseIPAddrsFromString(content string) map[string]struct{} {
 func Split(r rune) bool {
 	return r == ';' || r == '\n' || r == '\r'
 }
+
+func ParseRangeIP(ipAddrs string) *TypeGroupIP {
+	tgi := TypeGroupIP{
+		IP:    map[string]*net.IP{},
+		Net:   map[string]*net.IPNet{},
+		Range: []*NetRange{},
+	}
+	// 分割IP地址
+	iplist := []string{}
+	for _, each := range strings.FieldsFunc(ipAddrs, Split) {
+		if strings.TrimSpace(each) == "" {
+			continue
+		}
+		iplist = append(iplist, strings.TrimSpace(each))
+	}
+	// iplist := strings.Split(n.Ipaddrs, ";")
+	for _, each := range iplist {
+		currIP := strings.TrimSpace(each)
+		if strings.Contains(each, "/") {
+			_, nObj, err := net.ParseCIDR(currIP)
+			if err != nil {
+				config.Log.Error(err)
+				continue
+			}
+			tgi.Net[each] = nObj
+		} else if strings.Contains(each, "~") {
+			fields := strings.Split(currIP, "~")
+			if len(fields) != 2 {
+				config.Log.Errorf("ip pool err: %s", currIP)
+				continue
+			}
+			beginBig, endBig, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+			if err != nil {
+				config.Log.Error(err)
+				continue
+			}
+			nr := NetRange{Begin: beginBig, End: endBig}
+			tgi.Range = append(tgi.Range, &nr)
+		} else if strings.Contains(each, "-") {
+			fields := strings.Split(currIP, "-")
+			if len(fields) != 2 {
+				config.Log.Errorf("ip pool err: %s", currIP)
+				continue
+			}
+			beginBig, endBig, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+			if err != nil {
+				config.Log.Error(err)
+				continue
+			}
+			nr := NetRange{Begin: beginBig, End: endBig}
+			tgi.Range = append(tgi.Range, &nr)
+		} else {
+			ipp := net.ParseIP(currIP)
+			if ipp == nil {
+				config.Log.Error("no a vaild ip address: ", each)
+				continue
+			}
+			tgi.IP[each] = &ipp
+		}
+	}
+	return &tgi
+}

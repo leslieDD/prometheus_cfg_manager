@@ -183,3 +183,19 @@ export function outportXls() {
     method: 'get',
   })
 }
+
+export function  noBellIDC(info) {
+  return request({
+    url: '/v1/idc/nobell',
+    method: 'put',
+    data: info,
+  })
+}
+
+export function  noBellLine(info) {
+  return request({
+    url: '/v1/idc/line/nobell',
+    method: 'put',
+    data: info,
+  })
+}

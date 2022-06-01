@@ -165,6 +165,8 @@ func initApiRouter() {
 	v1.POST("/idc/expand", idcExpand)
 	v1.PUT("/idc/expand/switch", idcUpdateExpandSwitch)
 	v1.PUT("/idc/view/switch", idcUpdateViewSwitch)
+	v1.PUT("/idc/nobell", putIDCNoBell)
+	v1.PUT("/idc/line/nobell", putLineNoBell)
 }
 
 func getTest(c *gin.Context) {
@@ -2556,5 +2558,41 @@ func idcUpdateViewSwitch(c *gin.Context) {
 	}
 	bf := models.PutIDCViewSwitch(user, &switchData)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update idc switch - view", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func putIDCNoBell(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "bell_switch")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	info := &models.OnlyID{}
+	if err := c.BindJSON(info); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "idc no bell", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutIDCNoBell(info)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "idc no bell", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func putLineNoBell(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "idc", "", "bell_switch")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	info := &models.OnlyID{}
+	if err := c.BindJSON(info); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "line no bell", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutLineNoBell(info)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "line no bell", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }

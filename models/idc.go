@@ -762,6 +762,34 @@ type TypeGroupIP struct {
 	Range []*NetRange           // 指定范围，如：192.168.1.0~192.168.2.0
 }
 
+func (t *TypeGroupIP) Contains(ip string) bool {
+	ip = strings.TrimSpace(ip)
+	iPParsed := net.ParseIP(ip)
+	if iPParsed == nil {
+		config.Log.Error("not a vaild ip address: ", ip)
+		return false
+	}
+	_, ok := t.IP[ip]
+	if ok {
+		return true
+	}
+	for _, n := range t.Net {
+		if n.Contains(iPParsed) {
+			return true
+		}
+	}
+	currIPParsedBigInt := utils.InetToBigInt(iPParsed)
+	for _, rs := range t.Range {
+		if rs.Begin.Cmp(currIPParsedBigInt) == 0 || rs.End.Cmp(currIPParsedBigInt) == 0 {
+			return true
+		}
+		if rs.Begin.Cmp(currIPParsedBigInt) == -1 && rs.End.Cmp(currIPParsedBigInt) == 1 {
+			return true
+		}
+	}
+	return false
+}
+
 func GetNetParams() ([]*IDC, map[int][]*Line, map[int]*TypeGroupIP, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -863,65 +891,7 @@ func GetNetParamsV2() ([]*NetInfo, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	for _, n := range netInfo {
-		tgi := TypeGroupIP{
-			IP:    map[string]*net.IP{},
-			Net:   map[string]*net.IPNet{},
-			Range: []*NetRange{},
-		}
-		// 分割IP地址
-		iplist := []string{}
-		for _, each := range strings.FieldsFunc(n.Ipaddrs, Split) {
-			if strings.TrimSpace(each) == "" {
-				continue
-			}
-			iplist = append(iplist, strings.TrimSpace(each))
-		}
-		// iplist := strings.Split(n.Ipaddrs, ";")
-		for _, each := range iplist {
-			currIP := strings.TrimSpace(each)
-			if strings.Contains(each, "/") {
-				_, nObj, err := net.ParseCIDR(currIP)
-				if err != nil {
-					config.Log.Error(err)
-					continue
-				}
-				tgi.Net[each] = nObj
-			} else if strings.Contains(each, "~") {
-				fields := strings.Split(currIP, "~")
-				if len(fields) != 2 {
-					config.Log.Errorf("ip pool err: %s", currIP)
-					continue
-				}
-				beginBig, endBig, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
-				if err != nil {
-					config.Log.Error(err)
-					continue
-				}
-				nr := NetRange{Begin: beginBig, End: endBig}
-				tgi.Range = append(tgi.Range, &nr)
-			} else if strings.Contains(each, "-") {
-				fields := strings.Split(currIP, "-")
-				if len(fields) != 2 {
-					config.Log.Errorf("ip pool err: %s", currIP)
-					continue
-				}
-				beginBig, endBig, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
-				if err != nil {
-					config.Log.Error(err)
-					continue
-				}
-				nr := NetRange{Begin: beginBig, End: endBig}
-				tgi.Range = append(tgi.Range, &nr)
-			} else {
-				ipp := net.ParseIP(currIP)
-				if ipp == nil {
-					config.Log.Error("no a vaild ip address: ", each)
-					continue
-				}
-				tgi.IP[each] = &ipp
-			}
-		}
-		n.IPNetParsed = &tgi
+		n.IPNetParsed = ParseRangeIP(n.Ipaddrs)
 	}
 	return netInfo, Success
 }
@@ -953,40 +923,10 @@ func UpdateAllIPAddrs(user *UserSessionInfo, updatePart bool) *BriefMessage {
 			continue
 		}
 		for _, pItem := range netInfo {
-			matched := false
-			_, ok := pItem.IPNetParsed.IP[currIP]
-			if ok {
+			if pItem.IPNetParsed.Contains(i.IpAddr) {
 				i.IDCName = pItem.IDCLabel
 				i.LineName = pItem.LineLabel
-				matched = true
-			} else {
-				for _, n := range pItem.IPNetParsed.Net {
-					if n.Contains(currIPParsed) {
-						i.IDCName = pItem.IDCLabel
-						i.LineName = pItem.LineLabel
-						matched = true
-						break
-					}
-				}
-				currIPParsedBigInt := utils.InetToBigInt(currIPParsed)
-				for _, rs := range pItem.IPNetParsed.Range {
-					if rs.Begin.Cmp(currIPParsedBigInt) == 0 || rs.End.Cmp(currIPParsedBigInt) == 0 {
-						i.IDCName = pItem.IDCLabel
-						i.LineName = pItem.LineLabel
-						matched = true
-						break
-					}
-					if rs.Begin.Cmp(currIPParsedBigInt) == -1 && rs.End.Cmp(currIPParsedBigInt) == 1 {
-						i.IDCName = pItem.IDCLabel
-						i.LineName = pItem.LineLabel
-						matched = true
-						break
-					}
-				}
-			}
-			if updatePart && matched {
 				beUpdated = append(beUpdated, i)
-				break
 			}
 		}
 	}
@@ -1427,6 +1367,114 @@ func PutIDCViewSwitch(user *UserSessionInfo, s *ViewSwitchReq) *BriefMessage {
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return ErrUpdateData
+	}
+	return Success
+}
+
+type noBellReq struct {
+	ID      int    `json:"id" gorm:"column:id"`
+	LineID  int    `json:"line_id" gorm:"column:line_id"`
+	IpAddrs string `json:"ipaddrs" gorm:"column:ipaddrs"`
+}
+
+func PutIDCNoBell(info *OnlyID) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	pools := []*noBellReq{}
+	tx := db.Table("pool").Raw(`select ipaddrs, pool.id, pool.line_id from pool 
+	left join line 
+	on line.id = pool.line_id 
+	left join idc 
+	on idc.id=line.idc_id where idc.id=?`, info.ID).Find(&pools)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	tgis := []*TypeGroupIP{}
+	for _, pool := range pools {
+		tgis = append(tgis, ParseRangeIP(pool.IpAddrs))
+	}
+	allIP, bf := getAllJobMachines()
+	if bf != Success {
+		return bf
+	}
+	updatedM := []*JobedMachines{}
+	for _, m := range allIP {
+		for _, tgi := range tgis {
+			if tgi.Contains(m.IpAddr) {
+				m.Blacked = true
+				updatedM = append(updatedM, m)
+				break
+			}
+		}
+	}
+	return updateGroupMachineToBlack(updatedM)
+}
+
+func PutLineNoBell(info *OnlyID) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	pool := noBellReq{}
+	tx := db.Raw(`select ipaddrs, pool.id, pool.line_id from pool left join line on pool.line_id=line.id where line.id=?;`, info.ID).Find(&pool)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	netInfo := ParseRangeIP(pool.IpAddrs)
+	allIP, bf := getAllJobMachines()
+	if bf != Success {
+		return bf
+	}
+	updatedM := []*JobedMachines{}
+	for _, m := range allIP {
+		if netInfo.Contains(m.IpAddr) {
+			m.Blacked = true
+			updatedM = append(updatedM, m)
+		}
+	}
+	return updateGroupMachineToBlack(updatedM)
+}
+
+type JobedMachines struct {
+	IpAddr    string `json:"ipaddr" gorm:"column:ipaddr"`
+	MachineID int    `json:"machine_id" gorm:"column:machine_id"`
+	JobID     int    `json:"job_id" gorm:"column:job_id"`
+	Blacked   bool   `json:"blacked" gorm:"column:blacked"`
+}
+
+func getAllJobMachines() ([]*JobedMachines, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	jobedMs := []*JobedMachines{}
+	tx := db.Raw(`select machines.ipaddr, job_machines.* from job_machines left join machines on job_machines.machine_id = machines.id`).Find(&jobedMs)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return jobedMs, Success
+}
+
+func updateGroupMachineToBlack(ms []*JobedMachines) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	for _, m := range ms {
+		tx := db.Table("job_machines").Where("machine_id", m.MachineID).Update("blacked", m.Blacked)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrUpdateData
+		}
 	}
 	return Success
 }
