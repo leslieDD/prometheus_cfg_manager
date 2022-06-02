@@ -2,10 +2,8 @@ package models
 
 import (
 	"encoding/json"
-	"fmt"
 	"net"
 	"pro_cfg_manager/config"
-	"pro_cfg_manager/utils"
 	"strings"
 	"sync"
 
@@ -61,29 +59,30 @@ func (i *IPPosition) String() string {
 }
 
 func GetIPPosition(ipAddr string) *IPPosition {
-	postData := []byte(fmt.Sprintf("ipaddr=%s&submit=xxxx", ipAddr))
-	resp, err := utils.PostForm(config.Cfg.Position, postData)
-	if err != nil {
-		config.Log.Error(err)
-		return nil
-	}
-	if len(resp) == 0 {
-		return nil
-	}
-	content := string(resp)
-	ipp := IPPosition{}
-	if !strings.Contains(content, "<html>") {
-		config.Log.Error("返回的数据可能不正确，内容中没有包括<html>")
-		return nil
-	}
-	jsonData := strings.Split(content, "<html")
-	// config.Log.Print(string(resp.Header.Get("X-GeoIP")))
-	// config.Log.Print(jsonData[0])
-	if err := json.Unmarshal([]byte(jsonData[0]), &ipp); err != nil {
-		config.Log.Error(err)
-		return nil
-	}
-	return &ipp
+	return GPSObj.SearchIP2Region(ipAddr)
+	// postData := []byte(fmt.Sprintf("ipaddr=%s&submit=xxxx", ipAddr))
+	// resp, err := utils.PostForm(config.Cfg.Position, postData)
+	// if err != nil {
+	// 	config.Log.Error(err)
+	// 	return nil
+	// }
+	// if len(resp) == 0 {
+	// 	return nil
+	// }
+	// content := string(resp)
+	// ipp := IPPosition{}
+	// if !strings.Contains(content, "<html>") {
+	// 	config.Log.Error("返回的数据可能不正确，内容中没有包括<html>")
+	// 	return nil
+	// }
+	// jsonData := strings.Split(content, "<html")
+	// // config.Log.Print(string(resp.Header.Get("X-GeoIP")))
+	// // config.Log.Print(jsonData[0])
+	// if err := json.Unmarshal([]byte(jsonData[0]), &ipp); err != nil {
+	// 	config.Log.Error(err)
+	// 	return nil
+	// }
+	// return &ipp
 }
 
 // GPSObj GPSObj
@@ -92,7 +91,7 @@ var GPSObj = NewGPS()
 // NewGPS NewGPS
 func NewGPS() *GPS {
 	gps := &GPS{}
-	gps.InitGeo()
+	// gps.InitGeo()
 	gps.InitIP2Region()
 	return gps
 }
@@ -130,7 +129,7 @@ func (g *GPS) InitIP2Region() {
 }
 
 // SearchIP2Region SearchIP2Region
-func (g *GPS) SearchIP2Region(ipStr string, defaultEnableValue bool) *IPPosition {
+func (g *GPS) SearchIP2Region(ipStr string) *IPPosition {
 	g.ip2region.Lock()
 	defer g.ip2region.Unlock()
 
@@ -139,29 +138,27 @@ func (g *GPS) SearchIP2Region(ipStr string, defaultEnableValue bool) *IPPosition
 		config.Log.Errorf("ip error: %s", ipStr)
 		return nil
 	}
-
+	ginfo := &IPPosition{}
 	record, err := g.dbIP2Region.MemorySearch(ipStr)
 	if err != nil {
 		config.Log.Error(err)
+		ginfo.Error = err.Error()
 		return nil
 	}
-	ginfo := &IPPosition{
-		Country:      record.Country,
-		Province:     record.Province,
-		City:         record.City,
-		County:       record.Region,
-		ISP:          record.ISP,
-		CountryCode:  "",
-		CountryEN:    "",
-		CityEN:       "",
-		Longitude:    "",
-		Latitude:     "",
-		ISPCode:      "",
-		Routes:       "",
-		ProvinceCode: "",
-		CityCode:     "",
-		CountyCode:   "",
-		Error:        "",
+	if record.Country != "0" {
+		ginfo.Country = record.Country
+	}
+	if record.Province != "0" {
+		ginfo.Province = record.Province
+	}
+	if record.City != "0" {
+		ginfo.City = record.City
+	}
+	if record.Region != "0" {
+		ginfo.County = record.Region
+	}
+	if record.ISP != "0" {
+		ginfo.ISP = record.ISP
 	}
 	return ginfo
 }
