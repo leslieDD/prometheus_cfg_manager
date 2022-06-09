@@ -83,5 +83,8 @@ func (cf *Config) verification() error {
 
 	// cf.PrometheusCfg.TmplContext = string(tmplTxt)
 	// cf.PrometheusCfg.TmplFile = filepath.Join(cf.RuntimeParam.RootDir, cf.PrometheusCfg.TmplFile)
+	if exist, err := utils.PathExists(cf.GPS.IP2region); !exist {
+		return err
+	}
 	return nil
 }
