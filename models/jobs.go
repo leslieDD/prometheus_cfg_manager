@@ -758,51 +758,62 @@ func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessag
 		return ErrDataBase
 	}
 	err := db.Transaction(func(tx *gorm.DB) error {
+		// 找出当前组中所有的IP地址
 		jms := []*TableJobMachines{}
-		if err := db.Table("job_machines").Where("job_id=?", cInfo.JobID).Find(&jms).Error; err != nil {
+		if err := tx.Table("job_machines").Where("job_id=?", cInfo.JobID).Find(&jms).Error; err != nil {
 			config.Log.Error(err)
 			return err
 		}
+		// 把找出的所有IP地址转换成Map数据格式
 		updateIDs := map[int]struct{}{}
 		for _, obj := range jms {
 			updateIDs[obj.MachineID] = struct{}{}
 		}
+		// 把提交的和从数据库中找出来的做对比，提取出新增加的IP地址
 		newInt := make([]int, 0, len(cInfo.MachinesIDs))
+		newIntMap := map[int]struct{}{}
 		for _, c := range cInfo.MachinesIDs {
+			newIntMap[c] = struct{}{}
 			if _, ok := updateIDs[c]; !ok {
 				newInt = append(newInt, c)
 			}
 		}
-		// if err := tx.Table("job_machines").
-		// 	Where("job_id=?", cInfo.JobID).
-		// 	Delete(nil).Error; err != nil {
-		// 	config.Log.Error(err)
-		// 	return err
-		// }
-		cInfo.MachinesIDs = newInt
-		if len(cInfo.MachinesIDs) == 0 {
-			return nil
-		}
-		tjms := []*TableJobMachines{}
-		// 去重用的
-		delMutil := map[int]struct{}{}
-		for _, m := range cInfo.MachinesIDs {
-			if _, ok := delMutil[m]; ok {
-				continue
+		// 为这个级创建新的IP地址条目
+		if len(newInt) != 0 {
+			tjms := []*TableJobMachines{}
+			// 去重用的
+			delMutil := map[int]struct{}{}
+			for _, m := range newInt {
+				if _, ok := delMutil[m]; ok {
+					continue
+				}
+				delMutil[m] = struct{}{}
+				tjms = append(tjms, &TableJobMachines{
+					JobID:     cInfo.JobID,
+					MachineID: m,
+				})
 			}
-			delMutil[m] = struct{}{}
-			tjms = append(tjms, &TableJobMachines{
-				JobID:     cInfo.JobID,
-				MachineID: m,
-			})
+			if err := tx.Table("job_machines").Create(&tjms).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
 		}
-		if err := db.Table("job_machines").Create(&tjms).Error; err != nil {
-			config.Log.Error(err)
-			return err
+		// 由于是全量提交，所以，在数据库中找出来的IP地址不在全量提交中，这些IP地址应该被清除
+		needDelete := []int{}
+		for _, j := range jms {
+			if _, ok := newIntMap[j.MachineID]; !ok {
+				needDelete = append(needDelete, j.MachineID)
+			}
+		}
+		if len(needDelete) != 0 {
+			if err := tx.Table("job_machines").Where("job_id=? and machine_id in ?", cInfo.JobID, needDelete).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
 		}
 		// 在group_machines中，清除已经不存在的IP记录
-		if err := db.Exec(`DELETE FROM group_machines WHERE group_machines.machines_id NOT IN ? AND group_machines.job_group_id IN (
-			SELECT job_group_id FROM group_machines 
+		if err := tx.Exec(`DELETE FROM group_machines WHERE group_machines.machines_id NOT IN ? AND group_machines.job_group_id IN (
+			SELECT job_group_id FROM group_machines
 			LEFT JOIN job_group
 			ON group_machines.job_group_id=job_group.id
 			WHERE job_group.jobs_id=?
@@ -810,7 +821,7 @@ func PostUpdateJobIPs(user *UserSessionInfo, cInfo *UpdateIPForJob) *BriefMessag
 			config.Log.Error(err)
 			return err
 		}
-		if err := db.Table("jobs").Where("id=?", cInfo.JobID).
+		if err := tx.Table("jobs").Where("id=?", cInfo.JobID).
 			Update("update_at", time.Now()).
 			Update("update_by", user.Username).Error; err != nil {
 			config.Log.Error(err)
