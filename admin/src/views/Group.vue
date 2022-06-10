@@ -53,13 +53,13 @@
                 </template>
               </el-table-column>
               <el-table-column
-                label="最后更新账号"
+                label="更新账号"
                 align="center"
                 prop="update_by"
                 show-overflow-tooltip
               ></el-table-column>
               <el-table-column
-                label="最后更新时间"
+                label="更新时间"
                 width="150px"
                 prop="update_at"
               >

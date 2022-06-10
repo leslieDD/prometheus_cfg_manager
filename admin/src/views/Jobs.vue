@@ -179,17 +179,17 @@
         </template>
       </el-table-column> -->
       <el-table-column
-        label="最后更新账号"
+        label="更新账号"
         prop="update_by"
         width="100px"
         show-overflow-tooltip
       ></el-table-column>
-      <el-table-column label="最后更新时间" prop="update_at" width="160px">
+      <el-table-column label="更新时间" prop="update_at" width="160px">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="500px">
+      <el-table-column label="操作" align="center" width="530px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
@@ -199,7 +199,7 @@
             </div>
             <div>
               <el-button size="mini" type="primary" @click="doEditPool(scope)" plain
-                >编辑IP列表</el-button
+                >IP列表</el-button
               >
             </div>
             <div>
@@ -210,6 +210,11 @@
             <div>
               <el-button size="mini" type="success" @click="doUpdateSubGroup(scope)" plain
                 >更新子组</el-button
+              >
+            </div>
+            <div>
+              <el-button size="mini" type="warning" @click="doUpdateJobLables(scope)" plain
+                >标签</el-button
               >
             </div>
             <div>
@@ -478,6 +483,102 @@
         </div>
       </el-dialog>
     </div>
+    <el-dialog
+      :title="dialogJobLabelTitle"
+      v-model="dialogJobLabelVisible"
+      width="850px"
+      modal
+      :before-close="handleJobLabelClose"
+    >
+      <div class="job-labe-data-span">
+        <el-table 
+          :data="JobLabeData" 
+          size="mini" 
+          style="width: 100%" 
+          max-height="300" 
+          stripe
+          :row-style="rowStyle"
+          :cell-style="cellStyle"
+        >
+          <el-table-column label="序号" width="50px">
+            <template v-slot="scope">
+              {{ scope.$index + 1 }}
+            </template>
+          </el-table-column>
+          <!-- <el-table-column fixed prop="" label="Date" width="150" /> -->
+          <el-table-column prop="name" label="名称" show-overflow-tooltip/>
+          <el-table-column prop="value" label="值" show-overflow-tooltip/>
+          <el-table-column prop="updated_at" label="更新时间" width="150" />
+          <el-table-column prop="updated_by" label="更新账号" width="120" />
+          <el-table-column fixed="right" label="操作" width="150">
+            <template #default="scope">
+              <el-button
+                link
+                type="primary"
+                size="mini"
+                plain
+                @click.prevent="editJobLabelRow(scope)"
+              >
+                编辑
+              </el-button>
+              <el-button
+                link
+                type="danger"
+                size="mini"
+                plain
+                @click.prevent="deleteJobLabelRow(scope)"
+              >
+                删除
+              </el-button>
+            </template>
+          </el-table-column>
+        </el-table>
+        <div class="job-labe-data-action">
+          <el-button size="mini" type="success" @click="onUploadJobLabelItem" plain
+            >提交数据</el-button
+          >
+          <el-button size="mini" type="warning" @click="onAddJobLabelItem" plain
+            >添加项目</el-button
+          >
+        </div>
+      </div>
+    </el-dialog>
+    <el-dialog
+      :title="dialogEditJobLabel"
+      v-model="dialogEditJobLabelVisible"
+      width="400px"
+      modal
+      :before-close="handleEditJobLabelClose"
+    >
+      <span>
+        <el-form
+          label-position="right"
+          :rules="editJobLabelRule"
+          ref="editJobLabel"
+          :model="editJobLabel"
+          label-width="80px"
+          size="small"
+        >
+          <el-form-item label="名称" prop="name">
+            <el-input style="width: 250px" v-model="editJobLabel.name"></el-input>
+          </el-form-item>
+          <el-form-item label="值" prop="value">
+            <el-input style="width: 250px" v-model="editJobLabel.value"></el-input>
+          </el-form-item>
+          <el-form-item size="small">
+            <el-button
+              size="small"
+              type="primary"
+              @click="oneditJobLabelSubmit('editJobLabel')"
+              >确定</el-button
+            >
+            <el-button size="small" type="info" @click="oneditJobLabelCancel('editJobLabel')"
+              >取消</el-button
+            >
+          </el-form-item>
+        </el-form>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
@@ -506,6 +607,8 @@ import {
   getJobMachinesBlack, 
   putJobMachinesBlack,
 } from '@/api/labelsJob.js'
+
+import dayjs from 'dayjs'
 
 import { getStorageVal, setStorageVal } from '@/utils/localStorage.js'
 
@@ -584,6 +687,28 @@ export default {
       dialogJobReWriteRuleVisible: false,
       force_insert: false,
       displayJobType: 'enable',
+      JobLabeData: [
+        {
+          "id": 10,
+          "name": "name",
+          "value": "value",
+          "updated_at": "2022-06-10 10:53:00",
+          "updated_by": "diandian",
+        }
+      ],
+      dialogJobLabelTitle: '编辑组标签',
+      dialogJobLabelVisible: false,
+      dialogEditJobLabel: '编辑标签',
+      dialogEditJobLabelVisible: false,
+      editJobLabel: {},
+      editJobLabelRule: {
+        name: [
+          { required: true, message: '请输入名称', validator: validateStr, trigger: ['blur'] }
+        ],
+        value: [
+          { required: true, message: '请输入标签值', validator: validateStr, trigger: ['blur'] }
+        ],
+      },
     }
   },
   created () {
@@ -695,6 +820,37 @@ export default {
     },
     handleClose (done) {
       this.dialogVisible = false
+    },
+    handleJobLabelClose(){
+      this.dialogJobLabelVisible = false
+    },
+    handleEditJobLabelClose(){
+      this.dialogEditJobLabelVisible = false
+    },
+    editJobLabelRow(index){
+      this.dialogEditJobLabelVisible = true
+    },
+    deleteJobLabelRow(index){
+
+    },
+    onAddJobLabelItem(){
+      const userInfo = this.$store.getters.userInfo
+      this.JobLabeData.push({
+          "id": 0,
+          "name": "",
+          "value": "",
+          "updated_at": dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+          "updated_by": userInfo.username,
+      })
+    },
+    onUploadJobLabelItem(){
+
+    },
+    oneditJobLabelCancel(){
+      this.dialogEditJobLabelVisible = false
+    },
+    oneditJobLabelSubmit(){
+
     },
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
@@ -1066,6 +1222,10 @@ export default {
         this.doGetJobs()
       }).catch(e=>console.log(e))
     },
+    doUpdateJobLables(scope){
+      this.dialogJobLabelTitle = '编辑组标签：' + scope.row.name
+      this.dialogJobLabelVisible = true
+    },
     doBlack(scope){
       let currentIPBlackedValue = []
       let allIPInJobData = []
@@ -1327,5 +1487,16 @@ el-tabs {
   padding-bottom: 8px;
   border-radius: 3px;
   border: 1px solid #dcdfe6;
+}
+.job-labe-data-span {
+  margin-top: -30px;
+}
+
+.job-labe-data-action {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  margin-right: 18px;
+  margin-top: 10px;
 }
 </style>

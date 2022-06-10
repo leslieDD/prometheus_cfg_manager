@@ -73,7 +73,7 @@
       </el-table-column>
       <el-table-column label="重写标签" prop="relabel_name"> </el-table-column>
       <el-table-column label="最新更新账号" prop="update_by"> </el-table-column>
-      <el-table-column label="最后更新时间" prop="update_at">
+      <el-table-column label="更新时间" prop="update_at">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>

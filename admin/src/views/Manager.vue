@@ -251,7 +251,7 @@
         </template>
       </el-table-column>
       <el-table-column
-        label="最后更新账号"
+        label="更新账号"
         prop="update_by"
         align="center"
         header-align="center"
@@ -259,7 +259,7 @@
         show-overflow-tooltip
       ></el-table-column>
       <el-table-column
-        label="最后更新时间"
+        label="更新时间"
         prop="update_at"
         align="center"
         header-align="center"

@@ -90,7 +90,7 @@
                 </template>
               </el-table-column>
               <el-table-column
-                label="最后更新时间"
+                label="更新时间"
                 width="135px"
                 prop="update_at"
               >
