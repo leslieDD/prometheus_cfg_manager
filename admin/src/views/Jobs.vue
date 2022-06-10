@@ -599,6 +599,8 @@ import {
   batchDeleteJob,
   batchEnableJob,
   batchDisableJob,
+  updateJobLabels,
+  getJobLabels,
 } from '@/api/jobs.js'
 import { allIPList } from '@/api/machines.js'
 import { restartSrv } from '@/api/srv'
@@ -698,7 +700,9 @@ export default {
       ],
       dialogJobLabelTitle: '编辑组标签',
       dialogJobLabelVisible: false,
+      dialogJobLabelCurrObj: null,
       dialogEditJobLabel: '编辑标签',
+      dialogEditJobLabelNew: false,
       dialogEditJobLabelVisible: false,
       editJobLabel: {},
       editJobLabelRule: {
@@ -827,30 +831,51 @@ export default {
     handleEditJobLabelClose(){
       this.dialogEditJobLabelVisible = false
     },
-    editJobLabelRow(index){
+    editJobLabelRow(scope){
+      this.editJobLabel = scope.row
+      this.dialogEditJobLabel = '编辑标签'
+      this.dialogEditJobLabelNew = false
       this.dialogEditJobLabelVisible = true
     },
-    deleteJobLabelRow(index){
+    deleteJobLabelRow(scope){
 
     },
     onAddJobLabelItem(){
       const userInfo = this.$store.getters.userInfo
-      this.JobLabeData.push({
+      this.editJobLabel = {
           "id": 0,
           "name": "",
           "value": "",
           "updated_at": dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),
           "updated_by": userInfo.username,
-      })
+      }
+      this.dialogEditJobLabel = '添加标签'
+      this.dialogEditJobLabelNew = true
+      this.dialogEditJobLabelVisible = true
+      // this.JobLabeData.push()
     },
     onUploadJobLabelItem(){
-
+      updateJobLabels({id: this.dialogJobLabelCurrObj.id}, this.JobLabeData).then(r=>{
+        this.$notify({
+          title: '成功',
+          message: '更新成功！',
+          type: 'success'
+        });
+      }).catch(e=>console.log(e))
     },
     oneditJobLabelCancel(){
       this.dialogEditJobLabelVisible = false
     },
-    oneditJobLabelSubmit(){
-
+    oneditJobLabelSubmit(formName){
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          if (this.dialogEditJobLabelNew) {
+            var newLabel = {...this.editJobLabel}
+            this.JobLabeData.push(newLabel)
+          }
+        }
+        this.dialogEditJobLabelVisible = false
+      })
     },
     onSubmit (formName) {
       this.$refs[formName].validate((valid) => {
@@ -1223,8 +1248,12 @@ export default {
       }).catch(e=>console.log(e))
     },
     doUpdateJobLables(scope){
-      this.dialogJobLabelTitle = '编辑组标签：' + scope.row.name
-      this.dialogJobLabelVisible = true
+      getJobLabels({id: scope.row.id}).then(r=>{
+        this.dialogJobLabelCurrObj = scope.row
+        this.JobLabeData = r.data
+        this.dialogJobLabelTitle = '编辑组标签：' + scope.row.name
+        this.dialogJobLabelVisible = true
+      }).catch(e=>console.log(e))
     },
     doBlack(scope){
       let currentIPBlackedValue = []

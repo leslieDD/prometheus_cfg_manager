@@ -134,3 +134,20 @@ export function batchDisableJob (ids) {
     data: ids
   })
 }
+
+export function updateJobLabels(id, data) {
+  return request({
+    url: '/v1/job/global/label',
+    method: 'put',
+    params: id,
+    data: data
+  })
+}
+
+export function getJobLabels(id){
+  return request({
+    url: '/v1/job/global/label',
+    method: 'get',
+    params: id
+  })
+}
