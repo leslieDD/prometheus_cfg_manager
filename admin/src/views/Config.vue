@@ -22,7 +22,7 @@
         </el-menu-item>
         <el-menu-item index="reLabels">
           <i class="el-icon-watermelon"></i>
-          <template #title>标签重写</template>
+          <template #title>监控规则</template>
         </el-menu-item>
         <el-menu-item index="defaultJobs">
           <i class="el-icon-cherry"></i>

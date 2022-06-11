@@ -137,7 +137,7 @@ const routes = [
           {
             path: '/re-labels',
             name: 'reLabels',
-            title: '标签重写',
+            title: '监控规则',
             component: () => import('@/views/RelabelConfig.vue')
           },
           {

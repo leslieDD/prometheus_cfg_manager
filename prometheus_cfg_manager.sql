@@ -872,7 +872,7 @@ VALUES (
     'baseConfig',
     '基本配置',
     'reLabels',
-    '标签重写',
+    '监控规则',
     'search',
     '查询'
   ),
@@ -881,7 +881,7 @@ VALUES (
     'baseConfig',
     '基本配置',
     'reLabels',
-    '标签重写',
+    '监控规则',
     'add',
     '增加'
   ),
@@ -890,7 +890,7 @@ VALUES (
     'baseConfig',
     '基本配置',
     'reLabels',
-    '标签重写',
+    '监控规则',
     'edit_name',
     '编辑名称'
   ),
@@ -899,7 +899,7 @@ VALUES (
     'baseConfig',
     '基本配置',
     'reLabels',
-    '标签重写',
+    '监控规则',
     'update_rule',
     '更新规则'
   ),
@@ -908,7 +908,7 @@ VALUES (
     'baseConfig',
     '基本配置',
     'reLabels',
-    '标签重写',
+    '监控规则',
     'dis.enable',
     '启用/禁用'
   ),
@@ -917,7 +917,7 @@ VALUES (
     'baseConfig',
     '基本配置',
     'reLabels',
-    '标签重写',
+    '监控规则',
     'delete',
     '删除'
   ),
@@ -1323,7 +1323,7 @@ VALUES (
     'baseConfig',
     '基本配置',
     'reLabels',
-    '标签重写',
+    '监控规则',
     'view_code',
     '展示代码'
   ),

@@ -129,6 +129,11 @@
           <span>{{scope.row.black_count}}</span>
         </template>
       </el-table-column>
+      <el-table-column label="组标签" width="65px">
+        <template v-slot="scope">
+          <span>{{scope.row.label_count}}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="子组数" width="65px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
@@ -143,11 +148,11 @@
       >
         <template #header>
           <el-tooltip
-            content="在‘基本配置’选项卡下的‘标签重写’下定义"
+            content="在‘基本配置’选项卡下的‘监控规则’下定义"
             placement="top"
           >
             <span type="warning"
-              >重写标签
+              >监控规则
               <i
                 style="font-size: 13px; color: #0081ff"
                 class="el-icon-warning"
@@ -181,10 +186,10 @@
       <el-table-column
         label="更新账号"
         prop="update_by"
-        width="100px"
+        width="90px"
         show-overflow-tooltip
       ></el-table-column>
-      <el-table-column label="更新时间" prop="update_at" width="160px">
+      <el-table-column label="更新时间" prop="update_at" width="150px">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
@@ -834,7 +839,7 @@ export default {
       this.dialogEditJobLabelVisible = true
     },
     deleteJobLabelRow(scope){
-
+      this.JobLabeData.splice(scope.$index, 1);
     },
     onAddJobLabelItem(){
       const userInfo = this.$store.getters.userInfo

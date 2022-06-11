@@ -39,3 +39,6 @@ VALUES (
     'update_job_label',
     '更新组标签'
   );
+UPDATE page_function
+SET sub_page_nice_name = '监控规则'
+WHERE sub_page_nice_name = '标签重写';

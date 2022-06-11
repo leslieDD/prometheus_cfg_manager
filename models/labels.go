@@ -346,7 +346,7 @@ func PutJobGlobalLable(user *UserSessionInfo, jobId *OnlyID, jls []*JobLabelsTbl
 		} else {
 			needDelExceptHere = append(needDelExceptHere, jl.ID)
 			updateJls = append(updateJls, &JobLabelsTbl{
-				ID:       jobId.ID,
+				ID:       jl.ID,
 				Name:     jl.Name,
 				Value:    jl.Value,
 				JobID:    jobId.ID,
@@ -357,7 +357,14 @@ func PutJobGlobalLable(user *UserSessionInfo, jobId *OnlyID, jls []*JobLabelsTbl
 	}
 	// 删除已经不存在的记录
 	if len(needDelExceptHere) != 0 {
-		tx := db.Table("job_labels").Where("id not in ? and job_id=?", needDelExceptHere, jobId.ID)
+		tx := db.Table("job_labels").Where("id not in ? and job_id=?", needDelExceptHere, jobId.ID).Delete(nil)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrDelData
+		}
+	} else {
+		// 旧的记录都没有了
+		tx := db.Table("job_labels").Where("job_id", jobId.ID).Delete(nil)
 		if tx.Error != nil {
 			config.Log.Error(tx.Error)
 			return ErrDelData

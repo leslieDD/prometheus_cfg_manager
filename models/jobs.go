@@ -32,6 +32,7 @@ type JobsWithRelabelNameAndCount struct {
 	IPCount     int64  `json:"ip_count" gorm:"column:ip_count"`
 	GroupCount  int64  `json:"group_count" gorm:"column:group_count"`
 	BlackCount  int64  `json:"black_count" gorm:"column:black_count"`
+	LabelCount  int64  `json:"label_count" gorm:"-"`
 	Jobs
 }
 
@@ -236,10 +237,41 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	for _, each := range jobMachinesBlackCount {
 		jobMachinesBlackCountMap[each.JobID] = each.Count
 	}
+	jlbMap, bf := GetCountOfJobLabel()
+	if bf != Success {
+		return nil, bf
+	}
 	for _, j := range jobs {
 		j.BlackCount = jobMachinesBlackCountMap[int64(j.ID)]
+		if obj, ok := jlbMap[j.ID]; ok {
+			j.LabelCount = int64(obj.Total)
+		}
 	}
 	return CalSplitPage(sp, count, jobs), Success
+}
+
+type JobLabelTotal struct {
+	JobID int `json:"job_id" gorm:"column:job_id"`
+	Total int `json:"total" gorm:"column:total"`
+}
+
+func GetCountOfJobLabel() (map[int]*JobLabelTotal, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	jlt := []*JobLabelTotal{}
+	tx := db.Table("job_labels").Raw(`SELECT job_id, COUNT(*) AS total FROM job_labels GROUP BY job_id ORDER BY job_id`).Find(&jlt)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	jlbMap := map[int]*JobLabelTotal{}
+	for _, v := range jlt {
+		jlbMap[v.JobID] = v
+	}
+	return jlbMap, Success
 }
 
 func GetDefJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
