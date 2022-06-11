@@ -83,6 +83,10 @@ func (p *PublishResolve) formatData() (map[string]*[]*TargetList, *BriefMessage)
 	if bf != Success {
 		return nil, bf
 	}
+	allJobLabels, bf := GetAllJobGlobalLable()
+	if bf != Success {
+		return nil, bf
+	}
 	//          map[分组ID]map[子组ID]
 	jobGpAndLb := map[int]map[int]*TargetList{}
 	for _, obj := range jobGp {
@@ -125,6 +129,21 @@ func (p *PublishResolve) formatData() (map[string]*[]*TargetList, *BriefMessage)
 			job[obj.JobGroupID] = group
 		}
 		group.Lables[obj.Key] = obj.Value
+	}
+	// 写入公共标签
+	for jobID, obj := range jobGpAndLb {
+		globalLb, ok := allJobLabels[jobID]
+		if !ok {
+			continue
+		}
+		if len(globalLb) == 0 {
+			continue
+		}
+		for _, glb := range globalLb {
+			for _, jobGp := range obj {
+				jobGp.Lables[glb.Name] = glb.Value
+			}
+		}
 	}
 	for _, job := range jobs {
 		if !job.IsCommon {

@@ -292,6 +292,7 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 		"pool",
 		"number_options",
 		"options",
+		"job_labels",
 	}
 	err = db.Transaction(func(tx *gorm.DB) error {
 		for _, tableName := range tableCleard {

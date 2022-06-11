@@ -324,6 +324,28 @@ func GetJobGlobalLable(jobId *OnlyID) ([]*JobLabelsTbl, *BriefMessage) {
 	return jls, Success
 }
 
+func GetAllJobGlobalLable() (map[int][]*JobLabelsTbl, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	jls := []*JobLabelsTbl{}
+	tx := db.Table("job_labels").Find(&jls)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	allJobLb := map[int][]*JobLabelsTbl{}
+	for _, obj := range jls {
+		if _, ok := allJobLb[obj.JobID]; !ok {
+			allJobLb[obj.JobID] = []*JobLabelsTbl{}
+		}
+		allJobLb[obj.JobID] = append(allJobLb[obj.JobID], obj)
+	}
+	return allJobLb, Success
+}
+
 func PutJobGlobalLable(user *UserSessionInfo, jobId *OnlyID, jls []*JobLabelsTblReq) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
