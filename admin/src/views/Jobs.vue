@@ -508,7 +508,11 @@
           <!-- <el-table-column fixed prop="" label="Date" width="150" /> -->
           <el-table-column prop="name" label="名称" show-overflow-tooltip/>
           <el-table-column prop="value" label="值" show-overflow-tooltip/>
-          <el-table-column prop="updated_at" label="更新时间" width="150" />
+          <el-table-column prop="updated_at" label="更新时间" width="150">
+            <template v-slot="{ row }">
+              <span>{{ parseTimeSelf(row.update_at) }}</span>
+            </template>
+          </el-table-column>
           <el-table-column prop="updated_by" label="更新账号" width="120" />
           <el-table-column fixed="right" label="操作" width="150">
             <template #default="scope">

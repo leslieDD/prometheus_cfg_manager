@@ -291,6 +291,104 @@ func GetAllReLabels() ([]*ReLabels, *BriefMessage) {
 	return lists, Success
 }
 
+type JobLabelsTbl struct {
+	ID       int       `json:"id" gorm:"column:id"`
+	Name     string    `json:"name" gorm:"column:name"`
+	Value    string    `json:"value" gorm:"column:value"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
+	JobID    int       `json:"job_id" gorm:"job_id"`
+}
+
+type JobLabelsTblReq struct {
+	ID       int       `json:"id" gorm:"column:id"`
+	Name     string    `json:"name" gorm:"column:name"`
+	Value    string    `json:"value" gorm:"column:value"`
+	UpdateAt time.Time `json:"-" gorm:"column:update_at"`
+	UpdateBy string    `json:"-" gorm:"column:update_by"`
+	JobID    int       `json:"job_id" gorm:"job_id"`
+}
+
+func GetJobGlobalLable(jobId *OnlyID) ([]*JobLabelsTbl, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	jls := []*JobLabelsTbl{}
+	tx := db.Table("job_labels").Where("job_id", jobId.ID).Find(&jls)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return jls, Success
+}
+
+func PutJobGlobalLable(user *UserSessionInfo, jobId *OnlyID, jls []*JobLabelsTblReq) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	newJls := []*JobLabelsTbl{}
+	updateJls := []*JobLabelsTbl{}
+	needDelExceptHere := []int{}
+	for _, jl := range jls {
+		if jl.ID == 0 {
+			newJls = append(newJls, &JobLabelsTbl{
+				ID:       0,
+				Name:     jl.Name,
+				Value:    jl.Value,
+				JobID:    jobId.ID,
+				UpdateAt: time.Now(),
+				UpdateBy: user.Username,
+			})
+		} else {
+			needDelExceptHere = append(needDelExceptHere, jl.ID)
+			updateJls = append(updateJls, &JobLabelsTbl{
+				ID:       jobId.ID,
+				Name:     jl.Name,
+				Value:    jl.Value,
+				JobID:    jobId.ID,
+				UpdateAt: time.Now(),
+				UpdateBy: user.Username,
+			})
+		}
+	}
+	// 删除已经不存在的记录
+	if len(needDelExceptHere) != 0 {
+		tx := db.Table("job_labels").Where("id not in ? and job_id=?", needDelExceptHere, jobId.ID)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrDelData
+		}
+	}
+	// 添加新记录
+	if len(newJls) != 0 {
+		tx := db.Table("job_labels").Create(&newJls)
+		if tx.Error != nil {
+			config.Log.Error(tx.Error)
+			return ErrCreateDBData
+		}
+	}
+	// 更新旧记录
+	if len(updateJls) != 0 {
+		for _, jl := range updateJls {
+			tx := db.Table("job_labels").
+				Where("id", jl.ID).
+				Update("name", jl.Name).
+				Update("value", jl.Value).
+				Update("updated_at", time.Now()).
+				Update("updated_by", user.Username)
+			if tx.Error != nil {
+				config.Log.Error(tx.Error)
+				return ErrUpdateData
+			}
+		}
+	}
+	return Success
+}
+
 func PostReLabels(user *UserSessionInfo, rl *ReLabels) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {

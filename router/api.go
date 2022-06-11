@@ -57,6 +57,8 @@ func initApiRouter() {
 	v1.PUT("/job/group/status", putJobGroupStatus)
 	v1.PUT("/job/group/labels/status", putJobGroupLabelsStatus)
 	v1.GET("/job/relabels/all", getJobAllRelabels)
+	v1.GET("/job/global/label", getJobGlobalLable)
+	v1.PUT("/job/global/label", putJobGlobalLable)
 
 	v1.GET("/machine", getMachine)
 	v1.GET("/machines", getMachines)
@@ -796,6 +798,48 @@ func getJobAllRelabels(c *gin.Context) {
 	data, bf := models.GetAllReLabels()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get all labels of job's sub group", models.IsSearch, bf)
 	resComm(c, bf, data)
+}
+
+func getJobGlobalLable(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "get_job_label")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	id := models.OnlyID{}
+	if err := c.BindQuery(&id); err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job labels", models.IsSearch, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+	}
+	data, bf := models.GetJobGlobalLable(&id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get job labels", models.IsSearch, bf)
+	resComm(c, bf, data)
+}
+
+func putJobGlobalLable(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "update_job_label")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	id := models.OnlyID{}
+	if err := c.BindQuery(&id); err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job labels", models.IsUpdate, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+	}
+	updateData := []*models.JobLabelsTblReq{}
+	if err := c.BindJSON(&updateData); err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job labels", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrQueryData, nil)
+	}
+	bf := models.PutJobGlobalLable(user, &id, updateData)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update job labels", models.IsSearch, bf)
+	resComm(c, bf, nil)
 }
 
 func swapJob(c *gin.Context) {
