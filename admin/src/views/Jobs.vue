@@ -508,12 +508,12 @@
           <!-- <el-table-column fixed prop="" label="Date" width="150" /> -->
           <el-table-column prop="name" label="名称" show-overflow-tooltip/>
           <el-table-column prop="value" label="值" show-overflow-tooltip/>
-          <el-table-column prop="updated_at" label="更新时间" width="150">
+          <el-table-column prop="update_at" label="更新时间" width="150">
             <template v-slot="{ row }">
               <span>{{ parseTimeSelf(row.update_at) }}</span>
             </template>
           </el-table-column>
-          <el-table-column prop="updated_by" label="更新账号" width="120" />
+          <el-table-column prop="update_by" label="更新账号" width="120" />
           <el-table-column fixed="right" label="操作" width="150">
             <template #default="scope">
               <el-button
@@ -693,15 +693,7 @@ export default {
       dialogJobReWriteRuleVisible: false,
       force_insert: false,
       displayJobType: 'enable',
-      JobLabeData: [
-        {
-          "id": 10,
-          "name": "name",
-          "value": "value",
-          "updated_at": "2022-06-10 10:53:00",
-          "updated_by": "diandian",
-        }
-      ],
+      JobLabeData: [],
       dialogJobLabelTitle: '编辑组标签',
       dialogJobLabelVisible: false,
       dialogJobLabelCurrObj: null,
@@ -846,12 +838,14 @@ export default {
     },
     onAddJobLabelItem(){
       const userInfo = this.$store.getters.userInfo
+      var now = new Date()
       this.editJobLabel = {
           "id": 0,
           "name": "",
           "value": "",
-          "updated_at": dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),
-          "updated_by": userInfo.username,
+          // "update_at": dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+          "update_at": now.toJSON(),
+          "update_by": userInfo.username,
       }
       this.dialogEditJobLabel = '添加标签'
       this.dialogEditJobLabelNew = true

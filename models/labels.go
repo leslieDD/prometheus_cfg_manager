@@ -378,8 +378,8 @@ func PutJobGlobalLable(user *UserSessionInfo, jobId *OnlyID, jls []*JobLabelsTbl
 				Where("id", jl.ID).
 				Update("name", jl.Name).
 				Update("value", jl.Value).
-				Update("updated_at", time.Now()).
-				Update("updated_by", user.Username)
+				Update("update_at", time.Now()).
+				Update("update_by", user.Username)
 			if tx.Error != nil {
 				config.Log.Error(tx.Error)
 				return ErrUpdateData
