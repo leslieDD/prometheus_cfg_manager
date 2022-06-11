@@ -859,6 +859,7 @@ export default {
     },
     onUploadJobLabelItem(){
       updateJobLabels({id: this.dialogJobLabelCurrObj.id}, this.JobLabeData).then(r=>{
+        this.doGetJobs()
         this.$notify({
           title: '成功',
           message: '更新成功！',
