@@ -9,6 +9,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 )
 
@@ -27,7 +28,7 @@ func init() {
 	GinDefault.StaticFS("/js", http.Dir("./static/js"))
 	GinDefault.StaticFile("/favicon.ico", "static/favicon.ico")
 	GinDefault.StaticFile("/index.html", "static/index.html")
-	// GinDefault.Use(cors.Default())
+	GinDefault.Use(cors.Default())
 	v1 = GinDefault.Group("/v1")
 	v1.Use(Auth())
 	apiNoAuth = GinDefault.Group("/unauth")
