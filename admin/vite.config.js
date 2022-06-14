@@ -84,6 +84,7 @@ export default defineConfig({
     open: true,
     strictPort: false,
     https: false,
+    cors: true,
 
     // 反向代理
     proxy: {
