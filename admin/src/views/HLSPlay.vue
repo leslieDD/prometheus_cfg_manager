@@ -69,7 +69,16 @@
                     this.loadingVideo = false
                 ])
                 if (Hls.isSupported()) {
-                    this.hls = new Hls();
+                    var config = {
+                      debug: true,
+                      xhrSetup: function (xhr,url) {
+                        xhr.withCredentials = true; // do send cookie
+                        xhr.setRequestHeader("Access-Control-Allow-Headers","Content-Type, Accept, X-Requested-With");
+                        xhr.setRequestHeader("Access-Control-Allow-Origin","*");
+                        xhr.setRequestHeader("Access-Control-Allow-Credentials","true");
+                      }
+                    };
+                    this.hls = new Hls(config);
                     this.hls.loadSource(this.sourceUrls);
                     this.hls.attachMedia(this.$refs.video);
 
