@@ -230,6 +230,12 @@ const routes = [
     ]
   },
   {
+    path: '/live',
+    name: 'live',
+    component: () => import('@/views/HLS.vue'),
+    title: '直播',
+  },
+  {
     path: "/:catchAll(.*)",
     name: '404',
     title: '404',

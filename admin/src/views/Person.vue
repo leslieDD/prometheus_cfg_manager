@@ -137,6 +137,15 @@
                   >用户及权限管理</el-button
                 >
               </dt>
+              <dt
+                class="menu_zero_padding"
+                v-if="menuShow.show_menu_hls === true"
+              >
+                <single-svg icon-class="yezhi"></single-svg
+                ><el-button type="text" @click="goToHLS"
+                  >直播</el-button
+                >
+              </dt>
               <dt v-if="Object.keys(menuShow).length === 0">
                 <div class="no_menu_show">
                   <el-tag type="warning" size="small"
@@ -250,7 +259,8 @@ export default {
       userID: 0,
       menuShow: {
         show_menu_prometheus_cfg_manager: false,
-        show_menu_administrator_cfg_manager: false
+        show_menu_administrator_cfg_manager: false,
+        show_menu_hls: false,
       }
     }
   },
@@ -295,6 +305,9 @@ export default {
     },
     goToAdmin () {
       this.$router.push({ name: 'admin' })
+    },
+    goToHLS(){
+      this.$router.push({ name: 'live' })
     },
     loadProgramerSay () {
       loadTxt().then(r => {
