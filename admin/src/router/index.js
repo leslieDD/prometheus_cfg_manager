@@ -232,8 +232,28 @@ const routes = [
   {
     path: '/live',
     name: 'live',
-    component: () => import('@/views/HLS.vue'),
+    component: () => import('@/views/Live.vue'),
     title: '直播',
+    children: [
+      {
+        path: '/hls',
+        name: 'hls',
+        title: 'hls',
+        component: () => import('@/views/HLS.vue')
+      },
+      {
+        path: '/flv',
+        name: 'flv',
+        title: 'flv',
+        component: () => import('@/views/FLV.vue')
+      },
+      {
+        path: '/rtmp',
+        name: 'rtmp',
+        title: 'rtmp',
+        component: () => import('@/views/RTMP.vue')
+      },
+    ]
   },
   {
     path: "/:catchAll(.*)",

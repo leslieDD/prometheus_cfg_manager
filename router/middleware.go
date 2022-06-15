@@ -22,14 +22,15 @@ func crosMw() {
 	// router.Use(cors.New(config))
 
 	GinDefault.Use(cors.New(cors.Config{
-		AllowOrigins:     []string{"*"},
-		AllowMethods:     []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
-		AllowHeaders:     []string{"Origin", "Authentication", "Content-Length", "Content-Type"},
+		AllowOrigins: []string{"*"},
+		AllowMethods: []string{"GET", "POST", "PUT", "PATCH", "DELETE", "HEAD"},
+		// AllowHeaders:     []string{"Origin", "Authentication", "Content-Length", "Content-Type"},
+		AllowHeaders:     []string{"*"},
 		ExposeHeaders:    []string{"Content-Length", "Content-Type", "Authentication"},
 		AllowCredentials: true,
-		AllowOriginFunc: func(origin string) bool {
-			return origin == "http://localhost:9527"
-		},
+		// AllowOriginFunc: func(origin string) bool {
+		// 	return origin == "http://localhost:9527"
+		// },
 		MaxAge: 12 * time.Hour,
 	}))
 }
