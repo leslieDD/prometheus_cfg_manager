@@ -242,6 +242,12 @@ const routes = [
         component: () => import('@/views/HLS.vue')
       },
       {
+        path: '/hlsvideo',
+        name: 'hlsvideo',
+        title: 'hlsvideo',
+        component: () => import('@/views/HLSVideo.vue')
+      },
+      {
         path: '/flv',
         name: 'flv',
         title: 'flv',

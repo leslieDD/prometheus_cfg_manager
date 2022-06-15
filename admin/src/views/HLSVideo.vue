@@ -61,12 +61,12 @@
 
 import videojs from 'video.js'
 import 'video.js/dist/video-js.css'
-import 'videojs-flash'
+// import 'videojs-flash'
 
 import md5 from 'js-md5'
 
 export default {
-  name: "RTMP",
+  name: "HlsVideo",
   components: {
   },
   data() {
@@ -156,6 +156,7 @@ export default {
     },
     show(sType) {
       // let now = new Date().valueOf()
+      debugger
       if (sType===1) {
         var unixTimestamp = (parseInt(Date.now() / 1000) + parseInt(this.rtmpInfo.unix_time)).toString()
         var hash = md5.create()
@@ -163,7 +164,7 @@ export default {
         hash.update(unixTimestamp)
         hash.update(this.rtmpInfo.key)
         var token = hash.hex()
-        var videoUrl = 'rtmp://' + this.rtmpInfo.live_domain + '/live/' + this.rtmpInfo.live_name + '?t=' + unixTimestamp + '&token=' + token
+        var videoUrl = 'http://' + this.rtmpInfo.live_domain + '/hls/' + this.rtmpInfo.live_name + '.m3u8?t=' + unixTimestamp + '&token=' + token
         this.rtmpUrl.url = videoUrl
         this.videoUrl = videoUrl
       } else if (sType === 2) {
@@ -182,7 +183,7 @@ export default {
       })
       this.videoPlayer.src({
         src: this.videoUrl,
-        type: 'rtmp/flv',
+        type: 'application/x-mpegURL',
       })
       // this.videoPlayer.play()
       // const player = videojs('videoplayer_html5_api');

@@ -29,6 +29,10 @@
                 <i class="el-icon-potato-strips"></i>
                 <template #title>HLS</template>
               </el-menu-item>
+              <el-menu-item index="HLSVideo">
+                <i class="el-icon-chicken"></i>
+                <template #title>HLSVideo</template>
+              </el-menu-item>
               <el-menu-item index="FLV">
                 <i class="el-icon-milk-tea"></i>
                 <template #title>FLV</template>
@@ -74,6 +78,8 @@ export default {
     handleSelect (key, keyPath) {
       if (key === 'HLS') {
         this.$router.push({ name: 'hls' })
+      } else if (key === 'HLSVideo') {
+        this.$router.push({ name: 'hlsvideo' })
       } else if (key === 'FLV') {
         this.$router.push({ name: 'flv' })
       } else if (key === 'RTMP') {

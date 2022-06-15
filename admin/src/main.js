@@ -18,12 +18,14 @@ import 'vite-plugin-svg-icons/register'
 import singleSvg from './components/singleSvg.vue' // 全局svg图标组件
 import Highlight from './directive/highlight.js' // 这里是你项目highlight.js所在路径
 import "default-passive-events"
+import hls from 'videojs-contrib-hls.js';
 
 const app = createApp(App)
 app.use(ElementPlus, { locale })
 app.use(router)
 app.use(store)
 app.use(Highlight)
+app.use(hls)
 app.component('icon-svg', IconSvg)
 app.component('single-svg', singleSvg)
 app.mount('#app')
