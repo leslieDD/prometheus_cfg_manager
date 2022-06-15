@@ -13,7 +13,7 @@
           <span>
             <!-- <i class="iconfont prometheusshuiguo1"></i> -->
             <icon-svg icon-class="promgtshuiguo9" />
-            权限管理</span
+            直播测试</span
           >
         </template>
         <div class="base-config-board">

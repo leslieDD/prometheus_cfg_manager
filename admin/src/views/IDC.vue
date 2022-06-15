@@ -11,7 +11,7 @@
           >点击导出</el-button
         ></span></span>
           <span>
-            <span style="margin-right: 10px"><el-checkbox v-model="search_ip" label="同时搜索线路地址池" size="small" /></span>
+            <span style="margin-right: 10px"><el-checkbox v-model="search_ip" label="搜索线路地址" size="small" /></span>
             <span>
             <el-input
               size="small"
