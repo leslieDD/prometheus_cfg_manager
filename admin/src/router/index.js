@@ -56,8 +56,8 @@ const routes = [
         components: {
           instance: () => import('@/views/Instance.vue')
         },
-        meta:{
-          keepAlive:true
+        meta: {
+          keepAlive: true
         }
       },
       {
@@ -258,6 +258,12 @@ const routes = [
         name: 'rtmp',
         title: 'rtmp',
         component: () => import('@/views/RTMP.vue')
+      },
+      {
+        path: '/dplayer',
+        name: 'dplayer',
+        title: 'dplayer',
+        component: () => import('@/views/DPlayer.vue')
       },
     ]
   },

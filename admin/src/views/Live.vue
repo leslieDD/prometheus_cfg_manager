@@ -3,8 +3,8 @@
     <div class="person-center-btn">
       <div>
         <el-button size="mini" type="warning" @click="goBackPerson">
-          <single-svg icon-class="pig" />个人中心</el-button
-        >
+          <single-svg icon-class="pig" />个人中心
+        </el-button>
       </div>
     </div>
     <el-tabs type="border-card">
@@ -13,18 +13,13 @@
           <span>
             <!-- <i class="iconfont prometheusshuiguo1"></i> -->
             <icon-svg icon-class="promgtshuiguo9" />
-            直播测试</span
-          >
+            直播测试
+          </span>
         </template>
         <div class="base-config-board">
           <div class="base-config-menu">
-            <el-menu
-              default-active="FLV"
-              class="el-menu-vertical-demo"
-              @open="handleOpen"
-              @close="handleClose"
-              @select="handleSelect"
-            >
+            <el-menu default-active="FLV" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
+              @select="handleSelect">
               <el-menu-item index="HLS">
                 <i class="el-icon-potato-strips"></i>
                 <template #title>HLS</template>
@@ -40,6 +35,10 @@
               <el-menu-item index="RTMP">
                 <i class="el-icon-chicken"></i>
                 <template #title>RTMP</template>
+              </el-menu-item>
+              <el-menu-item index="DPlayer">
+                <i class="el-icon-chicken"></i>
+                <template #title>DPlayer</template>
               </el-menu-item>
             </el-menu>
           </div>
@@ -84,6 +83,8 @@ export default {
         this.$router.push({ name: 'flv' })
       } else if (key === 'RTMP') {
         this.$router.push({ name: 'rtmp' })
+      } else if (key === 'DPlayer') {
+        this.$router.push({ name: 'dplayer' })
       }
     },
     goBackPerson () {
@@ -100,14 +101,17 @@ export default {
   max-width: 99%;
   margin: 0 auto;
 }
+
 .base-config-menu {
   width: 300px;
   /* margin-right: 10px; */
 }
+
 .base-config-router {
   width: 100%;
   height: 89vh;
 }
+
 .base-config-board {
   display: flex;
   flex-direction: row;
@@ -115,6 +119,7 @@ export default {
   width: 100%;
   /* justify-content: space-between; */
 }
+
 .slide-fade-enter-active {
   transition: all 0.3s ease-in;
 }
@@ -129,6 +134,7 @@ export default {
   transform: translateX(10px);
   opacity: 0;
 }
+
 .person-center-btn {
   position: relative;
   align-items: center;

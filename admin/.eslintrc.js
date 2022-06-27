@@ -14,7 +14,6 @@ module.exports = {
   },
   "plugins": [
     "vue",
-    "@vue/babel-plugin-jsx"
   ],
   "rules": {
   }
