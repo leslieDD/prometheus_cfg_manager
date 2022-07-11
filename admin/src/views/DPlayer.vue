@@ -19,9 +19,7 @@
           <el-row type="flex" class="row-bg">
             <el-col :span="12">
               <el-form-item label="鉴权密钥" prop="key">
-                <el-input style="width: 300px;" v-model="rtmpInfo.key" placeholder="鉴权key" autocomplete name="key">
-                </el-input>
-                </el-input>
+                <el-input style="width: 300px;" v-model="rtmpInfo.key" placeholder="鉴权key" autocomplete name="key"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="6">
@@ -43,9 +41,7 @@
           <el-row type="flex" class="row-bg">
             <el-col :span="18">
               <el-form-item label="拉流地址" prop="url">
-                <el-input style="width: 780px;" v-model="rtmpUrl.url" placeholder="拉流地址" autocomplete name="url">
-                </el-input>
-                </el-input>
+                <el-input style="width: 780px;" v-model="rtmpUrl.url" placeholder="拉流地址" autocomplete name="url"></el-input>
               </el-form-item>
             </el-col>
             <el-col :span="6">
