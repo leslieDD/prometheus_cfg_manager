@@ -184,7 +184,7 @@ func GetJobsSplit(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 			tx = tx.Where("name like ? and is_common=0", fmt.Sprint("%", sp.Search, "%"))
 		}
 	} else {
-		switch sp.Search {
+		switch sp.Option {
 		case "enable":
 			tx = tx.Where("jobs.enabled=1 and is_common=0")
 		case "disable":
