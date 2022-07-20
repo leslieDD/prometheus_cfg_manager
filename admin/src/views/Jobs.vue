@@ -2,36 +2,15 @@
   <div class="jobs-board">
     <div class="do_action">
       <div class="action-btn-del">
-        <el-button
-          icon="el-icon-lightning"
-          size="small"
-          type="info"
-          plain
-          @click="doBatchDel()"
-          >删除选中</el-button
-        >
-        <el-button
-          icon="el-icon-warning-outline"
-          size="small"
-          type="info"
-          plain
-          @click="doBatchDisable()"
-          >禁用选中</el-button
-        >
-        <el-button
-          icon="el-icon-warning-outline"
-          size="small"
-          type="success"
-          plain
-          @click="doBatchEnable()"
-          >启用选中</el-button
-        >
+        <el-button icon="el-icon-lightning" size="small" type="info" plain @click="doBatchDel()">删除选中</el-button>
+        <el-button icon="el-icon-warning-outline" size="small" type="info" plain @click="doBatchDisable()">禁用选中
+        </el-button>
+        <el-button icon="el-icon-warning-outline" size="small" type="success" plain @click="doBatchEnable()">启用选中
+        </el-button>
       </div>
       <div class="do-action-search">
         <span style="padding-right: 15px">
-          <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()"
-            >添加组</el-button
-          >
+          <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()">添加组</el-button>
         </span>
         <span class="text-area">
           <span class="type-title">只展示：</span>
@@ -44,48 +23,40 @@
           </span>
         </span>
         <span>
-          <el-input
-            size="small"
-            placeholder="请输入内容"
-            @keyup.enter="onSearch()"
-            v-model="searchContent"
-            style="width: 300px"
-          >
+          <el-input size="small" placeholder="请输入内容" @keyup.enter="onSearch()" v-model="searchContent"
+            style="width: 300px">
             <template #append>
-              <el-button
-                size="small"
-                @click="onSearch()"
-                icon="el-icon-search"
-              ></el-button>
+              <el-button size="small" @click="onSearch()" icon="el-icon-search"></el-button>
             </template>
           </el-input>
         </span>
       </div>
     </div>
-    <el-table
-      size="mini"
-      highlight-current-row
-      border
-      :data="jobs"
-      stripe
-      :row-style="rowStyle"
-      :cell-style="cellStyle"
-      @expand-change="expandChange"
-      @selection-change="handleSelectionChange"
-      @cell-click="clickcell"
-    >
+    <el-table size="mini" highlight-current-row border :data="jobs" stripe :row-style="rowStyle" :cell-style="cellStyle"
+      @expand-change="expandChange" @selection-change="handleSelectionChange" @cell-click="clickcell">
       <el-table-column type="selection" width="40"> </el-table-column>
       <el-table-column type="expand">
         <template #default="props">
           <el-descriptions title="IP列表" size="mini" :column="4" border>
-            <el-descriptions-item
-              v-for="(item, index) in jobAllIPList[props.row.id]"
-              :key="index"
-              :label="index + 1"
-              >{{ item.ipaddr }}
-                <span v-if="item.position.error"><el-tag type="danger" size="mini" >{{item.position.error}}</el-tag></span>
-                <span v-else-if="item.position.isp"><el-tag size="mini" type="info">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}</el-tag><el-tag type="warning" size="mini" >{{item.position.isp}}</el-tag></span>
-                <span v-else><el-tag size="mini" type="info">{{item.position.country}}{{item.position.province}}{{item.position.city}}{{item.position.county}}{{item.position.isp}}</el-tag></span>
+            <el-descriptions-item v-for="(item, index) in jobAllIPList[props.row.id]" :key="index" :label="index + 1">{{
+                item.ipaddr
+            }}
+              <span v-if="item.position.error">
+                <el-tag type="danger" size="mini">{{ item.position.error }}</el-tag>
+              </span>
+              <span v-else-if="item.position.isp">
+                <el-tag size="mini" type="info">
+                  {{ item.position.country }}{{ item.position.province }}{{ item.position.city }}{{ item.position.county
+                  }}
+                </el-tag>
+                <el-tag type="warning" size="mini">{{ item.position.isp }}</el-tag>
+              </span>
+              <span v-else>
+                <el-tag size="mini" type="info">
+                  {{ item.position.country }}{{ item.position.province }}{{ item.position.city }}{{ item.position.county
+                  }}{{ item.position.isp }}
+                </el-tag>
+              </span>
             </el-descriptions-item>
           </el-descriptions>
         </template>
@@ -95,69 +66,45 @@
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column
-        label="JOB组名称"
-        prop="name"
-        show-overflow-tooltip
-      >
+      <el-table-column label="JOB组名称" prop="name" show-overflow-tooltip>
       </el-table-column>
-      <el-table-column label="端口号" width="90px" prop="port">
+      <el-table-column label="端口" width="75px" prop="port">
         <template #header>
-          <el-tooltip
-            content="如果端口号为0，在生成配置时忽略端口号，只保留IP地址"
-            placement="top"
-          >
-            <span type="warning"
-              >端口号
-              <i
-                style="font-size: 13px; color: #0081ff"
-                class="el-icon-warning"
-              ></i
-            ></span>
+          <el-tooltip content="如果端口号为0，在生成配置时忽略端口号，只保留IP地址" placement="top">
+            <span type="warning">端口号
+              <i style="font-size: 13px; color: #0081ff" class="el-icon-warning"></i></span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column label="IP数" width="55px">
+      <el-table-column label="IP数" width="45px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
-            scope.row.ip_count
+              scope.row.ip_count
           }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column label="加黑" width="55px">
+      <el-table-column label="加黑" width="45px">
         <template v-slot="scope">
-          <span>{{scope.row.black_count}}</span>
+          <span>{{ scope.row.black_count }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="组标签" width="65px">
+      <el-table-column label="组标签" width="60px">
         <template v-slot="scope">
-          <span>{{scope.row.label_count}}</span>
+          <span>{{ scope.row.label_count }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="子组数" width="65px">
+      <el-table-column label="子组数" width="60px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
-            scope.row.group_count
+              scope.row.group_count
           }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column
-        label="重写标签"
-        prop="relabel_name"
-        show-overflow-tooltip
-      >
+      <el-table-column label="重写标签" prop="relabel_name" show-overflow-tooltip>
         <template #header>
-          <el-tooltip
-            content="在‘基本配置’选项卡下的‘监控规则’下定义"
-            placement="top"
-          >
-            <span type="warning"
-              >监控规则
-              <i
-                style="font-size: 13px; color: #0081ff"
-                class="el-icon-warning"
-              ></i
-            ></span>
+          <el-tooltip content="在‘基本配置’选项卡下的‘监控规则’下定义" placement="top">
+            <span type="warning">监控规则
+              <i style="font-size: 13px; color: #0081ff" class="el-icon-warning"></i></span>
           </el-tooltip>
         </template>
       </el-table-column>
@@ -183,90 +130,51 @@
           </div>
         </template>
       </el-table-column> -->
-      <el-table-column
-        label="更新账号"
-        prop="update_by"
-        width="90px"
-        show-overflow-tooltip
-      ></el-table-column>
-      <el-table-column label="更新时间" prop="update_at" width="150px">
+      <el-table-column label="更新账号" prop="update_by" width="80px" show-overflow-tooltip></el-table-column>
+      <el-table-column label="更新时间" prop="update_at" width="140px">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="530px">
+      <el-table-column label="操作" align="center" width="570px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
-              <el-button size="mini" type="primary" @click="doEdit(scope)" plain
-                >编辑</el-button
-              >
+              <el-button size="mini" type="primary" @click="doEdit(scope)" plain>编辑</el-button>
             </div>
             <div>
-              <el-button size="mini" type="primary" @click="doEditPool(scope)" plain
-                >IP列表</el-button
-              >
+              <el-button size="mini" type="primary" @click="doEditPool(scope)" plain>IP列表</el-button>
             </div>
             <div>
-              <el-button size="mini" type="primary" @click="doPool(scope)" plain
-                >IP池</el-button
-              >
+              <el-button size="mini" type="primary" @click="doPool(scope)" plain>IP池</el-button>
             </div>
             <div>
-              <el-button size="mini" type="success" @click="doUpdateSubGroup(scope)" plain
-                >更新子组</el-button
-              >
+              <el-button size="mini" type="success" @click="doUpdateSubGroup(scope)" plain>更新子组</el-button>
             </div>
             <div>
-              <el-button size="mini" type="warning" @click="doUpdateJobLables(scope)" plain
-                >标签</el-button
-              >
+              <el-button size="mini" type="warning" @click="doUpdateJobLables(scope)" plain>标签</el-button>
             </div>
             <div>
-              <el-button size="mini" type="info" @click="doBlack(scope)" plain
-                >黑名单</el-button
-              >
+              <el-button size="mini" type="warning" @click="doMirrorJob(scope)" plain>镜像</el-button>
             </div>
             <div>
-              <el-button
-                size="mini"
-                type="info"
-                v-if="scope.row.enabled === true"
-                @click="invocate(scope)"
-                plain
-                >禁用</el-button
-              >
-              <el-button
-                size="mini"
-                type="warning"
-                v-if="scope.row.enabled === false"
-                @click="invocate(scope)"
-                plain
-                >启用</el-button
-              >
+              <el-button size="mini" type="info" @click="doBlack(scope)" plain>黑名单</el-button>
             </div>
             <div>
-              <el-popover
-                :visible="deleteVisible[scope.$index]"
-                placement="top"
-              >
+              <el-button size="mini" type="info" v-if="scope.row.enabled === true" @click="invocate(scope)" plain>禁用
+              </el-button>
+              <el-button size="mini" type="warning" v-if="scope.row.enabled === false" @click="invocate(scope)" plain>启用
+              </el-button>
+            </div>
+            <div>
+              <el-popover :visible="deleteVisible[scope.$index]" placement="top">
                 <p>确定删除吗？</p>
                 <div style="text-align: right; margin: 0">
-                  <el-button size="mini" type="text" @click="doNo(scope)"
-                    >取消</el-button
-                  >
-                  <el-button type="primary" size="mini" @click="doYes(scope)"
-                    >确定</el-button
-                  >
+                  <el-button size="mini" type="text" @click="doNo(scope)">取消</el-button>
+                  <el-button type="primary" size="mini" @click="doYes(scope)">确定</el-button>
                 </div>
                 <template #reference>
-                  <el-button
-                    size="mini"
-                    type="danger"
-                    plain
-                    @click="doDelete(scope)"
-                    >删除</el-button
-                  >
+                  <el-button size="mini" type="danger" plain @click="doDelete(scope)">删除</el-button>
                 </template>
               </el-popover>
             </div>
@@ -275,204 +183,86 @@
       </el-table-column>
     </el-table>
     <div class="block" v-if="pageshow">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[10, 15, 20, 30, 50]"
-        :page-size="pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pageTotal"
-      >
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
+        :page-sizes="[10, 15, 20, 30, 50]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
+        :total="pageTotal">
       </el-pagination>
     </div>
-    <el-dialog
-      :title="dialogTitle"
-      v-model="dialogVisible"
-      width="450px"
-      modal
-      :before-close="handleClose"
-    >
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="450px" modal :before-close="handleClose">
       <span>
-        <el-form
-          label-position="right"
-          :rules="rules"
-          ref="addJobInfo"
-          :model="addJobInfo"
-          label-width="110px"
-          size="small"
-        >
+        <el-form label-position="right" :rules="rules" ref="addJobInfo" :model="addJobInfo" label-width="110px"
+          size="small">
           <el-form-item label="分组名：" prop="name">
             <el-input style="width: 250px" v-model="addJobInfo.name"></el-input>
           </el-form-item>
           <el-form-item label="端口号：" prop="port">
             <template #label>
               <span>端口号</span>
-              <el-tooltip
-                content="如果端口号为0，在生成配置时忽略端口号，只保留IP地址"
-                placement="top"
-                style="diaplay: inline"
-              >
-                <span
-                  ><i style="font-size: 13px" class="el-icon-warning"
-                    >：</i
-                  ></span
-                >
+              <el-tooltip content="如果端口号为0，在生成配置时忽略端口号，只保留IP地址" placement="top" style="diaplay: inline">
+                <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
               </el-tooltip>
             </template>
-            <el-input
-              type="number"
-              style="width: 250px"
-              v-model.number="addJobInfo.port"
-            ></el-input>
+            <el-input type="number" style="width: 250px" v-model.number="addJobInfo.port"></el-input>
           </el-form-item>
           <el-form-item label="重写标签：" prop="relabel_id">
-            <el-select
-              v-model="addJobInfo.relabel_id"
-              filterable
-              allow-create
-              default-first-option
-              placeholder="请选择"
-              style="width: 250px"
-            >
-              <el-option
-                v-for="item in relabelList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              >
+            <el-select v-model="addJobInfo.relabel_id" filterable allow-create default-first-option placeholder="请选择"
+              style="width: 250px">
+              <el-option v-for="item in relabelList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
           <el-form-item size="small">
-            <el-button
-              size="small"
-              type="primary"
-              @click="onSubmit('addJobInfo')"
-              >{{ buttonTitle }}</el-button
-            >
-            <el-button size="small" type="info" @click="onCancel('addJobInfo')"
-              >取消</el-button
-            >
+            <el-button size="small" type="primary" @click="onSubmit('addJobInfo')">{{ buttonTitle }}</el-button>
+            <el-button size="small" type="info" @click="onCancel('addJobInfo')">取消</el-button>
           </el-form-item>
         </el-form>
       </span>
     </el-dialog>
-    <el-dialog
-      :title="'IP池 - ' + editIPDialog"
-      v-model="editIPVisible"
-      width="700px"
-      modal
-      :before-close="clearIPClose"
-    >
+    <el-dialog :title="'IP池 - ' + editIPDialog" v-model="editIPVisible" width="700px" modal
+      :before-close="clearIPClose">
       <el-row type="flex" align="middle" justify="center">
-        <el-transfer
-          v-model="currentIPValue"
-          filterable
-          :filter-method="filterIPMethod"
-          filter-placeholder="请输入关键字"
-          :data="allIPData"
-          @change="transferChange"
-          :titles="['IP池', 'Job组IP列表']"
-        >
+        <el-transfer v-model="currentIPValue" filterable :filter-method="filterIPMethod" filter-placeholder="请输入关键字"
+          :data="allIPData" @change="transferChange" :titles="['IP池', 'Job组IP列表']">
         </el-transfer>
       </el-row>
       <div class="ip-list-push-box">
-        <el-button
-          class="ip-list-close-btn"
-          type="info"
-          size="small"
-          @click="clearIPClose"
-          >关闭</el-button
-        >
-        <el-button
-          class="ip-list-push-btn"
-          type="warning"
-          size="small"
-          @click="updateJobIPList"
-          >提交</el-button
-        >
+        <el-button class="ip-list-close-btn" type="info" size="small" @click="clearIPClose">关闭</el-button>
+        <el-button class="ip-list-push-btn" type="warning" size="small" @click="updateJobIPList">提交</el-button>
       </div>
     </el-dialog>
-    <el-dialog
-      :title="'JOB组内编辑 - ' + editIPInJobDialog"
-      v-model="editIPInJobVisible"
-      width="700px"
-      modal
-      :before-close="clearIPInJobClose"
-    >
+    <el-dialog :title="'JOB组内编辑 - ' + editIPInJobDialog" v-model="editIPInJobVisible" width="700px" modal
+      :before-close="clearIPInJobClose">
       <el-row type="flex" align="middle" justify="center">
-        <el-transfer
-          v-model="currentIPInJobValue"
-          filterable
-          :filter-method="filterIPMethod"
-          filter-placeholder="请输入关键字"
-          :data="allIPInJobData"
-          @change="transferInJobChange"
-          :titles="['JOB组IP池', '加黑IP列表']"
-        >
+        <el-transfer v-model="currentIPInJobValue" filterable :filter-method="filterIPMethod"
+          filter-placeholder="请输入关键字" :data="allIPInJobData" @change="transferInJobChange"
+          :titles="['JOB组IP池', '加黑IP列表']">
         </el-transfer>
       </el-row>
       <div class="ip-list-push-box">
-        <el-button
-          class="ip-list-close-btn"
-          type="info"
-          size="small"
-          @click="clearIPInJobClose"
-          >关闭</el-button
-        >
-        <el-button
-          class="ip-list-push-btn"
-          type="warning"
-          size="small"
-          @click="updateJobIPInJobList"
-          >提交</el-button
-        >
+        <el-button class="ip-list-close-btn" type="info" size="small" @click="clearIPInJobClose">关闭</el-button>
+        <el-button class="ip-list-push-btn" type="warning" size="small" @click="updateJobIPInJobList">提交</el-button>
       </div>
     </el-dialog>
-    <el-dialog
-      :title="editIPListDialog"
-      v-model="editIPListVisible"
-      width="900px"
-      modal
-      :before-close="clearIPListClose"
-      custom-class="editIPListDialog"
-    >
-      <span><el-tag type="warning">IP以半角分号（;）隔开，只会添加在“IP管理”中已经有的IP地址</el-tag></span>
+    <el-dialog :title="editIPListDialog" v-model="editIPListVisible" width="900px" modal
+      :before-close="clearIPListClose" custom-class="editIPListDialog">
+      <span>
+        <el-tag type="warning">IP以半角分号（;）隔开，只会添加在“IP管理”中已经有的IP地址</el-tag>
+      </span>
       <div>
-        <el-input
-          type="textarea"
-          :autosize="{ minRows: 18, maxRows: 18}"
-          placeholder="请输入内容"
-          v-model="ipListConetnt">
+        <el-input type="textarea" :autosize="{ minRows: 18, maxRows: 18 }" placeholder="请输入内容" v-model="ipListConetnt">
         </el-input>
       </div>
       <div class="force-insert-ipaddr">
         <el-checkbox v-model="force_insert" label="当填入的IP不在“IP管理”中时，强制插入" size="small" />
       </div>
       <div class="ip-list-push-box">
-        <el-button
-          class="ip-list-close-btn2"
-          type="info"
-          size="small"
-          @click="clearIPListClose"
-          >关 闭</el-button
-        >
-        <el-button
-          class="ip-list-push-btn2"
-          type="warning"
-          size="small"
-          @click="doUpdateAction"
-          >提 交</el-button
-        >
+        <el-button class="ip-list-close-btn2" type="info" size="small" @click="clearIPListClose">关 闭</el-button>
+        <el-button class="ip-list-push-btn2" type="warning" size="small" @click="doUpdateAction">提 交</el-button>
       </div>
     </el-dialog>
     <div class="dialog-relabel-ruleshow">
-      <el-dialog
-        :title="'规则名称：' + currentJobReWriteRule +'，规则内容：'"
-        v-model="dialogJobReWriteRuleVisible"
-        width="700px"
-      >
+      <el-dialog :title="'规则名称：' + currentJobReWriteRule + '，规则内容：'" v-model="dialogJobReWriteRuleVisible"
+        width="700px">
         <!-- <div style="width: 550px">
           <el-scrollbar height="300px">
             <div v-if="showError">
@@ -488,31 +278,19 @@
         </div>
       </el-dialog>
     </div>
-    <el-dialog
-      :title="dialogJobLabelTitle"
-      v-model="dialogJobLabelVisible"
-      width="850px"
-      modal
-      :before-close="handleJobLabelClose"
-    >
+    <el-dialog :title="dialogJobLabelTitle" v-model="dialogJobLabelVisible" width="850px" modal
+      :before-close="handleJobLabelClose">
       <div class="job-labe-data-span">
-        <el-table 
-          :data="JobLabeData" 
-          size="mini" 
-          style="width: 100%" 
-          max-height="300" 
-          stripe
-          :row-style="rowStyle"
-          :cell-style="cellStyle"
-        >
+        <el-table :data="JobLabeData" size="mini" style="width: 100%" max-height="300" stripe :row-style="rowStyle"
+          :cell-style="cellStyle">
           <el-table-column label="序号" width="50px">
             <template v-slot="scope">
               {{ scope.$index + 1 }}
             </template>
           </el-table-column>
           <!-- <el-table-column fixed prop="" label="Date" width="150" /> -->
-          <el-table-column prop="name" label="名称" show-overflow-tooltip/>
-          <el-table-column prop="value" label="值" show-overflow-tooltip/>
+          <el-table-column prop="name" label="名称" show-overflow-tooltip />
+          <el-table-column prop="value" label="值" show-overflow-tooltip />
           <el-table-column prop="update_at" label="更新时间" width="150">
             <template v-slot="{ row }">
               <span>{{ parseTimeSelf(row.update_at) }}</span>
@@ -521,53 +299,40 @@
           <el-table-column prop="update_by" label="更新账号" width="120" />
           <el-table-column fixed="right" label="操作" width="150">
             <template #default="scope">
-              <el-button
-                link
-                type="primary"
-                size="mini"
-                plain
-                @click.prevent="editJobLabelRow(scope)"
-              >
+              <el-button link type="primary" size="mini" plain @click.prevent="editJobLabelRow(scope)">
                 编辑
               </el-button>
-              <el-button
-                link
-                type="danger"
-                size="mini"
-                plain
-                @click.prevent="deleteJobLabelRow(scope)"
-              >
+              <el-button link type="danger" size="mini" plain @click.prevent="deleteJobLabelRow(scope)">
                 删除
               </el-button>
             </template>
           </el-table-column>
         </el-table>
         <div class="job-labe-data-action">
-          <el-button size="mini" type="success" @click="onUploadJobLabelItem" plain
-            >提交数据</el-button
-          >
-          <el-button size="mini" type="warning" @click="onAddJobLabelItem" plain
-            >添加项目</el-button
-          >
+          <el-button size="mini" type="success" @click="onUploadJobLabelItem" plain>提交数据</el-button>
+          <el-button size="mini" type="warning" @click="onAddJobLabelItem" plain>添加项目</el-button>
         </div>
       </div>
     </el-dialog>
-    <el-dialog
-      :title="dialogEditJobLabel"
-      v-model="dialogEditJobLabelVisible"
-      width="400px"
-      modal
-      :before-close="handleEditJobLabelClose"
-    >
+    <el-dialog :title="dialogMirrorJobTitle" v-model="dialogMirrorJobVisible" width="650px" modal
+      :before-close="handleMirrorJobClose" custom-class="editIPListDialog">
       <span>
-        <el-form
-          label-position="right"
-          :rules="editJobLabelRule"
-          ref="editJobLabel"
-          :model="editJobLabel"
-          label-width="80px"
-          size="small"
-        >
+        <el-tag type="warning">Prometheus中replacement属性值，会为以下各个值生成单独的JOB，分号分割</el-tag>
+      </span>
+      <div>
+        <el-input type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" placeholder="请输入内容" v-model="JobMirrorData">
+        </el-input>
+      </div>
+      <div class="ip-list-push-box">
+        <el-button class="ip-list-close-btn2" type="info" size="small" @click="handleMirrorJobClose">关 闭</el-button>
+        <el-button class="ip-list-push-btn2" type="warning" size="small" @click="doUpdateJobMirrAction">提 交</el-button>
+      </div>
+    </el-dialog>
+    <el-dialog :title="dialogEditJobLabel" v-model="dialogEditJobLabelVisible" width="400px" modal
+      :before-close="handleEditJobLabelClose">
+      <span>
+        <el-form label-position="right" :rules="editJobLabelRule" ref="editJobLabel" :model="editJobLabel"
+          label-width="80px" size="small">
           <el-form-item label="名称" prop="name">
             <el-input style="width: 250px" v-model="editJobLabel.name"></el-input>
           </el-form-item>
@@ -575,15 +340,8 @@
             <el-input style="width: 250px" v-model="editJobLabel.value"></el-input>
           </el-form-item>
           <el-form-item size="small">
-            <el-button
-              size="small"
-              type="primary"
-              @click="oneditJobLabelSubmit('editJobLabel')"
-              >确定</el-button
-            >
-            <el-button size="small" type="info" @click="oneditJobLabelCancel('editJobLabel')"
-              >取消</el-button
-            >
+            <el-button size="small" type="primary" @click="oneditJobLabelSubmit('editJobLabel')">确定</el-button>
+            <el-button size="small" type="info" @click="oneditJobLabelCancel('editJobLabel')">取消</el-button>
           </el-form-item>
         </el-form>
       </span>
@@ -610,12 +368,14 @@ import {
   batchDisableJob,
   updateJobLabels,
   getJobLabels,
+  getMirrorInfo,
+  updateMirrorInfo,
 } from '@/api/jobs.js'
 import { allIPList } from '@/api/machines.js'
 import { restartSrv } from '@/api/srv'
-import { 
-  getJobMachines, 
-  getJobMachinesBlack, 
+import {
+  getJobMachines,
+  getJobMachinesBlack,
   putJobMachinesBlack,
 } from '@/api/labelsJob.js'
 
@@ -623,7 +383,7 @@ import dayjs from 'dayjs'
 
 import { getStorageVal, setStorageVal } from '@/utils/localStorage.js'
 
-import {getReLabel} from '@/api/relabel.js'
+import { getReLabel } from '@/api/relabel.js'
 
 export default {
   name: 'Jobs',
@@ -702,6 +462,10 @@ export default {
       dialogJobLabelTitle: '编辑组标签',
       dialogJobLabelVisible: false,
       dialogJobLabelCurrObj: null,
+      JobMirrorData: '',
+      dialogMirrorJobCurrObj: null,
+      dialogMirrorJobTitle: '编辑镜像组',
+      dialogMirrorJobVisible: false,
       dialogEditJobLabel: '编辑标签',
       dialogEditJobLabelNew: false,
       dialogEditJobLabelVisible: false,
@@ -826,55 +590,58 @@ export default {
     handleClose (done) {
       this.dialogVisible = false
     },
-    handleJobLabelClose(){
+    handleJobLabelClose () {
       this.dialogJobLabelVisible = false
     },
-    handleEditJobLabelClose(){
+    handleMirrorJobClose () {
+      this.dialogMirrorJobVisible = false
+    },
+    handleEditJobLabelClose () {
       this.dialogEditJobLabelVisible = false
     },
-    editJobLabelRow(scope){
+    editJobLabelRow (scope) {
       this.editJobLabel = scope.row
       this.dialogEditJobLabel = '编辑标签'
       this.dialogEditJobLabelNew = false
       this.dialogEditJobLabelVisible = true
     },
-    deleteJobLabelRow(scope){
+    deleteJobLabelRow (scope) {
       this.JobLabeData.splice(scope.$index, 1);
     },
-    onAddJobLabelItem(){
+    onAddJobLabelItem () {
       const userInfo = this.$store.getters.userInfo
       var now = new Date()
       this.editJobLabel = {
-          "id": 0,
-          "name": "",
-          "value": "",
-          // "update_at": dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),
-          "update_at": now.toJSON(),
-          "update_by": userInfo.username,
+        "id": 0,
+        "name": "",
+        "value": "",
+        // "update_at": dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss'),
+        "update_at": now.toJSON(),
+        "update_by": userInfo.username,
       }
       this.dialogEditJobLabel = '添加标签'
       this.dialogEditJobLabelNew = true
       this.dialogEditJobLabelVisible = true
       // this.JobLabeData.push()
     },
-    onUploadJobLabelItem(){
-      updateJobLabels({id: this.dialogJobLabelCurrObj.id}, this.JobLabeData).then(r=>{
+    onUploadJobLabelItem () {
+      updateJobLabels({ id: this.dialogJobLabelCurrObj.id }, this.JobLabeData).then(r => {
         this.doGetJobs()
         this.$notify({
           title: '成功',
           message: '更新成功！',
           type: 'success'
         });
-      }).catch(e=>console.log(e))
+      }).catch(e => console.log(e))
     },
-    oneditJobLabelCancel(){
+    oneditJobLabelCancel () {
       this.dialogEditJobLabelVisible = false
     },
-    oneditJobLabelSubmit(formName){
+    oneditJobLabelSubmit (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           if (this.dialogEditJobLabelNew) {
-            var newLabel = {...this.editJobLabel}
+            var newLabel = { ...this.editJobLabel }
             this.JobLabeData.push(newLabel)
           }
         }
@@ -990,7 +757,7 @@ export default {
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
-    doBatchDisable(){
+    doBatchDisable () {
       if (this.multipleSelection.length === 0) {
         this.$notify({
           title: '警告',
@@ -1014,7 +781,7 @@ export default {
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
-    doBatchEnable(){
+    doBatchEnable () {
       if (this.multipleSelection.length === 0) {
         this.$notify({
           title: '警告',
@@ -1191,17 +958,17 @@ export default {
       }
       this.editIPVisible = false
     },
-    clearIPInJobClose(){
+    clearIPInJobClose () {
       if (this.transferInJobChanged) {
         this.doGetJobs()
       }
       this.editIPInJobVisible = false
     },
-    clearIPListClose(scope){
+    clearIPListClose (scope) {
       this.editIPListVisible = false
       this.flags = ''
     },
-    doEditPool(scope){
+    doEditPool (scope) {
       getJobMachines(scope.row.id).then(r => {
         let currentIPValue = []
         r.data.forEach(item => {
@@ -1241,25 +1008,33 @@ export default {
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
-    doUpdateSubGroup(scope){
-      updateSubGroup(scope.row.id).then(r=>{
+    doUpdateSubGroup (scope) {
+      updateSubGroup(scope.row.id).then(r => {
         this.$notify({
           title: '成功',
           message: '整理成功！',
           type: 'success'
         })
         this.doGetJobs()
-      }).catch(e=>console.log(e))
+      }).catch(e => console.log(e))
     },
-    doUpdateJobLables(scope){
-      getJobLabels({id: scope.row.id}).then(r=>{
+    doUpdateJobLables (scope) {
+      getJobLabels({ id: scope.row.id }).then(r => {
         this.dialogJobLabelCurrObj = scope.row
         this.JobLabeData = r.data
         this.dialogJobLabelTitle = '编辑组标签：' + scope.row.name
         this.dialogJobLabelVisible = true
-      }).catch(e=>console.log(e))
+      }).catch(e => console.log(e))
     },
-    doBlack(scope){
+    doMirrorJob (scope) {
+      getMirrorInfo({ id: scope.row.id }).then(r => {
+        this.dialogMirrorJobCurrObj = scope.row
+        this.JobMirrorData = r.data.mirrors
+        this.dialogMirrorJobTitle = '编辑组镜像：' + scope.row.name
+        this.dialogMirrorJobVisible = true
+      }).catch(e => console.log(e))
+    },
+    doBlack (scope) {
       let currentIPBlackedValue = []
       let allIPInJobData = []
       getJobMachines(scope.row.id).then(r => {
@@ -1302,7 +1077,7 @@ export default {
         this.doGetJobs()
       }).catch(e => console.log(e))
     },
-    updateJobIPInJobList(){
+    updateJobIPInJobList () {
       let clearInfo = {
         job_id: this.currentJobId,
         machines_ids: []
@@ -1321,14 +1096,23 @@ export default {
         this.doGetJobs()
       }).catch(e => console.log(e))
     },
-    doUpdateAction(){
-      if(this.flags === 'black') {
+    doUpdateAction () {
+      if (this.flags === 'black') {
         this.updateJobIPListV2Black()
       } else {
         this.updateJobIPListV2()
       }
     },
-    updateJobIPListV2(){
+    doUpdateJobMirrAction () {
+      updateMirrorInfo({ job_id: this.dialogMirrorJobCurrObj.id, mirrors: this.JobMirrorData }).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '提交成功！',
+          type: 'success'
+        })
+      }).catch(e => console.log(e))
+    },
+    updateJobIPListV2 () {
       updateIPV2ForJob(this.ipListConetnt, this.currentJobId, this.force_insert).then(r => {
         this.$notify({
           title: '成功',
@@ -1338,7 +1122,7 @@ export default {
         this.doGetJobs()
       }).catch(e => console.log(e))
     },
-    updateJobIPListV2Black(){
+    updateJobIPListV2Black () {
       putJobMachinesBlack(this.currentJobId, this.ipListConetnt).then(r => {
         this.$notify({
           title: '成功',
@@ -1367,16 +1151,16 @@ export default {
         this.jobs = [...this.jobs]
       }).catch(e => console.log(e))
     },
-    clickcell(row, column, cell, event){
+    clickcell (row, column, cell, event) {
       if (column.property === 'relabel_name') {
-        getReLabel({id: row.relabel_id}).then(r=>{
+        getReLabel({ id: row.relabel_id }).then(r => {
           this.currentJobReWriteRule = r.data.name
           this.reWriteRuleInfo = r.data.code
           this.dialogJobReWriteRuleVisible = true
-        }).catch(e=>console.log(e))
+        }).catch(e => console.log(e))
       }
     },
-    displayJobTypeChange(val){
+    displayJobTypeChange (val) {
       setStorageVal('displayJobType', val)
     }
   }
@@ -1391,6 +1175,7 @@ export default {
   margin-top: -5px;
   padding-bottom: 8px;
 }
+
 .do-action-search {
   display: inline-block;
   /* display: flex;
@@ -1399,52 +1184,67 @@ export default {
   /* margin-top: -5px;
   padding-bottom: 8px; */
 }
+
 el-dialog {
   padding: 0px;
 }
-.do_action > div {
+
+.do_action>div {
   display: inline-block;
 }
+
 .searchSelect {
   width: 90px;
 }
+
 .el-input__inner {
   width: 130px;
 }
+
 .el-pagination {
   text-align: center;
 }
+
 .block {
   padding-top: 12px;
 }
+
 el-tabs {
   padding: 0px;
 }
+
 .el-form:last-child {
   text-align: left;
 }
+
 .borderNone :deep() .el-input__inner {
   border: none;
   background: transparent;
 }
+
 .actioneara {
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
 }
+
 .change_order_button {
   display: flex;
   flex-wrap: nowrap;
 }
+
 .change_order_button .el-button {
   width: 20px;
 }
+
 .change_order_button .el-button:nth-child(1) {
   margin: 0px 0px 0px -10px;
 }
+
 .change_order_button .el-button:nth-child(2) {
   margin: 0px 0px 0px 0px;
 }
+
 .jobs-board :deep() .el-transfer {
   margin-top: -15px;
   margin-bottom: 20px;
@@ -1452,45 +1252,56 @@ el-tabs {
   flex-direction: row;
   flex-wrap: nowrap;
 }
+
 .jobs-board :deep() .el-transfer-panel {
   width: 250px;
 }
+
 .jobs-board :deep() .el-transfer__buttons {
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
 }
+
 .jobs-board :deep() .el-transfer__button {
   padding: 10px 15px;
 }
+
 .jobs-board :deep() .el-transfer__button {
   margin-left: 0px;
 }
+
 .ip-list-push-box {
   display: float;
   text-align: right;
 }
+
 .ip-list-push-btn {
   /* margin-right: 20px; */
 }
+
 .ip-list-close-btn {
   margin-right: 8px;
 }
+
 .ip-list-push-btn2 {
   margin-top: 7px;
   /* margin-right: 26px; */
 }
+
 .ip-list-close-btn2 {
   margin-top: 7px;
   margin-right: 8px;
 }
+
 .form-inline-label {
   display: flex;
   flex-direction: row;
   margin-left: 0px;
 }
-:deep() .editIPListDialog > div.el-dialog__body {
+
+:deep() .editIPListDialog>div.el-dialog__body {
   padding-top: 6px;
 }
 
@@ -1503,9 +1314,15 @@ el-tabs {
   padding-top: 5px;
   /* padding-bottom: 5px; */
 }
+
 .type-title {
-  position:relative;letter-spacing:.07em;font-size:13px;font-weight:normal;margin:0 auto
+  position: relative;
+  letter-spacing: .07em;
+  font-size: 13px;
+  font-weight: normal;
+  margin: 0 auto
 }
+
 .do-action-search :deep() .el-radio {
   margin-right: 8px;
 }
@@ -1513,6 +1330,7 @@ el-tabs {
 .do-action-search :deep() .el-radio__label {
   padding-left: 1px;
 }
+
 .text-area {
   padding-left: 12px;
   padding-right: 8px;
@@ -1521,6 +1339,7 @@ el-tabs {
   border-radius: 3px;
   border: 1px solid #dcdfe6;
 }
+
 .job-labe-data-span {
   margin-top: -30px;
 }

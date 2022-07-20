@@ -92,7 +92,7 @@ export function updateIPV2ForJob (uInfo, jobID, force_insert) {
     url: '/v1/jobs/update-ips/v2',
     method: 'post',
     data: uInfo,
-    params: { id: jobID, force: force_insert}
+    params: { id: jobID, force: force_insert }
   })
 }
 
@@ -135,7 +135,7 @@ export function batchDisableJob (ids) {
   })
 }
 
-export function updateJobLabels(id, data) {
+export function updateJobLabels (id, data) {
   return request({
     url: '/v1/job/global/label',
     method: 'put',
@@ -144,10 +144,27 @@ export function updateJobLabels(id, data) {
   })
 }
 
-export function getJobLabels(id){
+export function getJobLabels (id) {
   return request({
     url: '/v1/job/global/label',
     method: 'get',
     params: id
   })
 }
+
+export function getMirrorInfo (id) {
+  return request({
+    url: '/v1/job/global/mirror',
+    method: 'get',
+    params: id
+  })
+}
+
+export function updateMirrorInfo (data) {
+  return request({
+    url: '/v1/job/global/mirror',
+    method: 'put',
+    data: data
+  })
+}
+

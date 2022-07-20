@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type BaseLabels struct {
@@ -309,6 +310,20 @@ type JobLabelsTblReq struct {
 	JobID    int       `json:"job_id" gorm:"job_id"`
 }
 
+type JobMirror struct {
+	Mirrors  string    `json:"mirrors" gorm:"column:mirrors"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
+	JobID    int       `json:"job_id" gorm:"job_id"`
+}
+
+// type JobMirrorReq struct {
+// 	Mirrors  string    `json:"mirror" gorm:"column:mirror"`
+// 	UpdateAt time.Time `json:"-" gorm:"column:update_at"`
+// 	UpdateBy string    `json:"-" gorm:"column:update_by"`
+// 	JobID    int       `json:"job_id" gorm:"job_id"`
+// }
+
 func GetJobGlobalLable(jobId *OnlyID) ([]*JobLabelsTbl, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
@@ -414,6 +429,40 @@ func PutJobGlobalLable(user *UserSessionInfo, jobId *OnlyID, jls []*JobLabelsTbl
 				return ErrUpdateData
 			}
 		}
+	}
+	return Success
+}
+
+func GetJobGlobalMirror(jobId *OnlyID) (*JobMirror, *BriefMessage) {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return nil, ErrDataBase
+	}
+	jls := JobMirror{}
+	tx := db.Table("job_mirror").Where("job_id", jobId.ID).Find(&jls)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	return &jls, Success
+}
+
+func PutJobGlobalMirror(user *UserSessionInfo, jobId *OnlyID, jls *JobMirror) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	jls.UpdateAt = time.Now()
+	jls.UpdateBy = user.NiceName
+	tx := db.Table("job_mirror").Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "job_id"}},                                       // key colume
+		DoUpdates: clause.AssignmentColumns([]string{"mirrors", "update_at", "update_by"}), // column needed to be updated
+	}).Create(&jls)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
 	}
 	return Success
 }
