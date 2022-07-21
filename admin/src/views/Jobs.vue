@@ -317,7 +317,7 @@
     <el-dialog :title="dialogMirrorJobTitle" v-model="dialogMirrorJobVisible" width="650px" modal
       :before-close="handleMirrorJobClose" custom-class="editIPListDialog">
       <span>
-        <el-tag type="warning">Prometheus中replacement属性值，会为以下各个值生成单独的JOB，分号分割</el-tag>
+        <el-tag type="warning">Prometheus中replacement(${REPLACEMENT})属性值，会为以下各个值生成单独的JOB，分号分割</el-tag>
       </span>
       <div>
         <el-input type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" placeholder="请输入内容" v-model="JobMirrorData">
