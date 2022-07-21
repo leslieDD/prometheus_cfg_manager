@@ -80,7 +80,7 @@ func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
 		return nil, bf
 	}
 	dsft := DataStructForTmpl{
-		Jobs:       *jobData,
+		Jobs:       jobData,
 		AbsRooDir:  config.Cfg.PrometheusCfg.RootDir,
 		RelConfDir: config.SubDir,
 		RelRuleDir: config.RuleDir,
@@ -89,7 +89,6 @@ func (t *Tmpl) doTmpl() ([]byte, *BriefMessage) {
 	if runtime.GOOS == "windows" {
 		dsft.AbsConfDir = filepath.ToSlash(config.Cfg.PrometheusCfg.Conf)
 		dsft.AbsRuleDir = filepath.ToSlash(config.Cfg.PrometheusCfg.RuleConf)
-
 	} else {
 		dsft.AbsConfDir = config.Cfg.PrometheusCfg.Conf
 		dsft.AbsRuleDir = config.Cfg.PrometheusCfg.RuleConf
@@ -221,7 +220,7 @@ scrape_configs:
   - job_name: '{{.Name}}'
     file_sd_configs:
       - files:
-        - "{{$.AbsConfDir}}/{{.Name}}.json"
+        - "{{$.AbsConfDir}}/{{.JsonFileName}}.json"
         refresh_interval: {{$.Fields.refresh_interval}}
 {{.Code}}
 {{ end }}

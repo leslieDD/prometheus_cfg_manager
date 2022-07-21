@@ -8,6 +8,7 @@ import (
 	"strings"
 	"time"
 
+	"github.com/mohae/deepcopy"
 	"gorm.io/datatypes"
 	"gorm.io/gorm"
 )
@@ -25,6 +26,7 @@ type Jobs struct {
 	UpdateBy     string    `json:"update_by" gorm:"column:update_by"`
 	Online       string    `json:"online" gorm:"-"`
 	LastError    string    `json:"last_error" gorm:"-"`
+	JsonFileName string    `json:"-" gorm:"-"` // 生成模块时，指定的文件名
 }
 
 type JobsWithRelabelNameAndCount struct {
@@ -39,6 +41,7 @@ type JobsWithRelabelNameAndCount struct {
 type JobsForTmpl struct {
 	ReLabelName    string `json:"relabel_name" gorm:"column:relabel_name"`
 	ReLabelEnabled bool   `json:"relabel_enabled" gorm:"column:relabel_enabled"`
+	Mirrors        string `json:"mirrors" gorm:"column:mirrors"`
 	Code           string `json:"code" gorm:"column:code"`
 	Jobs
 }
@@ -90,7 +93,7 @@ func GetJobs() (*[]Jobs, *BriefMessage) {
 	return &jobs, Success
 }
 
-func GetJobsForTmpl() (*[]*JobsForTmpl, *BriefMessage) {
+func GetJobsForTmpl() ([]*JobsForTmpl, *BriefMessage) {
 	r, bf := CheckByFiled("publish_at_empty_nocreate_file", "true")
 	if bf != Success {
 		return nil, bf
@@ -129,8 +132,9 @@ func GetJobsForTmpl() (*[]*JobsForTmpl, *BriefMessage) {
 	}
 	jobs := []*JobsForTmpl{}
 	tx := db.Table("jobs").
-		Select("jobs.*, relabels.code, relabels.name as relabel_name, relabels.enabled as relabel_enabled ").
+		Select("jobs.*, relabels.code, relabels.name as relabel_name, relabels.enabled as relabel_enabled, job_mirror.mirrors").
 		Joins("LEFT JOIN relabels on jobs.relabel_id=relabels.id ").
+		Joins("LEFT JOIN job_mirror ON jobs.id=job_mirror.job_id").
 		Where(where).
 		Order("display_order asc").
 		// Where("is_common=0").
@@ -139,12 +143,35 @@ func GetJobsForTmpl() (*[]*JobsForTmpl, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
+	jobsWithMirr := []*JobsForTmpl{}
 	for _, job := range jobs {
 		if !job.ReLabelEnabled {
 			job.Code = ""
 		}
+		if job.Mirrors == "" {
+			jobsWithMirr = append(jobsWithMirr, job)
+			job.Jobs.JsonFileName = job.Jobs.Name
+			continue
+		}
+		if !strings.Contains(job.Code, `${REPLACEMENT}`) {
+			jobsWithMirr = append(jobsWithMirr, job)
+			job.Jobs.JsonFileName = job.Jobs.Name
+			continue
+		}
+		// 如果有设置replacement,替换文档中的${REPLACEMENT}，这个是固定的字符
+		for _, replacement := range strings.Split(job.Mirrors, ";") {
+			replacement = strings.TrimSpace(replacement)
+			if replacement == "" {
+				continue
+			}
+			newJob := deepcopy.Copy(job).(*JobsForTmpl)
+			newJob.Name = job.Name + "_" + replacement
+			newJob.Code = strings.ReplaceAll(job.Code, `${REPLACEMENT}`, replacement) // 直接替换，不用模块实现，这样比较简单
+			newJob.Jobs.JsonFileName = job.Jobs.Name                                  // 使用原来的名称
+			jobsWithMirr = append(jobsWithMirr, newJob)
+		}
 	}
-	return &jobs, Success
+	return jobsWithMirr, Success
 }
 
 func GetTmplFields() (map[string]string, *BriefMessage) {
