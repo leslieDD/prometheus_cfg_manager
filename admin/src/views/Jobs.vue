@@ -10,6 +10,10 @@
       </div>
       <div class="do-action-search">
         <span style="padding-right: 15px">
+          <el-button size="small" type="warning" icon="el-icon-delete-solid" plain @click="doDeleteItem()">指量剔除地址
+          </el-button>
+        </span>
+        <span style="padding-right: 15px">
           <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()">添加组</el-button>
         </span>
         <span class="text-area">
@@ -188,10 +192,32 @@
         :total="pageTotal">
       </el-pagination>
     </div>
+    <el-dialog title="在所选组中剔除地址" v-model="dialogDelItemVisible" width="700px" modal :before-close="handleDelClose">
+      <span>
+        <el-form label-position="right" ref="delJobItems" :model="addJobInfo" label-width="70px" size="small">
+          <el-form-item label="分组名">
+            <el-input type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" placeholder="请输入内容"
+              v-model="delJobItemContent"></el-input>
+          </el-form-item>
+          <el-form-item label="指定组">
+            <el-select v-model="batchJobSelect" style="width: 300px" multiple collapse-tags placeholder="Select"
+              size="small">
+              <el-option v-for="item in jobsList" :key="item.id" :label="item.name" :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item size="small">
+            <div class="ip-list-push-box">
+              <el-button size="small" type="primary" @click="onDelSubmit('delJobItems')">确认清除</el-button>
+              <el-button size="small" type="info" @click="onDelCancel('delJobItems')">取消</el-button>
+            </div>
+          </el-form-item>
+        </el-form>
+      </span>
+    </el-dialog>
     <el-dialog :title="dialogTitle" v-model="dialogVisible" width="450px" modal :before-close="handleClose">
       <span>
-        <el-form label-position="right" :rules="rules" ref="addJobInfo" :model="addJobInfo" label-width="110px"
-          size="small">
+        <el-form label-position="right" ref="addJobInfo" :model="addJobInfo" label-width="110px" size="small">
           <el-form-item label="分组名：" prop="name">
             <el-input style="width: 250px" v-model="addJobInfo.name"></el-input>
           </el-form-item>
@@ -352,9 +378,11 @@
 <script>
 import {
   getJobsWithSplitPage,
+  getJobs,
   postJob,
   putJob,
   deleteJob,
+  deleteJobItems,
   swapJob,
   publishJobs,
   enabledJob,
@@ -415,6 +443,7 @@ export default {
       searchContent: '',
       deleteVisible: {},
       dialogVisible: false,
+      dialogDelItemVisible: false,
       buttonTitle: '',
       dialogTitle: '',
       jobAllIPList: {},
@@ -478,6 +507,10 @@ export default {
           { required: true, message: '请输入标签值', validator: validateStr, trigger: ['blur'] }
         ],
       },
+      jobsList: [],
+      // jobsListMap: {},
+      batchJobSelect: [],
+      delJobItemContent: '',
     }
   },
   created () {
@@ -513,6 +546,17 @@ export default {
       }).catch(e => {
         console.log(e)
       })
+    },
+    doDeleteItem () {
+      getJobs().then(
+        r => {
+          this.jobsList = r.data
+          // r.data.forEach(e => {
+          //   this.jobsListMap[e.id] = e.name
+          // })
+          this.dialogDelItemVisible = true
+        }
+      )
     },
     doEditLabelsJob (scope) {
       const jobInfo = {
@@ -590,6 +634,9 @@ export default {
     handleClose (done) {
       this.dialogVisible = false
     },
+    handleDelClose (done) {
+      this.dialogDelItemVisible = false
+    },
     handleJobLabelClose () {
       this.dialogJobLabelVisible = false
     },
@@ -657,6 +704,7 @@ export default {
           postData['display_order'] = this.addJobInfo.display_order
           postData['relabel_id'] = this.addJobInfo.relabel_id
           if (this.buttonTitle === '创建') {
+            postData['enabled'] = true
             postJob(postData).then(
               r => {
                 this.$notify({
@@ -693,8 +741,22 @@ export default {
         }
       })
     },
+    onDelSubmit (formName) {
+      deleteJobItems({ content: this.delJobItemContent, jobs: this.batchJobSelect }).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '删除成功！',
+          type: 'success'
+        });
+        this.doGetJobs()
+      }).catch(e => console.log(e))
+    },
     onCancel (formName) {
       this.dialogVisible = false
+      this.$refs[formName].resetFields()
+    },
+    onDelCancel (formName) {
+      this.dialogDelItemVisible = false
       this.$refs[formName].resetFields()
     },
     onSearch () {

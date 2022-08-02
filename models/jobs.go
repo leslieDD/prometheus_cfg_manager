@@ -997,3 +997,42 @@ func GetPrometheusUrl() (string, *BriefMessage) {
 	}
 	return config.Cfg.PrometheusCfg.OpenAddress, Success
 }
+
+type DelJobItemReq struct {
+	Content string `json:"content"`
+	Jobs    []int  `json:"jobs"`
+}
+
+func DeleteJobItems(user *UserSessionInfo, mids *UpdateIPForJob, info *DelJobItemReq) *BriefMessage {
+	if len(mids.MachinesIDs) == 0 {
+		return Success
+	}
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	for _, jID := range info.Jobs {
+		if err := db.Table("job_machines").Where("job_id=? and machine_id in ?", jID, mids.MachinesIDs).Delete(nil).Error; err != nil {
+			config.Log.Error(err)
+			return ErrDelData
+		}
+		// 在group_machines中，清除已经不存在的IP记录
+		if err := db.Exec(`DELETE FROM group_machines WHERE group_machines.machines_id NOT IN ? AND group_machines.job_group_id IN (
+			SELECT job_group_id FROM group_machines
+			LEFT JOIN job_group
+			ON group_machines.job_group_id=job_group.id
+			WHERE job_group.jobs_id=?
+			)`, mids.MachinesIDs, jID).Error; err != nil {
+			config.Log.Error(err)
+			return ErrDelData
+		}
+		if err := db.Table("jobs").Where("id=?", jID).
+			Update("update_at", time.Now()).
+			Update("update_by", user.Username).Error; err != nil {
+			config.Log.Error(err)
+			return ErrUpdateData
+		}
+	}
+	return Success
+}

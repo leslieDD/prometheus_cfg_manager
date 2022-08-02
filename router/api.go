@@ -21,6 +21,7 @@ func initApiRouter() {
 	v1.POST("/job", postJob)
 	v1.PUT("/job", putJob)
 	v1.DELETE("/job", deleteJob)
+	v1.DELETE("/job/del/items", deleteJobItems)
 	v1.PUT("/job/swap", swapJob)
 	v1.POST("/jobs/publish", publishJobs)
 	v1.PUT("/jobs/status", putJobsStatus)
@@ -349,6 +350,32 @@ func deleteJob(c *gin.Context) {
 	}
 	bf := models.DeleteJob(jID, false)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
+func deleteJobItems(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "batch_del_job_items")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	req := models.DelJobItemReq{}
+	if err := c.BindJSON(&req); err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job items", models.IsDel, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	// 把IP替换成对应的ID编号
+	cInfo, bf := models.ChangeIPAddrUseID(user, req.Content, false)
+	if bf != models.Success {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job items", models.IsUpdate, models.ErrPostData)
+		resComm(c, bf, nil)
+		return
+	}
+	bf = models.DeleteJobItems(user, cInfo, &req)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job items", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 

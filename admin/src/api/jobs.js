@@ -168,3 +168,10 @@ export function updateMirrorInfo (data) {
   })
 }
 
+export function deleteJobItems (data) {
+  return request({
+    url: '/v1/job/del/items',
+    method: 'delete',
+    data: data
+  })
+}
