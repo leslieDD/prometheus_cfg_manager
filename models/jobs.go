@@ -767,7 +767,7 @@ type UpdateIPForJob struct {
 }
 
 func ChangeIPAddrUseID(user *UserSessionInfo, ipContents string, forceInsert bool) (*UpdateIPForJob, *BriefMessage) {
-	ipAddrList := strings.Split(strings.TrimSpace(ipContents), ";")
+	ipAddrList := QuickSplitSlice(ipContents) //strings.Split(strings.TrimSpace(ipContents), ";")
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)

@@ -349,6 +349,32 @@ func Split(r rune) bool {
 	return r == ';' || r == '\n' || r == '\r'
 }
 
+func QuickSplitMap(s string) map[string]struct{} {
+	items := map[string]struct{}{}
+	for _, each := range strings.FieldsFunc(s, Split) {
+		if strings.TrimSpace(each) == "" {
+			continue
+		}
+		items[strings.TrimSpace(each)] = struct{}{}
+	}
+	return items
+}
+
+func QuickSplitSlice(s string) []string {
+	items := map[string]struct{}{}
+	for _, each := range strings.FieldsFunc(s, Split) {
+		if strings.TrimSpace(each) == "" {
+			continue
+		}
+		items[strings.TrimSpace(each)] = struct{}{}
+	}
+	itemss := make([]string, 0, len(items))
+	for k, _ := range items {
+		itemss = append(itemss, k)
+	}
+	return itemss
+}
+
 func ParseRangeIP(ipAddrs string) *TypeGroupIP {
 	tgi := TypeGroupIP{
 		IP:    map[string]*net.IP{},
