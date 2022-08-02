@@ -1,0 +1,1 @@
+INSERT INTO `pro_cfg_manager`.`page_function` (`page_name`, `page_nice_name`, `sub_page_name`, `sub_page_nice_name`, `func_name`, `func_nice_name`) VALUES ('jobs', 'JOB组管理', 'jobs', 'JOB组管理', 'batch_del_job_items', '批量删除组成员');
