@@ -194,7 +194,7 @@
     </div>
     <el-dialog title="在所选组中剔除地址" v-model="dialogDelItemVisible" width="700px" modal :before-close="handleDelClose">
       <span>
-        <el-form label-position="right" ref="delJobItems" :model="addJobInfo" label-width="70px" size="small">
+        <el-form label-position="right" ref="delJobItems" :model="addJobInfo" label-width="55px" size="small">
           <el-form-item label="分组名">
             <el-input type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" placeholder="请输入内容"
               v-model="delJobItemContent"></el-input>
