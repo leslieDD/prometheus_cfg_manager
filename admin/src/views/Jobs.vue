@@ -194,12 +194,12 @@
     </div>
     <el-dialog title="在所选组中剔除地址" v-model="dialogDelItemVisible" width="700px" modal :before-close="handleDelClose">
       <span>
-        <el-form label-position="right" ref="delJobItems" :model="addJobInfo" label-width="55px" size="small">
-          <el-form-item label="分组名">
+        <el-form label-position="top" ref="delJobItems" :model="addJobInfo" label-width="55px" size="small">
+          <el-form-item label="需要清理的地址列表">
             <el-input type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" placeholder="请输入内容"
               v-model="delJobItemContent"></el-input>
           </el-form-item>
-          <el-form-item label="指定组">
+          <el-form-item label="选择需要被清理的JOB组">
             <el-select v-model="batchJobSelect" style="width: 300px" multiple collapse-tags placeholder="Select"
               size="small">
               <el-option v-for="item in jobsList" :key="item.id" :label="item.name" :value="item.id">
@@ -208,7 +208,7 @@
           </el-form-item>
           <el-form-item size="small">
             <div class="ip-list-push-box">
-              <el-button size="small" type="primary" @click="onDelSubmit('delJobItems')">确认清除</el-button>
+              <el-button size="small" type="warning" @click="onDelSubmit('delJobItems')">确认清除</el-button>
               <el-button size="small" type="info" @click="onDelCancel('delJobItems')">取消</el-button>
             </div>
           </el-form-item>
