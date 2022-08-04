@@ -2,7 +2,6 @@ package router
 
 import (
 	"net/http"
-	"pro_cfg_manager/collector"
 	"pro_cfg_manager/models"
 
 	"github.com/gin-gonic/gin"
@@ -42,5 +41,4 @@ func register(c *gin.Context) {
 }
 
 func getMetrics(c *gin.Context) {
-	collector.GetMetrics(c)
 }
