@@ -16,12 +16,10 @@
 
 
 -- 导出 pro_cfg_manager 的数据库结构
-DROP DATABASE IF EXISTS `pro_cfg_manager`;
 CREATE DATABASE IF NOT EXISTS `pro_cfg_manager` /*!40100 DEFAULT CHARACTER SET utf8mb3 */;
 USE `pro_cfg_manager`;
 
 -- 导出  表 pro_cfg_manager.annotations 结构
-DROP TABLE IF EXISTS `annotations`;
 CREATE TABLE IF NOT EXISTS `annotations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `monitor_rules_id` int(11) NOT NULL,
@@ -35,7 +33,6 @@ CREATE TABLE IF NOT EXISTS `annotations` (
 DELETE FROM `annotations`;
 
 -- 导出  表 pro_cfg_manager.group_labels 结构
-DROP TABLE IF EXISTS `group_labels`;
 CREATE TABLE IF NOT EXISTS `group_labels` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `job_group_id` int(11) NOT NULL,
@@ -52,7 +49,6 @@ CREATE TABLE IF NOT EXISTS `group_labels` (
 DELETE FROM `group_labels`;
 
 -- 导出  表 pro_cfg_manager.group_machines 结构
-DROP TABLE IF EXISTS `group_machines`;
 CREATE TABLE IF NOT EXISTS `group_machines` (
   `job_group_id` int(11) NOT NULL,
   `machines_id` int(11) NOT NULL,
@@ -63,15 +59,14 @@ CREATE TABLE IF NOT EXISTS `group_machines` (
 DELETE FROM `group_machines`;
 
 -- 导出  表 pro_cfg_manager.group_priv 结构
-DROP TABLE IF EXISTS `group_priv`;
 CREATE TABLE IF NOT EXISTS `group_priv` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `group_id` int(11) NOT NULL,
   `func_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=132 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=133 DEFAULT CHARSET=utf8mb3;
 
--- 正在导出表  pro_cfg_manager.group_priv 的数据：~131 rows (大约)
+-- 正在导出表  pro_cfg_manager.group_priv 的数据：~132 rows (大约)
 DELETE FROM `group_priv`;
 INSERT INTO `group_priv` (`id`, `group_id`, `func_id`) VALUES
 	(1, 1, 1),
@@ -204,10 +199,10 @@ INSERT INTO `group_priv` (`id`, `group_id`, `func_id`) VALUES
 	(128, 1, 135),
 	(129, 1, 136),
 	(130, 1, 137),
-	(131, 1, 138);
+	(131, 1, 138),
+	(132, 1, 139);
 
 -- 导出  表 pro_cfg_manager.idc 结构
-DROP TABLE IF EXISTS `idc`;
 CREATE TABLE IF NOT EXISTS `idc` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` varchar(200) NOT NULL,
@@ -225,7 +220,6 @@ CREATE TABLE IF NOT EXISTS `idc` (
 DELETE FROM `idc`;
 
 -- 导出  表 pro_cfg_manager.jobs 结构
-DROP TABLE IF EXISTS `jobs`;
 CREATE TABLE IF NOT EXISTS `jobs` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `name` varchar(100) NOT NULL COMMENT '任务名称',
@@ -246,7 +240,6 @@ CREATE TABLE IF NOT EXISTS `jobs` (
 DELETE FROM `jobs`;
 
 -- 导出  表 pro_cfg_manager.job_group 结构
-DROP TABLE IF EXISTS `job_group`;
 CREATE TABLE IF NOT EXISTS `job_group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
@@ -262,7 +255,6 @@ CREATE TABLE IF NOT EXISTS `job_group` (
 DELETE FROM `job_group`;
 
 -- 导出  表 pro_cfg_manager.job_labels 结构
-DROP TABLE IF EXISTS `job_labels`;
 CREATE TABLE IF NOT EXISTS `job_labels` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) NOT NULL,
@@ -277,7 +269,6 @@ CREATE TABLE IF NOT EXISTS `job_labels` (
 DELETE FROM `job_labels`;
 
 -- 导出  表 pro_cfg_manager.job_machines 结构
-DROP TABLE IF EXISTS `job_machines`;
 CREATE TABLE IF NOT EXISTS `job_machines` (
   `machine_id` int(11) NOT NULL,
   `job_id` int(11) NOT NULL,
@@ -289,7 +280,6 @@ CREATE TABLE IF NOT EXISTS `job_machines` (
 DELETE FROM `job_machines`;
 
 -- 导出  表 pro_cfg_manager.job_mirror 结构
-DROP TABLE IF EXISTS `job_mirror`;
 CREATE TABLE IF NOT EXISTS `job_mirror` (
   `mirrors` text DEFAULT NULL,
   `update_at` datetime NOT NULL,
@@ -302,7 +292,6 @@ CREATE TABLE IF NOT EXISTS `job_mirror` (
 DELETE FROM `job_mirror`;
 
 -- 导出  表 pro_cfg_manager.labels 结构
-DROP TABLE IF EXISTS `labels`;
 CREATE TABLE IF NOT EXISTS `labels` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` varchar(100) NOT NULL,
@@ -317,7 +306,6 @@ CREATE TABLE IF NOT EXISTS `labels` (
 DELETE FROM `labels`;
 
 -- 导出  表 pro_cfg_manager.line 结构
-DROP TABLE IF EXISTS `line`;
 CREATE TABLE IF NOT EXISTS `line` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `label` varchar(200) NOT NULL,
@@ -334,7 +322,6 @@ CREATE TABLE IF NOT EXISTS `line` (
 DELETE FROM `line`;
 
 -- 导出  表 pro_cfg_manager.log_setting 结构
-DROP TABLE IF EXISTS `log_setting`;
 CREATE TABLE IF NOT EXISTS `log_setting` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `level` varchar(50) NOT NULL,
@@ -356,7 +343,6 @@ INSERT INTO `log_setting` (`id`, `level`, `label`, `selected`) VALUES
 	(8, 'reset', '重置', 1);
 
 -- 导出  表 pro_cfg_manager.machines 结构
-DROP TABLE IF EXISTS `machines`;
 CREATE TABLE IF NOT EXISTS `machines` (
   `id` int(11) NOT NULL AUTO_INCREMENT COMMENT '主键',
   `ipaddr` varchar(100) NOT NULL COMMENT 'IP地址',
@@ -374,7 +360,6 @@ CREATE TABLE IF NOT EXISTS `machines` (
 DELETE FROM `machines`;
 
 -- 导出  表 pro_cfg_manager.manager_group 结构
-DROP TABLE IF EXISTS `manager_group`;
 CREATE TABLE IF NOT EXISTS `manager_group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
@@ -388,10 +373,9 @@ CREATE TABLE IF NOT EXISTS `manager_group` (
 -- 正在导出表  pro_cfg_manager.manager_group 的数据：~1 rows (大约)
 DELETE FROM `manager_group`;
 INSERT INTO `manager_group` (`id`, `name`, `enabled`, `update_at`, `update_by`) VALUES
-	(1, 'administrator', 1, '2022-07-21 15:46:09', '');
+	(1, 'administrator', 1, '2022-08-04 13:21:47', '');
 
 -- 导出  表 pro_cfg_manager.manager_set 结构
-DROP TABLE IF EXISTS `manager_set`;
 CREATE TABLE IF NOT EXISTS `manager_set` (
   `param_name` varbinary(100) NOT NULL,
   `param_value` varbinary(100) NOT NULL
@@ -403,7 +387,6 @@ INSERT INTO `manager_set` (`param_name`, `param_value`) VALUES
 	(_binary 0x64656661756c745f67726f7570, _binary '');
 
 -- 导出  表 pro_cfg_manager.manager_user 结构
-DROP TABLE IF EXISTS `manager_user`;
 CREATE TABLE IF NOT EXISTS `manager_user` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(100) NOT NULL,
@@ -423,10 +406,9 @@ CREATE TABLE IF NOT EXISTS `manager_user` (
 -- 正在导出表  pro_cfg_manager.manager_user 的数据：~1 rows (大约)
 DELETE FROM `manager_user`;
 INSERT INTO `manager_user` (`id`, `username`, `nice_name`, `password`, `phone`, `salt`, `group_id`, `update_at`, `enabled`, `create_at`, `update_by`) VALUES
-	(1, 'admin', '管理员', '811317fb717cb5647d3511ac2a587e73', '10086', 'd8f54744-a45d-4e9b-b691-7beb64d4ddb1', 1, '2022-07-21 15:46:09', 1, '2022-07-21 15:46:09', '');
+	(1, 'admin', '管理员', '7f0d03e92ea4ee6b0c1fd9d1b779aa3b', '10086', 'f2816864-ba84-4f8b-a198-bce653197179', 1, '2022-08-04 13:21:47', 1, '2022-08-04 13:21:47', '');
 
 -- 导出  表 pro_cfg_manager.monitor_labels 结构
-DROP TABLE IF EXISTS `monitor_labels`;
 CREATE TABLE IF NOT EXISTS `monitor_labels` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `monitor_rules_id` int(11) NOT NULL,
@@ -440,7 +422,6 @@ CREATE TABLE IF NOT EXISTS `monitor_labels` (
 DELETE FROM `monitor_labels`;
 
 -- 导出  表 pro_cfg_manager.monitor_rules 结构
-DROP TABLE IF EXISTS `monitor_rules`;
 CREATE TABLE IF NOT EXISTS `monitor_rules` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `alert` varchar(100) NOT NULL,
@@ -458,7 +439,6 @@ CREATE TABLE IF NOT EXISTS `monitor_rules` (
 DELETE FROM `monitor_rules`;
 
 -- 导出  表 pro_cfg_manager.number_options 结构
-DROP TABLE IF EXISTS `number_options`;
 CREATE TABLE IF NOT EXISTS `number_options` (
   `key` varchar(50) NOT NULL,
   `value` int(11) NOT NULL DEFAULT 0,
@@ -472,7 +452,6 @@ INSERT INTO `number_options` (`key`, `value`, `commit`) VALUES
 	('session_expire', 3600, NULL);
 
 -- 导出  表 pro_cfg_manager.operation_log 结构
-DROP TABLE IF EXISTS `operation_log`;
 CREATE TABLE IF NOT EXISTS `operation_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(100) NOT NULL,
@@ -483,15 +462,15 @@ CREATE TABLE IF NOT EXISTS `operation_log` (
   `operate_at` datetime NOT NULL,
   `operate_error` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb3 COMMENT='操作日志';
+) ENGINE=InnoDB AUTO_INCREMENT=8 DEFAULT CHARSET=utf8mb3 COMMENT='操作日志';
 
 -- 正在导出表  pro_cfg_manager.operation_log 的数据：~1 rows (大约)
 DELETE FROM `operation_log`;
 INSERT INTO `operation_log` (`id`, `username`, `operate_type`, `ipaddr`, `operate_content`, `operate_result`, `operate_at`, `operate_error`) VALUES
-	(6, 'admin', '', '127.0.0.1:49140', 'reset prometheus config data', 1, '2022-07-21 15:45:51', '成功');
+	(6, 'admin', '', '127.0.0.1:49140', 'reset prometheus config data', 1, '2022-07-21 15:45:51', '成功'),
+	(7, 'admin', '', '127.0.0.1:45846', 'reset prometheus config data', 1, '2022-08-04 13:21:22', '成功');
 
 -- 导出  表 pro_cfg_manager.options 结构
-DROP TABLE IF EXISTS `options`;
 CREATE TABLE IF NOT EXISTS `options` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `opt_key` varchar(100) NOT NULL,
@@ -516,7 +495,6 @@ INSERT INTO `options` (`id`, `opt_key`, `opt_value`) VALUES
 	(12, 'labeled_all_ip', 'false');
 
 -- 导出  表 pro_cfg_manager.page_function 结构
-DROP TABLE IF EXISTS `page_function`;
 CREATE TABLE IF NOT EXISTS `page_function` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `page_name` varchar(100) NOT NULL,
@@ -526,7 +504,7 @@ CREATE TABLE IF NOT EXISTS `page_function` (
   `func_name` varchar(100) NOT NULL,
   `func_nice_name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=139 DEFAULT CHARSET=utf8mb3 COMMENT='页面功能';
+) ENGINE=InnoDB AUTO_INCREMENT=140 DEFAULT CHARSET=utf8mb3 COMMENT='页面功能';
 
 -- 正在导出表  pro_cfg_manager.page_function 的数据：~129 rows (大约)
 DELETE FROM `page_function`;
@@ -661,10 +639,10 @@ INSERT INTO `page_function` (`id`, `page_name`, `page_nice_name`, `sub_page_name
 	(135, 'jobs', 'JOB组管理', 'jobs', 'JOB组管理', 'update_job_label', '更新组标签'),
 	(136, 'person', '个人中心', '', '', 'show_menu_hls', '直播'),
 	(137, 'jobs', 'JOB组管理', 'jobs', 'JOB组管理', 'get_job_mirror', '获取镜像'),
-	(138, 'jobs', 'JOB组管理', 'jobs', 'JOB组管理', 'update_job_mirror', '更新镜像');
+	(138, 'jobs', 'JOB组管理', 'jobs', 'JOB组管理', 'update_job_mirror', '更新镜像'),
+	(139, 'jobs', 'JOB组管理', 'jobs', 'JOB组管理', 'batch_del_job_items', '批量删除组成员');
 
 -- 导出  表 pro_cfg_manager.pool 结构
-DROP TABLE IF EXISTS `pool`;
 CREATE TABLE IF NOT EXISTS `pool` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `line_id` int(11) NOT NULL COMMENT '线路ID',
@@ -682,7 +660,6 @@ CREATE TABLE IF NOT EXISTS `pool` (
 DELETE FROM `pool`;
 
 -- 导出  表 pro_cfg_manager.relabels 结构
-DROP TABLE IF EXISTS `relabels`;
 CREATE TABLE IF NOT EXISTS `relabels` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) NOT NULL,
@@ -700,7 +677,6 @@ INSERT INTO `relabels` (`id`, `name`, `code`, `enabled`, `update_at`, `update_by
 	(1, '空规则', '', 1, '2022-03-24 22:44:52', 'admin');
 
 -- 导出  表 pro_cfg_manager.rules_groups 结构
-DROP TABLE IF EXISTS `rules_groups`;
 CREATE TABLE IF NOT EXISTS `rules_groups` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
@@ -714,7 +690,6 @@ CREATE TABLE IF NOT EXISTS `rules_groups` (
 DELETE FROM `rules_groups`;
 
 -- 导出  表 pro_cfg_manager.session 结构
-DROP TABLE IF EXISTS `session`;
 CREATE TABLE IF NOT EXISTS `session` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `token` varchar(100) NOT NULL,
@@ -724,15 +699,14 @@ CREATE TABLE IF NOT EXISTS `session` (
   `login_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=162 DEFAULT CHARSET=utf8mb3 COMMENT='用户登录会话';
+) ENGINE=InnoDB AUTO_INCREMENT=164 DEFAULT CHARSET=utf8mb3 COMMENT='用户登录会话';
 
 -- 正在导出表  pro_cfg_manager.session 的数据：~1 rows (大约)
 DELETE FROM `session`;
 INSERT INTO `session` (`id`, `token`, `ipaddr`, `user_id`, `update_at`, `login_at`) VALUES
-	(158, '577809dc-9a28-47ef-89db-a9ff0c81a7ff', '127.0.0.1:48850', 1, '2022-07-21 15:46:09', '2022-07-20 14:16:43');
+	(158, 'bfd78bf3-a6e4-4a70-bef0-b2ece7e0680c', '127.0.0.1:43354', 1, '2022-08-04 13:21:47', '2022-07-20 14:16:43');
 
 -- 导出  表 pro_cfg_manager.sub_group 结构
-DROP TABLE IF EXISTS `sub_group`;
 CREATE TABLE IF NOT EXISTS `sub_group` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL,
@@ -747,7 +721,6 @@ CREATE TABLE IF NOT EXISTS `sub_group` (
 DELETE FROM `sub_group`;
 
 -- 导出  表 pro_cfg_manager.system_log 结构
-DROP TABLE IF EXISTS `system_log`;
 CREATE TABLE IF NOT EXISTS `system_log` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `username` varchar(100) NOT NULL,
@@ -760,14 +733,13 @@ CREATE TABLE IF NOT EXISTS `system_log` (
   PRIMARY KEY (`id`) USING BTREE
 ) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8mb3 COMMENT='系统日志';
 
--- 正在导出表  pro_cfg_manager.system_log 的数据：~2 rows (大约)
+-- 正在导出表  pro_cfg_manager.system_log 的数据：~8 rows (大约)
 DELETE FROM `system_log`;
 INSERT INTO `system_log` (`id`, `username`, `operate_type`, `ipaddr`, `operate_content`, `operate_result`, `operate_at`, `operate_error`) VALUES
-	(1, 'admin', '增加', '127.0.0.1:49156', 'create manager reset secret', 1, '2022-07-21 15:46:00', '成功'),
-	(2, 'admin', '重置', '127.0.0.1:49158', 'reset manager data', 1, '2022-07-21 15:46:09', '成功');
+	(1, 'admin', '增加', '127.0.0.1:45860', 'create manager reset secret', 1, '2022-08-04 13:21:34', '成功'),
+	(2, 'admin', '重置', '127.0.0.1:45862', 'reset manager data', 1, '2022-08-04 13:21:47', '成功');
 
 -- 导出  表 pro_cfg_manager.tmpl 结构
-DROP TABLE IF EXISTS `tmpl`;
 CREATE TABLE IF NOT EXISTS `tmpl` (
   `tmpl` longtext NOT NULL,
   `update_at` datetime NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
@@ -777,10 +749,9 @@ CREATE TABLE IF NOT EXISTS `tmpl` (
 -- 正在导出表  pro_cfg_manager.tmpl 的数据：~1 rows (大约)
 DELETE FROM `tmpl`;
 INSERT INTO `tmpl` (`tmpl`, `update_at`, `update_by`) VALUES
-	('# my global config\nglobal:\n  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.\n  # scrape_timeout is set to the global default (10s).\n  # scrape_timeout: 60s\n\n# Alertmanager configuration\nalerting:\n  alertmanagers:\n  - static_configs:\n    - targets:\n      - 127.0.0.1:9093\n\n# Load rules once and periodically evaluate them according to the global \'evaluation_interval\'.\nrule_files:\n   - "{{.RelRuleDir}}/*.yml"\n  # - "first_rules.yml"\n  # - "second_rules.yml"\n\n# A scrape configuration containing exactly one endpoint to scrape:\n# Here it\'s Prometheus itself.\nscrape_configs:\n  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.\n  - job_name: \'监控服务本机\'\n\n    # metrics_path defaults to \'/metrics\'\n    # scheme defaults to \'http\'.\n\n    static_configs:\n    - targets: [\'localhost:9090\']\n{{ range .Jobs }}\n  - job_name: \'{{.Name}}\'\n    file_sd_configs:\n      - files:\n        - "{{$.AbsConfDir}}/{{.JsonFileName}}.json"\n        refresh_interval: {{$.Fields.refresh_interval}}\n{{.Code}}\n{{ end }}\n', '2022-07-21 15:45:51', 'administrator');
+	('# my global config\nglobal:\n  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.\n  # scrape_timeout is set to the global default (10s).\n  # scrape_timeout: 60s\n\n# Alertmanager configuration\nalerting:\n  alertmanagers:\n  - static_configs:\n    - targets:\n      - 127.0.0.1:9093\n\n# Load rules once and periodically evaluate them according to the global \'evaluation_interval\'.\nrule_files:\n   - "{{.RelRuleDir}}/*.yml"\n  # - "first_rules.yml"\n  # - "second_rules.yml"\n\n# A scrape configuration containing exactly one endpoint to scrape:\n# Here it\'s Prometheus itself.\nscrape_configs:\n  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.\n  - job_name: \'监控服务本机\'\n\n    # metrics_path defaults to \'/metrics\'\n    # scheme defaults to \'http\'.\n\n    static_configs:\n    - targets: [\'localhost:9090\']\n{{ range .Jobs }}\n  - job_name: \'{{.Name}}\'\n    file_sd_configs:\n      - files:\n        - "{{$.AbsConfDir}}/{{.JsonFileName}}.json"\n        refresh_interval: {{$.Fields.refresh_interval}}\n{{.Code}}\n{{ end }}\n', '2022-08-04 13:21:22', 'administrator');
 
 -- 导出  表 pro_cfg_manager.tmpl_fields 结构
-DROP TABLE IF EXISTS `tmpl_fields`;
 CREATE TABLE IF NOT EXISTS `tmpl_fields` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `key` varchar(100) NOT NULL,
@@ -795,8 +766,8 @@ CREATE TABLE IF NOT EXISTS `tmpl_fields` (
 -- 正在导出表  pro_cfg_manager.tmpl_fields 的数据：~2 rows (大约)
 DELETE FROM `tmpl_fields`;
 INSERT INTO `tmpl_fields` (`id`, `key`, `value`, `enabled`, `update_at`, `update_by`) VALUES
-	(1, 'metrics', '/metrics', 1, '2022-07-21 15:45:51', ''),
-	(2, 'refresh_interval', '15s', 1, '2022-07-21 15:45:51', '');
+	(1, 'metrics', '/metrics', 1, '2022-08-04 13:21:22', ''),
+	(2, 'refresh_interval', '15s', 1, '2022-08-04 13:21:22', '');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
