@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-	// collector.PaoPao()
 	config.DoParams()
 	config.InitLogger()
 	dbs.DBObj.Init()
