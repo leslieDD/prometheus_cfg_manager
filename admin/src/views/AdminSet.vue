@@ -6,21 +6,9 @@
           <i class="el-icon-s-custom"></i>
           当在调整用户所属组时，未被设置的用户默认指向的组
         </template>
-        <el-select
-          size="small"
-          v-model="params.default_group"
-          clearable
-          placeholder="请选择"
-          @visible-change="doPutAdminSetting"
-          @clear="doPutAdminSetting"
-          @change="selectChange"
-        >
-          <el-option
-            v-for="item in groupList"
-            :key="item.id"
-            :label="item.name"
-            :value="item.id"
-          >
+        <el-select size="small" v-model="params.default_group" clearable placeholder="请选择"
+          @visible-change="doPutAdminSetting" @clear="doPutAdminSetting" @change="selectChange">
+          <el-option v-for="item in groupList" :key="item.id" :label="item.name" :value="item.id">
           </el-option>
         </el-select>
       </el-descriptions-item>
@@ -44,37 +32,16 @@
           </p>
           <p>输入红色部分的KEY即可重置成出产设置</p>
         </div>
-        <el-form
-          :model="ruleForm"
-          :rules="rules"
-          ref="ruleForm"
-          label-width="auto"
-          class="demo-ruleForm"
-          size="mini"
-        >
+        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="auto" class="demo-ruleForm" size="mini">
           <el-form-item label="重置码" prop="code">
             <el-input v-model="ruleForm.code"></el-input>
           </el-form-item>
           <el-form-item>
             <div class="dialog-footer">
-              <el-button size="small" @click="closeDialog('ruleForm')"
-                >关 闭</el-button
-              >
-              <el-button
-                v-if="runningMod === true"
-                size="small"
-                type="primary"
-                icon="el-icon-loading"
-                >确 定</el-button
-              >
-              <el-button
-                v-if="runningMod === false"
-                size="small"
-                type="primary"
-                icon="el-icon-refresh"
-                @click="doResetAdmin('ruleForm')"
-                >确 定</el-button
-              >
+              <el-button size="small" @click="closeDialog('ruleForm')">关 闭</el-button>
+              <el-button v-if="runningMod === true" size="small" type="primary" icon="el-icon-loading">确 定</el-button>
+              <el-button v-if="runningMod === false" size="small" type="primary" icon="el-icon-refresh"
+                @click="doResetAdmin('ruleForm')">确 定</el-button>
             </div>
           </el-form-item>
         </el-form>
@@ -182,11 +149,9 @@ export default {
               type: 'success'
             });
             this.runningMod = false
-            this.doGetOperateLog()
           }).catch(e => {
             console.log(e)
             this.runningMod = false
-            this.doGetOperateLog()
           })
         } else {
           this.runningMod = false
@@ -202,15 +167,18 @@ export default {
 .admin-set-board {
   width: 100%;
 }
+
 .operate-area {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
 }
+
 .dialog-footer {
   text-align: right;
   align-content: right;
 }
+
 .reset-explain {
   font: 0.8em Arial, Tahoma, Verdana;
   color: #777;
