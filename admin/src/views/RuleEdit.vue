@@ -14,10 +14,7 @@
         <el-descriptions-item>
           <template #label>
             <span>告警名称(alert)：</span>
-            <el-tooltip
-              content="警报规则的名称。alert: <string>"
-              placement="top"
-            >
+            <el-tooltip content="警报规则的名称。alert: <string>" placement="top">
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
@@ -26,31 +23,19 @@
         <el-descriptions-item>
           <template #label>
             <span>表达式(expr)：</span>
-            <el-tooltip
-              content="使用PromQL表达式完成的警报触发条件，用于计算是否有满足触发条件。expr: <string>"
-              placement="top"
-            >
+            <el-tooltip content="使用PromQL表达式完成的警报触发条件，用于计算是否有满足触发条件。expr: <string>" placement="top">
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <el-input
-            type="textarea"
-            size="mini"
-            wrap="off"
-            :autosize="{ minRows: 10, maxRows: 10 }" 
-            maxlength="5000"
-            show-word-limit
-            v-model="formData.expr"
-          ></el-input>
+          <el-input type="textarea" size="mini" wrap="off" :autosize="{ minRows: 10, maxRows: 10 }" maxlength="5000"
+            show-word-limit v-model="formData.expr"></el-input>
         </el-descriptions-item>
         <el-descriptions-item>
           <template #label>
             <span>等待时间(for)：</span>
             <el-tooltip
               content="带有for子句的警报触发以后首先会先转换成 Pending 状态，然后在转换为 Firing 状态。这里需要俩个周期才能触发警报条件，如果没有设置 for 子句，会直接 Inactive 状态转换成 Firing状态，然后触发警报，发送给 Receiver 设置的通知人。for: <string>，如：for: 5m，(m代表分钟)"
-              placement="top"
-              popper-class="filed-explain"
-            >
+              placement="top" popper-class="filed-explain">
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
@@ -59,142 +44,65 @@
         <el-descriptions-item>
           <template #label>
             <span>标签(labels)：</span>
-            <el-tooltip
-              content="自定义标签，允许自行定义标签附加在警报上。<lable_name>: <label_value>"
-              placement="top"
-            >
+            <el-tooltip content="自定义标签，允许自行定义标签附加在警报上。<lable_name>: <label_value>" placement="top">
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
           <div>
             <div v-for="data in formData.labels" :key="data.id">
-              <el-card
-                class="box-card-two"
-                :body-style="{ padding: '0px 0px 0px 0px' }"
-                shadow="never"
-              >
-                <el-select
-                  v-model="data.key"
-                  :key="data.id"
-                  size="mini"
-                  filterable
-                  allow-create
-                  default-first-option
-                  placeholder="请选择"
-                  style="width: 20%"
-                  @change="selectChange"
-                >
+              <el-card class="box-card-two" :body-style="{ padding: '0px 0px 0px 0px' }" shadow="never">
+                <el-select v-model="data.key" :key="data.id" size="mini" filterable allow-create default-first-option
+                  placeholder="请选择" style="width: 20%" @change="selectChange">
                   <!-- <el-option :label="data.key" :value="data.key"></el-option> -->
-                  <el-option
-                    v-for="item in defaultLabels"
-                    :key="item.id"
-                    :label="item.label"
-                    :value="item.label"
-                  >
+                  <el-option v-for="item in defaultLabels" :key="item.id" :label="item.label" :value="item.label">
                   </el-option>
                 </el-select>
-                <el-input
-                  size="mini"
-                  style="width: 77%"
-                  wrap="off"
-                  v-model="data.value"
-                  maxlength="100"
-                  show-word-limit
-                  :key="data.id"
-                ></el-input>
-                <el-popconfirm
-                  title="确定删除吗？"
-                  @confirm="delItem(data, 'labels')"
-                >
+                <el-input size="mini" style="width: 77%" wrap="off" v-model="data.value" maxlength="100" show-word-limit
+                  :key="data.id"></el-input>
+                <el-popconfirm title="确定删除吗？" @confirm="delItem(data, 'labels')">
                   <template #reference>
-                    <el-button
-                      type="text"
-                      class="el-icon-delete-solid icon-action"
-                      size="mini"
-                    ></el-button>
+                    <el-button type="text" class="el-icon-delete-solid icon-action" size="mini"></el-button>
                   </template>
                 </el-popconfirm>
               </el-card>
             </div>
             <div style="text-align: right; padding-right: 14px">
-              <el-button
-                type="success"
-                plain
-                size="mini"
-                icon="el-icon-circle-plus"
-                @click="addLables('labels')"
-                ></el-button
-              >
+              <el-button type="success" plain size="mini" icon="el-icon-circle-plus" @click="addLables('labels')">
+              </el-button>
             </div>
           </div>
         </el-descriptions-item>
         <el-descriptions-item>
           <template #label>
             <span>注释(annotations)：</span>
-            <el-tooltip
-              content="用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值。<lable_name>: <tmpl_string>"
-              placement="top"
-              popper-class="filed-explain"
-            >
+            <el-tooltip content="用来设置有关警报的一组描述信息，其中包括自定义的标签，以及expr计算后的值。<lable_name>: <tmpl_string>" placement="top"
+              popper-class="filed-explain">
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
           <div>
             <div v-for="data in formData.annotations" :key="data.id">
-              <el-card
-                class="box-card-two"
-                :body-style="{ padding: '0px 0px 0px 0px' }"
-                shadow="never"
-              >
+              <el-card class="box-card-two" :body-style="{ padding: '0px 0px 0px 0px' }" shadow="never">
                 <div class="annotations-move">
                   <div class="annotations-left">
-                    <el-select
-                      v-model="data.key"
-                      :key="data.id"
-                      allow-create
-                      size="mini"
-                      filterable
-                      default-first-option
-                      placeholder="请选择"
-                      style="width: 100%"
-                      @change="selectChange"
-                    >
+                    <el-select v-model="data.key" :key="data.id" allow-create size="mini" filterable
+                      default-first-option placeholder="请选择" style="width: 100%" @change="selectChange">
                       <!-- <el-option
                         :label="data.key"
                         :value="data.key"
                       ></el-option> -->
-                      <el-option
-                        v-for="item in defaultLabels"
-                        :key="item.id"
-                        :label="item.label"
-                        :value="item.label"
-                      >
+                      <el-option v-for="item in defaultLabels" :key="item.id" :label="item.label" :value="item.label">
                       </el-option>
                     </el-select>
                   </div>
                   <div class="annotations-right">
-                    <el-input
-                      type="textarea"
-                      :rows="4"
-                      wrap="off"
-                      size="mini"
-                      show-word-limit
-                      style="width: 100%"
-                      v-model="data.value"
-                      :key="data.id"
-                    ></el-input>
+                    <el-input type="textarea" :rows="4" wrap="off" size="mini" show-word-limit style="width: 100%"
+                      v-model="data.value" :key="data.id"></el-input>
                   </div>
                   <div>
-                    <el-popconfirm
-                      title="确定删除吗？"
-                      @confirm="delItem(data, 'annotations')"
-                    >
+                    <el-popconfirm title="确定删除吗？" @confirm="delItem(data, 'annotations')">
                       <template #reference>
-                        <el-button
-                          type="text"
-                          class="el-icon-delete-solid icon-action"
-                          size="mini"
-                        ></el-button>
+                        <el-button type="text" class="el-icon-delete-solid icon-action" size="mini"></el-button>
                       </template>
                     </el-popconfirm>
                   </div>
@@ -202,14 +110,8 @@
               </el-card>
             </div>
             <div style="text-align: right; padding-right: 14px">
-              <el-button
-                type="success"
-                size="mini"
-                plain
-                @click="addLables('annotations')"
-                icon="el-icon-circle-plus"
-                ></el-button
-              >
+              <el-button type="success" size="mini" plain @click="addLables('annotations')" icon="el-icon-circle-plus">
+              </el-button>
             </div>
           </div>
         </el-descriptions-item>
@@ -220,49 +122,38 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <el-switch
-            v-model="formData.enabled"
-            active-color="#13ce66"
-            inactive-color="#ff4949"
-          ></el-switch>
+          <el-switch v-model="formData.enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+        </el-descriptions-item>
+        <el-descriptions-item>
+          <template #label>
+            <span>调用API监控</span>
+            <el-tooltip content="调用API监控" placement="top">
+              <i class="el-icon-question"></i>
+            </el-tooltip>
+          </template>
+          <el-row>
+            <el-switch v-model="formData.api_enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+            <el-input :disabled="!formData.api_enabled" v-model="formData.api_content" size="mini"
+              style="width: 500px; margin-left: 20px;" placeholder="Please input">
+              <template #prepend>Prometheus的调用地址</template>
+            </el-input>
+          </el-row>
         </el-descriptions-item>
         <el-descriptions-item>
           <div class="rule-edit-area">
-            <el-button
-              style="margin-right: 10px"
-              icon="el-icon-edit"
-              type="primary"
-              plain
-              size="mini"
-              @click="viewData"
-              >预览</el-button
-            >
-            <el-button
-              style="margin-right: 10px"
-              icon="el-icon-edit"
-              type="warning"
-              size="mini"
-              @click="importData"
-              >导入</el-button
-            >
-            <el-button
-              style="margin-right: 10px"
-              icon="el-icon-upload"
-              type="primary"
-              size="mini"
-              @click="onSubmit"
-              >提交</el-button
-            >
+            <el-button style="margin-right: 10px" icon="el-icon-edit" type="primary" plain size="mini"
+              @click="viewData">预览
+            </el-button>
+            <el-button style="margin-right: 10px" icon="el-icon-edit" type="warning" size="mini" @click="importData">导入
+            </el-button>
+            <el-button style="margin-right: 10px" icon="el-icon-upload" type="primary" size="mini" @click="onSubmit">提交
+            </el-button>
           </div>
         </el-descriptions-item>
       </el-descriptions>
     </div>
     <div class="dialog-area">
-      <el-dialog
-        title="导入规则数据-yaml格式"
-        v-model="dialogFormVisible"
-        custom-class="dialog-custom-class"
-      >
+      <el-dialog title="导入规则数据-yaml格式" v-model="dialogFormVisible" custom-class="dialog-custom-class">
         <el-descriptions class="margin-top" :column="1" size="mini" border>
           <el-descriptions-item>
             <template #label>
@@ -277,14 +168,7 @@
           </el-descriptions-item>
           <el-descriptions-item>
             <template #label>输入内容</template>
-            <el-input
-              type="textarea"
-              placeholder="请输入内容"
-              v-model="textarea"
-              rows="8"
-              multiple
-              wrap="off"
-            >
+            <el-input type="textarea" placeholder="请输入内容" v-model="textarea" rows="8" multiple wrap="off">
             </el-input>
           </el-descriptions-item>
           <el-descriptions-item>
@@ -297,23 +181,15 @@
           </el-descriptions-item>
           <el-descriptions-item>
             <div class="dialog-action">
-              <el-button size="mini" type="info" @click="closeImport"
-                >关闭</el-button
-              >
-              <el-button size="mini" type="primary" @click="parseYaml"
-                >导入</el-button
-              >
+              <el-button size="mini" type="info" @click="closeImport">关闭</el-button>
+              <el-button size="mini" type="primary" @click="parseYaml">导入</el-button>
             </div>
           </el-descriptions-item>
         </el-descriptions>
       </el-dialog>
     </div>
     <div class="viewer-area">
-      <el-dialog
-        title="预览规则-yaml格式"
-        v-model="viewDialogVisible"
-        custom-class="dialog-custom-class"
-      >
+      <el-dialog title="预览规则-yaml格式" v-model="viewDialogVisible" custom-class="dialog-custom-class">
         <el-descriptions class="margin-top" :column="1" size="mini" border>
           <el-descriptions-item>
             <template #label>YAML格式数据</template>
@@ -325,9 +201,7 @@
           </el-descriptions-item>
           <el-descriptions-item>
             <div class="dialog-action">
-              <el-button size="mini" type="primary" @click="closeViewDialog"
-                >关闭</el-button
-              >
+              <el-button size="mini" type="primary" @click="closeViewDialog">关闭</el-button>
             </div>
           </el-descriptions-item>
         </el-descriptions>
@@ -365,6 +239,7 @@ export default ({
         labels: [],
         annotations: [],
         enabled: false,
+        api_enabled: false,
         description: ''
       },
       defaultLabels: [],
@@ -704,27 +579,34 @@ annotations:
   flex-direction: row;
   flex-wrap: nowrap;
 }
+
 .annotations-left {
   width: 21%;
 }
+
 .annotations-right {
   width: 79%;
 }
+
 .rule-edit-area {
   width: 100%;
   align-content: right;
   text-align: right;
 }
+
 .dialog-action {
   align-content: right;
   text-align: right;
 }
+
 .dialog-area :deep() .el-dialog {
   margin: 20px auto !important;
 }
+
 .dialog-area :deep() .el-dialog__body {
   padding-top: 5px;
 }
+
 .box-member :deep() .annotations-labels {
   display: flex !important;
   flex-direction: row;
@@ -732,23 +614,28 @@ annotations:
   justify-content: space-between;
   /* width: 800px; */
 }
+
 .box-member {
   width: 100%;
 }
+
 .box-card {
   /* width: 98%; */
   margin-left: 5px;
   width: 100%;
   padding: 0px 0px;
 }
+
 .box-member :deep() .el-form-item__label {
   padding-bottom: 0px !important;
   /* width: 800px; */
   width: 100%;
 }
+
 .box-member :deep() .el-tabs__content {
   padding-right: 5px !important;
 }
+
 .box-member :deep() .el-descriptions__content {
   padding: 0px 0px 0px 0px;
 }

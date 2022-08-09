@@ -245,6 +245,8 @@ type MonitorRule struct {
 	For         string    `json:"for" gorm:"column:for"`
 	SubGroupID  int       `json:"sub_group_id" gorm:"column:sub_group_id"`
 	Enabled     bool      `json:"enabled" gorm:"column:enabled"`
+	ApiEnabled  bool      `json:"api_enabled" gorm:"column:api_enabled"`
+	ApiContent  string    `json:"api_content" gorm:"column:api_content"`
 	Description string    `json:"description" gorm:"column:description"`
 	UpdateAt    time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy    string    `json:"update_by" gorm:"column:update_by"`
@@ -308,6 +310,8 @@ type TreeNodeInfo struct {
 	Labels      []Label   `json:"labels" gorm:"column:labels"`
 	Annotations []Label   `json:"annotations" gorm:"column:annotations"`
 	Enabled     bool      `json:"enabled" gorm:"column:enabled"`
+	ApiEnabled  bool      `json:"api_enabled" gorm:"column:api_enabled"`
+	ApiContent  string    `json:"api_content" gorm:"column:api_content"`
 	Description string    `json:"description" gorm:"column:description"`
 	UpdateAt    time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy    string    `json:"update_by" gorm:"column:update_by"`
@@ -325,6 +329,8 @@ func GetNode(qni *QueryGetNode) (*TreeNodeInfo, *BriefMessage) {
 		For:         mr.For,
 		SubGroupID:  mr.SubGroupID,
 		Enabled:     mr.Enabled,
+		ApiEnabled:  mr.ApiEnabled,
+		ApiContent:  mr.ApiContent,
 		Description: mr.Description,
 		UpdateAt:    mr.UpdateAt,
 		UpdateBy:    mr.UpdateBy,
@@ -353,6 +359,8 @@ func PostNode(user *UserSessionInfo, nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *Br
 		"for":          nodeInfo.For,
 		"sub_group_id": nodeInfo.SubGroupID,
 		"enabled":      nodeInfo.Enabled,
+		"api_enabled":  nodeInfo.ApiEnabled,
+		"api_content":  nodeInfo.ApiContent,
 		"update_at":    time.Now(),
 		"update_by":    user.Username,
 	}
@@ -382,6 +390,8 @@ func PutNode(user *UserSessionInfo, nodeInfo *TreeNodeInfo) (*TreeNodeInfo, *Bri
 		Update("for", nodeInfo.For).
 		Update("sub_group_id", nodeInfo.SubGroupID).
 		Update("enabled", nodeInfo.Enabled).
+		Update("api_enabled", nodeInfo.ApiEnabled).
+		Update("api_content", nodeInfo.ApiContent).
 		Update("description", nodeInfo.Description).
 		Update("update_at", time.Now()).
 		Update("update_by", user.Username)
