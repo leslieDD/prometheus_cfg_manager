@@ -20,10 +20,10 @@ require (
 	github.com/modern-go/concurrent v0.0.0-20180306012644-bacd9c7ef1dd // indirect
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/oschwald/geoip2-golang v1.7.0
-	github.com/pkg/errors v0.9.1 // indirect
 	github.com/rifflock/lfshook v0.0.0-20180920164130-b9218ef580f5
 	github.com/shirou/gopsutil v3.21.6+incompatible
 	github.com/sirupsen/logrus v1.7.0
+	github.com/sonh/qs v0.6.0
 	github.com/spf13/pflag v1.0.5
 	github.com/tklauser/go-sysconf v0.3.7 // indirect
 	github.com/xuri/excelize/v2 v2.6.0
