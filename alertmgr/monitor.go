@@ -1,7 +1,9 @@
 package alertmgr
 
 import (
+	"encoding/json"
 	"fmt"
+	"html/template"
 	"net/url"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
@@ -15,9 +17,10 @@ import (
 )
 
 type RuleInfo struct {
-	MonitorRule *models.MonitorRule `json:"monitor_rule"`
-	Labels      map[string]string   `json:"labels"`
-	Annotations map[string]string   `json:"annotations"`
+	MonitorRule     *models.MonitorRule `json:"monitor_rule"`
+	Labels          map[string]string   `json:"labels"`
+	Annotations     map[string]string   `json:"annotations"`
+	AnnotationsTmpl map[string]string   `json:"annotations_tmpl"`
 }
 
 type AlertMgr struct {
@@ -95,15 +98,25 @@ func (a *AlertMgr) LoadRule() {
 			UpdateBy    string    `json:"update_by" gorm:"column:update_by"`
 		*/
 		rulesMerge := RuleInfo{
-			MonitorRule: r,
-			Labels:      map[string]string{},
-			Annotations: map[string]string{},
+			MonitorRule:     r,
+			Labels:          map[string]string{},
+			Annotations:     map[string]string{},
+			AnnotationsTmpl: nil,
 		}
 		if obj, ok := labelsID[r.ID]; ok {
 			rulesMerge.Labels = obj
 		}
+		annotationsTmpl := map[string]*template.Template{}
 		if obj, ok := annotationsID[r.ID]; ok {
 			rulesMerge.Annotations = obj
+			for k, v := range obj {
+				tmpl, err := template.New(k).Parse(v)
+				if err != nil {
+					config.Log.Error(err)
+					return
+				}
+				annotationsTmpl[k] = tmpl
+			}
 		}
 		rulesMerges = append(rulesMerges, &rulesMerge)
 	}
@@ -128,17 +141,46 @@ func (a *AlertMgr) work(rule *RuleInfo) {
 	if urlReq == "" {
 		return
 	}
-	content, err := utils.Get(urlReq)
+	contentResp, err := utils.Get(urlReq)
 	if err != nil {
 		config.Log.Error(err)
 		return
 	}
-	a.Alert(rule, content)
+	resp := PrometheusResp{}
+	if err := json.Unmarshal(contentResp, &resp); err != nil {
+		config.Log.Error(err)
+		return
+	}
+	if resp.Status != "success" {
+		config.Log.Error(resp.Data)
+		return
+	}
+	if len(resp.Data.Result) == 0 {
+		return
+	}
+	a.Alert(rule, &resp)
 }
 
 // 报警
-func (a *AlertMgr) Alert(rule *RuleInfo, content []byte) {
+func (a *AlertMgr) Alert(rule *RuleInfo, respData *PrometheusResp) {
+	for _, item := range respData.Data.Result {
 
+	}
+}
+
+type PrometheusResp struct {
+	Status string          `json:"status"`
+	Data   *PrometheusData `json:"data"`
+}
+
+type PrometheusData struct {
+	ResultType string              `json:"resultType"`
+	Result     []*PrometheusResult `json:"result"`
+}
+
+type PrometheusResult struct {
+	Metric map[string]string
+	Values [][]interface{} // int64, string
 }
 
 func CreateUrl(rule *RuleInfo) string {
