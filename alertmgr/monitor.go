@@ -17,14 +17,6 @@ import (
 	"github.com/sonh/qs"
 )
 
-type RuleInfo struct {
-	MonitorRule     *models.MonitorRule           `json:"monitor_rule"`
-	Labels          map[string]string             `json:"labels"`
-	Annotations     map[string]string             `json:"annotations"`
-	AnnotationsTmpl map[string]*template.Template `json:"annotations_tmpl"`
-	StartsAt        time.Time
-}
-
 type AlertMgr struct {
 	lock      sync.Mutex
 	RulesInfo []*RuleInfo
@@ -91,21 +83,6 @@ func (a *AlertMgr) LoadRule() {
 	// 合并数据
 	rulesMerges := []*RuleInfo{}
 	for _, r := range rulesID {
-		/*
-			ID          int       `json:"id" gorm:"column:id"`
-			Alert       string    `json:"alert" gorm:"column:alert"`
-			Expr        string    `json:"expr" gorm:"column:expr"`
-			For         string    `json:"for" gorm:"column:for"`
-			SubGroupID  int       `json:"sub_group_id" gorm:"column:sub_group_id"`
-			Labels      []Label   `json:"labels" gorm:"column:labels"`
-			Annotations []Label   `json:"annotations" gorm:"column:annotations"`
-			Enabled     bool      `json:"enabled" gorm:"column:enabled"`
-			ApiEnabled  bool      `json:"api_enabled" gorm:"column:api_enabled"`
-			ApiContent  string    `json:"api_content" gorm:"column:api_content"`
-			Description string    `json:"description" gorm:"column:description"`
-			UpdateAt    time.Time `json:"update_at" gorm:"column:update_at"`
-			UpdateBy    string    `json:"update_by" gorm:"column:update_by"`
-		*/
 		rulesMerge := RuleInfo{
 			MonitorRule:     r,
 			Labels:          map[string]string{},
@@ -212,8 +189,7 @@ func (a *AlertMgr) Alert(rule *RuleInfo, respData *PrometheusResp) {
 		notice := time.Unix(item.Unix, 0)
 		startsAt = notice.UTC().Format("2006-01-02T15:04:05.000Z")
 		alert := &Alert{
-			StartsAt: startsAt,
-			// EndsAt:       "",
+			StartsAt:     startsAt,
 			GeneratorURL: "",
 			Labels:       labels,
 			Annotations:  annotations,
@@ -240,27 +216,6 @@ func (a *AlertMgr) PostAlert(alerts []*Alert) {
 
 func GetTime() string {
 	return time.Now().Format(time.RFC3339)
-}
-
-type PrometheusResp struct {
-	Status string          `json:"status"`
-	Data   *PrometheusData `json:"data"`
-}
-
-type PrometheusData struct {
-	ResultType string              `json:"resultType"`
-	Result     []*PrometheusResult `json:"result"`
-}
-
-type PrometheusResult struct {
-	Metric map[string]string
-	Value  []interface{} // int64, string
-}
-
-type Value struct {
-	Unix   int64   `json:"unix"` // Unix时间
-	Val    float64 `json:"val"`  // 带宽值
-	Metric map[string]string
 }
 
 func ConvertValue(rst *PrometheusResp) []*Value {
