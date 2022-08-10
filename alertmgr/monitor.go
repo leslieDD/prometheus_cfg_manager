@@ -202,22 +202,15 @@ func (a *AlertMgr) Alert(rule *RuleInfo, respData *PrometheusResp) {
 			}
 			annotations[k] = buf.String()
 		}
-		// var startsAt, endsAt string
+		var startsAt string
 		// if rule.StartsAt.IsZero() {
 		// 	rule.StartsAt = time.Now()
 		// 	startsAt = rule.StartsAt.UTC().Format("2006-01-02T15:04:05.000Z")
-		// 	endsAt = rule.StartsAt.Add(6 * time.Minute).UTC().Format("2006-01-02T15:04:05.000Z")
 		// } else {
 		// 	startsAt = rule.StartsAt.UTC().Format("2006-01-02T15:04:05.000Z")
-		// 	endsAt = time.Now().UTC().Format("2006-01-02T15:04:05.000Z") // 停留5分钟,
 		// }
-		var startsAt string
-		if rule.StartsAt.IsZero() {
-			rule.StartsAt = time.Now()
-			startsAt = rule.StartsAt.UTC().Format("2006-01-02T15:04:05.000Z")
-		} else {
-			startsAt = rule.StartsAt.UTC().Format("2006-01-02T15:04:05.000Z")
-		}
+		notice := time.Unix(item.Unix, 0)
+		startsAt = notice.UTC().Format("2006-01-02T15:04:05.000Z")
 		alert := &Alert{
 			StartsAt: startsAt,
 			// EndsAt:       "",
