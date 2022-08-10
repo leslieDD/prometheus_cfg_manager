@@ -40,7 +40,7 @@ func WS(c *gin.Context) *BriefMessage {
 			break
 		}
 		wsc := &wsCommand{C: c, Cmd: string(message), Result: make(chan string)}
-		bf := cmdArea.RecvFromWS(wsc)
+		bf := CmdArea.RecvFromWS(wsc)
 		if bf != Success {
 			err = ws.WriteMessage(mt, []byte(bf.Message))
 			if err != nil {
@@ -68,7 +68,7 @@ type CmdAreaT struct {
 	messSend    chan []byte
 }
 
-var cmdArea *CmdAreaT
+var CmdArea *CmdAreaT
 
 func NewCmdArea() *CmdAreaT {
 	cmdArea := &CmdAreaT{

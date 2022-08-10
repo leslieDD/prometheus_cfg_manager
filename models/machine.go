@@ -255,7 +255,7 @@ func GetMachinesV2(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 			LineName:   l.LineName,
 		})
 	}
-	mObj.Check(&listsSend)
+	MObj.Check(&listsSend)
 	return CalSplitPage(sp, count, listsSend), Success
 }
 

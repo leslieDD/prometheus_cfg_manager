@@ -26,7 +26,7 @@ type Monitor struct {
 	info     map[string][]*SrvStatus
 }
 
-var mObj *Monitor
+var MObj *Monitor
 
 func NewMonitor() *Monitor {
 	return &Monitor{

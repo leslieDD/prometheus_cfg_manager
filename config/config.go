@@ -27,9 +27,10 @@ type prometheusCfg struct {
 	Username    string `json:"username" yaml:"username"`
 	Password    string `json:"password" yaml:"password"`
 	// TmplContext string `json:"tmpl_context" yaml:"-"`
-	MainConf string `json:"main_conf" yaml:"-"`
-	RuleConf string `json:"rule_conf" yaml:"-"`
-	Conf     string `json:"conf" yaml:"-"`
+	MainConf     string `json:"main_conf" yaml:"-"`
+	RuleConf     string `json:"rule_conf" yaml:"-"`
+	Conf         string `json:"conf" yaml:"-"`
+	AlertManager string `json:"alert_manager" yaml:"alert_manager"`
 }
 
 type runtimeParam struct {

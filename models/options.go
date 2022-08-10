@@ -282,7 +282,7 @@ func DoTmplAfter(needReload bool) *BriefMessage {
 	// 		return bf
 	// 	}
 	// }
-	if bf := publish.Do(needReload); bf != Success {
+	if bf := PublishObj.Do(needReload); bf != Success {
 		return bf
 	}
 	if needReload {

@@ -1,6 +1,7 @@
 package alertmgr
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
 	"html/template"
@@ -17,21 +18,28 @@ import (
 )
 
 type RuleInfo struct {
-	MonitorRule     *models.MonitorRule `json:"monitor_rule"`
-	Labels          map[string]string   `json:"labels"`
-	Annotations     map[string]string   `json:"annotations"`
-	AnnotationsTmpl map[string]string   `json:"annotations_tmpl"`
+	MonitorRule     *models.MonitorRule           `json:"monitor_rule"`
+	Labels          map[string]string             `json:"labels"`
+	Annotations     map[string]string             `json:"annotations"`
+	AnnotationsTmpl map[string]*template.Template `json:"annotations_tmpl"`
 }
 
 type AlertMgr struct {
-	lock     sync.Mutex
-	RuleInfo []*RuleInfo
+	lock      sync.Mutex
+	RulesInfo []*RuleInfo
 }
+
+var AlertMgrObj *AlertMgr
 
 func NewAlertMgr() *AlertMgr {
 	return &AlertMgr{
 		lock: sync.Mutex{},
 	}
+}
+
+func (a *AlertMgr) Run() {
+	a.LoadRule()
+	go a.DoMonitor()
 }
 
 // 加载监控规则
@@ -110,18 +118,20 @@ func (a *AlertMgr) LoadRule() {
 		if obj, ok := annotationsID[r.ID]; ok {
 			rulesMerge.Annotations = obj
 			for k, v := range obj {
-				tmpl, err := template.New(k).Parse(v)
+				tmpl, err := template.New(k).Parse(`{{$value := .Val}}` + v)
 				if err != nil {
 					config.Log.Error(err)
 					return
 				}
 				annotationsTmpl[k] = tmpl
 			}
+			rulesMerge.AnnotationsTmpl = annotationsTmpl
 		}
 		rulesMerges = append(rulesMerges, &rulesMerge)
 	}
+	config.Log.Warnf("load monitor rules: %d", len(rulesMerges))
 	a.lock.Lock()
-	a.RuleInfo = rulesMerges
+	a.RulesInfo = rulesMerges
 	a.lock.Unlock()
 }
 
@@ -129,7 +139,7 @@ func (a *AlertMgr) LoadRule() {
 func (a *AlertMgr) DoMonitor() {
 	for range time.After(1 * time.Minute) {
 		a.lock.Lock()
-		for _, rule := range a.RuleInfo {
+		for _, rule := range a.RulesInfo {
 			go a.work(rule)
 		}
 		a.lock.Unlock()
@@ -163,9 +173,46 @@ func (a *AlertMgr) work(rule *RuleInfo) {
 
 // 报警
 func (a *AlertMgr) Alert(rule *RuleInfo, respData *PrometheusResp) {
-	for _, item := range respData.Data.Result {
-
+	values := ConvertValue(respData)
+	alerts := []*Alert{}
+	for _, item := range values {
+		annotations := map[string]string{}
+		for k, obj := range rule.AnnotationsTmpl {
+			buf := new(bytes.Buffer)
+			if err := obj.Execute(buf, item); err != nil {
+				config.Log.Error(err)
+				return
+			}
+			annotations[k] = buf.String()
+		}
+		alert := &Alert{
+			StartsAt:     GetTime(),
+			EndsAt:       GetTime(),
+			GeneratorURL: "",
+			Labels:       item.Metric,
+			Annotations:  annotations,
+		}
+		alerts = append(alerts, alert)
 	}
+	a.PostAlert(alerts)
+}
+
+func (a *AlertMgr) PostAlert(alerts []*Alert) {
+	outData, err := json.Marshal(alerts)
+	if err != nil {
+		config.Log.Error(err)
+		return
+	}
+	dataResp, err := utils.Post(config.Cfg.PrometheusCfg.AlertManager, outData)
+	if err != nil {
+		config.Log.Error(err)
+		return
+	}
+	config.Log.Print(dataResp)
+}
+
+func GetTime() string {
+	return time.Now().Format(time.RFC3339)
 }
 
 type PrometheusResp struct {
@@ -181,6 +228,30 @@ type PrometheusData struct {
 type PrometheusResult struct {
 	Metric map[string]string
 	Values [][]interface{} // int64, string
+}
+
+type Value struct {
+	Unix   int64   `json:"unix"` // Unix时间
+	Val    float64 `json:"val"`  // 带宽值
+	Metric map[string]string
+}
+
+func ConvertValue(rst *PrometheusResp) []*Value {
+	values := []*Value{}
+	if rst == nil {
+		return values
+	}
+	for _, v := range rst.Data.Result {
+		for _, value := range v.Values {
+			val := &Value{
+				Unix:   int64(value[0].(float64)),
+				Val:    utils.StringToFloat64(value[1].(string)),
+				Metric: v.Metric,
+			}
+			values = append(values, val)
+		}
+	}
+	return values
 }
 
 func CreateUrl(rule *RuleInfo) string {

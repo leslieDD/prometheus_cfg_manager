@@ -15,7 +15,7 @@ import (
 const MYExt = ".json"
 const MYYaml = ".yml"
 
-var publish *PublishResolve
+var PublishObj *PublishResolve
 
 func NewPublishResolve() *PublishResolve {
 	return &PublishResolve{
@@ -24,7 +24,7 @@ func NewPublishResolve() *PublishResolve {
 }
 
 func Publish() *BriefMessage {
-	return publish.Do(false)
+	return PublishObj.Do(false)
 }
 
 type ConfPublish struct {
