@@ -22,6 +22,7 @@ type RuleInfo struct {
 	Labels          map[string]string             `json:"labels"`
 	Annotations     map[string]string             `json:"annotations"`
 	AnnotationsTmpl map[string]*template.Template `json:"annotations_tmpl"`
+	StartsAt        time.Time
 }
 
 type AlertMgr struct {
@@ -110,6 +111,7 @@ func (a *AlertMgr) LoadRule() {
 			Labels:          map[string]string{},
 			Annotations:     map[string]string{},
 			AnnotationsTmpl: nil,
+			StartsAt:        time.Time{},
 		}
 		if obj, ok := labelsID[r.ID]; ok {
 			rulesMerge.Labels = obj
@@ -137,12 +139,15 @@ func (a *AlertMgr) LoadRule() {
 
 // 执行监控，就也是执行监控规则
 func (a *AlertMgr) DoMonitor() {
-	for range time.After(1 * time.Minute) {
-		a.lock.Lock()
-		for _, rule := range a.RulesInfo {
-			go a.work(rule)
+	for {
+		select {
+		case <-time.After(10 * time.Second):
+			a.lock.Lock()
+			for _, rule := range a.RulesInfo {
+				go a.work(rule)
+			}
+			a.lock.Unlock()
 		}
-		a.lock.Unlock()
 	}
 }
 
@@ -166,6 +171,7 @@ func (a *AlertMgr) work(rule *RuleInfo) {
 		return
 	}
 	if len(resp.Data.Result) == 0 {
+		rule.StartsAt = time.Time{}
 		return
 	}
 	a.Alert(rule, &resp)
@@ -174,9 +180,20 @@ func (a *AlertMgr) work(rule *RuleInfo) {
 // 报警
 func (a *AlertMgr) Alert(rule *RuleInfo, respData *PrometheusResp) {
 	values := ConvertValue(respData)
+	if len(values) == 0 {
+		rule.StartsAt = time.Time{}
+		return
+	}
 	alerts := []*Alert{}
 	for _, item := range values {
 		annotations := map[string]string{}
+		labels := map[string]string{}
+		for k, v := range item.Metric {
+			labels[k] = v
+		}
+		for k, v := range rule.Labels {
+			labels[k] = v
+		}
 		for k, obj := range rule.AnnotationsTmpl {
 			buf := new(bytes.Buffer)
 			if err := obj.Execute(buf, item); err != nil {
@@ -185,11 +202,27 @@ func (a *AlertMgr) Alert(rule *RuleInfo, respData *PrometheusResp) {
 			}
 			annotations[k] = buf.String()
 		}
+		// var startsAt, endsAt string
+		// if rule.StartsAt.IsZero() {
+		// 	rule.StartsAt = time.Now()
+		// 	startsAt = rule.StartsAt.UTC().Format("2006-01-02T15:04:05.000Z")
+		// 	endsAt = rule.StartsAt.Add(6 * time.Minute).UTC().Format("2006-01-02T15:04:05.000Z")
+		// } else {
+		// 	startsAt = rule.StartsAt.UTC().Format("2006-01-02T15:04:05.000Z")
+		// 	endsAt = time.Now().UTC().Format("2006-01-02T15:04:05.000Z") // 停留5分钟,
+		// }
+		var startsAt string
+		if rule.StartsAt.IsZero() {
+			rule.StartsAt = time.Now()
+			startsAt = rule.StartsAt.UTC().Format("2006-01-02T15:04:05.000Z")
+		} else {
+			startsAt = rule.StartsAt.UTC().Format("2006-01-02T15:04:05.000Z")
+		}
 		alert := &Alert{
-			StartsAt:     GetTime(),
-			EndsAt:       GetTime(),
+			StartsAt: startsAt,
+			// EndsAt:       "",
 			GeneratorURL: "",
-			Labels:       item.Metric,
+			Labels:       labels,
 			Annotations:  annotations,
 		}
 		alerts = append(alerts, alert)
@@ -198,11 +231,12 @@ func (a *AlertMgr) Alert(rule *RuleInfo, respData *PrometheusResp) {
 }
 
 func (a *AlertMgr) PostAlert(alerts []*Alert) {
-	outData, err := json.Marshal(alerts)
+	outData, err := json.MarshalIndent(alerts, "    ", "    ")
 	if err != nil {
 		config.Log.Error(err)
 		return
 	}
+	config.Log.Println(string(outData))
 	dataResp, err := utils.Post(config.Cfg.PrometheusCfg.AlertManager, outData)
 	if err != nil {
 		config.Log.Error(err)
@@ -227,7 +261,7 @@ type PrometheusData struct {
 
 type PrometheusResult struct {
 	Metric map[string]string
-	Values [][]interface{} // int64, string
+	Value  []interface{} // int64, string
 }
 
 type Value struct {
@@ -242,14 +276,12 @@ func ConvertValue(rst *PrometheusResp) []*Value {
 		return values
 	}
 	for _, v := range rst.Data.Result {
-		for _, value := range v.Values {
-			val := &Value{
-				Unix:   int64(value[0].(float64)),
-				Val:    utils.StringToFloat64(value[1].(string)),
-				Metric: v.Metric,
-			}
-			values = append(values, val)
+		val := &Value{
+			Unix:   int64(v.Value[0].(float64)),
+			Val:    utils.StringToFloat64(v.Value[1].(string)),
+			Metric: v.Metric,
 		}
+		values = append(values, val)
 	}
 	return values
 }
