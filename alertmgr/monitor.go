@@ -33,6 +33,7 @@ func NewAlertMgr() *AlertMgr {
 func (a *AlertMgr) Run() {
 	a.LoadRule()
 	go a.DoMonitor()
+	go a.RecycleLoadRule()
 }
 
 // 加载监控规则
@@ -43,7 +44,7 @@ func (a *AlertMgr) LoadRule() {
 		return
 	}
 	rules := []*models.MonitorRule{}
-	tx := db.Table("monitor_rules").Where("enabled=1 and api_enabled=1").Find(&rules)
+	tx := db.Table("monitor_rules").Where("api_enabled=1").Find(&rules)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return
@@ -114,11 +115,20 @@ func (a *AlertMgr) LoadRule() {
 	a.lock.Unlock()
 }
 
+func (a *AlertMgr) RecycleLoadRule() {
+	for {
+		select {
+		case <-time.After(3 * time.Second):
+			a.LoadRule()
+		}
+	}
+}
+
 // 执行监控，就也是执行监控规则
 func (a *AlertMgr) DoMonitor() {
 	for {
 		select {
-		case <-time.After(10 * time.Second):
+		case <-time.After(5 * time.Minute):
 			a.lock.Lock()
 			for _, rule := range a.RulesInfo {
 				go a.work(rule)
