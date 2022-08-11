@@ -20,13 +20,15 @@ import (
 type AlertMgr struct {
 	lock      sync.Mutex
 	RulesInfo []*RuleInfo
+	doAction  chan struct{}
 }
 
 var AlertMgrObj *AlertMgr
 
 func NewAlertMgr() *AlertMgr {
 	return &AlertMgr{
-		lock: sync.Mutex{},
+		lock:     sync.Mutex{},
+		doAction: make(chan struct{}, 1),
 	}
 }
 
@@ -118,10 +120,14 @@ func (a *AlertMgr) LoadRule() {
 func (a *AlertMgr) RecycleLoadRule() {
 	for {
 		select {
-		case <-time.After(3 * time.Second):
+		case <-a.doAction:
 			a.LoadRule()
 		}
 	}
+}
+
+func (a *AlertMgr) NoticeReload() {
+	a.doAction <- struct{}{}
 }
 
 // 执行监控，就也是执行监控规则

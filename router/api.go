@@ -2,6 +2,7 @@ package router
 
 import (
 	"io"
+	"pro_cfg_manager/alertmgr"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/models"
 	"pro_cfg_manager/sync"
@@ -1679,6 +1680,7 @@ func rulePublish(c *gin.Context) {
 	}
 	bf := models.RulePublish()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish rule", models.IsPublish, bf)
+	alertmgr.AlertMgrObj.NoticeReload()
 	sync.AS.Done(sync.PublishMonitorRules)
 	resComm(c, bf, nil)
 }
@@ -1696,6 +1698,7 @@ func emptyRulePublish(c *gin.Context) {
 	}
 	bf := models.EmptyRulePublish()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish empty rule", models.IsPublish, bf)
+	alertmgr.AlertMgrObj.NoticeReload()
 	sync.AS.Done(sync.PublishEmptyMonitorRules)
 	resComm(c, bf, nil)
 }
