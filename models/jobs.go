@@ -1047,8 +1047,26 @@ func DeleteJobBlack(user *UserSessionInfo, djbr *DelJobBlackReq) *BriefMessage {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return ErrDataBase
 	}
-	if err := db.Table("job_machines").Where("blacked=1 and job_id in ?", djbr.Jobs).Delete(nil).Error; err != nil {
-		config.Log.Error(err)
+	tErr := db.Transaction(func(tx *gorm.DB) error {
+		for _, jID := range djbr.Jobs {
+			ids := []OnlyID{}
+			if err := db.Table("job_machines").Where("blacked=1 and job_id=?", jID).Find(&ids).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			idsList := ConvertOnlyIdToIntSlice(ids)
+			if err := db.Table("job_machines").Where("blacked=1 and machine_id in ?", idsList).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+			if err := db.Table("group_machines").Where("machines_id in ?", idsList).Delete(nil).Error; err != nil {
+				config.Log.Error(err)
+				return err
+			}
+		}
+		return nil
+	})
+	if tErr != nil {
 		return ErrDelData
 	}
 	return Success
