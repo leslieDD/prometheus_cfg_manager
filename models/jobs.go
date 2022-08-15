@@ -1036,3 +1036,20 @@ func DeleteJobItems(user *UserSessionInfo, mids *UpdateIPForJob, info *DelJobIte
 	}
 	return Success
 }
+
+type DelJobBlackReq struct {
+	Jobs []int `json:"jobs"`
+}
+
+func DeleteJobBlack(user *UserSessionInfo, djbr *DelJobBlackReq) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	if err := db.Table("job_machines").Where("blacked=1 and job_id in ?", djbr.Jobs).Delete(nil).Error; err != nil {
+		config.Log.Error(err)
+		return ErrDelData
+	}
+	return Success
+}

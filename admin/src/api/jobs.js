@@ -175,3 +175,11 @@ export function deleteJobItems (data) {
     data: data
   })
 }
+
+export function deleteJobBlack (data) {
+  return request({
+    url: '/v1/job/del/black',
+    method: 'delete',
+    data: data
+  })
+}

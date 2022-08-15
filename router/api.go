@@ -23,6 +23,7 @@ func initApiRouter() {
 	v1.PUT("/job", putJob)
 	v1.DELETE("/job", deleteJob)
 	v1.DELETE("/job/del/items", deleteJobItems)
+	v1.DELETE("/job/del/black", deleteJobBlack)
 	v1.PUT("/job/swap", swapJob)
 	v1.POST("/jobs/publish", publishJobs)
 	v1.PUT("/jobs/status", putJobsStatus)
@@ -377,6 +378,25 @@ func deleteJobItems(c *gin.Context) {
 	}
 	bf = models.DeleteJobItems(user, cInfo, &req)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job items", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
+func deleteJobBlack(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "jobs", "jobs", "batch_del_job_black")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	req := models.DelJobBlackReq{}
+	if err := c.BindJSON(&req); err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job black", models.IsDel, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.DeleteJobBlack(user, &req)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete job black", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 

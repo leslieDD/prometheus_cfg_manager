@@ -10,7 +10,11 @@
       </div>
       <div class="do-action-search">
         <span style="padding-right: 15px">
-          <el-button size="small" type="warning" icon="el-icon-delete-solid" plain @click="doDeleteItem()">指量剔除地址
+          <el-button size="small" type="warning" icon="el-icon-delete-solid" plain @click="doDeleteItem()">批量剔除地址
+          </el-button>
+        </span>
+        <span style="padding-right: 15px">
+          <el-button size="small" type="info" icon="el-icon-delete-solid" plain @click="doDeleteBlack()">剔除黑名单地址
           </el-button>
         </span>
         <span style="padding-right: 15px">
@@ -194,7 +198,7 @@
     </div>
     <el-dialog title="在所选组中剔除地址" v-model="dialogDelItemVisible" width="700px" modal :before-close="handleDelClose">
       <span>
-        <el-form label-position="top" ref="delJobItems" :model="addJobInfo" label-width="55px" size="small">
+        <el-form label-position="top" ref="delJobItems" label-width="55px" size="small">
           <el-form-item label="需要清理的地址列表">
             <el-input type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" placeholder="请输入内容"
               v-model="delJobItemContent"></el-input>
@@ -210,6 +214,26 @@
             <div class="ip-list-push-box">
               <el-button size="small" type="warning" @click="onDelSubmit('delJobItems')">确认清除</el-button>
               <el-button size="small" type="info" @click="onDelCancel('delJobItems')">取消</el-button>
+            </div>
+          </el-form-item>
+        </el-form>
+      </span>
+    </el-dialog>
+    <el-dialog title="在所选组中剔除加黑的地址" v-model="dialogDelBlackVisible" width="340px" modal
+      :before-close="handleDelBlackClose">
+      <span class="del-job-black-area">
+        <el-form label-position="top" ref="delJobItems" label-width="55px" size="small">
+          <el-form-item label="选择需要被清理的JOB组">
+            <el-select v-model="batchJobSelect" style="width: 300px" multiple collapse-tags placeholder="Select"
+              size="small">
+              <el-option v-for="item in jobsList" :key="item.id" :label="item.name" :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item size="small">
+            <div class="ip-list-push-box">
+              <el-button size="small" type="warning" @click="onDelBlackSubmit('delJobItems')">确认清除</el-button>
+              <el-button size="small" type="info" @click="onDelBlackCancel('delJobItems')">取消</el-button>
             </div>
           </el-form-item>
         </el-form>
@@ -383,6 +407,7 @@ import {
   putJob,
   deleteJob,
   deleteJobItems,
+  deleteJobBlack,
   swapJob,
   publishJobs,
   enabledJob,
@@ -444,6 +469,7 @@ export default {
       deleteVisible: {},
       dialogVisible: false,
       dialogDelItemVisible: false,
+      dialogDelBlackVisible: false,
       buttonTitle: '',
       dialogTitle: '',
       jobAllIPList: {},
@@ -558,6 +584,17 @@ export default {
         }
       )
     },
+    doDeleteBlack () {
+      getJobs().then(
+        r => {
+          this.jobsList = r.data
+          // r.data.forEach(e => {
+          //   this.jobsListMap[e.id] = e.name
+          // })
+          this.dialogDelBlackVisible = true
+        }
+      )
+    },
     doEditLabelsJob (scope) {
       const jobInfo = {
         ...scope.row,
@@ -636,6 +673,9 @@ export default {
     },
     handleDelClose (done) {
       this.dialogDelItemVisible = false
+    },
+    handleDelBlackClose (done) {
+      this.dialogDelBlackVisible = false
     },
     handleJobLabelClose () {
       this.dialogJobLabelVisible = false
@@ -741,6 +781,10 @@ export default {
         }
       })
     },
+    onCancel (formName) {
+      this.dialogVisible = false
+      this.$refs[formName].resetFields()
+    },
     onDelSubmit (formName) {
       deleteJobItems({ content: this.delJobItemContent, jobs: this.batchJobSelect }).then(r => {
         this.$notify({
@@ -751,12 +795,26 @@ export default {
         this.doGetJobs()
       }).catch(e => console.log(e))
     },
-    onCancel (formName) {
-      this.dialogVisible = false
-      this.$refs[formName].resetFields()
-    },
     onDelCancel (formName) {
       this.dialogDelItemVisible = false
+      this.$refs[formName].resetFields()
+    },
+    onDelBlackSubmit (formName) {
+      deleteJobBlack({ jobs: this.batchJobSelect }).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '删除成功！',
+          type: 'success'
+        });
+        this.doGetJobs()
+      }).catch(e => console.log(e))
+    },
+    onDelBlackCancel (formName) {
+      this.dialogDelBlackVisible = false
+      this.$refs[formName].resetFields()
+    },
+    onDelBlackCancel (formName) {
+      this.dialogDelBlackVisible = false
       this.$refs[formName].resetFields()
     },
     onSearch () {
@@ -1412,5 +1470,10 @@ el-tabs {
   justify-content: flex-end;
   margin-right: 18px;
   margin-top: 10px;
+}
+
+.del-job-black-area {
+  display: block;
+  margin-top: -25px;
 }
 </style>
