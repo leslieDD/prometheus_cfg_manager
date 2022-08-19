@@ -40,3 +40,74 @@ export function enabledBaseCronApi (info) {
   })
 }
 
+export function getAllBaseCronApi (info) {
+  return request({
+    url: '/v1/base/cron/all',
+    method: 'get',
+    params: info
+  })
+}
+
+export function getCronRulesWithSplitPage (queryInfo) {
+  return request({
+    url: '/v1/cron/rules/split',
+    method: 'get',
+    params: queryInfo
+  })
+}
+
+export function postCronRule (jobInfo) {
+  return request({
+    url: '/v1/cron/rule',
+    method: 'post',
+    data: jobInfo
+  })
+}
+
+export function putCronRule (jobInfo) {
+  return request({
+    url: '/v1/cron/rule',
+    method: 'put',
+    data: jobInfo
+  })
+}
+
+export function deleteCronRule (jobID) {
+  return request({
+    url: '/v1/cron/rule',
+    method: 'delete',
+    params: { id: jobID }
+  })
+}
+
+export function enabledCronRule (jInfo) {
+  return request({
+    url: '/v1/cron/rule/status',
+    method: 'put',
+    data: jInfo
+  })
+}
+
+export function batchDeleteCronRules (ids) {
+  return request({
+    url: '/v1/cron/rules/selection',
+    method: 'delete',
+    data: ids
+  })
+}
+
+export function batchEnableCronRules (ids) {
+  return request({
+    url: '/v1/cron/rules/enable',
+    method: 'put',
+    data: ids
+  })
+}
+
+export function batchDisableCronRules (ids) {
+  return request({
+    url: '/v1/cron/rules/disable',
+    method: 'put',
+    data: ids
+  })
+}

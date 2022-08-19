@@ -127,7 +127,17 @@ func initApiRouter() {
 	v1.PUT("/base/fields/status", putBaseFieldsStatus)
 	v1.DELETE("/base/fields", delBaseFields)
 
+	v1.GET("/cron/rules/split", getCronRules)
+	v1.POST("/cron/rule", postRule)
+	v1.PUT("/cron/rule", putRule)
+	v1.DELETE("/cron/rule", deleteRule)
+	v1.PUT("/cron/rule/status", putRuleStatus)
+	v1.DELETE("/cron/rules/selection", delRulesSelection)
+	v1.PUT("/cron/rules/enable", putRulesEnable)
+	v1.PUT("/cron/rules/disable", putRulesDisable)
+
 	v1.GET("/base/cron", getCron)
+	v1.GET("/base/cron/all", getAllCron)
 	v1.POST("/base/cron", postCron)
 	v1.PUT("/base/cron", putCron)
 	v1.PUT("/base/cron/status", putCronStatus)
@@ -2118,6 +2128,157 @@ func delBaseFields(c *gin.Context) {
 	resComm(c, bf, nil)
 }
 
+func getCronRules(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get crontab jobs", models.IsSearch, models.ErrSplitParma)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	result, bf := models.GetCronRules(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get crontab jobs", models.IsSearch, bf)
+	resComm(c, bf, result)
+}
+
+func postRule(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	newApi := models.CrontabPost{}
+	if err := c.BindJSON(&newApi); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create cron rule", models.IsAdd, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostCronRule(user, &newApi)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create cron rule", models.IsAdd, bf)
+	resComm(c, bf, nil)
+}
+
+func putRule(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	label := models.CrontabPost{}
+	if err := c.BindJSON(&label); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update cron rule", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutCronRule(user, &label)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update cron rule", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func deleteRule(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron rule", models.IsDel, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	id, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron rule", models.IsDel, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	bf := models.DelCronRule(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron rule", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
+func putRuleStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ed := models.EnabledInfo{}
+	if err := c.BindJSON(&ed); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update cron rule status", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutCronRuleStatus(user, &ed)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update cron rule status", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func delRulesSelection(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ids := []int{}
+	if err := c.BindJSON(&ids); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron rules batch", models.IsDel, models.ErrSplitParma)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.DelRulesSelection(ids)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron rules batch", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
+func putRulesEnable(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ids := []int{}
+	if err := c.BindJSON(&ids); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable cron rules batch", models.IsDel, models.ErrSplitParma)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.PutRulesEnable(user, ids)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable cron rules batch", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
+func putRulesDisable(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ids := []int{}
+	if err := c.BindJSON(&ids); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable cron rules batch", models.IsDel, models.ErrSplitParma)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	bf := models.PutRulesDisable(user, ids)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable cron rules batch", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
 func getCron(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
 	pass := models.CheckPriv(user, "baseConfig", "cronapi", "search")
@@ -2132,6 +2293,18 @@ func getCron(c *gin.Context) {
 		return
 	}
 	data, bf := models.GetCronApi(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get cron api", models.IsSearch, bf)
+	resComm(c, bf, data)
+}
+
+func getAllCron(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "cronapi", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	data, bf := models.GetAllCronApi()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get cron api", models.IsSearch, bf)
 	resComm(c, bf, data)
 }
@@ -2199,19 +2372,19 @@ func delCron(c *gin.Context) {
 	}
 	idStr, ok := c.GetQuery("id")
 	if !ok {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron api fields", models.IsDel, models.ErrQueryData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron api", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	id, err := strconv.ParseInt(idStr, 10, 0)
 	if err != nil {
 		config.Log.Error(err)
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron api fields", models.IsDel, models.ErrQueryData)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron api", models.IsDel, models.ErrQueryData)
 		resComm(c, models.ErrQueryData, nil)
 		return
 	}
 	bf := models.DelCronApi(id)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron api fields", models.IsDel, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron api", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 

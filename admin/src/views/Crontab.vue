@@ -34,8 +34,11 @@
       </el-table-column>
       <el-table-column label="规则" prop="rule" align="center" header-align="center" show-overflow-tooltip>
       </el-table-column>
-      <el-table-column label="接口" prop="prometheus" width="300px" align="center" header-align="center"
+      <el-table-column label="接口" prop="api_id" width="150px" align="center" header-align="center"
         show-overflow-tooltip>
+        <template v-slot="{ row }">
+          <span>{{ getApiName(row.api_id) }}</span>
+        </template>
       </el-table-column>
       <el-table-column label="执行" prop="run_times" align="center" header-align="center" width="100px">
       </el-table-column>
@@ -43,14 +46,14 @@
       </el-table-column>
       <el-table-column label="失败" prop="fail_times" align="center" header-align="center" width="100px">
       </el-table-column>
-      <el-table-column label="更新账号" prop="update_by" width="80px" align="center" header-align="center"
+      <el-table-column label="更新账号" prop="update_by" width="100px" align="center" header-align="center"
         show-overflow-tooltip></el-table-column>
       <el-table-column label="更新时间" prop="update_at" width="140px" align="center" header-align="center">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="300px">
+      <el-table-column label="操作" align="center" width="250px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
@@ -84,11 +87,50 @@
         :total="pageTotal">
       </el-pagination>
     </div>
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="700px" modal :before-close="handleClose">
+      <span>
+        <el-form label-position="right" :rules="addCronRuleInfoRule" ref="addCronRuleInfo" :model="addCronRuleInfo"
+          label-width="80px" size="small">
+          <el-form-item label="名称：" prop="name">
+            <el-input style="width: 550px" v-model="addCronRuleInfo.name"></el-input>
+          </el-form-item>
+          <el-form-item label="规则：" prop="rule">
+            <el-input type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" style="width: 550px"
+              v-model="addCronRuleInfo.rule"></el-input>
+          </el-form-item>
+          <el-form-item label="接口：" prop="api_id">
+            <el-select v-model="addCronRuleInfo.api_id" style="width: 350px" collapse-tags placeholder="Select"
+              size="small">
+              <el-option v-for="item in cronApiList" :key="item.id" :label="item.name" :value="item.id">
+              </el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item label="状态：" prop="enabled">
+            <el-switch v-model="addCronRuleInfo.enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          </el-form-item>
+          <el-form-item size="small">
+            <el-button size="small" type="primary" @click="onSubmit('addCronRuleInfo')">{{ buttonTitle }}</el-button>
+            <el-button size="small" type="info" @click="onCancel('addCronRuleInfo')">取消</el-button>
+          </el-form-item>
+        </el-form>
+      </span>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 
+import {
+  getCronRulesWithSplitPage,
+  postCronRule,
+  putCronRule,
+  deleteCronRule,
+  enabledCronRule,
+  getAllBaseCronApi,
+  batchDeleteCronRules,
+  batchEnableCronRules,
+  batchDisableCronRules,
+} from '@/api/cron.js'
 
 export default {
   name: 'Crontab',
@@ -100,13 +142,93 @@ export default {
       pageshow: true,
       multipleSelection: [],
       crontabRules: [],
+      searchContent: '',
+      deleteVisible: {},
+      dialogVisible: false,
+      dialogTitle: '',
+      buttonTitle: '',
+      cronApiList: [],
+      cronApiMap: {},
+      // batchJobSelect: '',
+      addCronRuleInfo: {
+        'id': 0,
+        'name': '',
+        'rule': '',
+        'api_id': null,
+        'enabled': true,
+      },
+      addCronRuleInfoRule: {
+        name: [
+          { required: true, message: '请输入名称', trigger: ['blur'] }
+        ],
+        rule: [
+          { required: true, message: '请输入监控规则', trigger: ['blur'] }
+        ],
+        api_id: [
+          { required: true, message: '请选择接口地址', trigger: ['blur'] }
+        ],
+        enabled: [
+          { required: true, message: '请设置状态', trigger: ['blur'] }
+        ],
+      },
     }
   },
   created () {
   },
   mounted () {
+    if (this.$route.params.currentPage) {
+      this.currentPage = parseInt(this.$route.params.currentPage)
+    }
+    if (this.$route.params.pageSize) {
+      this.pageSize = parseInt(this.$route.params.pageSize)
+    }
+    this.doGetCronRules()
   },
   methods: {
+    doGetCronRules (getInfo) {
+      getAllBaseCronApi().then(r => {
+        this.cronApiList = r.data
+        this.convertcronApiToMap(r.data)
+        if (!getInfo) {
+          getInfo = {
+            'pageNo': this.currentPage,
+            'pageSize': this.pageSize,
+            'search': this.searchContent
+          }
+        }
+        getCronRulesWithSplitPage(getInfo).then(
+          r => {
+            let n = 0
+            r.data.data.forEach(element => {
+              this.deleteVisible[n] = false
+              n += 1
+            })
+            this.crontabRules = r.data.data
+            this.pageTotal = r.data.totalCount
+            this.currentPage = r.data.pageNo
+            this.pageSize = r.data.pageSize
+            this.pageshow = false;//让分页隐藏
+            this.$nextTick(function () {//重新渲染分页
+              this.pageshow = true;
+            });
+          }
+        ).catch(e => console.log(e))
+      }).catch(e => console.log(e))
+    },
+    convertcronApiToMap (list) {
+      let apiMap = {}
+      list.forEach(each => {
+        apiMap[each.id] = each
+      })
+      this.cronApiMap = apiMap
+    },
+    getApiName (apiID) {
+      if (this.cronApiMap[apiID]) {
+        return this.cronApiMap[apiID].name
+      } else {
+        return "unknow"
+      }
+    },
     doBatchDel () {
       if (this.multipleSelection.length === 0) {
         this.$notify({
@@ -121,13 +243,13 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '放弃'
       }).then(_ => {
-        batchDeleteJob(this.multipleSelection).then(r => {
+        batchDeleteCronRules(this.multipleSelection).then(r => {
           this.$notify({
             title: '成功',
             message: '删除所选项成功！',
             type: 'success'
           });
-          this.doGetJobs()
+          this.doGetCronRules()
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
@@ -145,13 +267,13 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '放弃'
       }).then(_ => {
-        batchDisableJob(this.multipleSelection).then(r => {
+        batchDisableCronRules(this.multipleSelection).then(r => {
           this.$notify({
             title: '成功',
             message: '禁用所选项成功！',
             type: 'success'
           });
-          this.doGetJobs()
+          this.doGetCronRules()
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
@@ -169,48 +291,142 @@ export default {
         confirmButtonText: '确定',
         cancelButtonText: '放弃'
       }).then(_ => {
-        batchEnableJob(this.multipleSelection).then(r => {
+        batchEnableCronRules(this.multipleSelection).then(r => {
           this.$notify({
             title: '成功',
             message: '启用所选项成功！',
             type: 'success'
           });
-          this.doGetJobs()
+          this.doGetCronRules()
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
     doAdd () {
-      getAllPrometheusAPI().then(r => {
-        this.relabelList = r.data
-        this.addJobInfo = {
+      getAllBaseCronApi().then(r => {
+        this.cronApiList = r.data
+        this.convertcronApiToMap(r.data)
+        this.addCronRuleInfo = {
+          'id': 0,
           'name': '',
-          'port': 0,
-          'display_order': 1
+          'rule': '',
+          'api_id': null,
+          'enabled': true,
         }
         this.buttonTitle = '创建'
-        this.dialogTitle = '增加IP分组'
+        this.dialogTitle = '增加定时任务'
         this.dialogVisible = true
       }).catch(e => {
         console.log(e)
       })
     },
     onSearch () {
-
+      this.doGetCronRules()
     },
-    doEdit () {
-
+    doEdit (data) {
+      getAllBaseCronApi().then(r => {
+        this.cronApiList = r.data
+        this.convertcronApiToMap(r.data)
+        this.buttonTitle = '更新'
+        this.dialogTitle = '编辑IP分组'
+        this.addCronRuleInfo = {
+          'id': data.row.id,
+          'name': data.row.name,
+          'rule': data.row.rule,
+          'api_id': data.row.api_id,
+          'enabled': data.row.enabled,
+        }
+        this.dialogVisible = true
+      }).catch(e => {
+        console.log(e)
+      })
     },
-    doNo () {
-
+    doYes (scope) {
+      deleteCronRule(scope.row.id).then(
+        r => {
+          this.$notify({
+            title: '成功',
+            message: '删除成功！',
+            type: 'success'
+          });
+          this.doGetCronRules()
+        }
+      ).catch(
+        e => {
+          console.log(e)
+        }
+      )
+      this.deleteVisible[scope.$index] = false
     },
-    doYes () {
-
+    doNo (scope) {
+      this.deleteVisible[scope.$index] = false
     },
-    doDelete () {
-
+    doDelete (scope) {
+      this.deleteVisible[scope.$index] = true
     },
-    invocate () {
-
+    invocate (scope) {
+      const newStatus = !this.crontabRules[scope.$index].enabled
+      const jInfo = {
+        id: scope.row.id,
+        enabled: newStatus
+      }
+      enabledCronRule(jInfo).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '更新状态成功！',
+          type: 'success'
+        });
+        this.crontabRules[scope.$index].enabled = newStatus
+        this.crontabRules = [...this.crontabRules]
+      }).catch(e => console.log(e))
+    },
+    onSubmit (formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          let postData = {}
+          postData['name'] = this.addCronRuleInfo.name
+          postData['rule'] = this.addCronRuleInfo.rule
+          postData['api_id'] = this.addCronRuleInfo.api_id
+          postData['enabled'] = this.addCronRuleInfo.enabled
+          if (this.buttonTitle === '创建') {
+            postCronRule(postData).then(
+              r => {
+                this.$notify({
+                  title: '成功',
+                  message: '创建成功！',
+                  type: 'success'
+                });
+                this.doGetCronRules()
+                this.dialogVisible = false
+                this.$refs[formName].resetFields()
+              }
+            ).catch(
+              e => { console.log(e) }
+            )
+          } else {
+            postData['id'] = this.addCronRuleInfo.id
+            putCronRule(postData).then(
+              r => {
+                this.$notify({
+                  title: '成功',
+                  message: '更新成功！',
+                  type: 'success'
+                });
+                this.doGetCronRules()
+                this.dialogVisible = false
+                this.$refs[formName].resetFields()
+              }
+            ).catch(
+              e => { console.log(e) }
+            )
+          }
+        } else {
+          return false
+        }
+      })
+    },
+    onCancel (formName) {
+      this.dialogVisible = false
+      this.$refs[formName].resetFields()
     },
     handleSizeChange (val) {
       let getInfo = {
@@ -218,7 +434,7 @@ export default {
         'pageSize': val,
         'search': this.searchContent
       }
-      this.doGetJobs(getInfo)
+      this.doGetCronRules(getInfo)
     },
     handleCurrentChange (val) {
       let getInfo = {
@@ -226,7 +442,7 @@ export default {
         'pageSize': this.pageSize,
         'search': this.searchContent
       }
-      this.doGetJobs(getInfo)
+      this.doGetCronRules(getInfo)
     },
     handleSelectionChange (val) {
       this.multipleSelection = []
@@ -255,21 +471,31 @@ export default {
       }
       return cs
     },
+    parseTimeSelf (t) {
+      var time = new Date(Date.parse(t))
+      return time.toLocaleDateString() + ' ' + time.toTimeString().split(' ')[0]
+    },
+    handleClose () {
+
+    }
   }
 }
 </script>
 
 <style scoped>
-.crontab-board {
-  text-align: center;
-}
-
 .do_action {
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-between;
   margin-top: -5px;
   padding-bottom: 8px;
+  text-align: center;
+}
+
+.actioneara {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: space-around;
 }
 
 .block {
