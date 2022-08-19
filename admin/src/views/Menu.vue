@@ -135,12 +135,12 @@
             </transition>
           </router-view>
         </el-tab-pane>
-        <el-tab-pane label="定义任务" name="noticeCrontab">
+        <el-tab-pane label="定时任务" name="noticeCrontab">
           <template #label>
             <span>
               <!-- <i class="iconfont prometheushuolongguo"></i> -->
               <icon-svg icon-class="promgtshuiguo8" />
-              定义任务
+              定时任务
             </span>
           </template>
           <router-view name="noticeCrontab" v-slot="{ Component }">
