@@ -160,6 +160,13 @@ type Crontab struct {
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
+type CrontabSplit struct {
+	Crontab
+	RunTimes     int `json:"run_times" gorm:"-"`
+	SuccessTimes int `json:"success_times" gorm:"-"`
+	FailTimes    int `json:"fail_times" gorm:"-"`
+}
+
 type CrontabPost struct {
 	ID      int    `json:"id" gorm:"column:id"`
 	Name    string `json:"name" gorm:"column:name"`
@@ -193,7 +200,7 @@ func GetCronRules(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrCount
 	}
-	lists := []*Crontab{}
+	lists := []*CrontabSplit{}
 	tx = db.Table("crontab")
 	if sp.Search != "" {
 		tx = tx.Where("name like ? or rule like ?", likeContent, likeContent)
