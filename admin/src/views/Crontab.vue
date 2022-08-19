@@ -40,11 +40,11 @@
           <span>{{ getApiName(row.api_id) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="执行" prop="run_times" align="center" header-align="center" width="100px">
+      <el-table-column label="执行次数" prop="run_times" align="center" header-align="center" width="100px">
       </el-table-column>
-      <el-table-column label="成功" prop="success_times" align="center" header-align="center" width="100px">
+      <el-table-column label="成功次数" prop="success_times" align="center" header-align="center" width="100px">
       </el-table-column>
-      <el-table-column label="失败" prop="fail_times" align="center" header-align="center" width="100px">
+      <el-table-column label="失败次数" prop="fail_times" align="center" header-align="center" width="100px">
       </el-table-column>
       <el-table-column label="更新账号" prop="update_by" width="100px" align="center" header-align="center"
         show-overflow-tooltip></el-table-column>

@@ -36,13 +36,12 @@ func GetCronApi(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	var count int64
-	var likeSql string
+	var likeContent string
 	var tx *gorm.DB
 	tx = db.Table("crontab_api")
 	if sp.Search != "" {
-		likeContent := fmt.Sprint("%", sp.Search, "%")
-		likeSql = fmt.Sprint("name like ? or api like ?", likeContent, likeContent)
-		tx = db.Where(likeSql)
+		likeContent = fmt.Sprint("%", sp.Search, "%")
+		tx = tx.Where("name like ? or api like ?", likeContent, likeContent)
 	}
 	tx = tx.Count(&count)
 	if tx.Error != nil {
@@ -52,7 +51,7 @@ func GetCronApi(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	lists := []*CronApi{}
 	tx = db.Table("crontab_api")
 	if sp.Search != "" {
-		tx = db.Where(likeSql)
+		tx = tx.Where("name like ? or api like ?", likeContent, likeContent)
 	}
 	tx = tx.Offset((sp.PageNo - 1) * sp.PageSize).
 		Limit(sp.PageSize).
@@ -182,13 +181,12 @@ func GetCronRules(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 		return nil, ErrDataBase
 	}
 	var count int64
-	var likeSql string
+	var likeContent string
 	var tx *gorm.DB
 	tx = db.Table("crontab")
 	if sp.Search != "" {
-		likeContent := fmt.Sprint("%", sp.Search, "%")
-		likeSql = fmt.Sprint("name like ? or rule like ?", likeContent, likeContent)
-		tx = db.Where(likeSql)
+		likeContent = fmt.Sprint("%", sp.Search, "%")
+		tx = tx.Where("name like ? or rule like ?", likeContent, likeContent)
 	}
 	tx = tx.Count(&count)
 	if tx.Error != nil {
@@ -198,7 +196,7 @@ func GetCronRules(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	lists := []*Crontab{}
 	tx = db.Table("crontab")
 	if sp.Search != "" {
-		tx = db.Where(likeSql)
+		tx = tx.Where("name like ? or rule like ?", likeContent, likeContent)
 	}
 	tx = tx.Offset((sp.PageNo - 1) * sp.PageSize).
 		Limit(sp.PageSize).
