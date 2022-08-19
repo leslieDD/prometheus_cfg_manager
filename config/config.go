@@ -19,6 +19,13 @@ type gps struct {
 	IP2region string `json:"ip2region" yaml:"ip2region"`
 }
 
+type mail struct {
+	Sender   string `json:"sender" yaml:"sender"`
+	Password string `json:"password" yaml:"password"`
+	SMTP     string `json:"smtp" yaml:"smtp"`
+	Port     int    `json:"port" yaml:"port"`
+}
+
 type prometheusCfg struct {
 	RootDir string `json:"dir" yaml:"dir"`
 	// TmplFile    string `json:"tmpl" yaml:"tmpl"`
@@ -45,6 +52,7 @@ type Config struct {
 	PrometheusCfg prometheusCfg `json:"prometheus_cfg" yaml:"prometheus_cfg"`
 	Position      string        `json:"position" yaml:"position"`
 	GPS           gps           `json:"gps" yaml:"gps"`
+	Mail          mail          `json:"mail" yaml:"mail"`
 	RuntimeParam  runtimeParam  `json:"-" yaml:"-"`
 }
 
