@@ -139,7 +139,7 @@
           <template #label>
             <span>
               <!-- <i class="iconfont prometheushuolongguo"></i> -->
-              <icon-svg icon-class="promgtshuiguo3" />
+              <icon-svg icon-class="promgtshuiguo8" />
               定义任务
             </span>
           </template>

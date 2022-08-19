@@ -16,7 +16,7 @@
           <template #title>模板字段</template>
         </el-menu-item>
         <el-menu-item index="crontabApi">
-          <i class="el-icon-ice-cream"></i>
+          <i class="el-icon-ice-cream-round"></i>
           <template #title>定时任务API</template>
         </el-menu-item>
         <el-menu-item index="reLabels">
