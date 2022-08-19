@@ -295,6 +295,8 @@ func OptResetSystem(user *UserSessionInfo, code *ResetCode) *BriefMessage {
 		"job_labels",
 		"system_log",
 		"job_mirror",
+		"crontab",
+		"crontab_api",
 	}
 	err = db.Transaction(func(tx *gorm.DB) error {
 		for _, tableName := range tableCleard {
