@@ -127,6 +127,12 @@ func initApiRouter() {
 	v1.PUT("/base/fields/status", putBaseFieldsStatus)
 	v1.DELETE("/base/fields", delBaseFields)
 
+	v1.GET("/base/cron", getCron)
+	v1.POST("/base/cron", postCron)
+	v1.PUT("/base/cron", putCron)
+	v1.PUT("/base/cron/status", putCronStatus)
+	v1.DELETE("/base/cron", delCron)
+
 	v1.GET("/prometheus/tmpl", getProTmpl)
 	v1.PUT("/prometheus/tmpl", putProTmpl)
 	v1.GET("/prometheus/struct", getStruct)
@@ -2109,6 +2115,103 @@ func delBaseFields(c *gin.Context) {
 	}
 	bf := models.DelBaseFields(id)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete base fields", models.IsDel, bf)
+	resComm(c, bf, nil)
+}
+
+func getCron(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "cronapi", "search")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	sp := &models.SplitPage{}
+	if err := c.BindQuery(sp); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get cron api", models.IsSearch, models.ErrSplitParma)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	data, bf := models.GetCronApi(sp)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get cron api", models.IsSearch, bf)
+	resComm(c, bf, data)
+}
+
+func postCron(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "cronapi", "add")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	newApi := models.CronApiPost{}
+	if err := c.BindJSON(&newApi); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create cron api", models.IsAdd, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PostCronApi(user, &newApi)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create cron api", models.IsAdd, bf)
+	resComm(c, bf, nil)
+}
+
+func putCron(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "cronapi", "update")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	label := models.CronApiPost{}
+	if err := c.BindJSON(&label); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update cron api", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutCronApi(user, &label)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update cron api", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func putCronStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "cronapi", "dis.enable")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	ed := models.EnabledInfo{}
+	if err := c.BindJSON(&ed); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update cron api status", models.IsUpdate, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	bf := models.PutCronApiStatus(user, &ed)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "update cron api status", models.IsUpdate, bf)
+	resComm(c, bf, nil)
+}
+
+func delCron(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "baseConfig", "cronapi", "delete")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	idStr, ok := c.GetQuery("id")
+	if !ok {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron api fields", models.IsDel, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	id, err := strconv.ParseInt(idStr, 10, 0)
+	if err != nil {
+		config.Log.Error(err)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron api fields", models.IsDel, models.ErrQueryData)
+		resComm(c, models.ErrQueryData, nil)
+		return
+	}
+	bf := models.DelCronApi(id)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "delete cron api fields", models.IsDel, bf)
 	resComm(c, bf, nil)
 }
 

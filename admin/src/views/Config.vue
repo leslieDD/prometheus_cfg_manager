@@ -1,13 +1,8 @@
 <template>
   <div class="base-config-board">
     <div class="base-config-menu">
-      <el-menu
-        default-active="1"
-        class="el-menu-vertical-demo"
-        @open="handleOpen"
-        @close="handleClose"
-        @select="handleSelect"
-      >
+      <el-menu default-active="1" class="el-menu-vertical-demo" @open="handleOpen" @close="handleClose"
+        @select="handleSelect">
         <el-menu-item index="options">
           <i class="el-icon-orange"></i>
           <template #title>选项编辑</template>
@@ -19,6 +14,10 @@
         <el-menu-item index="tmplFields">
           <i class="el-icon-ice-cream"></i>
           <template #title>模板字段</template>
+        </el-menu-item>
+        <el-menu-item index="crontabApi">
+          <i class="el-icon-ice-cream"></i>
+          <template #title>定时任务API</template>
         </el-menu-item>
         <el-menu-item index="reLabels">
           <i class="el-icon-watermelon"></i>
@@ -78,6 +77,8 @@ export default {
         this.$router.push({ name: 'baseLabels' })
       } else if (key === 'tmplFields') {
         this.$router.push({ name: 'tmplFields' })
+      } else if (key === 'crontabApi') {
+        this.$router.push({ name: 'crontabApi' })
       } else if (key === 'reLabels') {
         this.$router.push({ name: 'reLabels' })
       } else if (key === 'defaultJobs') {
@@ -102,14 +103,18 @@ export default {
   width: 100%;
   /* justify-content: space-between; */
 }
+
 .base-config-menu {
   width: 280px;
-  min-width: 280px;  /* margin-right: 10px; */
+  min-width: 280px;
+  /* margin-right: 10px; */
 }
+
 .base-config-router {
   width: 100%;
   height: 85vh;
 }
+
 .slide-fade-enter-active {
   transition: all 0.3s ease-in;
 }

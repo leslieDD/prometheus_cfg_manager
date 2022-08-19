@@ -93,6 +93,14 @@ const routes = [
         }
       },
       {
+        path: '/notice-crontab',
+        name: 'noticeCrontab',
+        title: '告警管理',
+        components: {
+          'noticeCrontab': () => import('@/views/Crontab.vue')
+        }
+      },
+      {
         path: '/notice-manager',
         name: 'noticeManager',
         title: '告警管理',
@@ -133,6 +141,12 @@ const routes = [
             name: 'tmplFields',
             title: '模板字段',
             component: () => import('@/views/TmplField.vue')
+          },
+          {
+            path: '/crontab-api',
+            name: 'crontabApi',
+            title: '模板字段',
+            component: () => import('@/views/CrontabApi.vue')
           },
           {
             path: '/re-labels',
