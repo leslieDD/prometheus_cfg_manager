@@ -121,20 +121,6 @@
             </transition>
           </router-view>
         </el-tab-pane>
-        <el-tab-pane label="基本配置" name="baseConfig">
-          <template #label>
-            <span>
-              <!-- <i class="iconfont prometheusshuiguo1"></i> -->
-              <icon-svg icon-class="promgtshuiguo7" />
-              基本配置
-            </span>
-          </template>
-          <router-view name="baseConfig" v-slot="{ Component }">
-            <transition name="slide-fade">
-              <component :is="Component" />
-            </transition>
-          </router-view>
-        </el-tab-pane>
         <el-tab-pane label="定时任务" name="noticeCrontab">
           <template #label>
             <span>
@@ -199,6 +185,20 @@
               告警规则预览
             </span> </template>
           <router-view name="ruleView" v-slot="{ Component }">
+            <transition name="slide-fade">
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </el-tab-pane>
+        <el-tab-pane label="基本配置" name="baseConfig">
+          <template #label>
+            <span>
+              <!-- <i class="iconfont prometheusshuiguo1"></i> -->
+              <icon-svg icon-class="promgtshuiguo7" />
+              基本配置
+            </span>
+          </template>
+          <router-view name="baseConfig" v-slot="{ Component }">
             <transition name="slide-fade">
               <component :is="Component" />
             </transition>

@@ -476,7 +476,8 @@ export default {
       return time.toLocaleDateString() + ' ' + time.toTimeString().split(' ')[0]
     },
     handleClose () {
-
+      this.dialogVisible = false
+      this.$refs[formName].resetFields()
     }
   }
 }
