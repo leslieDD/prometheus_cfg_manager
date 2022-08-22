@@ -10,6 +10,11 @@
       </div>
       <div class="do-action-search">
         <span style="padding-right: 15px">
+          <el-button v-if="pushing === false" type="primary" plain icon="el-icon-upload" size="small"
+            @click="doRulesPublish">发布</el-button>
+          <el-button v-if="pushing === true" type="primary" plain icon="el-icon-loading" size="small">发布</el-button>
+        </span>
+        <span style="padding-right: 15px">
           <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()">添加任务</el-button>
         </span>
         <span>
@@ -159,6 +164,7 @@ import {
   batchDeleteCronRules,
   batchEnableCronRules,
   batchDisableCronRules,
+  cronRulesPublish,
 } from '@/api/cron.js'
 
 export default {
@@ -206,6 +212,7 @@ export default {
         ]
       },
       cronPopover: false,
+      pushing: false,
     }
   },
   created () {
@@ -290,6 +297,20 @@ export default {
     },
     ToBreak (val) {
       return val.replaceAll('\n', '<br />')
+    },
+    doRulesPublish () {
+      this.pushing = true
+      cronRulesPublish().then(r => {
+        this.$notify({
+          title: '成功',
+          message: '发布成功！',
+          type: 'success'
+        });
+        this.pushing = false
+      }).catch(e => {
+        console.log(e)
+        this.pushing = false
+      })
     },
     convertData (val) {
       var reg = /^[\d]+$/;

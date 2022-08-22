@@ -18,5 +18,7 @@ func InitApp() {
 	models.SPCache = models.NewSessionParamsCache()
 	alertmgr.AlertMgrObj = alertmgr.NewAlertMgr()
 	alertmgr.AlertMgrObj.Run()
+	alertmgr.ChartCronObj = alertmgr.NewChartCron()
+	alertmgr.ChartCronObj.Run()
 	go models.SPCache.Update(true)
 }

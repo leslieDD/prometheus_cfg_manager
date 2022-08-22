@@ -111,3 +111,10 @@ export function batchDisableCronRules (ids) {
     data: ids
   })
 }
+
+export function cronRulesPublish () {
+  return request({
+    url: '/v1/cron/rules/publish',
+    method: 'put'
+  })
+}

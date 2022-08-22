@@ -42,3 +42,14 @@ type RuleInfo struct {
 	AnnotationsTmpl map[string]*template.Template `json:"annotations_tmpl"`
 	StartsAt        time.Time
 }
+
+type CronRule struct {
+	ID        int    `json:"id" gorm:"column:id"`
+	Name      string `json:"name" gorm:"column:name"`
+	Rule      string `json:"rule" gorm:"column:rule"`
+	Enabled   bool   `json:"enabled" gorm:"column:enabled"`
+	ApiID     int    `json:"api_id" gorm:"column:api_id"`
+	APIName   string `json:"api_name" gorm:"column:api_name"`
+	API       string `json:"api" gorm:"column:api"`
+	ExecCycle string `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
+}

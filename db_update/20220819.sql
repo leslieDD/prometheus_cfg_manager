@@ -40,3 +40,4 @@ INSERT INTO `pro_cfg_manager`.`page_function` (`page_name`, `page_nice_name`, `f
 INSERT INTO `pro_cfg_manager`.`page_function` (`page_name`, `page_nice_name`, `func_name`, `func_nice_name`) VALUES ('crontab', '定时任务', 'dis.enable', '启用/禁用');
 ALTER TABLE `crontab`
 	ADD COLUMN `exec_cycle` VARCHAR(100) NOT NULL DEFAULT '0 0/5 * * * ? *' COLLATE 'utf8mb3_general_ci' AFTER `api_id`;
+INSERT INTO `pro_cfg_manager`.`page_function` (`page_name`, `page_nice_name`, `func_name`, `func_nice_name`) VALUES ('crontab', '定时任务', 'publish', '发布');

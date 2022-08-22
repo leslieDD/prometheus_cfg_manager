@@ -135,6 +135,7 @@ func initApiRouter() {
 	v1.DELETE("/cron/rules/selection", delRulesSelection)
 	v1.PUT("/cron/rules/enable", putRulesEnable)
 	v1.PUT("/cron/rules/disable", putRulesDisable)
+	v1.PUT("/cron/rules/publish", putRulesPublish)
 
 	v1.GET("/base/cron", getCron)
 	v1.GET("/base/cron/all", getAllCron)
@@ -2252,12 +2253,12 @@ func putRulesEnable(c *gin.Context) {
 	}
 	ids := []int{}
 	if err := c.BindJSON(&ids); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable cron rules batch", models.IsDel, models.ErrSplitParma)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable cron rules batch", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	bf := models.PutRulesEnable(user, ids)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable cron rules batch", models.IsDel, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "enable cron rules batch", models.IsUpdate, bf)
 	resComm(c, bf, nil)
 }
 
@@ -2270,13 +2271,25 @@ func putRulesDisable(c *gin.Context) {
 	}
 	ids := []int{}
 	if err := c.BindJSON(&ids); err != nil {
-		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable cron rules batch", models.IsDel, models.ErrSplitParma)
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable cron rules batch", models.IsUpdate, models.ErrPostData)
 		resComm(c, models.ErrSplitParma, nil)
 		return
 	}
 	bf := models.PutRulesDisable(user, ids)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable cron rules batch", models.IsDel, bf)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "disable cron rules batch", models.IsUpdate, bf)
 	resComm(c, bf, nil)
+}
+
+func putRulesPublish(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "publish")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	alertmgr.ChartCronObj.NoticeReload()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish cron rules", models.IsPublish, models.Success)
+	resComm(c, models.Success, nil)
 }
 
 func getCron(c *gin.Context) {
