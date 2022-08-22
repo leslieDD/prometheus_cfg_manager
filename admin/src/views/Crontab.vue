@@ -70,11 +70,14 @@
           <span>{{ parseTimeSelf(row.update_at) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="操作" align="center" width="250px">
+      <el-table-column label="操作" align="center" width="280px">
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
               <el-button size="mini" type="primary" @click="doEdit(scope)" plain>编辑</el-button>
+            </div>
+            <div>
+              <el-button size="mini" type="primary" @click="doShowChat(scope)" plain>展示图</el-button>
             </div>
             <div>
               <el-button size="mini" type="info" v-if="scope.row.enabled === true" @click="invocate(scope)" plain>禁用
@@ -424,6 +427,9 @@ export default {
       }).catch(e => {
         console.log(e)
       })
+    },
+    doShowChat () {
+
     },
     doYes (scope) {
       deleteCronRule(scope.row.id).then(
