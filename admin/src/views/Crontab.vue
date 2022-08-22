@@ -32,7 +32,16 @@
       </el-table-column>
       <el-table-column label="名称" width="200px" prop="name" align="center" header-align="center" show-overflow-tooltip>
       </el-table-column>
-      <el-table-column label="规则" prop="rule" align="center" header-align="center" show-overflow-tooltip>
+      <el-table-column label="规则" prop="rule" align="center" header-align="center">
+        <template v-slot="{ row }">
+          <el-tooltip placement="top">
+            <template #content>
+              <!-- <div class="rule-box" v-html="ToBreak(row.rule)"></div> -->
+              <div class="rule-box">{{ row.rule }}</div>
+            </template>
+            <div class="oneLine">{{ row.rule }}</div>
+          </el-tooltip>
+        </template>
       </el-table-column>
       <el-table-column label="接口" prop="api_id" width="150px" align="center" header-align="center"
         show-overflow-tooltip>
@@ -40,11 +49,13 @@
           <span>{{ getApiName(row.api_id) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="执行次数" prop="run_times" align="center" header-align="center" width="100px">
+      <el-table-column label="执行周期" prop="exec_cycle" align="center" header-align="center" width="75px">
       </el-table-column>
-      <el-table-column label="成功次数" prop="success_times" align="center" header-align="center" width="100px">
+      <el-table-column label="执行次数" prop="run_times" align="center" header-align="center" width="75px">
       </el-table-column>
-      <el-table-column label="失败次数" prop="fail_times" align="center" header-align="center" width="100px">
+      <el-table-column label="成功次数" prop="success_times" align="center" header-align="center" width="75px">
+      </el-table-column>
+      <el-table-column label="失败次数" prop="fail_times" align="center" header-align="center" width="75px">
       </el-table-column>
       <el-table-column label="更新账号" prop="update_by" width="100px" align="center" header-align="center"
         show-overflow-tooltip></el-table-column>
@@ -105,6 +116,18 @@
               </el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="周期：" prop="exec_cycle">
+            <el-button size="small" type="primary" @click="cronPopover = true">设置任务定时执行周期</el-button>
+            <el-popover v-model:visible="cronPopover" width="700px" trigger="manual">
+              <vue3Cron @change="changeCron" @close="togglePopover(false)" max-height="400px" i18n="cn"></vue3Cron>
+              <template #reference>
+                <el-input @focus="togglePopover(true)" v-model="addCronRuleInfo.exec_cycle" placeholder="* * * * * ? *">
+                </el-input>
+              </template>
+            </el-popover>
+            <!-- <el-input style="width: 200px" v-model="addCronRuleInfo.exec_cycle"></el-input><span> 秒
+            </span><span>{{ convertData(addCronRuleInfo.exec_cycle) }}</span> -->
+          </el-form-item>
           <el-form-item label="状态：" prop="enabled">
             <el-switch v-model="addCronRuleInfo.enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
           </el-form-item>
@@ -156,6 +179,7 @@ export default {
         'rule': '',
         'api_id': null,
         'enabled': true,
+        'exec_cycle': "",
       },
       addCronRuleInfoRule: {
         name: [
@@ -170,7 +194,11 @@ export default {
         enabled: [
           { required: true, message: '请设置状态', trigger: ['blur'] }
         ],
+        exec_cycle: [
+          { required: true, message: '请输入执行周期', trigger: ['blur'] }
+        ]
       },
+      cronPopover: false,
     }
   },
   created () {
@@ -253,6 +281,27 @@ export default {
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
     },
+    ToBreak (val) {
+      return val.replaceAll('\n', '<br />')
+    },
+    convertData (val) {
+      var reg = /^[\d]+$/;
+      if (!reg.test(val)) {
+        return "请输入数字"
+      }
+      let newVal = val
+      return this.secondsFormat(newVal)
+    },
+    secondsFormat (s) {
+      var day = Math.floor(s / (24 * 3600)) // Math.floor()向下取整
+      var hour = Math.floor((s - day * 24 * 3600) / 3600)
+      var minute = Math.floor((s - day * 24 * 3600 - hour * 3600) / 60)
+      var second = s - day * 24 * 3600 - hour * 3600 - minute * 60
+      return day + "天" + hour + "时" + minute + "分" + second + "秒"
+    },
+    togglePopover (val) {
+      this.cronPopover = val
+    },
     doBatchDisable () {
       if (this.multipleSelection.length === 0) {
         this.$notify({
@@ -311,6 +360,7 @@ export default {
           'rule': '',
           'api_id': null,
           'enabled': true,
+          'exec_cycle': "",
         }
         this.buttonTitle = '创建'
         this.dialogTitle = '增加定时任务'
@@ -334,6 +384,7 @@ export default {
           'rule': data.row.rule,
           'api_id': data.row.api_id,
           'enabled': data.row.enabled,
+          'exec_cycle': data.row.exec_cycle,
         }
         this.dialogVisible = true
       }).catch(e => {
@@ -387,6 +438,7 @@ export default {
           postData['rule'] = this.addCronRuleInfo.rule
           postData['api_id'] = this.addCronRuleInfo.api_id
           postData['enabled'] = this.addCronRuleInfo.enabled
+          postData['exec_cycle'] = this.addCronRuleInfo.exec_cycle
           if (this.buttonTitle === '创建') {
             postCronRule(postData).then(
               r => {
@@ -501,5 +553,26 @@ export default {
 
 .block {
   padding-top: 12px;
+}
+
+.oneLine {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.rule-box {
+  max-width: 400px;
+}
+
+.cron {
+  width: 400px;
+  margin: 0 auto;
+  margin-top: 100px;
+}
+
+.cron>h1 {
+  font-size: 50px;
+  text-align: center;
 }
 </style>

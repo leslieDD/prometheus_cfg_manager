@@ -151,13 +151,14 @@ func DelCronApi(id int64) *BriefMessage {
 }
 
 type Crontab struct {
-	ID       int       `json:"id" gorm:"column:id"`
-	Name     string    `json:"name" gorm:"column:name"`
-	Rule     string    `json:"rule" gorm:"column:rule"`
-	Enabled  bool      `json:"enabled" gorm:"column:enabled"`
-	ApiID    int       `json:"api_id" gorm:"column:api_id"`
-	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
-	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
+	ID        int       `json:"id" gorm:"column:id"`
+	Name      string    `json:"name" gorm:"column:name"`
+	Rule      string    `json:"rule" gorm:"column:rule"`
+	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
+	ApiID     int       `json:"api_id" gorm:"column:api_id"`
+	ExecCycle int       `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
+	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy  string    `json:"update_by" gorm:"column:update_by"`
 }
 
 type CrontabSplit struct {
@@ -168,11 +169,12 @@ type CrontabSplit struct {
 }
 
 type CrontabPost struct {
-	ID      int    `json:"id" gorm:"column:id"`
-	Name    string `json:"name" gorm:"column:name"`
-	Rule    string `json:"rule" gorm:"column:rule"`
-	ApiID   int    `json:"api_id" gorm:"column:api_id"`
-	Enabled bool   `json:"enabled" gorm:"column:enabled"`
+	ID        int    `json:"id" gorm:"column:id"`
+	Name      string `json:"name" gorm:"column:name"`
+	Rule      string `json:"rule" gorm:"column:rule"`
+	ApiID     int    `json:"api_id" gorm:"column:api_id"`
+	ExecCycle int    `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
+	Enabled   bool   `json:"enabled" gorm:"column:enabled"`
 }
 
 func GetCronRules(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
@@ -222,13 +224,14 @@ func PostCronRule(user *UserSessionInfo, newCron *CrontabPost) *BriefMessage {
 		return ErrDataBase
 	}
 	cronApi := Crontab{
-		ID:       0,
-		Name:     newCron.Name,
-		Rule:     newCron.Rule,
-		ApiID:    newCron.ApiID,
-		Enabled:  newCron.Enabled,
-		UpdateAt: time.Now(),
-		UpdateBy: user.Username,
+		ID:        0,
+		Name:      newCron.Name,
+		Rule:      newCron.Rule,
+		ApiID:     newCron.ApiID,
+		Enabled:   newCron.Enabled,
+		ExecCycle: newCron.ExecCycle,
+		UpdateAt:  time.Now(),
+		UpdateBy:  user.Username,
 	}
 	tx := db.Table("crontab").Create(&cronApi)
 	if tx.Error != nil {
@@ -250,6 +253,7 @@ func PutCronRule(user *UserSessionInfo, api *CrontabPost) *BriefMessage {
 		Update("rule", api.Rule).
 		Update("api_id", api.ApiID).
 		Update("enabled", api.Enabled).
+		Update("exec_cycle", api.ExecCycle).
 		Update("update_at", time.Now()).
 		Update("update_by", user.Username)
 	if tx.Error != nil {
