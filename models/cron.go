@@ -156,7 +156,7 @@ type Crontab struct {
 	Rule      string    `json:"rule" gorm:"column:rule"`
 	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
 	ApiID     int       `json:"api_id" gorm:"column:api_id"`
-	ExecCycle int       `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
+	ExecCycle string    `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
 	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy  string    `json:"update_by" gorm:"column:update_by"`
 }
@@ -173,7 +173,7 @@ type CrontabPost struct {
 	Name      string `json:"name" gorm:"column:name"`
 	Rule      string `json:"rule" gorm:"column:rule"`
 	ApiID     int    `json:"api_id" gorm:"column:api_id"`
-	ExecCycle int    `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
+	ExecCycle string `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
 	Enabled   bool   `json:"enabled" gorm:"column:enabled"`
 }
 

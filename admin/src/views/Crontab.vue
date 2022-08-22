@@ -49,7 +49,8 @@
           <span>{{ getApiName(row.api_id) }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="执行周期" prop="exec_cycle" align="center" header-align="center" width="75px">
+      <el-table-column label="执行周期" prop="exec_cycle" align="center" header-align="center" width="150px"
+        show-overflow-tooltip>
       </el-table-column>
       <el-table-column label="执行次数" prop="run_times" align="center" header-align="center" width="75px">
       </el-table-column>
@@ -105,6 +106,21 @@
           <el-form-item label="名称：" prop="name">
             <el-input style="width: 550px" v-model="addCronRuleInfo.name"></el-input>
           </el-form-item>
+          <el-form-item label="周期：" prop="exec_cycle">
+            <div class="crontab-edit">
+              <el-popover v-model:visible="cronPopover" width="700px" trigger="manual">
+                <vue3Cron @change="changeCron" @close="togglePopover(false)" max-height="400px" i18n="cn"></vue3Cron>
+                <template #reference>
+                  <el-input @focus="togglePopover(true)" v-model="addCronRuleInfo.exec_cycle" style="width: 250px"
+                    placeholder="* * * * * ? *">
+                  </el-input>
+                </template>
+              </el-popover>
+              <!-- <el-button size="small" width="150px" type="primary" @click="cronPopover = true">设置任务定时执行周期</el-button> -->
+              <!-- <el-input style="width: 200px" v-model="addCronRuleInfo.exec_cycle"></el-input><span> 秒
+            </span><span>{{ convertData(addCronRuleInfo.exec_cycle) }}</span> -->
+            </div>
+          </el-form-item>
           <el-form-item label="规则：" prop="rule">
             <el-input type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" style="width: 550px"
               v-model="addCronRuleInfo.rule"></el-input>
@@ -115,18 +131,6 @@
               <el-option v-for="item in cronApiList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
-          </el-form-item>
-          <el-form-item label="周期：" prop="exec_cycle">
-            <el-button size="small" type="primary" @click="cronPopover = true">设置任务定时执行周期</el-button>
-            <el-popover v-model:visible="cronPopover" width="700px" trigger="manual">
-              <vue3Cron @change="changeCron" @close="togglePopover(false)" max-height="400px" i18n="cn"></vue3Cron>
-              <template #reference>
-                <el-input @focus="togglePopover(true)" v-model="addCronRuleInfo.exec_cycle" placeholder="* * * * * ? *">
-                </el-input>
-              </template>
-            </el-popover>
-            <!-- <el-input style="width: 200px" v-model="addCronRuleInfo.exec_cycle"></el-input><span> 秒
-            </span><span>{{ convertData(addCronRuleInfo.exec_cycle) }}</span> -->
           </el-form-item>
           <el-form-item label="状态：" prop="enabled">
             <el-switch v-model="addCronRuleInfo.enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
@@ -143,6 +147,8 @@
 
 <script>
 
+import vue3Cron from '@/components/vue3-cron.vue'
+
 import {
   getCronRulesWithSplitPage,
   postCronRule,
@@ -156,6 +162,7 @@ import {
 } from '@/api/cron.js'
 
 export default {
+  components: { vue3Cron },
   name: 'Crontab',
   data () {
     return {
@@ -301,6 +308,12 @@ export default {
     },
     togglePopover (val) {
       this.cronPopover = val
+    },
+    changeCron (val) {
+      if (typeof val !== 'string') {
+        return false
+      }
+      this.addCronRuleInfo.exec_cycle = val
     },
     doBatchDisable () {
       if (this.multipleSelection.length === 0) {
@@ -529,6 +542,7 @@ export default {
     },
     handleClose () {
       this.dialogVisible = false
+      this.cronPopover = false
       this.$refs[formName].resetFields()
     }
   }
@@ -574,5 +588,11 @@ export default {
 .cron>h1 {
   font-size: 50px;
   text-align: center;
+}
+
+.crontab-edit {
+  display: flex;
+  flex-wrap: nowrap;
+  justify-content: left;
 }
 </style>
