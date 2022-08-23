@@ -56,6 +56,12 @@
       </el-table-column>
       <el-table-column label="执行周期" prop="exec_cycle" align="center" header-align="center" width="150px"
         show-overflow-tooltip>
+        <template #header>
+          <el-tooltip content="只支持前6个字段，会去掉最后的‘年’" placement="top">
+            <span type="warning">执行周期
+              <i style="font-size: 13px; color: #0081ff" class="el-icon-warning"></i></span>
+          </el-tooltip>
+        </template>
       </el-table-column>
       <el-table-column label="执行次数" prop="run_times" align="center" header-align="center" width="75px">
       </el-table-column>
