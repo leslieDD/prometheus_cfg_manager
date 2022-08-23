@@ -32,7 +32,7 @@
     <el-form-item>
       <el-radio :label="5" v-model='radioValue'>
         指定
-        <el-select clearable v-model="checkboxList" placeholder="可多选" multiple>
+        <el-select style="width: 620px" clearable v-model="checkboxList" placeholder="可多选" multiple>
           <el-option v-for="item in 9" :key="item" :value="item - 1 + fullYear" :label="item - 1 + fullYear" />
         </el-select>
       </el-radio>

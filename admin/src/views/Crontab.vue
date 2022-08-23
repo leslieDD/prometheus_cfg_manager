@@ -116,12 +116,16 @@
           </el-form-item>
           <el-form-item label="周期：" prop="exec_cycle">
             <div class="box">
-              <el-input v-model="input" placeholder class="inp"></el-input>
-              <el-button type="primary" @click="showDialog">生成 cron</el-button>
+              <el-input v-model="addCronRuleInfo.exec_cycle" style="width: 550px" @click="showDialog(true)" placeholder
+                class="inp">
+              </el-input>
+              <!-- <el-button type="primary" @click="showDialog">生成 cron</el-button> -->
             </div>
-            <el-dialog title="生成 cron" v-model="showCron" modal>
-              <vcrontab @hide="showCron = false" @fill="crontabFill" :expression="expression"></vcrontab>
-            </el-dialog>
+            <div class="cron-dialog">
+              <el-dialog title="生成 cron" v-model="showCron" modal top="5vh" width="800px">
+                <vcrontab @hide="showDialog(false)" @fill="crontabFill" :expression="expression"></vcrontab>
+              </el-dialog>
+            </div>
             <!-- <div class="crontab-edit">
               <el-popover v-model:visible="cronPopover" width="700px" trigger="manual">
                 <vcrontab @hide="togglePopover(false)" @fill="changeCron" :expression="addCronRuleInfo.exec_cycle">
@@ -354,11 +358,13 @@ export default {
 
     crontabFill (value) {
       //确定后回传的值
-      this.input = value;
+      this.addCronRuleInfo.exec_cycle = value;
     },
-    showDialog () {
-      this.expression = this.input;//传入的 cron 表达式，可以反解析到 UI 上
-      this.showCron = true;
+    showDialog (val) {
+      if (val === true) {
+        this.expression = this.addCronRuleInfo.exec_cycle;//传入的 cron 表达式，可以反解析到 UI 上
+      }
+      this.showCron = val;
     },
 
 
@@ -644,5 +650,9 @@ export default {
   display: flex;
   flex-wrap: nowrap;
   justify-content: left;
+}
+
+.cron-dialog :deep() .el-dialog__body {
+  padding-top: 5px;
 }
 </style>

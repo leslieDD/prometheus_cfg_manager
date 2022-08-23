@@ -38,7 +38,7 @@
     <el-form-item>
       <el-radio v-model='radioValue' :label="6">
         指定
-        <el-select clearable v-model="checkboxList" placeholder="可多选" multiple style="width:100%">
+        <el-select clearable v-model="checkboxList" placeholder="可多选" multiple style="width: 620px">
           <el-option v-for="(item, index) of weekList" :key="index" :value="index + 1">{{ item }}</el-option>
         </el-select>
       </el-radio>

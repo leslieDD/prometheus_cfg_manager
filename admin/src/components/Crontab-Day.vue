@@ -44,7 +44,7 @@
     <el-form-item>
       <el-radio v-model='radioValue' :label="7">
         指定
-        <el-select clearable v-model="checkboxList" placeholder="可多选" multiple style="width:100%">
+        <el-select clearable v-model="checkboxList" placeholder="可多选" multiple style="width: 620px">
           <el-option v-for="item in 31" :key="item" :value="item">{{ item }}</el-option>
         </el-select>
       </el-radio>
