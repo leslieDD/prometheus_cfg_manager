@@ -115,19 +115,25 @@
             <el-input style="width: 550px" v-model="addCronRuleInfo.name"></el-input>
           </el-form-item>
           <el-form-item label="周期：" prop="exec_cycle">
-            <div class="crontab-edit">
+            <div class="box">
+              <el-input v-model="input" placeholder class="inp"></el-input>
+              <el-button type="primary" @click="showDialog">生成 cron</el-button>
+            </div>
+            <el-dialog title="生成 cron" v-model="showCron" modal>
+              <vcrontab @hide="showCron = false" @fill="crontabFill" :expression="expression"></vcrontab>
+            </el-dialog>
+            <!-- <div class="crontab-edit">
               <el-popover v-model:visible="cronPopover" width="700px" trigger="manual">
+                <vcrontab @hide="togglePopover(false)" @fill="changeCron" :expression="addCronRuleInfo.exec_cycle">
+                </vcrontab>
                 <vue3Cron @change="changeCron" @close="togglePopover(false)" max-height="400px" i18n="cn"></vue3Cron>
                 <template #reference>
                   <el-input @focus="togglePopover(true)" v-model="addCronRuleInfo.exec_cycle" style="width: 250px"
-                    placeholder="* * * * * ? *">
+                    placeholder="">
                   </el-input>
                 </template>
               </el-popover>
-              <!-- <el-button size="small" width="150px" type="primary" @click="cronPopover = true">设置任务定时执行周期</el-button> -->
-              <!-- <el-input style="width: 200px" v-model="addCronRuleInfo.exec_cycle"></el-input><span> 秒
-            </span><span>{{ convertData(addCronRuleInfo.exec_cycle) }}</span> -->
-            </div>
+            </div> -->
           </el-form-item>
           <el-form-item label="规则：" prop="rule">
             <el-input type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" style="width: 550px"
@@ -155,7 +161,8 @@
 
 <script>
 
-import vue3Cron from '@/components/vue3-cron.vue'
+// import vue3Cron from '@/components/vue3-cron.vue'
+import vcrontab from '@/components/Crontab.vue'
 
 import {
   getCronRulesWithSplitPage,
@@ -171,7 +178,7 @@ import {
 } from '@/api/cron.js'
 
 export default {
-  components: { vue3Cron },
+  components: { vcrontab },
   name: 'Crontab',
   data () {
     return {
@@ -216,6 +223,11 @@ export default {
       },
       cronPopover: false,
       pushing: false,
+
+      input: "",
+      expression: "",
+      showCron: false
+
     }
   },
   created () {
@@ -334,11 +346,22 @@ export default {
       this.cronPopover = val
     },
     changeCron (val) {
-      if (typeof val !== 'string') {
-        return false
-      }
+      // if (typeof val !== 'string') {
+      //   return false
+      // }
       this.addCronRuleInfo.exec_cycle = val
     },
+
+    crontabFill (value) {
+      //确定后回传的值
+      this.input = value;
+    },
+    showDialog () {
+      this.expression = this.input;//传入的 cron 表达式，可以反解析到 UI 上
+      this.showCron = true;
+    },
+
+
     doBatchDisable () {
       if (this.multipleSelection.length === 0) {
         this.$notify({
