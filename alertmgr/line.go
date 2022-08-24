@@ -5,7 +5,6 @@ import (
 	"encoding/base64"
 	"errors"
 	"pro_cfg_manager/config"
-	"pro_cfg_manager/utils"
 	"time"
 
 	"gonum.org/v1/plot"
@@ -56,7 +55,7 @@ func ChartLine(cr *CronRule) (string, error) {
 		config.Log.Error(err)
 		return "", err
 	}
-	utils.WIoutilByte("aaa.png", buffer.Bytes())
+	// utils.WIoutilByte("aaa.png", buffer.Bytes())
 	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(buffer.Bytes()), nil
 }
 
