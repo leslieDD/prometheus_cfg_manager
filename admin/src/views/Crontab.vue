@@ -194,17 +194,13 @@
         </el-form>
       </span>
     </el-dialog>
-    <el-dialog title="图片展示" v-model="showCronImage" modal width="800px" :before-close="handleImageDialogClose">
-      <div class="demo-image__placeholder">
-        <div class="block">
-          <span class="demonstration">Custom</span>
-          <el-image :src="image_src">
-            <template #placeholder>
-              <div class="image-slot">Loading<span class="dot">...</span></div>
-            </template>
-          </el-image>
-        </div>
-      </div>
+    <el-dialog :title="showImageTitle" v-model="showCronImage" modal width="800px"
+      :before-close="handleImageDialogClose">
+      <el-image :src="image_src">
+        <template #placeholder>
+          <div class="image-slot">Loading<span class="dot">...</span></div>
+        </template>
+      </el-image>
     </el-dialog>
   </div>
 </template>
@@ -286,6 +282,7 @@ export default {
       showchating: {},
       image_src: '',
       showCronImage: false,
+      showImageTitle: '',
     }
   },
   created () {
@@ -438,8 +435,6 @@ export default {
       }
       this.showCron = val;
     },
-
-
     doBatchDisable () {
       if (this.multipleSelection.length === 0) {
         this.$notify({
@@ -538,6 +533,7 @@ export default {
       getRuleChat({ id: scope.row.id }).then(r => {
         this.image_src = r.data
         this.showchating[scope.row.id] = false
+        this.showImageTitle = '效果图展示：' + scope.row.name
         this.showCronImage = true
       }).catch(e => {
         this.showchating[scope.row.id] = false
@@ -690,6 +686,7 @@ export default {
     handleImageDialogClose () {
       this.showCronImage = false
       this.image_src = ''
+      this.showImageTitle = ''
     }
   }
 }
