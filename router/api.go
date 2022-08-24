@@ -136,6 +136,7 @@ func initApiRouter() {
 	v1.PUT("/cron/rules/enable", putRulesEnable)
 	v1.PUT("/cron/rules/disable", putRulesDisable)
 	v1.PUT("/cron/rules/publish", putRulesPublish)
+	v1.GET("/cron/rule/image", getRuleImage)
 
 	v1.GET("/base/cron", getCron)
 	v1.GET("/base/cron/all", getAllCron)
@@ -2290,6 +2291,24 @@ func putRulesPublish(c *gin.Context) {
 	alertmgr.ChartCronObj.NoticeReload()
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "publish cron rules", models.IsPublish, models.Success)
 	resComm(c, models.Success, nil)
+}
+
+func getRuleImage(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "image")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	id := models.OnlyID{}
+	if err := c.BindQuery(&id); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get cron rule image", models.IsSearch, models.ErrQueryData)
+		resComm(c, models.ErrSplitParma, nil)
+		return
+	}
+	image := alertmgr.GetChartManual(id.ID)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get cron rule image", models.IsPublish, models.Success)
+	resComm(c, models.Success, image)
 }
 
 func getCron(c *gin.Context) {

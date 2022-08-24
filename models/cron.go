@@ -157,6 +157,8 @@ type Crontab struct {
 	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
 	ApiID     int       `json:"api_id" gorm:"column:api_id"`
 	ExecCycle string    `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
+	NearTime  int       `json:"near_time" gorm:"column:near_time"`
+	Unit      string    `json:"unit" gorm:"column:unit"`
 	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy  string    `json:"update_by" gorm:"column:update_by"`
 }
@@ -174,6 +176,8 @@ type CrontabPost struct {
 	Rule      string `json:"rule" gorm:"column:rule"`
 	ApiID     int    `json:"api_id" gorm:"column:api_id"`
 	ExecCycle string `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
+	NearTime  int    `json:"near_time" gorm:"column:near_time"`
+	Unit      string `json:"unit" gorm:"column:unit"`
 	Enabled   bool   `json:"enabled" gorm:"column:enabled"`
 }
 
@@ -230,6 +234,8 @@ func PostCronRule(user *UserSessionInfo, newCron *CrontabPost) *BriefMessage {
 		ApiID:     newCron.ApiID,
 		Enabled:   newCron.Enabled,
 		ExecCycle: newCron.ExecCycle,
+		NearTime:  newCron.NearTime,
+		Unit:      newCron.Unit,
 		UpdateAt:  time.Now(),
 		UpdateBy:  user.Username,
 	}
@@ -254,6 +260,8 @@ func PutCronRule(user *UserSessionInfo, api *CrontabPost) *BriefMessage {
 		Update("api_id", api.ApiID).
 		Update("enabled", api.Enabled).
 		Update("exec_cycle", api.ExecCycle).
+		Update("near_time", api.NearTime).
+		Update("unit", api.Unit).
 		Update("update_at", time.Now()).
 		Update("update_by", user.Username)
 	if tx.Error != nil {

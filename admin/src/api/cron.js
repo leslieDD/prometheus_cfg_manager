@@ -118,3 +118,11 @@ export function cronRulesPublish () {
     method: 'put'
   })
 }
+
+export function getRuleChat (query) {
+  return request({
+    url: '/v1/cron/rule/image',
+    method: 'get',
+    params: query,
+  })
+}

@@ -29,6 +29,19 @@ type PrometheusResult struct {
 	Value  []interface{} // int64, string
 }
 
+type PrometheusRangeResp struct {
+	Status string               `json:"status"`
+	Data   *PrometheusRangeData `json:"data"`
+}
+type PrometheusRangeData struct {
+	ResultType string                   `json:"resultType"`
+	Result     []*PrometheusRangeResult `json:"result"`
+}
+type PrometheusRangeResult struct {
+	Metric map[string]string
+	Values [][]interface{} // int64, string
+}
+
 type Value struct {
 	Unix   int64   `json:"unix"` // Unix时间
 	Val    float64 `json:"val"`  // 带宽值
@@ -44,12 +57,22 @@ type RuleInfo struct {
 }
 
 type CronRule struct {
-	ID        int    `json:"id" gorm:"column:id"`
-	Name      string `json:"name" gorm:"column:name"`
-	Rule      string `json:"rule" gorm:"column:rule"`
-	Enabled   bool   `json:"enabled" gorm:"column:enabled"`
-	ApiID     int    `json:"api_id" gorm:"column:api_id"`
-	APIName   string `json:"api_name" gorm:"column:api_name"`
-	API       string `json:"api" gorm:"column:api"`
-	ExecCycle string `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
+	ID        int       `json:"id" gorm:"column:id"`
+	Name      string    `json:"name" gorm:"column:name"`
+	Rule      string    `json:"rule" gorm:"column:rule"`
+	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
+	ApiID     int       `json:"api_id" gorm:"column:api_id"`
+	APIName   string    `json:"api_name" gorm:"column:api_name"`
+	API       string    `json:"api" gorm:"column:api"`
+	Start     time.Time `json:"start" gorm:"column:start"`
+	End       time.Time `json:"end" gorm:"column:end"`
+	ExecCycle string    `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
+}
+
+type QueryRange struct {
+	Query string `json:"query" form:"query" qs:"query"`
+	Start string `json:"start" form:"start" qs:"start"`
+	End   string `json:"end" form:"end" qs:"end"`
+	Step  string `json:"step" form:"step" qs:"step"`
+	// Timeout int    `json:"timeout" form:"timeout" qs:"timeout"`
 }

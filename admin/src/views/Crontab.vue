@@ -12,7 +12,7 @@
         <span style="padding-right: 15px">
           <el-button v-if="pushing === false" type="primary" plain icon="el-icon-upload" size="small"
             @click="doRulesPublish">发布</el-button>
-          <el-button v-if="pushing === true" type="primary" plain icon="el-icon-loading" size="small">发布</el-button>
+          <el-button v-if="pushing === true" type="primary" plain icon="el-icon-loading" size="small">发布任务</el-button>
         </span>
         <span style="padding-right: 15px">
           <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()">添加任务</el-button>
@@ -83,7 +83,10 @@
               <el-button size="mini" type="primary" @click="doEdit(scope)" plain>编辑</el-button>
             </div>
             <div>
-              <el-button size="mini" type="primary" @click="doShowChat(scope)" plain>展示图</el-button>
+              <el-button v-if="showchating !== true" size="mini" icon="el-icon-s-promotion" type="primary"
+                @click="doShowChat(scope)" plain>展示图
+              </el-button>
+              <el-button v-else size="mini" type="primary" plain icon="el-icon-loading">展示图</el-button>
             </div>
             <div>
               <el-button size="mini" type="info" v-if="scope.row.enabled === true" @click="invocate(scope)" plain>禁用
@@ -120,6 +123,26 @@
           <el-form-item label="名称：" prop="name">
             <el-input style="width: 550px" v-model="addCronRuleInfo.name"></el-input>
           </el-form-item>
+          <el-form-item label="时间：" prop="near_time">
+            <!-- <vdateRange @dateRange="getDateRange" placeholder="请选择时间范围"></vdateRange> -->
+            <!-- <span>
+              <el-input style="width: 100px" v-model="addCronRuleInfo.near_time"></el-input> 秒，解析结果：
+              <el-tag type="success">{{ convertData(addCronRuleInfo.near_time) }}</el-tag>
+            </span> -->
+            <el-input type="number" v-model="addCronRuleInfo.near_time" prop="near_time" style="width: 300px"
+              placeholder="请输入时间" class="input-with-select">
+              <!-- <template #prepend>
+                <el-button :icon="Search" />
+              </template> -->
+              <template #append>
+                <el-select v-model="addCronRuleInfo.unit" prop="unit" style="width: 80px">
+                  <el-option default label="分钟" value="1" />
+                  <el-option label="小时" value="2" />
+                  <el-option label="天" value="3" />
+                </el-select>
+              </template>
+            </el-input>
+          </el-form-item>
           <el-form-item label="周期：" prop="exec_cycle">
             <div class="box">
               <el-input v-model="addCronRuleInfo.exec_cycle" style="width: 550px" @click="showDialog(true)" placeholder
@@ -146,7 +169,7 @@
             </div> -->
           </el-form-item>
           <el-form-item label="规则：" prop="rule">
-            <el-input type="textarea" :autosize="{ minRows: 10, maxRows: 10 }" style="width: 550px"
+            <el-input type="textarea" :autosize="{ minRows: 5, maxRows: 5 }" style="width: 550px"
               v-model="addCronRuleInfo.rule"></el-input>
           </el-form-item>
           <el-form-item label="接口：" prop="api_id">
@@ -185,6 +208,7 @@ import {
   batchEnableCronRules,
   batchDisableCronRules,
   cronRulesPublish,
+  getRuleChat,
 } from '@/api/cron.js'
 
 export default {
@@ -212,7 +236,9 @@ export default {
         'rule': '',
         'api_id': null,
         'enabled': true,
-        'exec_cycle': "",
+        'exec_cycle': '',
+        'near_time': 1,
+        'unit': '1',
       },
       addCronRuleInfoRule: {
         name: [
@@ -229,15 +255,18 @@ export default {
         ],
         exec_cycle: [
           { required: true, message: '请输入执行周期', trigger: ['blur'] }
-        ]
+        ],
+        near_time: [
+          { required: true, message: '请输入时间', trigger: ['blur'] },
+        ],
+        unit: [
+          { required: true, message: '请选择单位', trigger: ['blur'] }
+        ],
       },
       cronPopover: false,
       pushing: false,
-
-      input: "",
-      expression: "",
-      showCron: false
-
+      showCron: false,
+      showchating: false,
     }
   },
   created () {
@@ -296,6 +325,9 @@ export default {
         return "unknow"
       }
     },
+    getDateRange (dataObj) {
+      console.log(dataObj)
+    },
     doBatchDel () {
       if (this.multipleSelection.length === 0) {
         this.$notify({
@@ -338,6 +370,9 @@ export default {
       })
     },
     convertData (val) {
+      if (val === "" || val === undefined) {
+        return "-"
+      }
       var reg = /^[\d]+$/;
       if (!reg.test(val)) {
         return "请输入数字"
@@ -432,7 +467,9 @@ export default {
           'rule': '',
           'api_id': null,
           'enabled': true,
-          'exec_cycle': "",
+          'exec_cycle': '',
+          'near_time': 1,
+          'unit': '1',
         }
         this.buttonTitle = '创建'
         this.dialogTitle = '增加定时任务'
@@ -457,14 +494,22 @@ export default {
           'api_id': data.row.api_id,
           'enabled': data.row.enabled,
           'exec_cycle': data.row.exec_cycle,
+          'near_time': data.row.near_time,
+          'unit': data.row.unit,
         }
         this.dialogVisible = true
       }).catch(e => {
         console.log(e)
       })
     },
-    doShowChat () {
-
+    doShowChat (scope) {
+      this.showchating = true
+      getRuleChat({ id: scope.row.id }).then(r => {
+        this.showchating = false
+      }).catch(e => {
+        this.showchating = false
+        console.log(e)
+      })
     },
     doYes (scope) {
       deleteCronRule(scope.row.id).then(
@@ -514,6 +559,8 @@ export default {
           postData['api_id'] = this.addCronRuleInfo.api_id
           postData['enabled'] = this.addCronRuleInfo.enabled
           postData['exec_cycle'] = this.addCronRuleInfo.exec_cycle
+          postData['near_time'] = parseInt(this.addCronRuleInfo.near_time)
+          postData['unit'] = this.addCronRuleInfo.unit
           if (this.buttonTitle === '创建') {
             postCronRule(postData).then(
               r => {

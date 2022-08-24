@@ -41,3 +41,7 @@ INSERT INTO `pro_cfg_manager`.`page_function` (`page_name`, `page_nice_name`, `f
 ALTER TABLE `crontab`
 	ADD COLUMN `exec_cycle` VARCHAR(100) NOT NULL DEFAULT '0 0/5 * * * ? *' COLLATE 'utf8mb3_general_ci' AFTER `api_id`;
 INSERT INTO `pro_cfg_manager`.`page_function` (`page_name`, `page_nice_name`, `func_name`, `func_nice_name`) VALUES ('crontab', '定时任务', 'publish', '发布');
+INSERT INTO `pro_cfg_manager`.`page_function` (`page_name`, `page_nice_name`, `func_name`, `func_nice_name`) VALUES ('crontab', '定时任务', 'image', '生成图');
+ALTER TABLE `crontab`
+	ADD COLUMN `near_time` INT NOT NULL AFTER `enabled`,
+	ADD COLUMN `unit` VARCHAR(50) NOT NULL AFTER `near_time`;

@@ -79,8 +79,9 @@ func (c *ChartCron) DoCron() {
 	c.lock.Lock()
 
 	for _, rule := range c.RulesInfo {
-		c.cObj.AddFunc(rule.ExecCycle, func() {
-			config.Log.Warnf(rule.ExecCycle)
+		c.cObj.AddFunc(rule.Name, func() {
+			ChartLine(rule)
+			// config.Log.Warnf(rule.ExecCycle)
 		})
 	}
 	c.cObj.Start()

@@ -96,3 +96,36 @@ func PostForm(reqURL string, postData []byte) ([]byte, error) {
 
 	return body, nil
 }
+
+// Post Post
+func PostFormWithHeader(reqURL string, headers map[string]string, postData []byte) ([]byte, error) {
+	client := &http.Client{}
+
+	reqest, err := http.NewRequest("POST", reqURL, bytes.NewReader(postData))
+	if err != nil {
+		return nil, err
+	}
+	for k, v := range headers {
+		reqest.Header.Add(k, v)
+	}
+
+	reqest.Header.Add("Content-Type", "application/x-www-form-urlencoded")
+
+	resp, err := client.Do(reqest)
+	if err != nil {
+		return nil, err
+	}
+
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		return nil, fmt.Errorf("resp status: %d", resp.StatusCode)
+	}
+
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return nil, err
+	}
+
+	return body, nil
+}
