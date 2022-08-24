@@ -87,7 +87,7 @@
               <el-button size="mini" type="primary" @click="doEdit(scope)" plain>编辑</el-button>
             </div>
             <div>
-              <el-button v-if="showchating !== true" size="mini" icon="el-icon-s-promotion" type="primary"
+              <el-button v-if="showchating[scope.row.id] !== true" size="mini" icon="el-icon-s-promotion" type="primary"
                 @click="doShowChat(scope)" plain>展示图
               </el-button>
               <el-button v-else size="mini" type="primary" plain icon="el-icon-loading">展示图</el-button>
@@ -270,7 +270,7 @@ export default {
       cronPopover: false,
       pushing: false,
       showCron: false,
-      showchating: false,
+      showchating: {},
     }
   },
   created () {
@@ -318,9 +318,9 @@ export default {
     convertcronApiToMap (list) {
       let apiMap = {}
       list.forEach(each => {
-        apiMap[each.id] = each
+        apiMap[each.id] = false
       })
-      this.cronApiMap = apiMap
+      this.showchating = apiMap
     },
     changetoUnit (val) {
       if (val === '1') {
@@ -519,11 +519,11 @@ export default {
       })
     },
     doShowChat (scope) {
-      this.showchating = true
+      this.showchating[scope.row.id] = true
       getRuleChat({ id: scope.row.id }).then(r => {
-        this.showchating = false
+        this.showchating[scope.row.id] = false
       }).catch(e => {
-        this.showchating = false
+        this.showchating[scope.row.id] = false
         console.log(e)
       })
     },
