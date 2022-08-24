@@ -63,11 +63,15 @@
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column label="执行次数" prop="run_times" align="center" header-align="center" width="75px">
+      <el-table-column label="执行状态" align="center" header-align="center" width="120px">
+        <template v-slot="{ row }">
+          <span>{{ row.run_times }}/{{ row.success_times }}/{{ row.fail_times }}</span>
+        </template>
       </el-table-column>
-      <el-table-column label="成功次数" prop="success_times" align="center" header-align="center" width="75px">
-      </el-table-column>
-      <el-table-column label="失败次数" prop="fail_times" align="center" header-align="center" width="75px">
+      <el-table-column label="时间" align="center" header-align="center" width="120px">
+        <template v-slot="{ row }">
+          <span>{{ row.near_time }}{{ changetoUnit(row.unit) }}</span>
+        </template>
       </el-table-column>
       <el-table-column label="更新账号" prop="update_by" width="100px" align="center" header-align="center"
         show-overflow-tooltip></el-table-column>
@@ -317,6 +321,18 @@ export default {
         apiMap[each.id] = each
       })
       this.cronApiMap = apiMap
+    },
+    changetoUnit (val) {
+      if (val === '1') {
+        return '分钟'
+      }
+      if (val === '2') {
+        return '小时'
+      }
+      if (val === '3') {
+        return '天'
+      }
+      return '未知单位'
     },
     getApiName (apiID) {
       if (this.cronApiMap[apiID]) {
