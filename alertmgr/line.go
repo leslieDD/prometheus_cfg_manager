@@ -5,6 +5,7 @@ import (
 	"encoding/base64"
 	"errors"
 	"pro_cfg_manager/config"
+	"pro_cfg_manager/utils"
 	"time"
 
 	"gonum.org/v1/plot"
@@ -45,7 +46,7 @@ func ChartLine(cr *CronRule) (string, error) {
 	// for _, v := range respValues {
 	// 	titles = append(titles, time.Unix(v.Unix, 0).Format("2006-01-02 15:04:05"))
 	// }
-	wio, err := p.WriterTo(8*vg.Inch, 4*vg.Inch, "png")
+	wio, err := p.WriterTo(12*vg.Inch, 6*vg.Inch, "png")
 	if err != nil {
 		config.Log.Error(err)
 		return "", err
@@ -55,6 +56,7 @@ func ChartLine(cr *CronRule) (string, error) {
 		config.Log.Error(err)
 		return "", err
 	}
+	utils.WIoutilByte("aaa.png", buffer.Bytes())
 	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(buffer.Bytes()), nil
 }
 
