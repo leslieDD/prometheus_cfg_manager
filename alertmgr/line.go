@@ -2,8 +2,10 @@ package alertmgr
 
 import (
 	"bytes"
+	"encoding/base64"
 	"errors"
 	"pro_cfg_manager/config"
+	"time"
 
 	"gonum.org/v1/plot"
 	"gonum.org/v1/plot/plotter"
@@ -11,13 +13,16 @@ import (
 	"gonum.org/v1/plot/vg"
 )
 
-func ChartLine(cr *CronRule) ([]byte, error) {
-	reqUrl := CreateReqUrl(cr.API, cr.Rule, cr.Start, cr.End)
+func ChartLine(cr *CronRule) (string, error) {
+	cr.End = time.Now() // 时间要反向处理
+	cr.Start = time.Unix(cr.End.Unix()-ConvertTime(cr.NearTime, cr.Unit), 0)
+	api := ConvertApi(cr.API)
+	reqUrl := CreateReqUrl(api, cr.Rule, cr.Start, cr.End)
 	respData := DoReq(reqUrl)
 	if respData == nil {
-		return nil, errors.New("get chart data error")
+		return "", errors.New("get chart data error")
 	}
-	respValues := ConvertValue(respData)
+	respValues := ConvertValueV2(respData)
 	p := plot.New()
 
 	p.Title.Text = cr.Name
@@ -28,7 +33,7 @@ func ChartLine(cr *CronRule) ([]byte, error) {
 		cr.Name, generateLineItems2(respValues))
 	if err != nil {
 		config.Log.Error(err)
-		return nil, err
+		return "", err
 	}
 
 	// if err = p.Save(4*vg.Inch, 4*vg.Inch, "points.png"); err != nil {
@@ -40,14 +45,17 @@ func ChartLine(cr *CronRule) ([]byte, error) {
 	// for _, v := range respValues {
 	// 	titles = append(titles, time.Unix(v.Unix, 0).Format("2006-01-02 15:04:05"))
 	// }
-	wio, err := p.WriterTo(4*vg.Inch, 4*vg.Inch, "png")
+	wio, err := p.WriterTo(8*vg.Inch, 4*vg.Inch, "png")
 	if err != nil {
 		config.Log.Error(err)
-		return nil, err
+		return "", err
 	}
 	buffer := bytes.Buffer{}
-	wio.WriteTo(&buffer)
-	return buffer.Bytes(), nil
+	if _, err := wio.WriteTo(&buffer); err != nil {
+		config.Log.Error(err)
+		return "", err
+	}
+	return "data:image/png;base64," + base64.StdEncoding.EncodeToString(buffer.Bytes()), nil
 }
 
 // generate random data for line chart

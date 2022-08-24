@@ -5,19 +5,20 @@ import (
 	"net/url"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/utils"
+	"strings"
 	"time"
 
 	"github.com/sonh/qs"
 )
 
-func DoReq(reqUrl string) *PrometheusResp {
+func DoReq(reqUrl string) *PrometheusRangeResp {
 	contentResp, err := utils.Get(reqUrl)
 	// fullTimeData, err := utils.Post(config.Cfg.Prometheus.Api, []byte(formData.Encode()))
 	if err != nil {
 		config.Log.Error(err, string(contentResp))
 		return nil
 	}
-	resp := PrometheusResp{}
+	resp := PrometheusRangeResp{}
 	if err := json.Unmarshal(contentResp, &resp); err != nil {
 		config.Log.Error(err)
 		return nil
@@ -60,4 +61,35 @@ func CreatePostDataWithTime(sql string, start time.Time, end time.Time, Step str
 func CreateReqUrl(api string, sql string, start time.Time, end time.Time) string {
 	formData := CreatePostDataWithTime(sql, start, end, "5m")
 	return api + "?" + formData.Encode()
+}
+
+func ConvertTime(t int, unit string) int64 {
+	seconds := 0
+	switch unit {
+	case "1": // 分钟
+		seconds = t
+	case "2": // 小时
+		seconds = t * 60
+	case "3": // 天
+		seconds = t * 24 * 60
+	default: // 分钟
+		seconds = t
+	}
+	return int64(seconds * 60)
+}
+
+func ConvertApi(api string) string {
+	var newApi string
+	api = strings.TrimSpace(api)
+	if !strings.HasPrefix(api, "http://") && !strings.HasPrefix(api, "https://") {
+		newApi = "http://" + api
+	} else {
+		newApi = api
+	}
+	if strings.HasSuffix(newApi, "/") {
+		newApi = newApi + "api/v1/query_range"
+	} else {
+		newApi = newApi + "/api/v1/query_range"
+	}
+	return newApi
 }

@@ -80,7 +80,7 @@ func (c *ChartCron) DoCron() {
 
 	for _, rule := range c.RulesInfo {
 		c.cObj.AddFunc(rule.Name, func() {
-			ChartLine(rule)
+			// ChartLine(rule)
 			// config.Log.Warnf(rule.ExecCycle)
 		})
 	}

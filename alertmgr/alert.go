@@ -64,8 +64,10 @@ type CronRule struct {
 	ApiID     int       `json:"api_id" gorm:"column:api_id"`
 	APIName   string    `json:"api_name" gorm:"column:api_name"`
 	API       string    `json:"api" gorm:"column:api"`
-	Start     time.Time `json:"start" gorm:"column:start"`
-	End       time.Time `json:"end" gorm:"column:end"`
+	Start     time.Time `json:"start" gorm:"-"`
+	End       time.Time `json:"end" gorm:"-"`
+	NearTime  int       `json:"near_time" gorm:"column:near_time"`
+	Unit      string    `json:"unit" gorm:"column:unit"`
 	ExecCycle string    `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
 }
 
