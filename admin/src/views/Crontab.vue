@@ -288,6 +288,10 @@ export default {
   created () {
   },
   mounted () {
+    let script = document.createElement('script');
+    script.type = 'text/javascript';
+    script.src = '/js/echarts.min.js';
+    document.body.appendChild(script);
     if (this.$route.params.currentPage) {
       this.currentPage = parseInt(this.$route.params.currentPage)
     }

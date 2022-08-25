@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/sonh/qs"
+	"gonum.org/v1/plot/plotter"
 )
 
 func DoReq(reqUrl string) *PrometheusRangeResp {
@@ -41,6 +42,47 @@ func ConvertValueV2(rst *PrometheusRangeResp) []*Value {
 		}
 	}
 	return values
+}
+
+func ConvertValueV3(rst *PrometheusRangeResult) plotter.XYs {
+	items := make(plotter.XYs, len(rst.Values))
+	for n, v := range rst.Values {
+		items[n].X = v[0].(float64)
+		items[n].Y = utils.StringToFloat64(v[1].(string))
+	}
+	return items
+	// values := []*Value{}
+	// if rst == nil {
+	// 	return values
+	// }
+	// for _, v := range rst.Values {
+	// 	val := &Value{
+	// 		Unix: int64(v[0].(float64)),
+	// 		Val:  utils.StringToFloat64(v[1].(string)),
+	// 	}
+	// 	values = append(values, val)
+	// }
+	// return values
+}
+
+func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, []string) {
+	yvss := [][]float64{}
+	labels := []string{}
+	xtitles := []string{}
+	for _, r := range rst.Data.Result {
+		vs := []float64{}
+		for _, v := range r.Values {
+			vs = append(vs, utils.StringToFloat64(v[1].(string)))
+		}
+		yvss = append(yvss, vs)
+		labels = append(labels, r.Metric["instance"])
+	}
+	if len(rst.Data.Result) >= 1 {
+		for _, v := range rst.Data.Result[0].Values {
+			xtitles = append(xtitles, time.Unix(int64(v[0].(float64)), 0).Local().Format("2006-01-02 15:04:05"))
+		}
+	}
+	return xtitles, yvss, labels
 }
 
 func CreatePostDataWithTime(sql string, start time.Time, end time.Time, Step string) url.Values {

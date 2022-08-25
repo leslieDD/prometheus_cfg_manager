@@ -27,12 +27,13 @@ require (
 	github.com/sonh/qs v0.6.0
 	github.com/spf13/pflag v1.0.5
 	github.com/tklauser/go-sysconf v0.3.7 // indirect
+	github.com/vicanso/go-charts/v2 v2.1.1
 	github.com/xuri/excelize/v2 v2.6.0
 	golang.org/x/text v0.3.7
 	gonum.org/v1/plot v0.11.0
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
-	gopkg.in/yaml.v3 v3.0.0-20210107192922-496545a6307b
+	gopkg.in/yaml.v3 v3.0.1
 	gorm.io/datatypes v1.0.1
 	gorm.io/driver/mysql v1.0.5
 	gorm.io/gorm v1.21.6
