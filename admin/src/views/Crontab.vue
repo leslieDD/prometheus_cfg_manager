@@ -329,10 +329,13 @@ export default {
     },
     convertcronApiToMap (list) {
       let apiMap = {}
+      let showMap = {}
       list.forEach(each => {
-        apiMap[each.id] = false
+        apiMap[each.id] = each
+        showMap[each.id] = false
       })
-      this.showchating = apiMap
+      this.showchating = showMap
+      this.cronApiMap = apiMap
     },
     changetoUnit (val) {
       if (val === '1') {
