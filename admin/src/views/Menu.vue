@@ -315,7 +315,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '重新创建配置成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           })
         }
       ).catch(
@@ -328,7 +329,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '重新加载配置成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           })
         }
       ).catch(
@@ -341,7 +343,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '重新创建并加载配置成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           })
         }
       ).catch(

@@ -368,7 +368,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '未选中任何项！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         });
         return false
       }
@@ -381,7 +382,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '删除所选项成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetCronRules()
         }).catch(e => console.log(e))
@@ -396,7 +398,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '发布成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         });
         this.pushing = false
       }).catch(e => {
@@ -447,7 +450,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '未选中任何项！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         });
         return false
       }
@@ -460,7 +464,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '禁用所选项成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetCronRules()
         }).catch(e => console.log(e))
@@ -471,7 +476,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '未选中任何项！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         });
         return false
       }
@@ -484,7 +490,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '启用所选项成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetCronRules()
         }).catch(e => console.log(e))
@@ -553,7 +560,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '删除成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetCronRules()
         }
@@ -580,7 +588,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '更新状态成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         });
         this.crontabRules[scope.$index].enabled = newStatus
         this.crontabRules = [...this.crontabRules]
@@ -603,7 +612,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '创建成功！',
-                  type: 'success'
+                  type: 'success',
+                  duration: 1000,
                 });
                 this.doGetCronRules()
                 this.dialogVisible = false
@@ -619,7 +629,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '更新成功！',
-                  type: 'success'
+                  type: 'success',
+                  duration: 1000,
                 });
                 this.doGetCronRules()
                 this.dialogVisible = false

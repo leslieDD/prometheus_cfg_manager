@@ -717,7 +717,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '更新成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         });
       }).catch(e => console.log(e))
     },
@@ -750,7 +751,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '创建成功！',
-                  type: 'success'
+                  type: 'success',
+                  duration: 1000,
                 });
                 this.doGetJobs()
                 this.dialogVisible = false
@@ -766,7 +768,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '更新成功！',
-                  type: 'success'
+                  type: 'success',
+                  duration: 1000,
                 });
                 this.doGetJobs()
                 this.dialogVisible = false
@@ -790,7 +793,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '删除成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         });
         this.doGetJobs()
       }).catch(e => console.log(e))
@@ -804,7 +808,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '删除成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         });
         this.doGetJobs()
       }).catch(e => console.log(e))
@@ -830,7 +835,9 @@ export default {
           this.$notify({
             title: '成功',
             message: '删除成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
+
           });
           this.doGetJobs()
         }
@@ -858,7 +865,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '未选中任何项！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         });
         return false
       }
@@ -871,7 +879,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '删除所选项成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetJobs()
         }).catch(e => console.log(e))
@@ -882,7 +891,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '未选中任何项！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         });
         return false
       }
@@ -895,7 +905,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '禁用所选项成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetJobs()
         }).catch(e => console.log(e))
@@ -906,7 +917,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '未选中任何项！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         });
         return false
       }
@@ -919,7 +931,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '启用所选项成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetJobs()
         }).catch(e => console.log(e))
@@ -945,7 +958,8 @@ export default {
         this.$notify({
           title: '错误',
           message: '没有有效的数据！',
-          type: 'error'
+          type: 'error',
+          duration: 1000,
         })
         return false
       }
@@ -953,7 +967,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '已经是顶层！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         })
         return false
       }
@@ -968,7 +983,8 @@ export default {
         this.$notify({
           title: '错误',
           message: '没有有效的数据！',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         })
         return false
       }
@@ -977,7 +993,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '已经是底层！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         })
         return false
       }
@@ -985,7 +1002,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '已经是底层！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         })
         return false
       }
@@ -1002,13 +1020,15 @@ export default {
             this.$notify({
               title: '成功',
               message: '提升成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
           } else {
             this.$notify({
               title: '成功',
               message: '下降成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
           }
           this.doGetJobs()
@@ -1023,7 +1043,8 @@ export default {
       this.$notify({
         title: '警告',
         message: '正在发布，请稍等...',
-        type: 'warning'
+        type: 'warning',
+        duration: 1000,
       });
     },
     publishJobsfunc () {
@@ -1033,7 +1054,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '发布成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.publishMode = false
           this.doGetJobs()
@@ -1051,7 +1073,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '重新加载成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
         }
       ).catch(
@@ -1133,7 +1156,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '整理成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         })
         this.doGetJobs()
       }).catch(e => console.log(e))
@@ -1192,7 +1216,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '整理成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         })
         this.doGetJobs()
       }).catch(e => console.log(e))
@@ -1211,7 +1236,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '整理成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         })
         this.doGetJobs()
       }).catch(e => console.log(e))
@@ -1228,7 +1254,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '提交成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         })
       }).catch(e => console.log(e))
     },
@@ -1237,7 +1264,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '整理成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         })
         this.doGetJobs()
       }).catch(e => console.log(e))
@@ -1247,7 +1275,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '整理黑名单成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         })
         this.doGetJobs()
       }).catch(e => console.log(e))
@@ -1265,7 +1294,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '更新状态成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         });
         this.jobs[scope.$index].enabled = newStatus
         this.jobs = [...this.jobs]

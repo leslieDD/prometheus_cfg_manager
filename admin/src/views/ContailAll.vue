@@ -2,10 +2,7 @@
   <div class="main-board">
     <div class="btn-action-area">
       <div>
-        <span class="explain-words"
-          >说明：定义包含<el-tag size="mini" type="warning">所有IP地址</el-tag
-          >的分组</span
-        >
+        <span class="explain-words">说明：定义包含<el-tag size="mini" type="warning">所有IP地址</el-tag>的分组</span>
       </div>
       <div class="do_action">
         <div style="padding-right: 15px">
@@ -28,39 +25,21 @@
             @click="publishJobsRunning()"
             >发布</el-button
           > -->
-          <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()"
-            >添加默认组</el-button
-          >
+          <el-button size="small" type="success" icon="el-icon-baseball" plain @click="doAdd()">添加默认组</el-button>
         </div>
         <div>
           <div>
-            <el-input
-              size="small"
-              placeholder="请输入内容"
-              @keyup.enter="onSearch()"
-              v-model="searchContent"
-            >
+            <el-input size="small" placeholder="请输入内容" @keyup.enter="onSearch()" v-model="searchContent">
               <template #append>
-                <el-button
-                  size="small"
-                  @click="onSearch()"
-                  icon="el-icon-search"
-                ></el-button>
+                <el-button size="small" @click="onSearch()" icon="el-icon-search"></el-button>
               </template>
             </el-input>
           </div>
         </div>
       </div>
     </div>
-    <el-table
-      size="mini"
-      highlight-current-row
-      border
-      :data="jobs"
-      stripe
-      :row-style="rowStyle"
-      :cell-style="cellStyle"
-    >
+    <el-table size="mini" highlight-current-row border :data="jobs" stripe :row-style="rowStyle"
+      :cell-style="cellStyle">
       <el-table-column label="序号" width="50px">
         <template v-slot="scope">
           {{ scope.$index + 1 }}
@@ -82,50 +61,23 @@
         <template v-slot="scope" align="center">
           <div class="actioneara">
             <div>
-              <el-button size="mini" type="primary" @click="doEdit(scope)" plain
-                >编辑</el-button
-              >
+              <el-button size="mini" type="primary" @click="doEdit(scope)" plain>编辑</el-button>
             </div>
             <div>
-              <el-button
-                size="mini"
-                type="info"
-                v-if="scope.row.enabled === true"
-                @click="invocate(scope)"
-                plain
-                >禁用</el-button
-              >
-              <el-button
-                size="mini"
-                type="warning"
-                v-if="scope.row.enabled === false"
-                @click="invocate(scope)"
-                plain
-                >启用</el-button
-              >
+              <el-button size="mini" type="info" v-if="scope.row.enabled === true" @click="invocate(scope)" plain>禁用
+              </el-button>
+              <el-button size="mini" type="warning" v-if="scope.row.enabled === false" @click="invocate(scope)" plain>启用
+              </el-button>
             </div>
             <div>
-              <el-popover
-                :visible="deleteVisible[scope.$index]"
-                placement="top"
-              >
+              <el-popover :visible="deleteVisible[scope.$index]" placement="top">
                 <p>确定删除吗？</p>
                 <div style="text-align: right; margin: 0">
-                  <el-button size="mini" type="text" @click="doNo(scope)"
-                    >取消</el-button
-                  >
-                  <el-button type="primary" size="mini" @click="doYes(scope)"
-                    >确定</el-button
-                  >
+                  <el-button size="mini" type="text" @click="doNo(scope)">取消</el-button>
+                  <el-button type="primary" size="mini" @click="doYes(scope)">确定</el-button>
                 </div>
                 <template #reference>
-                  <el-button
-                    size="mini"
-                    type="danger"
-                    plain
-                    @click="doDelete(scope)"
-                    >删除</el-button
-                  >
+                  <el-button size="mini" type="danger" plain @click="doDelete(scope)">删除</el-button>
                 </template>
               </el-popover>
             </div>
@@ -134,71 +86,31 @@
       </el-table-column>
     </el-table>
     <div class="block">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page="currentPage"
-        :page-sizes="[10, 15, 30, 50]"
-        :page-size="pageSize"
-        layout="total, sizes, prev, pager, next, jumper"
-        :total="pageTotal"
-      >
+      <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
+        :page-sizes="[10, 15, 30, 50]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
+        :total="pageTotal">
       </el-pagination>
     </div>
-    <el-dialog
-      :title="dialogTitle"
-      v-model="dialogVisible"
-      width="400px"
-      modal
-      :before-close="handleClose"
-    >
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="400px" modal :before-close="handleClose">
       <span>
-        <el-form
-          label-position="right"
-          :rules="rules"
-          ref="addJobInfo"
-          :model="addJobInfo"
-          label-width="90px"
-          size="small"
-        >
+        <el-form label-position="right" :rules="rules" ref="addJobInfo" :model="addJobInfo" label-width="90px"
+          size="small">
           <el-form-item label="分组名：" prop="name">
             <el-input style="width: 230px" v-model="addJobInfo.name"></el-input>
           </el-form-item>
           <el-form-item label="端口号" prop="port">
-            <el-input
-              type="number"
-              style="width: 230px"
-              v-model.number="addJobInfo.port"
-            ></el-input>
+            <el-input type="number" style="width: 230px" v-model.number="addJobInfo.port"></el-input>
           </el-form-item>
           <el-form-item label="重写标签" prop="relabel_id">
-            <el-select
-              v-model="addJobInfo.relabel_id"
-              filterable
-              allow-create
-              default-first-option
-              placeholder="请选择"
-              style="width: 230px"
-            >
-              <el-option
-                v-for="item in relabelList"
-                :key="item.id"
-                :label="item.name"
-                :value="item.id"
-              >
+            <el-select v-model="addJobInfo.relabel_id" filterable allow-create default-first-option placeholder="请选择"
+              style="width: 230px">
+              <el-option v-for="item in relabelList" :key="item.id" :label="item.name" :value="item.id">
               </el-option>
             </el-select>
           </el-form-item>
           <el-form-item size="small">
-            <el-button
-              size="small"
-              type="primary"
-              @click="onSubmit('addJobInfo')"
-              >{{ buttonTitle }}</el-button
-            >
-            <el-button size="small" type="info" @click="onCancel('addJobInfo')"
-              >取消</el-button
-            >
+            <el-button size="small" type="primary" @click="onSubmit('addJobInfo')">{{ buttonTitle }}</el-button>
+            <el-button size="small" type="info" @click="onCancel('addJobInfo')">取消</el-button>
           </el-form-item>
         </el-form>
       </span>
@@ -366,7 +278,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '创建成功！',
-                  type: 'success'
+                  type: 'success',
+                  duration: 1000,
                 });
                 this.doGetJobs()
                 this.dialogVisible = false
@@ -382,7 +295,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '更新成功！',
-                  type: 'success'
+                  type: 'success',
+                  duration: 1000,
                 });
                 this.doGetJobs()
                 this.dialogVisible = false
@@ -414,7 +328,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '删除成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetJobs()
         }
@@ -451,7 +366,8 @@ export default {
         this.$notify({
           title: '错误',
           message: '没有有效的数据！',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         })
         return false
       }
@@ -459,7 +375,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '已经是顶层！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         })
         return false
       }
@@ -474,7 +391,8 @@ export default {
         this.$notify({
           title: '错误',
           message: '没有有效的数据！',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         })
         return false
       }
@@ -483,7 +401,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '已经是底层！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         })
         return false
       }
@@ -491,7 +410,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '已经是底层！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         })
         return false
       }
@@ -508,13 +428,15 @@ export default {
             this.$notify({
               title: '成功',
               message: '提升成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
           } else {
             this.$notify({
               title: '成功',
               message: '下降成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
           }
           this.doGetJobs()
@@ -532,7 +454,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '发布成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.publishMode = false
         }
@@ -549,7 +472,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '重新加载成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
         }
       ).catch(
@@ -566,7 +490,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '更新状态成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         });
         this.jobs[scope.$index].enabled = newStatus
         this.jobs = [...this.jobs]
@@ -582,57 +507,72 @@ export default {
   margin-top: -5px;
   padding-bottom: 8px;
 }
+
 el-dialog {
   padding: 0px;
 }
-.do_action > div {
+
+.do_action>div {
   display: inline-block;
 }
+
 .main-board {
   padding: 0;
   /* max-width: 1200px; */
   margin: 0 auto;
 }
+
 .searchSelect {
   width: 90px;
 }
+
 .el-input__inner {
   width: 130px;
 }
+
 .el-pagination {
   text-align: center;
 }
+
 .block {
   padding-top: 12px;
 }
+
 el-tabs {
   padding: 0px;
 }
+
 .el-form:last-child {
   text-align: left;
 }
+
 .borderNone :deep() .el-input__inner {
   border: none;
   background: transparent;
 }
+
 .actioneara {
   display: flex;
   flex-wrap: nowrap;
   justify-content: space-around;
 }
+
 .change_order_button {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
 }
+
 .change_order_button .el-button {
   padding: auto 0px;
   width: 20px;
 }
+
 .explain-words {
   font: 0.9em Arial, Tahoma, Verdana;
   color: #777;
 }
+
 .btn-action-area {
   display: flex;
   flex-wrap: nowrap;

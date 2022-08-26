@@ -51,7 +51,7 @@
         </el-form>
       </div>
       <div class="playVideo-layout">
-        <video ref="videoPlayer" id='videoplayer'  class="video-js vjs-default-skin vjs-big-play-centered"/>
+        <video ref="videoPlayer" id='videoplayer' class="video-js vjs-default-skin vjs-big-play-centered" />
       </div>
     </el-card>
   </div>
@@ -69,7 +69,7 @@ export default {
   name: "RTMP",
   components: {
   },
-  data() {
+  data () {
     return {
       videoUrl: "",
       rtmpInfo: {
@@ -102,7 +102,7 @@ export default {
           { required: true, message: '请输入鉴权密钥', trigger: ['blue'] }
         ],
       },
-      options:{
+      options: {
         autoplay: false,
         muted: false,
         loop: false,
@@ -119,24 +119,24 @@ export default {
         // ],
         notSupportedMessage: '此视频暂无法播放，请稍后再试',
         controlBar: {
-            remainingTimeDisplay: false, //
-            currentTimeDisplay: true, // 当前时间
-            timeDivider: true, // 时间分割线
-            durationDisplay: true, // 总时间
-            progressControl: true, // 进度条
+          remainingTimeDisplay: false, //
+          currentTimeDisplay: true, // 当前时间
+          timeDivider: true, // 时间分割线
+          durationDisplay: true, // 总时间
+          progressControl: true, // 进度条
 
-            customControlSpacer: true, //
-            fullscreenToggle: true, // 全屏按钮
-            volumePanel: false
+          customControlSpacer: true, //
+          fullscreenToggle: true, // 全屏按钮
+          volumePanel: false
         }
       },
     };
   },
-  mounted() {
+  mounted () {
   },
   methods: {
     //播放
-    onPlay(formName){
+    onPlay (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.show(1);
@@ -145,7 +145,7 @@ export default {
         }
       })
     },
-    onPlayV2(formName){
+    onPlayV2 (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           this.show(2);
@@ -154,9 +154,9 @@ export default {
         }
       })
     },
-    show(sType) {
+    show (sType) {
       // let now = new Date().valueOf()
-      if (sType===1) {
+      if (sType === 1) {
         var unixTimestamp = (parseInt(Date.now() / 1000) + parseInt(this.rtmpInfo.unix_time)).toString()
         var hash = md5.create()
         hash.update(this.rtmpInfo.live_name)
@@ -172,7 +172,8 @@ export default {
         this.$notify({
           title: '错误',
           message: '不支持的操作类型',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         });
         return
       }
@@ -191,7 +192,7 @@ export default {
       //     _this.playbackRate( parseFloat(4));
       // });
     },
-    destroy(){
+    destroy () {
       if (this.videoPlayer !== null) {
         this.videoPlayer.dispose() // dispose()会直接删除Dom元素
       }
@@ -208,7 +209,7 @@ export default {
   /* position: absolute; */
   width: 1050px;
   /* height: 868px; */
-  margin:0 auto;
+  margin: 0 auto;
   /* left: 50%;
   top: 50%;
   width:1024px;
@@ -220,12 +221,13 @@ export default {
   top: calc(50% - 430px);
   left: calc(50% - 512px);   */
 }
+
 .inline-btn {
   float: right;
 }
 
 #videoplayer {
-    width: 1024px;
-    height: 500px
+  width: 1024px;
+  height: 500px
 }
 </style>

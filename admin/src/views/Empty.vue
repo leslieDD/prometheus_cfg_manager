@@ -6,38 +6,20 @@
           <i class="el-icon-user"></i>
           操作
         </template>
-        <el-button
-          size="small"
-          :disabled="runningMod"
-          type="danger"
-          icon="el-icon-warning-outline"
-          @click="displayDialog"
-          >重置所有数据</el-button
-        >
+        <el-button size="small" :disabled="runningMod" type="danger" icon="el-icon-warning-outline"
+          @click="displayDialog">重置所有数据</el-button>
       </el-descriptions-item>
       <el-descriptions-item>
         <template #label>
           <i class="el-icon-mobile-phone"></i>
           搜索
         </template>
-        <el-input
-          placeholder="请输入查询内容，回车执行搜索"
-          size="small"
-          @keyup.enter="doSearch"
-          v-model="searchContent"
-        ></el-input>
+        <el-input placeholder="请输入查询内容，回车执行搜索" size="small" @keyup.enter="doSearch" v-model="searchContent"></el-input>
       </el-descriptions-item>
     </el-descriptions>
     <el-scrollbar height="75vh" class="flex-content">
-      <el-table
-        size="mini"
-        highlight-current-row
-        border
-        :data="operateLogs"
-        stripe
-        :row-style="rowStyle"
-        :cell-style="cellStyle"
-      >
+      <el-table size="mini" highlight-current-row border :data="operateLogs" stripe :row-style="rowStyle"
+        :cell-style="cellStyle">
         <el-table-column label="序号" width="50px">
           <template v-slot="scope">
             {{ scope.$index + 1 }}
@@ -49,12 +31,7 @@
         </el-table-column>
         <el-table-column label="类型" width="80px" prop="operate_type">
         </el-table-column>
-        <el-table-column
-          label="操作内容"
-          show-overflow-tooltip
-          width="230px"
-          prop="operate_content"
-        >
+        <el-table-column label="操作内容" show-overflow-tooltip width="230px" prop="operate_content">
         </el-table-column>
         <el-table-column label="结果" width="50px" prop="operate_result">
         </el-table-column>
@@ -63,23 +40,13 @@
             <span>{{ parseTimeSelf(row.operate_at) }}</span>
           </template>
         </el-table-column>
-        <el-table-column
-          label="错误原因"
-          show-overflow-tooltip
-          prop="operate_error"
-        >
+        <el-table-column label="错误原因" show-overflow-tooltip prop="operate_error">
         </el-table-column>
       </el-table>
       <div class="block" v-if="paginationShow">
-        <el-pagination
-          @size-change="handleSizeChange"
-          @current-change="handleCurrentChange"
-          :current-page="currentPage"
-          :page-sizes="[30, 50, 80, 100]"
-          :page-size="pageSize"
-          layout="total, sizes, prev, pager, next, jumper"
-          :total="pageTotal"
-        >
+        <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
+          :page-sizes="[30, 50, 80, 100]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
+          :total="pageTotal">
         </el-pagination>
       </div>
     </el-scrollbar>
@@ -93,37 +60,16 @@
           </p>
           <p>输入红色部分的KEY即可重置成出产设置</p>
         </div>
-        <el-form
-          :model="ruleForm"
-          :rules="rules"
-          ref="ruleForm"
-          label-width="auto"
-          class="demo-ruleForm"
-          size="mini"
-        >
+        <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="auto" class="demo-ruleForm" size="mini">
           <el-form-item label="重置码" prop="code">
             <el-input v-model="ruleForm.code"></el-input>
           </el-form-item>
           <el-form-item>
             <div class="dialog-footer">
-              <el-button size="small" @click="closeDialog('ruleForm')"
-                >关 闭</el-button
-              >
-              <el-button
-                v-if="runningMod === true"
-                size="small"
-                type="primary"
-                icon="el-icon-loading"
-                >确 定</el-button
-              >
-              <el-button
-                v-if="runningMod === false"
-                size="small"
-                type="primary"
-                icon="el-icon-refresh"
-                @click="doResetSystem('ruleForm')"
-                >确 定</el-button
-              >
+              <el-button size="small" @click="closeDialog('ruleForm')">关 闭</el-button>
+              <el-button v-if="runningMod === true" size="small" type="primary" icon="el-icon-loading">确 定</el-button>
+              <el-button v-if="runningMod === false" size="small" type="primary" icon="el-icon-refresh"
+                @click="doResetSystem('ruleForm')">确 定</el-button>
             </div>
           </el-form-item>
         </el-form>
@@ -191,7 +137,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '已经生成新的重置码！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         })
         this.dialogFormVisible = true
       })
@@ -208,7 +155,8 @@ export default {
             this.$notify({
               title: '成功',
               message: '重置成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
             this.runningMod = false
             this.doGetOperateLog()
@@ -263,18 +211,22 @@ export default {
 .el-pagination {
   text-align: center;
 }
+
 .block {
   padding-top: 12px;
 }
+
 .operate-area {
   display: flex;
   flex-direction: row;
   justify-content: flex-end;
 }
+
 .dialog-footer {
   text-align: right;
   align-content: right;
 }
+
 .reset-explain {
   font: 0.8em Arial, Tahoma, Verdana;
   color: #777;

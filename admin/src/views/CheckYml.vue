@@ -7,9 +7,7 @@
           执行重启Prometheus服务
         </template>
         <div style="width: 250px">
-          <el-button type="warning" @click="restart" icon="el-icon-sunny" size="small"
-            >重 启</el-button
-          >
+          <el-button type="warning" @click="restart" icon="el-icon-sunny" size="small">重 启</el-button>
         </div>
       </el-descriptions-item>
       <el-descriptions-item>
@@ -18,9 +16,7 @@
           执行测试配置文件（prometheus.yml）
         </template>
         <div style="width: 250px">
-          <el-button type="primary" @click="check" icon="el-icon-hot-water" size="small"
-            >测 试</el-button
-          >
+          <el-button type="primary" @click="check" icon="el-icon-hot-water" size="small">测 试</el-button>
         </div>
       </el-descriptions-item>
     </el-descriptions>
@@ -131,7 +127,8 @@ export default {
         this.$notify({
           title: '失败',
           message: 'token验证失败，需要重新登录！',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         });
         this.$router.push({ name: 'login' })
         return false

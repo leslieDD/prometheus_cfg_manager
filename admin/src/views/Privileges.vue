@@ -1,28 +1,17 @@
 <template>
   <div class="priv-board">
     <el-scrollbar>
-      <el-table
-        size="mini"
-        :data="privTableData"
-        :span-method="objectSpanMethod"
-        border
-        style="width: 100%"
-        :row-style="rowStyle"
-        :cell-style="cellStyle"
-        height="88vh"
-      >
+      <el-table size="mini" :data="privTableData" :span-method="objectSpanMethod" border style="width: 100%"
+        :row-style="rowStyle" :cell-style="cellStyle" height="88vh">
         <el-table-column prop="page_nice_name" label="页面" width="120px">
         </el-table-column>
         <el-table-column prop="sub_page_nice_name" label="子页面" width="120px">
           <template #default="{ row }">
             <div class="sub-page-class">
-              <span>{{ row.sub_page_nice_name + " " }}</span
-              ><el-checkbox
-                v-model="
-                  checkBoxSelect[`${row.page_name}_${row.sub_page_name}`]
-                "
-                @change="checkboxChange($event, row)"
-              ></el-checkbox>
+              <span>{{ row.sub_page_nice_name + " " }}</span>
+              <el-checkbox v-model="
+                checkBoxSelect[`${row.page_name}_${row.sub_page_name}`]
+              " @change="checkboxChange($event, row)"></el-checkbox>
             </div>
           </template>
         </el-table-column>
@@ -32,28 +21,16 @@
             <el-divider direction="vertical"></el-divider>
             <el-button size="mini" @click="selectAll(true)">全选</el-button>
             <el-button size="mini" @click="selectAll(false)">全不选</el-button>
-            <el-button size="mini" type="primary" @click="save()"
-              >保存</el-button
-            >
-            <el-button size="mini" type="warning" @click="reload()"
-              >重新加载</el-button
-            >
-            <el-button size="mini" type="info" @click="goBack()"
-              >返回</el-button
-            >
-            <span class="show-group-name"
-              ><el-tag size="small"
-                >当前组名：{{ groupInfo.group_name }}</el-tag
-              ></span
-            >
+            <el-button size="mini" type="primary" @click="save()">保存</el-button>
+            <el-button size="mini" type="warning" @click="reload()">重新加载</el-button>
+            <el-button size="mini" type="info" @click="goBack()">返回</el-button>
+            <span class="show-group-name">
+              <el-tag size="small">当前组名：{{ groupInfo.group_name }}</el-tag>
+            </span>
           </template>
           <template #default="{ row }">
-            <el-checkbox
-              v-for="item in row.func_list"
-              :key="item.id"
-              v-model="item.checked"
-              >{{ item.func_nice_name }}</el-checkbox
-            >
+            <el-checkbox v-for="item in row.func_list" :key="item.id" v-model="item.checked">{{ item.func_nice_name }}
+            </el-checkbox>
           </template>
         </el-table-column>
       </el-table>
@@ -126,7 +103,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '重新加载成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
         }
       }).catch(e => console.log(e))
@@ -198,7 +176,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '更新成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         });
       }).catch(e => console.log(e))
     },
@@ -216,12 +195,14 @@ export default {
 .priv-board {
   height: 100%;
 }
+
 .sub-page-class {
   display: flex;
   justify-content: space-between;
   flex-wrap: nowrap;
   flex-direction: row;
 }
+
 .show-group-name {
   float: right;
 }

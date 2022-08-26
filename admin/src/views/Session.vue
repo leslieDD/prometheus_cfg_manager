@@ -4,62 +4,32 @@
       <div>
         <div class="do_action">
           <div style="padding-right: 15px">
-            <el-form
-              ref="sessionExpire"
-              :model="sessionExpire"
-              label-width="170px"
-              class="demo-ruleForm"
-              size="small"
-              :inline="true"
-            >
-              <el-form-item
-                label="会话过期时间(分钟)"
-                prop="expire"
-                :rules="[
-                  { required: true, message: '会话过期字段必须填写' },
-                  { type: 'number', message: '会话过期字段必须得是一个数字' },
-                ]"
-              >
+            <el-form ref="sessionExpire" :model="sessionExpire" label-width="170px" class="demo-ruleForm" size="small"
+              :inline="true">
+              <el-form-item label="会话过期时间(分钟)" prop="expire" :rules="[
+                { required: true, message: '会话过期字段必须填写' },
+                { type: 'number', message: '会话过期字段必须得是一个数字' },
+              ]">
                 <div class="expire_class">
-                  <el-input
-                    v-model.number="sessionExpire.expire"
-                    type="text"
-                    autocomplete="off"
-                    style="width: 120px;"
-                  />
+                  <el-input v-model.number="sessionExpire.expire" type="text" autocomplete="off"
+                    style="width: 120px;" />
                   <el-button type="primary" @click="submitSessionExpire()">提交</el-button>
                 </div>
               </el-form-item>
             </el-form>
           </div>
           <div>
-            <el-input
-              size="small"
-              placeholder="请输入内容"
-              @keyup.enter="onSearch()"
-              v-model="searchContent"
-            >
+            <el-input size="small" placeholder="请输入内容" @keyup.enter="onSearch()" v-model="searchContent">
               <template #append>
-                <el-button
-                  size="small"
-                  @click="onSearch()"
-                  icon="el-icon-search"
-                ></el-button>
+                <el-button size="small" @click="onSearch()" icon="el-icon-search"></el-button>
               </template>
             </el-input>
           </div>
         </div>
         <div class="table-show">
           <el-scrollbar height="75vh" class="flex-content">
-            <el-table
-              size="mini"
-              highlight-current-row
-              border
-              :data="sessions"
-              stripe
-              :row-style="rowStyle"
-              :cell-style="cellStyle"
-            >
+            <el-table size="mini" highlight-current-row border :data="sessions" stripe :row-style="rowStyle"
+              :cell-style="cellStyle">
               <el-table-column label="序号" width="50px">
                 <template v-slot="scope">
                   {{ scope.$index + 1 }}
@@ -71,29 +41,15 @@
               </el-table-column>
               <el-table-column label="登录名" prop="username">
                 <template v-slot="{ row }">
-                  <el-button
-                    size="mini"
-                    @click="routeToUser(row)"
-                    type="text"
-                    >{{ row.username }}</el-button
-                  >
+                  <el-button size="mini" @click="routeToUser(row)" type="text">{{ row.username }}</el-button>
                 </template>
               </el-table-column>
               <el-table-column label="所属组" prop="group_name">
                 <template v-slot="{ row }">
-                  <el-button
-                    size="mini"
-                    @click="routeToGroup(row)"
-                    type="text"
-                    >{{ row.group_name }}</el-button
-                  >
+                  <el-button size="mini" @click="routeToGroup(row)" type="text">{{ row.group_name }}</el-button>
                 </template>
               </el-table-column>
-              <el-table-column
-                label="更新时间"
-                width="135px"
-                prop="update_at"
-              >
+              <el-table-column label="更新时间" width="135px" prop="update_at">
                 <template v-slot="{ row }">
                   <span>{{ parseTimeSelf(row.update_at) }}</span>
                 </template>
@@ -102,34 +58,15 @@
                 <template v-slot="scope" align="center">
                   <div class="actioneara">
                     <div>
-                      <el-popover
-                        :visible="deleteVisible[scope.$index]"
-                        placement="top"
-                      >
+                      <el-popover :visible="deleteVisible[scope.$index]" placement="top">
                         <p>确定删除吗？</p>
                         <div style="text-align: right; margin: 0">
-                          <el-button
-                            size="mini"
-                            type="text"
-                            @click="doNo(scope)"
-                            >取消</el-button
-                          >
-                          <el-button
-                            type="primary"
-                            size="mini"
-                            @click="doYes(scope)"
-                            >确定</el-button
-                          >
+                          <el-button size="mini" type="text" @click="doNo(scope)">取消</el-button>
+                          <el-button type="primary" size="mini" @click="doYes(scope)">确定</el-button>
                         </div>
                         <template #reference>
-                          <el-button
-                            size="mini"
-                            type="danger"
-                            plain
-                            @click="doDelete(scope)"
-                            :disabled="editCodeButVisable[scope.row.id]"
-                            >删除</el-button
-                          >
+                          <el-button size="mini" type="danger" plain @click="doDelete(scope)"
+                            :disabled="editCodeButVisable[scope.row.id]">删除</el-button>
                         </template>
                       </el-popover>
                     </div>
@@ -138,15 +75,9 @@
               </el-table-column>
             </el-table>
             <div class="block" v-if="paginationShow">
-              <el-pagination
-                @size-change="handleSizeChange"
-                @current-change="handleCurrentChange"
-                :current-page="currentPage"
-                :page-sizes="[20, 30, 50]"
-                :page-size="pageSize"
-                layout="total, sizes, prev, pager, next, jumper"
-                :total="pageTotal"
-              >
+              <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange"
+                :current-page="currentPage" :page-sizes="[20, 30, 50]" :page-size="pageSize"
+                layout="total, sizes, prev, pager, next, jumper" :total="pageTotal">
               </el-pagination>
             </div>
           </el-scrollbar>
@@ -195,7 +126,7 @@ export default {
           'search': this.searchContent
         }
       }
-      getSession(getInfo).then(r=>{
+      getSession(getInfo).then(r => {
         this.sessions = r.data.data
         this.pageTotal = r.data.totalCount
         this.currentPage = r.data.pageNo
@@ -204,7 +135,7 @@ export default {
         this.$nextTick(() => {//重新渲染分页
           this.paginationShow = true;
         });
-      }).catch(e=>{
+      }).catch(e => {
         console.log(e)
       })
     },
@@ -237,7 +168,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '删除成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetSession()
         }
@@ -269,22 +201,23 @@ export default {
     routeToGroup (row) {
       this.$router.push({ name: 'group', params: { group_name: row.group_name } })
     },
-    routeToUser(row){
+    routeToUser (row) {
       this.$router.push({ name: 'user', params: { group_name: row.username } })
     },
-    submitSessionExpire(){
+    submitSessionExpire () {
       // console.log(this.sessionExpire)
-      var data = {...this.sessionExpire}
-      updateSessionParams(data).then(r=>{
-          this.$notify({
-            title: '成功',
-            message: '提交成功！',
-            type: 'success'
-          });
-      }).catch(e=>console.log(e))
+      var data = { ...this.sessionExpire }
+      updateSessionParams(data).then(r => {
+        this.$notify({
+          title: '成功',
+          message: '提交成功！',
+          type: 'success',
+          duration: 1000,
+        });
+      }).catch(e => console.log(e))
     },
-    doGetSessionParams(){
-      getSessionParams().then(r=>{
+    doGetSessionParams () {
+      getSessionParams().then(r => {
         r.data.forEach(element => {
           if (element['key'] === 'session_expire') {
             this.sessionExpire = {
@@ -302,10 +235,12 @@ export default {
 .main-box {
   height: 85vh;
 }
+
 .main-content {
   width: 100%;
   height: 40vh;
 }
+
 .do_action {
   display: flex;
   flex-direction: row;
@@ -318,17 +253,21 @@ export default {
   flex-wrap: nowrap;
   justify-content: left;
 }
+
 .actioneara {
   display: flex;
   flex-wrap: nowrap;
   justify-content: center;
 }
+
 .el-pagination {
   text-align: center;
 }
+
 .block {
   padding-top: 12px;
 }
+
 .cm-s-monokai {
   height: 100%;
 }

@@ -1,58 +1,22 @@
 <template>
   <div class="tmpl-box">
     <div class="control-butn">
-      <el-button size="small" plain @click="viewGoStruct" icon="el-icon-view"
-        >查看数组结构</el-button
-      >
-      <el-button
-        size="small"
-        type="danger"
-        plain
-        @click="doReload(true)"
-        icon="el-icon-refresh"
-        >重新加载</el-button
-      >
-      <el-button
-        size="small"
-        type="warning"
-        plain
-        @click="undo"
-        icon="el-icon-folder-checked"
-        >撤消</el-button
-      >
-      <el-button
-        size="small"
-        type="warning"
-        plain
-        @click="redo"
-        icon="el-icon-refresh"
-        >回退</el-button
-      >
-      <el-button
-        size="small"
-        type="primary"
-        @click="doSave"
-        icon="el-icon-folder-checked"
-        >保存数据</el-button
-      >
+      <el-button size="small" plain @click="viewGoStruct" icon="el-icon-view">查看数组结构</el-button>
+      <el-button size="small" type="danger" plain @click="doReload(true)" icon="el-icon-refresh">重新加载</el-button>
+      <el-button size="small" type="warning" plain @click="undo" icon="el-icon-folder-checked">撤消</el-button>
+      <el-button size="small" type="warning" plain @click="redo" icon="el-icon-refresh">回退</el-button>
+      <el-button size="small" type="primary" @click="doSave" icon="el-icon-folder-checked">保存数据</el-button>
     </div>
     <div class="tmpl-editor">
       <textarea ref="textarea" />
     </div>
-    <el-dialog
-      title="查看数据结构"
-      v-model="dialogVisible"
-      width="30%"
-      custom-class="custom-dialog-class"
-    >
+    <el-dialog title="查看数据结构" v-model="dialogVisible" width="30%" custom-class="custom-dialog-class">
       <div>
         <ViewCode :value="structData"></ViewCode>
       </div>
       <template #footer>
         <span class="dialog-footer">
-          <el-button size="small" type="primary" @click="enterDialog"
-            >确定</el-button
-          >
+          <el-button size="small" type="primary" @click="enterDialog">确定</el-button>
         </span>
       </template>
     </el-dialog>
@@ -211,7 +175,8 @@ export default {
             this.$notify({
               title: '成功',
               message: '加载成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             })
           }
           this.tmplChangled = false
@@ -232,7 +197,8 @@ export default {
           this.$notify.info({
             title: '提示',
             message: '放弃重新加载！',
-            showClose: false
+            showClose: false,
+            duration: 1000,
           });
         });
       } else {
@@ -248,7 +214,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '保存成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           })
         }
       ).catch(
@@ -288,6 +255,7 @@ export default {
   position: relative;
   border: 1px solid burlywood;
 }
+
 .control-butn {
   display: flex;
   flex-direction: row;
@@ -295,10 +263,12 @@ export default {
   margin-bottom: 3px;
   margin-top: -10px;
 }
+
 .custom-class {
   padding-top: 5px;
   padding-bottom: 5px;
 }
+
 .tmpl-box :deep() .el-dialog__body {
   padding-top: 5px;
   padding-bottom: 5px;

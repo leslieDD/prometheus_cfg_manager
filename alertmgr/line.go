@@ -26,10 +26,10 @@ func ChartLine(cr *CronRule) (string, error) {
 
 	x, y, _ := ConvertValueV4(respData)
 
-	max := float64(3)
+	// max := float64(3)
 	p, err := charts.LineRender(
 		y,
-		charts.YAxisOptionFunc(charts.YAxisOption{Max: &max}),
+		// charts.YAxisOptionFunc(charts.YAxisOption{Max: &max}),
 		charts.TitleTextOptionFunc("Line"),
 		charts.XAxisDataOptionFunc(x),
 		// charts.LegendLabelsOptionFunc(labels, "50"),

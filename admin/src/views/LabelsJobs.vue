@@ -584,7 +584,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '更新子组成功！',
-          type: 'success'
+          type: 'success',
+              duration: 1000,
         })
         this.needtoUpdate = true
       }).catch(e => console.log(e))
@@ -727,7 +728,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '删除空子组成功！',
-          type: 'success'
+          type: 'success',
+              duration: 1000,
         })
       }).catch(e=>console.log(e))
     },
@@ -744,7 +746,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '创建子组成功！',
-          type: 'success'
+          type: 'success',
+              duration: 1000,
         })
         this.doGetGroupLabels()
       }).catch(e => {
@@ -762,7 +765,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '创建标签成功！',
-                  type: 'success'
+                  type: 'success',
+              duration: 1000,
                 })
                 this.doGetGroupLabels()
                 this.needtoUpdate = true
@@ -774,7 +778,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '创建标签成功！',
-                  type: 'success'
+                  type: 'success',
+              duration: 1000,
                 })
                 this.doGetGroupLabels()
                 this.needtoUpdate = true
@@ -905,7 +910,8 @@ export default {
               this.$notify({
                 title: '成功',
                 message: '创建子组成功！',
-                type: 'success'
+                type: 'success',
+              duration: 1000,
               })
               this.doGetSubGroup()
               this.dialogVisible = false
@@ -918,7 +924,8 @@ export default {
               this.$notify({
                 title: '成功',
                 message: '更新子组成功！',
-                type: 'success'
+                type: 'success',
+              duration: 1000,
               })
               this.doGetSubGroup()
               this.dialogVisible = false
@@ -947,7 +954,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '删除子组成功！',
-          type: 'success'
+          type: 'success',
+              duration: 1000,
         })
         this.doGetSubGroup()
       }).catch(e => {
@@ -964,7 +972,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '删除标签成功！',
-          type: 'success'
+          type: 'success',
+              duration: 1000,
         })
         this.doGetGroupLabels()
       }).catch(e => {
@@ -1020,7 +1029,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '更新状态成功！',
-          type: 'success'
+          type: 'success',
+              duration: 1000,
         });
         this.subGroups[scope.$index].enabled = newStatus
         this.subGroups = [...this.subGroups]
@@ -1036,7 +1046,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '更新状态成功！',
-          type: 'success'
+          type: 'success',
+              duration: 1000,
         });
         this.labelsData[scope.$index].enabled = newStatus
         this.labelsData = [...this.labelsData]

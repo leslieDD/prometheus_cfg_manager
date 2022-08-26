@@ -815,7 +815,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '更新成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.selectTableChanged[row.id] = false
           this.selectTypeValue = { ...this.selectTypeValue }
@@ -864,7 +865,8 @@ export default {
               this.$notify({
                 title: '成功',
                 message: '创建成功！',
-                type: 'success'
+                type: 'success',
+                duration: 1000,
               });
               this.doGetMechines()
               //   this.$refs[formName].resetFields()
@@ -891,7 +893,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '创建成功！',
-                  type: 'success'
+                  type: 'success',
+                  duration: 1000,
                 });
                 this.doGetMechines()
                 this.dialogVisible = false
@@ -905,7 +908,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '更新成功！',
-                  type: 'success'
+                  type: 'success',
+                  duration: 1000,
                 });
                 // this.doGetMechines()
                 this.selectTypeValue[this.addMechineInfo.id] = this.addMechineInfo.jobId
@@ -947,7 +951,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '发布成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.pushing = false
         }
@@ -969,7 +974,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '删除成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetMechines()
         }
@@ -1037,7 +1043,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '更新状态成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         });
         this.machines[scope.$index].enabled = newStatus
         this.machines = [...this.machines]
@@ -1094,7 +1101,8 @@ export default {
             this.$notify({
               title: '成功',
               message: '批量添加成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
             this.doGetMechines()
             this.import_pushing = false
@@ -1116,7 +1124,8 @@ export default {
             this.$notify({
               title: '成功',
               message: '批量添加成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
             this.doGetMechines()
             this.import_domain_pushing = false
@@ -1131,7 +1140,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '未选中任何项！',
-          type: 'warning'
+          type: 'warning',
+              duration: 1000,
         });
         return false
       }
@@ -1144,7 +1154,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '删除所选项成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetMechines()
         }).catch(e => console.log(e))
@@ -1155,7 +1166,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '未选中任何项！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         });
         return false
       }
@@ -1168,7 +1180,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '禁用所选项成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetMechines()
         }).catch(e => console.log(e))
@@ -1179,7 +1192,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '未选中任何项！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         });
         return false
       }
@@ -1192,7 +1206,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '启用所选项成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetMechines()
         }).catch(e => console.log(e))

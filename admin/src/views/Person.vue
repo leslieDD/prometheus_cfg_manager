@@ -14,7 +14,7 @@
           <div class="fg"></div>
         </div>
         <div class="meBox-text">
-          <el-descriptions title="" :column="1" size="" >
+          <el-descriptions title="" :column="1" size="">
             <el-descriptions-item>
               <template #label>
                 <span class="cell-item">
@@ -25,39 +25,43 @@
               {{ userInfo.username }}
             </el-descriptions-item>
             <el-descriptions-item>
-            <template #label>
-              <span class="cell-item">
-                <i class="el-icon-mobile-phone"></i>
-                手机号
-              </span>
-            </template>{{
-              userInfo.phone
-            }}</el-descriptions-item>
+              <template #label>
+                <span class="cell-item">
+                  <i class="el-icon-mobile-phone"></i>
+                  手机号
+                </span>
+              </template>{{
+                  userInfo.phone
+              }}
+            </el-descriptions-item>
             <el-descriptions-item>
-            <template #label>
-              <span class="cell-item">
-                <i class="el-icon-office-building"></i>
-                所属组
-              </span>
-            </template>{{
-              userInfo.group_name
-            }}</el-descriptions-item>
+              <template #label>
+                <span class="cell-item">
+                  <i class="el-icon-office-building"></i>
+                  所属组
+                </span>
+              </template>{{
+                  userInfo.group_name
+              }}
+            </el-descriptions-item>
             <el-descriptions-item>
-            <template #label>
-              <span class="cell-item">
-                <i class="el-icon-alarm-clock"></i>
-                注册时间
-              </span>
-            </template>{{
-              parseTimeSelf(userInfo.register_time)
-            }}</el-descriptions-item>
+              <template #label>
+                <span class="cell-item">
+                  <i class="el-icon-alarm-clock"></i>
+                  注册时间
+                </span>
+              </template>{{
+                  parseTimeSelf(userInfo.register_time)
+              }}
+            </el-descriptions-item>
             <el-descriptions-item>
-            <template #label>
-              <span class="cell-item">
-                <i class="el-icon-alarm-clock"></i>
-                登录时间
-              </span>
-            </template>{{ parseTimeSelf(userInfo.login_time) }}</el-descriptions-item>
+              <template #label>
+                <span class="cell-item">
+                  <i class="el-icon-alarm-clock"></i>
+                  登录时间
+                </span>
+              </template>{{ parseTimeSelf(userInfo.login_time) }}
+            </el-descriptions-item>
           </el-descriptions>
         </div>
         <div class="meBox-Button">
@@ -80,7 +84,8 @@
             <span style="color: blue"># </span>
             <span style="color: rgb(39, 39, 39)">./tianqi.sh</span>
             <br />
-            <iframe scrolling="no" src="https://tianqiapi.com/api.php?style=tz&skin=pitaya" frameborder="0" width="100%" height="30" allowtransparency="true"></iframe>
+            <iframe scrolling="no" src="https://tianqiapi.com/api.php?style=tz&skin=pitaya" frameborder="0" width="100%"
+              height="30" allowtransparency="true"></iframe>
             <br />
             <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
             <span style="color: blue"># </span>
@@ -89,16 +94,12 @@
             <br />
             <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
             <span style="color: blue"># </span>
-            <span style="color: rgb(39, 39, 39)"
-              >cat ./quotes_by_famous_people.txt</span
-            >
+            <span style="color: rgb(39, 39, 39)">cat ./quotes_by_famous_people.txt</span>
             <p v-for="(words, index) in sayWhat" :key="index">{{ words }}</p>
             <br />
             <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
             <span style="color: blue"># </span>
-            <span style="color: rgb(39, 39, 39)"
-              >sudo rm -rf /过去的自己/*</span
-            >
+            <span style="color: rgb(39, 39, 39)">sudo rm -rf /过去的自己/*</span>
           </div>
         </div>
         <!-- 第二个终端 -->
@@ -117,41 +118,27 @@
           <div class="cmdText">
             <span style="color: rgb(0, 190, 0)">root@monitor:~</span>
             <span style="color: blue"># </span>
-            <span style="color: rgb(39, 39, 39)"
-              >awk '/menu/' ./prometheus.yml</span
-            >
+            <span style="color: rgb(39, 39, 39)">awk '/menu/' ./prometheus.yml</span>
             <p class="prompt-text">点击下面菜单进入：</p>
             <dl>
               <dt v-if="menuShow.show_menu_prometheus_cfg_manager === true">
-                <el-button type="text" @click="goToConfig"
-                  ><single-svg icon-class="xianrenzhang"></single-svg
-                  >Prometheus配置</el-button
-                >
+                <el-button type="text" @click="goToConfig">
+                  <single-svg icon-class="xianrenzhang"></single-svg>Prometheus配置
+                </el-button>
               </dt>
-              <dt
-                class="menu_zero_padding"
-                v-if="menuShow.show_menu_administrator_cfg_manager === true"
-              >
-                <single-svg icon-class="yezhi"></single-svg
-                ><el-button type="text" @click="goToAdmin"
-                  >用户及权限管理</el-button
-                >
+              <dt class="menu_zero_padding" v-if="menuShow.show_menu_administrator_cfg_manager === true">
+                <single-svg icon-class="yezhi"></single-svg>
+                <el-button type="text" @click="goToAdmin">用户及权限管理</el-button>
               </dt>
-              <dt
-                class="menu_zero_padding"
-                v-if="menuShow.show_menu_hls === true"
-              >
-                <single-svg icon-class="yezhi"></single-svg
-                ><el-button type="text" @click="goToHLS"
-                  >直播</el-button
-                >
+              <dt class="menu_zero_padding" v-if="menuShow.show_menu_hls === true">
+                <single-svg icon-class="yezhi"></single-svg>
+                <el-button type="text" @click="goToHLS">直播</el-button>
               </dt>
               <dt v-if="Object.keys(menuShow).length === 0">
                 <div class="no_menu_show">
-                  <el-tag type="warning" size="small"
-                    ><single-svg icon-class="shuzhi"></single-svg
-                    >没有可供显示的菜单</el-tag
-                  >
+                  <el-tag type="warning" size="small">
+                    <single-svg icon-class="shuzhi"></single-svg>没有可供显示的菜单
+                  </el-tag>
                 </div>
               </dt>
             </dl>
@@ -161,46 +148,20 @@
         </div>
       </div>
     </div>
-    <el-dialog
-      title="更新我的密码"
-      v-model="dialogVisible"
-      width="450px"
-      :before-close="handleClose"
-    >
-      <el-form
-        :model="ruleForm"
-        :rules="rules"
-        ref="ruleForm"
-        label-width="auto"
-        class="demo-ruleForm"
-        size="small"
-      >
+    <el-dialog title="更新我的密码" v-model="dialogVisible" width="450px" :before-close="handleClose">
+      <el-form :model="ruleForm" :rules="rules" ref="ruleForm" label-width="auto" class="demo-ruleForm" size="small">
         <el-form-item label="请输出旧密码" prop="old_pwd">
-          <el-input
-            placeholder="请输入旧密码"
-            v-model="ruleForm.old_pwd"
-            type="password"
-          ></el-input>
+          <el-input placeholder="请输入旧密码" v-model="ruleForm.old_pwd" type="password"></el-input>
         </el-form-item>
         <el-form-item label="新密码" prop="new_pwd1">
-          <el-input
-            placeholder="请输入新密码"
-            v-model="ruleForm.new_pwd1"
-            type="password"
-          ></el-input>
+          <el-input placeholder="请输入新密码" v-model="ruleForm.new_pwd1" type="password"></el-input>
         </el-form-item>
         <el-form-item label="再次输入新密码" prop="new_pwd2">
-          <el-input
-            placeholder="请输入新密码"
-            v-model="ruleForm.new_pwd2"
-            type="password"
-          ></el-input>
+          <el-input placeholder="请输入新密码" v-model="ruleForm.new_pwd2" type="password"></el-input>
         </el-form-item>
         <el-form-item>
           <el-button @click="handleClose">取 消</el-button>
-          <el-button type="primary" @click="submitChangePassword('ruleForm')"
-            >确 定</el-button
-          >
+          <el-button type="primary" @click="submitChangePassword('ruleForm')">确 定</el-button>
         </el-form-item>
       </el-form>
     </el-dialog>
@@ -306,7 +267,7 @@ export default {
     goToAdmin () {
       this.$router.push({ name: 'admin' })
     },
-    goToHLS(){
+    goToHLS () {
       this.$router.push({ name: 'live' })
     },
     loadProgramerSay () {
@@ -358,7 +319,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '退出成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.$store.dispatch('resetToken')
           // removeToken()
@@ -370,7 +332,8 @@ export default {
         this.$notify({
           title: '消息',
           message: '取消退出',
-          type: 'info'
+          type: 'info',
+          duration: 1000,
         });
         // this.$message({
         //   type: 'info',
@@ -389,7 +352,8 @@ export default {
             this.$notify({
               title: '成功',
               message: '密码更新成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
             this.dialogVisible = false
           }).catch(e => console.log(e))
@@ -406,36 +370,45 @@ export default {
   max-width: 1100px;
   margin: 0 auto;
 }
+
 .person-title {
   font-family: "Helvetica Neue", Helvetica, "PingFang SC", "Hiragino Sans GB",
     "Microsoft YaHei", "微软雅黑", Arial, sans-serif;
   font-size: 25px;
 }
+
 .person-area {
   display: flex;
   flex-direction: row;
   flex-wrap: nowrap;
   justify-content: space-between;
 }
+
 .menu_zero_padding :deep() .el-button--text {
   padding-top: 0px;
 }
+
 .no_menu_show {
   padding: 10px;
 }
+
 .prompt-text {
   /* font-size: 14px; */
   font-weight: bold;
 }
+
 .person-info {
   width: 40%;
 }
+
 .person-action {
   width: 50%;
 }
+
 .person-hr {
   width: 30px;
 }
+
 .go-to-config {
   float: right;
 }

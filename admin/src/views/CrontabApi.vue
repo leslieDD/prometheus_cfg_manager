@@ -214,7 +214,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '创建成功！',
-                  type: 'success'
+                  type: 'success',
+                  duration: 1000,
                 });
                 this.doGetBaseFields()
                 this.dialogVisible = false
@@ -230,7 +231,8 @@ export default {
                 this.$notify({
                   title: '成功',
                   message: '更新成功！',
-                  type: 'success'
+                  type: 'success',
+                  duration: 1000,
                 });
                 this.doGetBaseFields()
                 this.dialogVisible = false
@@ -262,7 +264,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '删除成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
           this.doGetBaseFields()
         }
@@ -301,7 +304,8 @@ export default {
         this.$notify({
           title: '成功',
           message: '更新状态成功！',
-          type: 'success'
+          type: 'success',
+          duration: 1000,
         });
         this.cronApi[scope.$index].enabled = newStatus
         this.cronApi = [...this.cronApi]

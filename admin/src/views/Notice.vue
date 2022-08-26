@@ -550,7 +550,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '禁用成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           })
           if (data.level === 4) {
             this.$refs.ruleEditRef.flush()
@@ -576,7 +577,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '启用成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000, 
           })
           if (data.level === 4) {
             this.$refs.ruleEditRef.flush()
@@ -646,7 +648,8 @@ export default {
             this.$notify({
               title: '成功',
               message: '删除节点成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             })
             if (options.skip_self) {
               node.children = []
@@ -674,7 +677,8 @@ export default {
         this.$notify({
           title: '错误',
           message: '请先完成节点的重新命名！',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         })
         return false
       }
@@ -787,7 +791,8 @@ export default {
         this.$notify({
           title: '错误',
           message: '请先完成节点的重新命名！',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         })
         return false
       }
@@ -835,7 +840,8 @@ export default {
         this.$notify({
           title: '错误',
           message: '未选中节点，请重试',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         })
         return false
       }
@@ -869,7 +875,8 @@ export default {
         this.$notify({
           title: '错误',
           message: '请输入正确的名称！',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         })
         return false
       }
@@ -885,7 +892,8 @@ export default {
             this.$notify({
               title: '成功',
               message: '创建新节点成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             })
             this.menuData.label = this.titleFromShowMe
             this.titleFromShowMe = ''
@@ -904,7 +912,8 @@ export default {
             this.$notify({
               title: '成功',
               message: '更新节点成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             })
             this.menuData.label = this.titleFromShowMe
             this.menuData.display = false
@@ -927,7 +936,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '发布成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           })
           this.pushing = false
         }
@@ -945,7 +955,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '发布空规则成功！',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           })
           this.pushingEmpty = false
         }

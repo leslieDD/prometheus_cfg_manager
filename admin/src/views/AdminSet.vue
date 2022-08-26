@@ -114,7 +114,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '参数提交成功',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           })
           this.selectChanged = false
         }
@@ -129,7 +130,8 @@ export default {
         this.$notify({
           title: '警告',
           message: '已经生成新的重置码！',
-          type: 'warning'
+          type: 'warning',
+          duration: 1000,
         })
         this.ruleForm.code = ''
         this.dialogFormVisible = true
@@ -146,7 +148,8 @@ export default {
             this.$notify({
               title: '成功',
               message: '重置成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
             this.runningMod = false
           }).catch(e => {

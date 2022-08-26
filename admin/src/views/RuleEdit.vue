@@ -345,7 +345,8 @@ annotations:
             this.$notify({
               title: '成功',
               message: '更新成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
           }
         ).catch(
@@ -359,7 +360,8 @@ annotations:
             this.$notify({
               title: '成功',
               message: '创建成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
           }
         ).catch(
@@ -369,7 +371,8 @@ annotations:
         this.$notify({
           title: '失败',
           message: '不支持的操作！',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         });
       }
     },
@@ -405,7 +408,8 @@ annotations:
             this.$notify({
               title: '成功',
               message: '删除成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
             if (lType === 'labels') {
               const index = this.formData.labels.findIndex(d => d.id === data.id);

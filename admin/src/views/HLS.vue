@@ -53,14 +53,8 @@
       <div class="playVideo-layout">
         <!-- 播放器 -->
         <div id="app-container" class="video-box">
-          <video
-            ref="videoElement"
-            :src="videoUrl"
-            id="videoElement"
-            controls
-            muted
-            style="width: 100%; height: 100%; object-fit: fill"
-          ></video>
+          <video ref="videoElement" :src="videoUrl" id="videoElement" controls muted
+            style="width: 100%; height: 100%; object-fit: fill"></video>
         </div>
         <!-- <ck-player :sourceUrl="videoUrl"  @playStatus= "changePlayStatus"></ck-player> -->
       </div>
@@ -79,7 +73,7 @@ export default {
   components: {
     ckPlayer
   },
-  data() {
+  data () {
     return {
       videoUrl: "",
       hlsInfo: {
@@ -112,22 +106,22 @@ export default {
       }
     };
   },
-  mounted() {
+  mounted () {
     // this.show();
     this.closeVideo()
   },
   methods: {
-    changePlayStatus(status) { //获取子组件的播放状态
-      if(status) {
-          this.disabledShot = false
+    changePlayStatus (status) { //获取子组件的播放状态
+      if (status) {
+        this.disabledShot = false
       } else {
-          this.disabledShot = true
-          this.videoUrl = ''
-          this.checkedPontsName = ''
+        this.disabledShot = true
+        this.videoUrl = ''
+        this.checkedPontsName = ''
       }
     },
     //播放
-    onPlay(formName){
+    onPlay (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           console.log(1, this.hlsInfo)
@@ -137,7 +131,7 @@ export default {
         }
       })
     },
-    onPlayV2(formName){
+    onPlayV2 (formName) {
       this.$refs[formName].validate((valid) => {
         if (valid) {
           console.log(2, this.hlsUrl)
@@ -147,9 +141,9 @@ export default {
         }
       })
     },
-    show(sType) {
+    show (sType) {
       // let now = new Date().valueOf()
-      if (sType===1) {
+      if (sType === 1) {
         var hash = md5.create()
         hash.update(this.hlsInfo.live_name)
         hash.update(this.hlsInfo.unix_time)
@@ -164,67 +158,68 @@ export default {
         this.$notify({
           title: '错误',
           message: '不支持的操作类型',
-          type: 'error'
+          type: 'error',
+          duration: 2000,
         });
         return
       }
       console.log(this.videoUrl)
       this.video = this.$refs.videoElement; //定义挂载点
       if (hlsjs.isSupported()) {
-          var config = {
-            autoStartLoad: true,
-            // startPosition : -1,
-            // capLevelToPlayerSize: false,
-            // debug: false,
-            // defaultAudioCodec: undefined,
-            // initialLiveManifestSize: 1,
-            // maxBufferLength: 30,
-            // maxMaxBufferLength: 600,
-            // maxBufferSize: 60*1000*1000,
-            // maxBufferHole: 0.5,
-            // maxSeekHole: 2,
-            // lowBufferWatchdogPeriod: 0.5,
-            // highBufferWatchdogPeriod: 3,
-            // nudgeOffset: 0.1,
-            // nudgeMaxRetry : 3,
-            // maxFragLookUpTolerance: 0.2,
-            // liveSyncDurationCount: 3,
-            // liveMaxLatencyDurationCount: 10,
-            // enableWorker: true,
-            // enableSoftwareAES: true,
-            // manifestLoadingTimeOut: 10000,
-            // manifestLoadingMaxRetry: 1,
-            // manifestLoadingRetryDelay: 500,
-            // manifestLoadingMaxRetryTimeout : 64000,
-            // startLevel: undefined,
-            // levelLoadingTimeOut: 10000,
-            // levelLoadingMaxRetry: 4,
-            // levelLoadingRetryDelay: 500,
-            // levelLoadingMaxRetryTimeout: 64000,
-            // fragLoadingTimeOut: 20000,
-            // fragLoadingMaxRetry: 6,
-            // fragLoadingRetryDelay: 500,
-            // fragLoadingMaxRetryTimeout: 64000,
-            // startFragPrefetch: false,
-            // appendErrorMaxRetry: 3,
-            // loader: customLoader,
-            // fLoader: customFragmentLoader,
-            // pLoader: customPlaylistLoader,
-            // xhrSetup: XMLHttpRequestSetupCallback,
-            // fetchSetup: FetchSetupCallback,
-            // abrController: customAbrController,
-            // timelineController: TimelineController,
-            // enableCEA708Captions: true,
-            // stretchShortVideoTrack: false,
-            // forceKeyFrameOnDiscontinuity: true,
-            // abrEwmaFastLive: 5.0,
-            // abrEwmaSlowLive: 9.0,
-            // abrEwmaFastVoD: 4.0,
-            // abrEwmaSlowVoD: 15.0,
-            // abrEwmaDefaultEstimate: 500000,
-            // abrBandWidthFactor: 0.8,
-            // abrBandWidthUpFactor: 0.7,
-            // minAutoBitrate: 0
+        var config = {
+          autoStartLoad: true,
+          // startPosition : -1,
+          // capLevelToPlayerSize: false,
+          // debug: false,
+          // defaultAudioCodec: undefined,
+          // initialLiveManifestSize: 1,
+          // maxBufferLength: 30,
+          // maxMaxBufferLength: 600,
+          // maxBufferSize: 60*1000*1000,
+          // maxBufferHole: 0.5,
+          // maxSeekHole: 2,
+          // lowBufferWatchdogPeriod: 0.5,
+          // highBufferWatchdogPeriod: 3,
+          // nudgeOffset: 0.1,
+          // nudgeMaxRetry : 3,
+          // maxFragLookUpTolerance: 0.2,
+          // liveSyncDurationCount: 3,
+          // liveMaxLatencyDurationCount: 10,
+          // enableWorker: true,
+          // enableSoftwareAES: true,
+          // manifestLoadingTimeOut: 10000,
+          // manifestLoadingMaxRetry: 1,
+          // manifestLoadingRetryDelay: 500,
+          // manifestLoadingMaxRetryTimeout : 64000,
+          // startLevel: undefined,
+          // levelLoadingTimeOut: 10000,
+          // levelLoadingMaxRetry: 4,
+          // levelLoadingRetryDelay: 500,
+          // levelLoadingMaxRetryTimeout: 64000,
+          // fragLoadingTimeOut: 20000,
+          // fragLoadingMaxRetry: 6,
+          // fragLoadingRetryDelay: 500,
+          // fragLoadingMaxRetryTimeout: 64000,
+          // startFragPrefetch: false,
+          // appendErrorMaxRetry: 3,
+          // loader: customLoader,
+          // fLoader: customFragmentLoader,
+          // pLoader: customPlaylistLoader,
+          // xhrSetup: XMLHttpRequestSetupCallback,
+          // fetchSetup: FetchSetupCallback,
+          // abrController: customAbrController,
+          // timelineController: TimelineController,
+          // enableCEA708Captions: true,
+          // stretchShortVideoTrack: false,
+          // forceKeyFrameOnDiscontinuity: true,
+          // abrEwmaFastLive: 5.0,
+          // abrEwmaSlowLive: 9.0,
+          // abrEwmaFastVoD: 4.0,
+          // abrEwmaSlowVoD: 15.0,
+          // abrEwmaDefaultEstimate: 500000,
+          // abrBandWidthFactor: 0.8,
+          // abrBandWidthUpFactor: 0.7,
+          // minAutoBitrate: 0
         };
         this.hlsjs = new hlsjs(config);
         this.hlsjs.loadSource(this.videoUrl);//设置播放路径
@@ -235,7 +230,8 @@ export default {
           this.$notify({
             title: '成功',
             message: '开始播放',
-            type: 'success'
+            type: 'success',
+            duration: 1000,
           });
         });
         this.hlsjs.on(hlsjs.Events.ERROR, (event, data) => {
@@ -247,7 +243,7 @@ export default {
           //   type: 'error'
           // });
           if (data.fatal) {
-            switch(data.type) {
+            switch (data.type) {
               // 网络错误导致的错误，据观察这种类型的错，占比最高
               case Hls.ErrorTypes.NETWORK_ERROR:
                 // 根据自己业务（心跳/错误次数 需要加载还是重新请求，这里只给出简单的，加载情况作为示例）
@@ -260,10 +256,10 @@ export default {
               default:
                 this.hlsjs.destroy();
                 this.$nextTick(() => {
-                // 非网络或多媒体错误，重新获取url
-                this.show(sType);
-              })
-              break;
+                  // 非网络或多媒体错误，重新获取url
+                  this.show(sType);
+                })
+                break;
             }
           }
         });
@@ -271,12 +267,13 @@ export default {
         this.$notify({
           title: '错误',
           message: '浏览器不支持',
-          type: 'error'
+          type: 'error',
+          duration: 1000,
         });
       }
     },
     //停止播放
-    closeVideo() {
+    closeVideo () {
       if (this.hlsjs) {
         this.$refs.videoElement.pause();
         this.video.pause();
@@ -298,8 +295,9 @@ export default {
   width: 1024px;
   height: 768px;
   top: calc(50% - 430px);
-  left: calc(50% - 512px);  
+  left: calc(50% - 512px);
 }
+
 .inline-btn {
   float: right;
 }

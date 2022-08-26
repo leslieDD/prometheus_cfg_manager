@@ -337,7 +337,8 @@
             this.$notify({
               title: '成功',
               message: show_notice,
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
           }
         }).catch(e => console.log(e))
@@ -493,7 +494,8 @@
             this.$notify({
               title: '成功',
               message: '删除成功！',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
             this.doGetTree()
           }).catch(e=>{
@@ -532,7 +534,8 @@
             this.$notify({
               title: '成功',
               message: '以下IDC中IP已加黑',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
           }).catch(e=>console.log(e))
         }).catch(e => console.log(e))
@@ -547,7 +550,8 @@
             this.$notify({
               title: '成功',
               message: '此线路IP已加黑',
-              type: 'success'
+              type: 'success',
+              duration: 1000,
             });
           }).catch(e=>console.log(e))
         }).catch(e => console.log(e))
@@ -559,7 +563,8 @@
           this.$notify({
             title: '成功',
             message: '删除成功！',
-            type: 'success'
+            type: 'success',
+              duration: 1000,
           });
           this.delLineDialogVisable = false
           this.delIpAddrsForLineDoing = false
@@ -643,7 +648,8 @@
               this.$notify({
                 title: '成功',
                 message: '更新成功！',
-                type: 'success'
+                type: 'success',
+              duration: 1000,
               });
           }).catch(e=>console.log(e))
         } else if (this.currentPoolObj.tree_type === 'line') {
@@ -656,7 +662,8 @@
               this.$notify({
                 title: '成功',
                 message: '更新成功！',
-                type: 'success'
+                type: 'success',
+              duration: 1000,
               });
           }).catch(e=>console.log(e))
         } 
@@ -667,7 +674,8 @@
           this.$notify({
             title: '成功',
             message: '更新成功！',
-            type: 'success'
+            type: 'success',
+              duration: 1000,
           });
           this.pushing_all = false
         }).catch(e=>{
@@ -681,7 +689,8 @@
           this.$notify({
             title: '成功',
             message: '更新成功！',
-            type: 'success'
+            type: 'success',
+              duration: 1000,
           });
           this.pushing_part = false
         }).catch(e=>{
@@ -695,7 +704,8 @@
           this.$notify({
             title: '成功',
             message: '生成成功！',
-            type: 'success'
+            type: 'success',
+              duration: 1000,
           });
           this.pushing_create_label = false
         }).catch(e=>{
@@ -738,7 +748,8 @@
           this.$notify({
             title: '成功',
             message: '扩展成功！',
-            type: 'success'
+            type: 'success',
+              duration: 1000,
           });
         }).catch(e=>{
           console.log(e)
