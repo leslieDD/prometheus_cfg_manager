@@ -3,6 +3,7 @@ package alertmgr
 import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
+	"strings"
 	"sync"
 	"time"
 
@@ -14,7 +15,8 @@ type ChartCron struct {
 	RulesInfo []*CronRule
 	doAction  chan struct{}
 
-	cObj *cron.Cron
+	cObj    *cron.Cron
+	entryID []cron.EntryID
 }
 
 var ChartCronObj *ChartCron
@@ -23,6 +25,7 @@ func NewChartCron() *ChartCron {
 	return &ChartCron{
 		lock:     sync.Mutex{},
 		doAction: make(chan struct{}, 1),
+		entryID:  []cron.EntryID{},
 	}
 }
 
@@ -79,12 +82,56 @@ func (c *ChartCron) DoCron() {
 	c.lock.Lock()
 
 	for _, rule := range c.RulesInfo {
-		c.cObj.AddFunc(rule.Name, func() {
-			// ChartLine(rule)
-			// config.Log.Warnf(rule.ExecCycle)
-		})
+		// 只取前6个字段
+		ruleFiles := strings.Fields(rule.ExecCycle)
+		var execRule string
+		// config.Log.Print("start rule: ", rule.ExecCycle, rule.Name)
+		if len(ruleFiles) >= 6 {
+			execRule = strings.Join(ruleFiles[0:5], " ")
+		} else {
+			execRule = rule.ExecCycle
+		}
+		c.DoDoDo(execRule, rule)
 	}
 	c.cObj.Start()
 
 	c.lock.Unlock()
+	config.Log.Warnf("start cron done")
+}
+
+// 单独写，是因为上面写在一个函数里面的时候，会出现参数函数里面，rule只会用最后一个
+func (c *ChartCron) DoDoDo(execRule string, rule *CronRule) {
+	/*
+		# 文件格式說明
+		# ┌──分鐘（0 - 59）
+		# │  ┌──小時（0 - 23）
+		# │  │  ┌──日（1 - 31）
+		# │  │  │  ┌─月（1 - 12）
+		# │  │  │  │  ┌─星期（0 - 6，表示从周日到周六）
+		# │  │  │  │  │
+		# *  *  *  *  * 被執行的命令
+	*/
+	eid, err := c.cObj.AddFunc(execRule, func() {
+		c.Work(rule)
+	})
+	if err != nil {
+		config.Log.Error(err)
+		return
+	}
+	c.entryID = append(c.entryID, eid)
+}
+
+func (c *ChartCron) Work(rule *CronRule) {
+	defer func() {
+		if r := recover(); r != nil {
+			config.Log.Error("Recovered in Work", r)
+		}
+	}()
+	ic := ImageContent{}
+	image, err := ChartLine(rule)
+	if err != nil {
+		return
+	}
+	ic.Img = image
+	sendEmail(&ic)
 }

@@ -20,10 +20,11 @@ type gps struct {
 }
 
 type mail struct {
-	Sender   string `json:"sender" yaml:"sender"`
-	Password string `json:"password" yaml:"password"`
-	SMTP     string `json:"smtp" yaml:"smtp"`
-	Port     int    `json:"port" yaml:"port"`
+	Sender   string   `json:"sender" yaml:"sender"`
+	Password string   `json:"password" yaml:"password"`
+	SMTP     string   `json:"smtp" yaml:"smtp"`
+	Port     string   `json:"port" yaml:"port"`
+	ToUsers  []string `json:"to_users" yaml:"to_users"`
 }
 
 type prometheusCfg struct {
