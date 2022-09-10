@@ -193,7 +193,7 @@ export default {
         'name': ''
       }
       this.buttonTitle = '创建'
-      this.dialogTitle = '增加重写标签'
+      this.dialogTitle = '增加监控规则'
       this.dialogVisible = true
     },
     doGetReLabels (getInfo) {

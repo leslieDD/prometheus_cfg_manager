@@ -47,10 +47,23 @@
       </el-table-column>
       <el-table-column label="分组名称" prop="name"> </el-table-column>
       <el-table-column label="端口号" width="90px" prop="port">
+        <template #header>
+          <el-tooltip content="如果端口号为0，在生成配置时忽略端口号，只保留IP地址" placement="top">
+            <span type="warning">端口号
+              <i style="font-size: 13px; color: #0081ff" class="el-icon-warning"></i></span>
+          </el-tooltip>
+        </template>
       </el-table-column>
       <el-table-column label="IP数" width="80px" prop="ip_count">
       </el-table-column>
-      <el-table-column label="重写标签" prop="relabel_name"> </el-table-column>
+      <el-table-column label="监控规则" prop="relabel_name">
+        <template #header>
+          <el-tooltip content="在‘基本配置’选项卡下的‘监控规则’下定义" placement="top">
+            <span type="warning">监控规则
+              <i style="font-size: 13px; color: #0081ff" class="el-icon-warning"></i></span>
+          </el-tooltip>
+        </template>
+      </el-table-column>
       <el-table-column label="最新更新账号" prop="update_by"> </el-table-column>
       <el-table-column label="更新时间" prop="update_at">
         <template v-slot="{ row }">
@@ -91,17 +104,29 @@
         :total="pageTotal">
       </el-pagination>
     </div>
-    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="400px" modal :before-close="handleClose">
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="440px" modal :before-close="handleClose">
       <span>
-        <el-form label-position="right" :rules="rules" ref="addJobInfo" :model="addJobInfo" label-width="90px"
+        <el-form label-position="right" :rules="rules" ref="addJobInfo" :model="addJobInfo" label-width="115px"
           size="small">
           <el-form-item label="分组名：" prop="name">
             <el-input style="width: 230px" v-model="addJobInfo.name"></el-input>
           </el-form-item>
           <el-form-item label="端口号" prop="port">
+            <template #label>
+              <span>端口号</span>
+              <el-tooltip content="如果端口号为0，在生成配置时忽略端口号，只保留IP地址" placement="top" style="diaplay: inline">
+                <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
+              </el-tooltip>
+            </template>
             <el-input type="number" style="width: 230px" v-model.number="addJobInfo.port"></el-input>
           </el-form-item>
-          <el-form-item label="重写标签" prop="relabel_id">
+          <el-form-item label="监控规则" prop="relabel_id">
+            <template #label>
+              <span>监控规则</span>
+              <el-tooltip content="在‘基本配置’选项卡下的‘监控规则’下定义" placement="top" style="diaplay: inline">
+                <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
+              </el-tooltip>
+            </template>
             <el-select v-model="addJobInfo.relabel_id" filterable allow-create default-first-option placeholder="请选择"
               style="width: 230px">
               <el-option v-for="item in relabelList" :key="item.id" :label="item.name" :value="item.id">
@@ -172,7 +197,7 @@ export default {
           { required: true, type: 'number', min: 0, max: 65535, message: '请输入端口号[>=0, <=65535]', trigger: ['change'] }
         ],
         relabel_id: [
-          { required: true, type: 'number', min: 1, message: '请选择重写标签', trigger: ['change'] }
+          { required: true, type: 'number', min: 1, message: '请选择监控规则', trigger: ['change'] }
         ]
         // display_order: [
         //   { type: 'number', min: 1, message: '请输入排序号[>=1]', trigger: ['blur'] }

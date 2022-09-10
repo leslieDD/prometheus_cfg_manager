@@ -108,7 +108,7 @@
           }}</el-button>
         </template>
       </el-table-column>
-      <el-table-column label="重写标签" prop="relabel_name" show-overflow-tooltip>
+      <el-table-column label="监控规则" prop="relabel_name" show-overflow-tooltip>
         <template #header>
           <el-tooltip content="在‘基本配置’选项卡下的‘监控规则’下定义" placement="top">
             <span type="warning">监控规则
@@ -254,7 +254,13 @@
             </template>
             <el-input type="number" style="width: 250px" v-model.number="addJobInfo.port"></el-input>
           </el-form-item>
-          <el-form-item label="重写标签：" prop="relabel_id">
+          <el-form-item label="监控规则：" prop="relabel_id">
+            <template #label>
+              <span>监控规则</span>
+              <el-tooltip content="在‘基本配置’选项卡下的‘监控规则’下定义" placement="top" style="diaplay: inline">
+                <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
+              </el-tooltip>
+            </template>
             <el-select v-model="addJobInfo.relabel_id" filterable allow-create default-first-option placeholder="请选择"
               style="width: 250px">
               <el-option v-for="item in relabelList" :key="item.id" :label="item.name" :value="item.id">
@@ -498,7 +504,7 @@ export default {
           { required: true, type: 'number', min: 0, max: 65535, message: '请输入端口号[>=0, <=65535]', trigger: ['change'] }
         ],
         relabel_id: [
-          { required: true, type: 'number', min: 1, message: '请选择重写标签', trigger: ['change'] }
+          { required: true, type: 'number', min: 1, message: '请选择监控规则', trigger: ['change'] }
         ]
         // display_order: [
         //   { type: 'number', min: 1, message: '请输入排序号[>=1]', trigger: ['blur'] }
