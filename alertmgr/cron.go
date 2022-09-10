@@ -127,7 +127,10 @@ func (c *ChartCron) Work(rule *CronRule) {
 			config.Log.Error("Recovered in Work", r)
 		}
 	}()
-	ic := ImageContent{}
+	ic := ImageContent{
+		Width:  "304",
+		Height: "228",
+	}
 	image, err := ChartLine(rule)
 	if err != nil {
 		return

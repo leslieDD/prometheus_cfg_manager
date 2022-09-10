@@ -29,6 +29,7 @@ require (
 	github.com/tklauser/go-sysconf v0.3.7 // indirect
 	github.com/vicanso/go-charts/v2 v2.1.1
 	github.com/xuri/excelize/v2 v2.6.0
+	golang.org/x/net v0.0.0-20220407224826-aac1ed45d8e3
 	golang.org/x/text v0.3.7
 	gonum.org/v1/plot v0.11.0
 	gopkg.in/check.v1 v1.0.0-20190902080502-41f04d3bba15 // indirect
