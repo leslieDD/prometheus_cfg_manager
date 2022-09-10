@@ -1,0 +1,1 @@
+ALTER TABLE `monitor_rules` CHANGE COLUMN `api_content` `api_id` INT NULL DEFAULT NULL COLLATE 'utf8mb3_general_ci';

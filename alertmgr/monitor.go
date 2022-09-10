@@ -255,7 +255,18 @@ func CreateUrl(rule *RuleInfo) string {
 	if vals == nil {
 		return ""
 	}
-	api := strings.ToLower(rule.MonitorRule.ApiContent)
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error("get sql session error")
+		return ""
+	}
+	apiInfo := models.CronApi{}
+	tx := db.Table("crontab_api").Where("id=?", rule.MonitorRule.ApiID).Find(&apiInfo)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error.Error())
+		return ""
+	}
+	api := strings.ToLower(apiInfo.API)
 	if !strings.HasPrefix(api, "http://") && !strings.HasPrefix(api, "https://") {
 		api = "http://" + api
 	}

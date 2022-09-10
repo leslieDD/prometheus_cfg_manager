@@ -122,22 +122,32 @@
               <i class="el-icon-question"></i>
             </el-tooltip>
           </template>
-          <el-switch v-model="formData.enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          <el-tooltip :content="display_curr_status(formData.enabled)" @mouseenter="display_curr_status(formData.enabled)" placement="top">
+            <el-switch v-model="formData.enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          </el-tooltip>
         </el-descriptions-item>
         <el-descriptions-item>
           <template #label>
             <span>调用API监控</span>
-            <el-tooltip content="调用API监控" placement="top">
+            <el-tooltip content="调用其它prometheus的API进行监控操作" placement="top">
               <i class="el-icon-question"></i>
             </el-tooltip>
-          </template>
-          <el-row>
-            <el-switch v-model="formData.api_enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
-            <el-input :disabled="!formData.api_enabled" v-model="formData.api_content" size="mini"
+          </template> 
+          <div class="api-select">
+            <el-tooltip :content="display_curr_status(formData.api_enabled)" @mouseenter="display_curr_status(formData.api_enabled)" placement="top">
+              <el-switch v-model="formData.api_enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+            </el-tooltip>
+            <el-select :disabled="!formData.api_enabled" v-model="formData.api_id" style="  margin-left: 15px; width: 350px"
+             collapse-tags placeholder="请选择监控的API"
+              size="small">
+              <el-option v-for="item in cronApiList" :key="item.id" :label="item.name" :value="item.id">
+              </el-option>
+            </el-select>
+            <!-- <el-input :disabled="!formData.api_enabled" v-model="formData.api_content" size="mini"
               style="width: 500px; margin-left: 20px;" placeholder="Please input">
               <template #prepend>Prometheus的调用地址</template>
-            </el-input>
-          </el-row>
+            </el-input> -->
+          </div>
         </el-descriptions-item>
         <el-descriptions-item>
           <div class="rule-edit-area">
@@ -219,6 +229,11 @@ import {
   deleteNodeLable
 } from '@/api/monitor.js'
 
+import {
+  getAllBaseCronApi,
+} from '@/api/cron.js'
+
+
 import * as yaml from 'js-yaml'
 
 export default ({
@@ -262,7 +277,12 @@ annotations:
       showError: false,
       viewDialogVisible: false,
       viweCode: '',
-      nodeInfo: null
+      nodeInfo: null,
+      cronApiList: [],
+      selectOpts: {
+        curr_apislct_status: false,
+        curr_comslct_status: false,
+      },
     }
   },
   mounted () {
@@ -270,6 +290,11 @@ annotations:
     this.defaultLabelsFromRule = {}
   },
   methods: {
+    doGetCronApi(){
+      getAllBaseCronApi().then(r => {
+        this.cronApiList = r.data
+      })
+    },
     doGetRuleDetail (info) {
       if (!info) {
         return false
@@ -278,6 +303,7 @@ annotations:
         return false
       }
       this.nodeInfo = info
+      this.doGetCronApi()
       getDefaultEnableLables().then(
         r => {
           r.data.forEach(x => {
@@ -334,6 +360,13 @@ annotations:
     },
     flush () {
       this.doGetRuleDetail(this.nodeInfo)
+    },
+    display_curr_status(val){
+      if (val) {
+        return '当前： 启用'
+      } else {
+        return '当前： 禁用'
+      }
     },
     onSubmit () {
       const nodeData = this.formData
@@ -643,4 +676,5 @@ annotations:
 .box-member :deep() .el-descriptions__content {
   padding: 0px 0px 0px 0px;
 }
+
 </style>
