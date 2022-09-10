@@ -1013,17 +1013,23 @@ func DeleteJobItems(user *UserSessionInfo, mids *UpdateIPForJob, info *DelJobIte
 		return ErrDataBase
 	}
 	for _, jID := range info.Jobs {
-		if err := db.Table("job_machines").Where("job_id=? and machine_id in ?", jID, mids.MachinesIDs).Delete(nil).Error; err != nil {
+		jobGroups := []JobGroup{}
+		if err := db.Table("job_machines").Where("job_id=?", jID).Find(&jobGroups).Error; err != nil {
+			config.Log.Error(err)
+			return ErrSearchDBData
+		}
+		if len(jobGroups) == 0 {
+			continue
+		}
+		jobGroupsIDs := []int{}
+		for _, g := range jobGroups {
+			jobGroupsIDs = append(jobGroupsIDs, g.ID)
+		}
+		if err := db.Table("group_machines").Where("machines_id in ? and job_group_id in ?", mids.MachinesIDs, jobGroupsIDs).Delete(nil).Error; err != nil {
 			config.Log.Error(err)
 			return ErrDelData
 		}
-		// 在group_machines中，清除已经不存在的IP记录
-		if err := db.Exec(`DELETE FROM group_machines WHERE group_machines.machines_id NOT IN ? AND group_machines.job_group_id IN (
-			SELECT job_group_id FROM group_machines
-			LEFT JOIN job_group
-			ON group_machines.job_group_id=job_group.id
-			WHERE job_group.jobs_id=?
-			)`, mids.MachinesIDs, jID).Error; err != nil {
+		if err := db.Table("job_machines").Where("job_id=? and machine_id in ?", jID, mids.MachinesIDs).Delete(nil).Error; err != nil {
 			config.Log.Error(err)
 			return ErrDelData
 		}

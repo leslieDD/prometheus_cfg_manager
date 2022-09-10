@@ -728,6 +728,9 @@ export default {
 
 .block {
   padding-top: 12px;
+  /* text-align: center; */
+  display: flex;
+  justify-content: center;
 }
 
 .oneLine {
