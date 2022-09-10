@@ -241,7 +241,7 @@
     </el-dialog>
     <el-dialog :title="dialogTitle" v-model="dialogVisible" width="450px" modal :before-close="handleClose">
       <span>
-        <el-form label-position="right" ref="addJobInfo" :model="addJobInfo" label-width="110px" size="small">
+        <el-form label-position="right" :rules="rules" ref="addJobInfo" :model="addJobInfo" label-width="110px" size="small">
           <el-form-item label="分组名：" prop="name">
             <el-input style="width: 250px" v-model="addJobInfo.name"></el-input>
           </el-form-item>
