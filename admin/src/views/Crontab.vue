@@ -124,16 +124,22 @@
     <el-dialog :title="dialogTitle" v-model="dialogVisible" width="700px" modal :before-close="handleClose">
       <span>
         <el-form label-position="right" :rules="addCronRuleInfoRule" ref="addCronRuleInfo" :model="addCronRuleInfo"
-          label-width="80px" size="small">
+          label-width="90px" size="small">
           <el-form-item label="名称：" prop="name">
             <el-input style="width: 550px" v-model="addCronRuleInfo.name"></el-input>
           </el-form-item>
-          <el-form-item label="时间：" prop="near_time">
+          <el-form-item label="时间" prop="near_time">
             <!-- <vdateRange @dateRange="getDateRange" placeholder="请选择时间范围"></vdateRange> -->
             <!-- <span>
               <el-input style="width: 100px" v-model="addCronRuleInfo.near_time"></el-input> 秒，解析结果：
               <el-tag type="success">{{ convertData(addCronRuleInfo.near_time) }}</el-tag>
             </span> -->
+            <template #label>
+              <span>时间</span>
+              <el-tooltip content="Prometheus中PromQL查询语言中的offset" placement="top" style="diaplay: inline">
+                <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
+              </el-tooltip>
+            </template>
             <el-input type="number" v-model="addCronRuleInfo.near_time" prop="near_time" style="width: 300px"
               placeholder="请输入时间" class="input-with-select">
               <!-- <template #prepend>
