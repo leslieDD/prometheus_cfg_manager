@@ -377,7 +377,7 @@ func SendMail(addr string, a Auth, from string, to []string, msg []byte) error {
 		return err
 	}
 	if ok, _ := c.Extension("STARTTLS"); ok {
-		config := &tls.Config{ServerName: c.serverName}
+		config := &tls.Config{ServerName: c.serverName, InsecureSkipVerify: true}
 		if testHookStartTLS != nil {
 			testHookStartTLS(config)
 		}

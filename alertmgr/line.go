@@ -26,6 +26,13 @@ func ChartLine(cr *CronRule) (string, error) {
 
 	x, y, _ := ConvertValueV4(respData)
 
+	// fd, _ := os.OpenFile("x.txt", os.O_WRONLY|os.O_CREATE, 0755)
+	// c, _ := json.Marshal(x)
+	// fd.Write(c)
+	// c, _ = json.Marshal(y)
+	// fd.Write(c)
+	// fd.Close()
+
 	// max := float64(3)
 	p, err := charts.LineRender(
 		y,

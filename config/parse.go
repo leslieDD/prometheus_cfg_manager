@@ -50,7 +50,7 @@ func (cf *Config) verification() error {
 	cf.Logger.Path = filepath.Join(cf.RuntimeParam.RootDir, cf.Logger.Path)
 	_, err := os.Stat(cf.Logger.Path)
 	if err != nil {
-		if mkErr := os.Mkdir(cf.Logger.Path, 0644); mkErr != nil {
+		if mkErr := os.Mkdir(cf.Logger.Path, 0774); mkErr != nil {
 			return mkErr
 		}
 	}

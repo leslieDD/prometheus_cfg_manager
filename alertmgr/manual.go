@@ -15,7 +15,7 @@ func GetChartManual(id int) string {
 	tx := db.Raw(`SELECT crontab.*, crontab_api.api, crontab_api.name as api_name FROM crontab 
 	LEFT join crontab_api 
 	on crontab.api_id=crontab_api.id
-	WHERE crontab.enabled=1 and crontab.id=?
+	WHERE crontab.id=?
 	`, id).Find(&rule)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
@@ -26,5 +26,13 @@ func GetChartManual(id int) string {
 		return ""
 	}
 	image, _ := ChartLine(&rule)
+
+	ic := ImageContent{
+		Width:  "304",
+		Height: "228",
+	}
+	ic.Img = image
+	sendEmail(&ic)
+
 	return image
 }
