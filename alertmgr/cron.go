@@ -158,6 +158,7 @@ func (c *ChartCron) Work(rule *CronRule) {
 		}
 	}()
 	ic := ImageContent{
+		Title:  rule.Name,
 		Width:  "1000",
 		Height: "600",
 	}
