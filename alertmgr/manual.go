@@ -30,13 +30,13 @@ func GetChartManual(id int) string {
 		return ""
 	}
 
-	ic := ImageContent{
-		Title:  rule.Name,
-		Width:  "1000",
-		Height: "600",
-		Image:  imageContent,
-	}
-	sendEmail(&ic)
+	// ic := ImageContent{
+	// 	Title:  rule.Name,
+	// 	Width:  "1000",
+	// 	Height: "600",
+	// 	Image:  imageContent,
+	// }
+	// sendEmail(&ic)
 
 	return imageContent
 }
