@@ -65,35 +65,38 @@ func ConvertValueV3(rst *PrometheusRangeResult) plotter.XYs {
 	// return values
 }
 
-func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, []string) {
+// 最后一个返回值是最大值
+func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, float64) {
 	yvss := [][]float64{}
-	labels := []string{}
 	xtitles := []string{}
-	xlen := 0
-	for n, r := range rst.Data.Result {
+	maxVal := float64(0)
+	if len(rst.Data.Result) == 0 {
+		return xtitles, yvss, maxVal
+	}
+	var p *PrometheusRangeResult
+	maxLen := 0
+	for index, r := range rst.Data.Result {
 		vs := []float64{}
 		for _, v := range r.Values {
-			vs = append(vs, utils.StringToFloat64(v[1].(string)))
-		}
-		yvss = append(yvss, vs)
-		labels = append(labels, r.Metric["instance"])
-		if xlen < len(r.Values) {
-			xlen = n
-		}
-	}
-	for i := 0; i < len(yvss); i++ {
-		if len(yvss[i]) != xlen {
-			for j := 0; j < xlen-len(yvss[i]); j++ {
-				yvss[i] = append(yvss[i], 0)
+			vData := utils.StringToFloat64(v[1].(string))
+			vs = append(vs, vData)
+			if maxVal < vData {
+				maxVal = vData
 			}
 		}
-	}
-	if len(rst.Data.Result) >= 1 {
-		for _, v := range rst.Data.Result[xlen].Values {
-			xtitles = append(xtitles, time.Unix(int64(v[0].(float64)), 0).Local().Format("2006-01-02 15:04:05"))
+		yvss = append(yvss, vs)
+		if len(rst.Data.Result[index].Values) > maxLen {
+			maxLen = len(rst.Data.Result[index].Values)
+			p = rst.Data.Result[index]
 		}
 	}
-	return xtitles, yvss, labels
+	if p == nil {
+		p = rst.Data.Result[0]
+	}
+	for _, v := range p.Values {
+		xtitles = append(xtitles, time.Unix(int64(v[0].(float64)), 0).Local().Format("2006-01-02 15:04:05"))
+	}
+	return xtitles, yvss, maxVal
 }
 
 func CreatePostDataWithTime(sql string, start time.Time, end time.Time, Step string) url.Values {

@@ -27,7 +27,7 @@ require (
 	github.com/sonh/qs v0.6.0
 	github.com/spf13/pflag v1.0.5
 	github.com/tklauser/go-sysconf v0.3.7 // indirect
-	github.com/vicanso/go-charts/v2 v2.1.1
+	github.com/vicanso/go-charts/v2 v2.2.0
 	github.com/xuri/excelize/v2 v2.6.0
 	golang.org/x/net v0.0.0-20220407224826-aac1ed45d8e3
 	golang.org/x/text v0.3.7

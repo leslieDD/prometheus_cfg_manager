@@ -25,14 +25,18 @@ func GetChartManual(id int) string {
 		config.Log.Warnf("no record found")
 		return ""
 	}
-	image, _ := ChartLine(&rule)
+	imageContent, err := ChartLine(&rule)
+	if err != nil {
+		return ""
+	}
 
 	ic := ImageContent{
-		Width:  "304",
-		Height: "228",
+		Title:  rule.Name,
+		Width:  "1000",
+		Height: "600",
+		Image:  imageContent,
 	}
-	ic.Img = image
 	sendEmail(&ic)
 
-	return image
+	return imageContent
 }

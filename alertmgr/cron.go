@@ -135,6 +135,6 @@ func (c *ChartCron) Work(rule *CronRule) {
 	if err != nil {
 		return
 	}
-	ic.Img = image
+	ic.Image = image
 	sendEmail(&ic)
 }

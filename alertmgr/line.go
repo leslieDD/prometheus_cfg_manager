@@ -24,29 +24,26 @@ func ChartLine(cr *CronRule) (string, error) {
 		return "", errors.New("no data found")
 	}
 
-	x, y, _ := ConvertValueV4(respData)
-
-	// fd, _ := os.OpenFile("x.txt", os.O_WRONLY|os.O_CREATE, 0755)
-	// c, _ := json.Marshal(x)
-	// fd.Write(c)
-	// c, _ = json.Marshal(y)
-	// fd.Write(c)
-	// fd.Close()
-
-	// max := float64(3)
+	x, y, max := ConvertValueV4(respData)
 	p, err := charts.LineRender(
 		y,
-		// charts.YAxisOptionFunc(charts.YAxisOption{Max: &max}),
 		charts.TitleTextOptionFunc("Line"),
 		charts.XAxisDataOptionFunc(x),
-		// charts.LegendLabelsOptionFunc(labels, "50"),
 		func(opt *charts.ChartOption) {
+			opt.Title = charts.TitleOption{Text: cr.Name}
+			opt.Height = 600
+			opt.Width = 1000
 			opt.Legend.Padding = charts.Box{
 				Top:    5,
 				Bottom: 10,
 			}
 			opt.SymbolShow = charts.FalseFlag()
 			opt.LineStrokeWidth = 1
+			opt.YAxisOptions = []charts.YAxisOption{
+				{
+					Max: charts.NewFloatPoint(max),
+				},
+			}
 		},
 	)
 	if err != nil {
