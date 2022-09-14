@@ -1,0 +1,40 @@
+app:
+  name: "pro_cfg_manager"
+  # 监听地址及端口号
+  listen: "0.0.0.0:8200"
+
+logger:
+  # 日志目录 
+  path: logs
+  level: all
+
+mysql:
+  url: monitor:XAME6SeKtrIXhicI2zzq@tcp(127.0.0.1:3306)/pro_cfg_manager?charset=utf8&parseTime=True&loc=Local
+
+prometheus_cfg:
+  # prometheus服务的监听地址及端口号
+  api: "127.0.0.1:9090"
+  # 开放地址，通过过个地址，可以打开Prometheus自带的管理后台
+  open_address: "http://127.0.0.1:9090"
+  # 只支持base auth，因为prometheus本身没有支持权限管理，
+  # 有时候会为prometheus通过nginx代理，在nginx下设置访问权限，
+  # 如果未设置访问权限，请忽略以下两个字段
+  username: "username"
+  password: "password"
+  # prometheus服务的主目录
+  # 本服务生成的prometheus相关配置文件及文件夹都在此目录下
+  dir: prometheus_config
+  # prometheus alertmanager的接口地址
+  alert_manager: "http://10.10.200.1:9093"
+
+gps:
+  ip2region: ip2region.db
+
+mail:
+  sender: "xxx@qq.cn"
+  password: "Monitor@Prometheus"
+  smtp: "smtp.qq.cn"
+  port: 25
+  to_users:
+    - "xxx1@qq.cn"
+    - "xxx2@qq.cn"
