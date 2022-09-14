@@ -12,34 +12,35 @@ import (
 
 type ChartCron struct {
 	lock      sync.Mutex
-	RulesInfo []*CronRule
+	RulesInfo map[int]*CronRule
 	doAction  chan struct{}
 
 	cObj    *cron.Cron
-	entryID []cron.EntryID
+	entryID map[int]cron.EntryID
 }
 
 var ChartCronObj *ChartCron
 
 func NewChartCron() *ChartCron {
 	return &ChartCron{
-		lock:     sync.Mutex{},
-		doAction: make(chan struct{}, 1),
-		entryID:  []cron.EntryID{},
+		lock:      sync.Mutex{},
+		doAction:  make(chan struct{}, 1),
+		entryID:   map[int]cron.EntryID{},
+		RulesInfo: map[int]*CronRule{},
 	}
 }
 
 func (c *ChartCron) Run() {
-	c.LoadRule()
+	c.RulesInfo = c.LoadRule()
 	go c.DoCron()
 	go c.RecycleLoadRule()
 }
 
-func (c *ChartCron) LoadRule() {
+func (c *ChartCron) LoadRule() map[int]*CronRule {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error("get db session err")
-		return
+		return nil
 	}
 	rules := []*CronRule{}
 	tx := db.Raw(`SELECT crontab.*, crontab_api.api, crontab_api.name as api_name FROM crontab 
@@ -49,21 +50,50 @@ func (c *ChartCron) LoadRule() {
 	`).Find(&rules)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
-		return
+		return nil
 	}
+	tasks := map[int]*CronRule{}
+	for _, rule := range rules {
+		tasks[rule.ID] = rule
+	}
+	config.Log.Warnf("load cron rules: %d", len(tasks))
+	return tasks
+}
 
+func (c *ChartCron) LoadRuleManual() {
+	rulesInfo := c.LoadRule()
 	c.lock.Lock()
 	defer c.lock.Unlock()
-	config.Log.Warnf("load cron rules: %d", len(rules))
-	c.RulesInfo = rules
+	// 移除所有已经不存在的任务
+	for ruleID, taskID := range c.entryID {
+		_, ok := rulesInfo[ruleID]
+		if !ok {
+			c.cObj.Remove(taskID)
+			config.Log.Warnf("remove cron task: %d", ruleID)
+			continue
+		}
+	}
+	for ruleID, newRule := range rulesInfo {
+		oldRule := c.RulesInfo[ruleID]
+		if oldRule != nil {
+			if !oldRule.UpdateAt.Equal(newRule.UpdateAt) {
+				config.Log.Warnf("stop cron task: %d, will start soon", ruleID)
+				c.cObj.Remove(c.entryID[ruleID])
+			} else {
+				continue
+			}
+		}
+		execRule := c.ConvertSpec(newRule)
+		c.DoDoDo(execRule, newRule)
+	}
+	c.RulesInfo = rulesInfo
 }
 
 func (c *ChartCron) RecycleLoadRule() {
 	for {
 		select {
 		case <-c.doAction:
-			c.LoadRule()
-			c.DoCron()
+			c.LoadRuleManual()
 		}
 	}
 }
@@ -73,30 +103,29 @@ func (c *ChartCron) NoticeReload() {
 }
 
 func (c *ChartCron) DoCron() {
-	if c.cObj != nil {
-		c.cObj.Stop()
-	}
 	nyc, _ := time.LoadLocation("Asia/Shanghai")
 	c.cObj = cron.New(cron.WithLocation(nyc))
 
 	c.lock.Lock()
+	defer c.lock.Unlock()
 
 	for _, rule := range c.RulesInfo {
-		// 只取前6个字段
-		ruleFiles := strings.Fields(rule.ExecCycle)
-		var execRule string
-		// config.Log.Print("start rule: ", rule.ExecCycle, rule.Name)
-		if len(ruleFiles) >= 6 {
-			execRule = strings.Join(ruleFiles[0:5], " ")
-		} else {
-			execRule = rule.ExecCycle
-		}
+		execRule := c.ConvertSpec(rule)
 		c.DoDoDo(execRule, rule)
 	}
 	c.cObj.Start()
-
-	c.lock.Unlock()
 	config.Log.Warnf("start cron done")
+}
+
+func (c *ChartCron) ConvertSpec(rule *CronRule) string {
+	ruleFiles := strings.Fields(rule.ExecCycle)
+	var execRule string
+	if len(ruleFiles) >= 6 {
+		execRule = strings.Join(ruleFiles[0:5], " ")
+	} else {
+		execRule = rule.ExecCycle
+	}
+	return execRule
 }
 
 // 单独写，是因为上面写在一个函数里面的时候，会出现参数函数里面，rule只会用最后一个
@@ -118,7 +147,8 @@ func (c *ChartCron) DoDoDo(execRule string, rule *CronRule) {
 		config.Log.Error(err)
 		return
 	}
-	c.entryID = append(c.entryID, eid)
+	config.Log.Warnf("start cron task: %d, %d", rule.ID, eid)
+	c.entryID[rule.ID] = eid
 }
 
 func (c *ChartCron) Work(rule *CronRule) {
@@ -128,8 +158,8 @@ func (c *ChartCron) Work(rule *CronRule) {
 		}
 	}()
 	ic := ImageContent{
-		Width:  "304",
-		Height: "228",
+		Width:  "1000",
+		Height: "600",
 	}
 	image, err := ChartLine(rule)
 	if err != nil {
