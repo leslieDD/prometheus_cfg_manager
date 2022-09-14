@@ -120,7 +120,7 @@ func (c *ChartCron) DoCron() {
 func (c *ChartCron) ConvertSpec(rule *CronRule) string {
 	ruleFiles := strings.Fields(rule.ExecCycle)
 	var execRule string
-	if len(ruleFiles) >= 6 {
+	if len(ruleFiles) >= 5 {
 		execRule = strings.Join(ruleFiles[0:5], " ")
 	} else {
 		execRule = rule.ExecCycle
