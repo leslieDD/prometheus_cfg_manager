@@ -30,6 +30,7 @@ prometheus_cfg:
 gps:
   ip2region: ip2region.db
 
+# 在后台“定时任务”中，可以通过邮件，定时发送，通过规则获取到的图像
 mail:
   sender: "xxx@qq.cn"
   password: "Monitor@Prometheus"
