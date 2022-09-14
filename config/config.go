@@ -61,7 +61,7 @@ type Config struct {
 var Cfg *Config
 
 // Version 软件版本
-var Version = "1.0.35 bate"
+var Version = "1.0.36 bate"
 
 // SubDir for config
 var SubDir = "conf.d"

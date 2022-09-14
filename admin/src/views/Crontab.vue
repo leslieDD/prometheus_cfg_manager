@@ -38,6 +38,12 @@
       <el-table-column label="名称" width="200px" prop="name" align="center" header-align="center" show-overflow-tooltip>
       </el-table-column>
       <el-table-column label="规则" prop="rule" align="center" header-align="center">
+        <template #header>
+          <el-tooltip content="Prometheus中PromQL查询语言" placement="top">
+            <span type="warning">规则
+              <i style="font-size: 13px; color: #0081ff" class="el-icon-warning"></i></span>
+          </el-tooltip>
+        </template>
         <template v-slot="{ row }">
           <el-tooltip placement="top">
             <template #content>
@@ -50,6 +56,12 @@
       </el-table-column>
       <el-table-column label="接口" prop="api_id" width="150px" align="center" header-align="center"
         show-overflow-tooltip>
+        <template #header>
+          <el-tooltip content="执行规则所调用的接口，在'基本配置'下的'定时任务API'中定义" placement="top">
+            <span type="warning">接口
+              <i style="font-size: 13px; color: #0081ff" class="el-icon-warning"></i></span>
+          </el-tooltip>
+        </template>
         <template v-slot="{ row }">
           <span>{{ getApiName(row.api_id) }}</span>
         </template>
@@ -180,10 +192,22 @@
             </div> -->
           </el-form-item>
           <el-form-item label="规则：" prop="rule">
+            <template #label>
+              <span>规则</span>
+              <el-tooltip content="Prometheus中PromQL查询语言" placement="top" style="diaplay: inline">
+                <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
+              </el-tooltip>
+            </template>
             <el-input type="textarea" :autosize="{ minRows: 5, maxRows: 5 }" style="width: 550px"
               v-model="addCronRuleInfo.rule"></el-input>
           </el-form-item>
           <el-form-item label="接口：" prop="api_id">
+            <template #label>
+              <span>接口</span>
+              <el-tooltip content="执行规则所调用的接口，在'基本配置'下的'定时任务API'中定义" placement="top" style="diaplay: inline">
+                <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
+              </el-tooltip>
+            </template>
             <el-select v-model="addCronRuleInfo.api_id" style="width: 350px" collapse-tags placeholder="Select"
               size="small">
               <el-option v-for="item in cronApiList" :key="item.id" :label="item.name" :value="item.id">
