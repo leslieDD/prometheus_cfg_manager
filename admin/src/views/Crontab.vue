@@ -248,7 +248,7 @@
     </el-dialog>
     <el-dialog title="crontab规则帮助信息" v-model="showHelpDialog" modal width="1000px"
       :before-close="handleHelpDialogClose">
-      <el-image src="/imgs/crontab.png">
+      <el-image src="/imgs/crontab.jpeg">
         <template #placeholder>
           <div class="image-slot">Loading<span class="dot">...</span></div>
         </template>
