@@ -40,4 +40,5 @@ mail:
     - "xxx1@qq.cn"
     - "xxx2@qq.cn"
 
-fond: "NotoSansCJKsc-VF.ttf"
+# 使用画图时，可以指定字体，可以避免中文乱码
+font: "NotoSansCJKsc-VF.ttf"
