@@ -21,6 +21,26 @@ func RandString(slen int) string {
 	return string(randbytes)
 }
 
+func RandIntN(ilen int) []int {
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	randbytes := make([]int, ilen)
+	for i := 0; i < ilen; i++ {
+		b := r.Intn(200) + 1
+		randbytes[i] = b
+	}
+	return randbytes
+}
+
+func RandFloat64N(ilen int) []float64 {
+	r := rand.New(rand.NewSource(time.Now().Unix()))
+	randbytes := make([]float64, ilen)
+	for i := 0; i < ilen; i++ {
+		b := r.Intn(200) + 1
+		randbytes[i] = float64(b)
+	}
+	return randbytes
+}
+
 func RandIntString(slen int) string {
 	str := []byte("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ")
 	str_len := len(str)

@@ -40,3 +40,17 @@ func GetChartManual(id int) string {
 	// sendEmail(&ic)
 	return imageContent
 }
+
+func SendTestMail() bool {
+	imageContent, err := ChartLineTest()
+	if err != nil {
+		return false
+	}
+	ic := ImageContent{
+		Title:  "发送测试邮件（send test email）",
+		Width:  1000,
+		Height: 600,
+		Image:  imageContent,
+	}
+	return sendEmailTest(&ic)
+}

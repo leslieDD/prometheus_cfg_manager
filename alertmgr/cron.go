@@ -167,8 +167,8 @@ func (c *ChartCron) Work(rule *CronRule) {
 	}()
 	ic := ImageContent{
 		Title:  rule.Name,
-		Width:  "1000",
-		Height: "600",
+		Width:  1000,
+		Height: 600,
 	}
 	image, err := ChartLine(rule)
 	if err != nil {
@@ -201,4 +201,3 @@ func MergeRuleStatus(data *models.ResSplitPage) {
 	}
 	data.Data = rules
 }
-

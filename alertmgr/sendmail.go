@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"pro_cfg_manager/config"
 	"text/template"
-	"time"
 
 	"github.com/google/uuid"
 )
@@ -19,8 +18,8 @@ type ImageContent struct {
 	Title  string
 	Image  string
 	Alt    string //width="304" height="228"
-	Width  string
-	Height string
+	Width  int
+	Height int
 }
 
 func sendEmail(ic *ImageContent) bool {
@@ -36,20 +35,6 @@ func sendEmail(ic *ImageContent) bool {
 		config.Log.Error(err)
 		return false
 	}
-	// auth := smtp.LoginAuth(config.Cfg.Mail.Sender, config.Cfg.Mail.Password, config.Cfg.Mail.SMTP)
-	// if err := SendMailIns.SendMailDirect(
-	// 	config.Cfg.Mail.SMTP,
-	// 	config.Cfg.Mail.Port,
-	// 	auth,
-	// 	config.Cfg.Mail.Sender,
-	// 	config.Cfg.Mail.ToUsers,
-	// 	buf.Bytes(),
-	// 	false,
-	// ); err != nil {
-	// 	config.Log.Error(err)
-	// }
-	// config.Log.Println(buf.String())
-	// config.Log.Println(ic.Image)
 	for _, toUser := range config.Cfg.Mail.ToUsers {
 		taskRst := &TaskResult{}
 		task := &Task{
@@ -74,21 +59,16 @@ func sendEmail(ic *ImageContent) bool {
 	return true
 }
 
-func SendEmailTest() bool {
+func sendEmailTest(ic *ImageContent) bool {
 	uuid := uuid.New()
 	key := uuid.String()
-	t, err := template.New(key).Parse(TestTmpl)
+	t, err := template.New(key).Parse(ImgTmpl)
 	if err != nil {
 		config.Log.Error(err)
 		return false
 	}
-	date := struct {
-		Date time.Time
-	}{
-		Date: time.Now(),
-	}
 	buf := new(bytes.Buffer)
-	if err := t.Execute(buf, date); err != nil {
+	if err := t.Execute(buf, ic); err != nil {
 		config.Log.Error(err)
 		return false
 	}

@@ -2321,7 +2321,7 @@ func postSendTestMail(c *gin.Context) {
 		return
 	}
 	var bf *models.BriefMessage
-	if !alertmgr.SendEmailTest() {
+	if !alertmgr.SendTestMail() {
 		bf = models.ErrSendMail
 	} else {
 		bf = models.Success

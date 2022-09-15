@@ -8,7 +8,7 @@
         <el-button icon="el-icon-warning-outline" size="small" type="success" plain @click="doBatchEnable()">启用选中
         </el-button>
         <el-divider direction="vertical" />
-        <el-button icon="el-icon-s-promotion" size="small" type="success" plain @click="doSendTestMail()">发送测试邮件
+        <el-button icon="el-icon-s-promotion" size="small" type="info" plain @click="doSendTestMail()">发送测试邮件
         </el-button>
       </div>
       <div class="do-action-search">
