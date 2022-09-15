@@ -25,6 +25,7 @@ func init() {
 	// GinDefault.StaticFS("/", http.Dir("static/"))
 	GinDefault.StaticFS("/assets", http.Dir("./static/assets"))
 	GinDefault.StaticFS("/js", http.Dir("./static/js"))
+	GinDefault.StaticFS("/imgs", http.Dir("./static/imgs"))
 	GinDefault.StaticFile("/favicon.ico", "static/favicon.ico")
 	GinDefault.StaticFile("/index.html", "static/index.html")
 	// GinDefault.Use(cors.Default())
