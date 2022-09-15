@@ -175,18 +175,23 @@
               </template>
             </el-input>
           </el-form-item>
-          <el-form-item label="周期：" prop="exec_cycle">
+          <el-form-item size="mini" label="周期：" prop="exec_cycle">
             <div class="box">
+              <el-input v-model="addCronRuleInfo.exec_cycle" style="width: 250px" placeholder class="inp">
+              </el-input>
+              <el-button type="text" style="margin-left: 10px" @click="showHelpDialog=true">帮助</el-button>
+            </div>
+            <!-- <div class="box">
               <el-input v-model="addCronRuleInfo.exec_cycle" style="width: 550px" @click="showDialog(true)" placeholder
                 class="inp">
               </el-input>
-              <!-- <el-button type="primary" @click="showDialog">生成 cron</el-button> -->
-            </div>
-            <div class="cron-dialog">
+              <el-button type="primary" @click="showDialog">生成 cron</el-button>
+            </div> -->
+            <!-- <div class="cron-dialog">
               <el-dialog title="生成 cron" v-model="showCron" modal top="5vh" width="800px">
                 <vcrontab @hide="showDialog(false)" @fill="crontabFill" :expression="expression"></vcrontab>
               </el-dialog>
-            </div>
+            </div> -->
             <!-- <div class="crontab-edit">
               <el-popover v-model:visible="cronPopover" width="700px" trigger="manual">
                 <vcrontab @hide="togglePopover(false)" @fill="changeCron" :expression="addCronRuleInfo.exec_cycle">
@@ -236,6 +241,14 @@
     <el-dialog :title="showImageTitle" v-model="showCronImage" modal width="800px"
       :before-close="handleImageDialogClose">
       <el-image :src="image_src">
+        <template #placeholder>
+          <div class="image-slot">Loading<span class="dot">...</span></div>
+        </template>
+      </el-image>
+    </el-dialog>
+    <el-dialog title="crontab规则帮助信息" v-model="showHelpDialog" modal width="1000px"
+      :before-close="handleHelpDialogClose">
+      <el-image src="/imgs/crontab.png">
         <template #placeholder>
           <div class="image-slot">Loading<span class="dot">...</span></div>
         </template>
@@ -323,6 +336,7 @@ export default {
       image_src: '',
       showCronImage: false,
       showImageTitle: '',
+      showHelpDialog: false,
     }
   },
   created () {
@@ -757,6 +771,9 @@ export default {
       this.showCronImage = false
       this.image_src = ''
       this.showImageTitle = ''
+    },
+    handleHelpDialogClose () {
+      this.showHelpDialog = false
     }
   }
 }
