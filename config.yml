@@ -39,3 +39,5 @@ mail:
   to_users:
     - "xxx1@qq.cn"
     - "xxx2@qq.cn"
+
+fond: "NotoSansCJKsc-VF.ttf"

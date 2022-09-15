@@ -13,3 +13,19 @@ var ImgTmpl = `<!DOCTYPE html>
 
 </body>
 </html>`
+
+var TestTmpl = `<!DOCTYPE html>
+<html>
+<head> 
+<meta charset="utf-8"> 
+<title>测试邮件</title> 
+</head>
+<body>
+
+<h2>测试邮件</h2>
+
+<span>发送的测试邮件</span> - 
+<span>{{.Date}}</span>
+
+</body>
+</html>`

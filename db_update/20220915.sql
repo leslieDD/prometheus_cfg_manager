@@ -1,0 +1,1 @@
+INSERT INTO `pro_cfg_manager`.`page_function` (`page_name`, `page_nice_name`, `func_name`, `func_nice_name`) VALUES ('crontab', '定时任务', 'mail', '发送测试邮件');

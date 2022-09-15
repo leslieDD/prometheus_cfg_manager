@@ -7,6 +7,9 @@
         </el-button>
         <el-button icon="el-icon-warning-outline" size="small" type="success" plain @click="doBatchEnable()">启用选中
         </el-button>
+        <el-divider direction="vertical" />
+        <el-button icon="el-icon-s-promotion" size="small" type="success" plain @click="doSendTestMail()">发送测试邮件
+        </el-button>
       </div>
       <div class="do-action-search">
         <span style="padding-right: 15px">
@@ -258,6 +261,7 @@ import {
   batchDisableCronRules,
   cronRulesPublish,
   getRuleChat,
+  sendTestMail,
 } from '@/api/cron.js'
 
 export default {
@@ -506,6 +510,18 @@ export default {
           this.doGetCronRules()
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
+    },
+    doSendTestMail () {
+      sendTestMail().then(r => {
+        this.$notify({
+          title: '成功',
+          message: '测试邮件发送成功！',
+          type: 'success',
+          duration: 1000,
+        });
+      }).catch(e => {
+        console.log(e)
+      })
     },
     doBatchEnable () {
       if (this.multipleSelection.length === 0) {

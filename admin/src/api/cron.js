@@ -126,3 +126,10 @@ export function getRuleChat (query) {
     params: query,
   })
 }
+
+export function sendTestMail () {
+  return request({
+    url: '/v1/cron/send/testmail',
+    method: 'post',
+  })
+}

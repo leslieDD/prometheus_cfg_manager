@@ -201,3 +201,4 @@ func MergeRuleStatus(data *models.ResSplitPage) {
 	}
 	data.Data = rules
 }
+

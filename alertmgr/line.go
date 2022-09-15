@@ -3,6 +3,7 @@ package alertmgr
 import (
 	"encoding/base64"
 	"errors"
+	"io/ioutil"
 	"pro_cfg_manager/config"
 	"time"
 
@@ -10,6 +11,22 @@ import (
 )
 
 func ChartLine(cr *CronRule) (string, error) {
+	var installFont charts.OptionFunc
+	if config.Cfg.Font != "" {
+		buf, err := ioutil.ReadFile(config.Cfg.Font)
+		if err != nil {
+			config.Log.Error(err)
+			installFont = charts.FontFamilyOptionFunc("roboto")
+		} else {
+			err = charts.InstallFont("noto", buf)
+			if err != nil {
+				config.Log.Error(err)
+				installFont = charts.FontFamilyOptionFunc("roboto")
+			} else {
+				installFont = charts.FontFamilyOptionFunc("noto")
+			}
+		}
+	}
 	cr.End = time.Now() // 时间要反向处理
 	cr.Start = time.Unix(cr.End.Unix()-ConvertTime(cr.NearTime, cr.Unit), 0)
 	api := ConvertApi(cr.API)
@@ -30,6 +47,7 @@ func ChartLine(cr *CronRule) (string, error) {
 		y,
 		charts.TitleTextOptionFunc("Line"),
 		charts.XAxisDataOptionFunc(x),
+		installFont,
 		func(opt *charts.ChartOption) {
 			opt.Title = charts.TitleOption{Text: cr.Name}
 			opt.Height = 600

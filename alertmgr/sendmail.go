@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"pro_cfg_manager/config"
 	"text/template"
+	"time"
 
 	"github.com/google/uuid"
 )
@@ -67,6 +68,48 @@ func sendEmail(ic *ImageContent) bool {
 		SendMailIns.RunTask(taskRst, task)
 		if taskRst.Error != "" {
 			config.Log.Error(err)
+			return false
+		}
+	}
+	return true
+}
+
+func SendEmailTest() bool {
+	uuid := uuid.New()
+	key := uuid.String()
+	t, err := template.New(key).Parse(TestTmpl)
+	if err != nil {
+		config.Log.Error(err)
+		return false
+	}
+	date := struct {
+		Date time.Time
+	}{
+		Date: time.Now(),
+	}
+	buf := new(bytes.Buffer)
+	if err := t.Execute(buf, date); err != nil {
+		config.Log.Error(err)
+		return false
+	}
+	for _, toUser := range config.Cfg.Mail.ToUsers {
+		taskRst := &TaskResult{}
+		task := &Task{
+			SmtpHost:         config.Cfg.Mail.SMTP,
+			SmtpPort:         config.Cfg.Mail.Port,
+			SmtpSSL:          false,
+			SmtpAuthType:     "login",
+			EmailFrom:        config.Cfg.Mail.Sender,
+			EmailTo:          toUser,
+			EmailSubject:     "测试邮件",
+			EmailContentType: "text/html",
+			EmailBody:        buf.String(),
+			EmailAuthPass:    config.Cfg.Mail.Password,
+			UseProxy:         false,
+		}
+		SendMailIns.RunTask(taskRst, task)
+		if taskRst.Error != "" {
+			config.Log.Error(taskRst.Error)
 			return false
 		}
 	}

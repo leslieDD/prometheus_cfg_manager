@@ -137,6 +137,7 @@ func initApiRouter() {
 	v1.PUT("/cron/rules/disable", putRulesDisable)
 	v1.PUT("/cron/rules/publish", putRulesPublish)
 	v1.GET("/cron/rule/image", getRuleImage)
+	v1.POST("/cron/send/testmail", postSendTestMail)
 
 	v1.GET("/base/cron", getCron)
 	v1.GET("/base/cron/all", getAllCron)
@@ -2308,8 +2309,25 @@ func getRuleImage(c *gin.Context) {
 		return
 	}
 	image := alertmgr.GetChartManual(id.ID)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get cron rule image", models.IsPublish, models.Success)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get cron rule image", models.IsSearch, models.Success)
 	resComm(c, models.Success, image)
+}
+
+func postSendTestMail(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "mail")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	var bf *models.BriefMessage
+	if !alertmgr.SendEmailTest() {
+		bf = models.ErrSendMail
+	} else {
+		bf = models.Success
+	}
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "send test mail", models.IsPublish, models.Success)
+	resComm(c, bf, nil)
 }
 
 func getCron(c *gin.Context) {

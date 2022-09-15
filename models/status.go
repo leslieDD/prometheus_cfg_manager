@@ -70,6 +70,7 @@ var ErrXLSComputerCell = &BriefMessage{500000, "单元格换算错误"}
 var ErrXLSWriteData = &BriefMessage{500000, "表格写入数据错误"}
 var ErrXLSMergeCell = &BriefMessage{500000, "合并单元格错误"}
 var ErrWriteCache = &BriefMessage{500000, "数据写入缓存错误"}
+var ErrSendMail = &BriefMessage{500000, "邮件发送失败"}
 
 // --------------------------------------------------------------
 // ---------------- 400xxx 客户端错误 ----------------------------
