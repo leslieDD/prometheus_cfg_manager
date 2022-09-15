@@ -3,6 +3,7 @@ package alertmgr
 import (
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/dbs"
+	"pro_cfg_manager/models"
 	"strings"
 	"sync"
 	"time"
@@ -22,6 +23,10 @@ type ChartCron struct {
 var ChartCronObj *ChartCron
 
 func NewChartCron() *ChartCron {
+	taskRunStatusObj = &taskRunStatus{
+		lock:   sync.Mutex{},
+		status: map[int]*taskRst{},
+	}
 	return &ChartCron{
 		lock:      sync.Mutex{},
 		doAction:  make(chan struct{}, 1),
@@ -85,6 +90,7 @@ func (c *ChartCron) LoadRuleManual() {
 		}
 		execRule := c.ConvertSpec(newRule)
 		c.DoDoDo(execRule, newRule)
+		taskRunStatusObj.Reset(newRule.ID)
 	}
 	c.RulesInfo = rulesInfo
 }
@@ -112,6 +118,7 @@ func (c *ChartCron) DoCron() {
 	for _, rule := range c.RulesInfo {
 		execRule := c.ConvertSpec(rule)
 		c.DoDoDo(execRule, rule)
+		taskRunStatusObj.Reset(rule.ID)
 	}
 	c.cObj.Start()
 	config.Log.Warnf("start cron done")
@@ -155,6 +162,7 @@ func (c *ChartCron) Work(rule *CronRule) {
 	defer func() {
 		if r := recover(); r != nil {
 			config.Log.Error("Recovered in Work", r)
+			taskRunStatusObj.AddFail(rule.ID)
 		}
 	}()
 	ic := ImageContent{
@@ -164,8 +172,32 @@ func (c *ChartCron) Work(rule *CronRule) {
 	}
 	image, err := ChartLine(rule)
 	if err != nil {
+		taskRunStatusObj.AddFail(rule.ID)
 		return
 	}
 	ic.Image = image
-	sendEmail(&ic)
+	if sendEmail(&ic) {
+		taskRunStatusObj.AddSuccess(rule.ID)
+	} else {
+		taskRunStatusObj.AddFail(rule.ID)
+	}
+}
+
+// alertmgr和models冲突，就这么搞了
+func MergeRuleStatus(data *models.ResSplitPage) {
+	if data == nil {
+		return
+	}
+	rules := data.Data.([]*models.CrontabSplit)
+	status := taskRunStatusObj.SyncStatus()
+	for _, rule := range rules {
+		obj, ok := status[rule.ID]
+		if !ok {
+			continue
+		}
+		rule.RunTimes = obj.RunTimes
+		rule.SuccessTimes = obj.SuccessTimes
+		rule.FailTimes = obj.FailTimes
+	}
+	data.Data = rules
 }

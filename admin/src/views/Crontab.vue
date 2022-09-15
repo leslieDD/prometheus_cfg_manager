@@ -76,6 +76,12 @@
         </template>
       </el-table-column>
       <el-table-column label="执行状态" align="center" header-align="center" width="120px">
+        <template #header>
+          <el-tooltip content="执行总数/成功数/失败数" placement="top">
+            <span type="warning">执行状态
+              <i style="font-size: 13px; color: #0081ff" class="el-icon-warning"></i></span>
+          </el-tooltip>
+        </template>
         <template v-slot="{ row }">
           <span>{{ row.run_times }}/{{ row.success_times }}/{{ row.fail_times }}</span>
         </template>

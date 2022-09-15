@@ -27,9 +27,10 @@ func GetChartManual(id int) string {
 	}
 	imageContent, err := ChartLine(&rule)
 	if err != nil {
+		taskRunStatusObj.AddFail(rule.ID)
 		return ""
 	}
-
+	taskRunStatusObj.AddSuccess(rule.ID)
 	// ic := ImageContent{
 	// 	Title:  rule.Name,
 	// 	Width:  "1000",
@@ -37,6 +38,5 @@ func GetChartManual(id int) string {
 	// 	Image:  imageContent,
 	// }
 	// sendEmail(&ic)
-
 	return imageContent
 }

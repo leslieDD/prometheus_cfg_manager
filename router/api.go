@@ -2144,6 +2144,7 @@ func getCronRules(c *gin.Context) {
 		return
 	}
 	result, bf := models.GetCronRules(sp)
+	alertmgr.MergeRuleStatus(result)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "get crontab jobs", models.IsSearch, bf)
 	resComm(c, bf, result)
 }

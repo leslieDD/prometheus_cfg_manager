@@ -22,18 +22,18 @@ type ImageContent struct {
 	Height string
 }
 
-func sendEmail(ic *ImageContent) {
+func sendEmail(ic *ImageContent) bool {
 	uuid := uuid.New()
 	key := uuid.String()
 	t, err := template.New(key).Parse(ImgTmpl)
 	if err != nil {
 		config.Log.Error(err)
-		return
+		return false
 	}
 	buf := new(bytes.Buffer)
 	if err := t.Execute(buf, ic); err != nil {
 		config.Log.Error(err)
-		return
+		return false
 	}
 	// auth := smtp.LoginAuth(config.Cfg.Mail.Sender, config.Cfg.Mail.Password, config.Cfg.Mail.SMTP)
 	// if err := SendMailIns.SendMailDirect(
@@ -67,7 +67,8 @@ func sendEmail(ic *ImageContent) {
 		SendMailIns.RunTask(taskRst, task)
 		if taskRst.Error != "" {
 			config.Log.Error(err)
+			return false
 		}
 	}
-
+	return true
 }

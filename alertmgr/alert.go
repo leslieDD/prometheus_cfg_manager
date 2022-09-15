@@ -3,7 +3,10 @@ package alertmgr
 import (
 	"html/template"
 	"pro_cfg_manager/models"
+	"sync"
 	"time"
+
+	"github.com/mohae/deepcopy"
 )
 
 type Alert struct {
@@ -79,4 +82,64 @@ type QueryRange struct {
 	End   string `json:"end" form:"end" qs:"end"`
 	Step  string `json:"step" form:"step" qs:"step"`
 	// Timeout int    `json:"timeout" form:"timeout" qs:"timeout"`
+}
+
+type taskRst struct {
+	RunTimes     int `json:"run_times" gorm:"-"`
+	SuccessTimes int `json:"success_times" gorm:"-"`
+	FailTimes    int `json:"fail_times" gorm:"-"`
+}
+
+var taskRunStatusObj *taskRunStatus
+
+type taskRunStatus struct {
+	lock   sync.Mutex
+	status map[int]*taskRst
+}
+
+func (t *taskRunStatus) AddSuccess(id int) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
+	if obj, ok := t.status[id]; ok {
+		obj.SuccessTimes += 1
+	} else {
+		t.status[id] = &taskRst{}
+	}
+}
+
+func (t *taskRunStatus) AddFail(id int) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
+	if obj, ok := t.status[id]; ok {
+		obj.FailTimes += 1
+	} else {
+		t.status[id] = &taskRst{}
+	}
+}
+
+func (t *taskRunStatus) AddOne(id int) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
+	if obj, ok := t.status[id]; ok {
+		obj.RunTimes += 1
+	} else {
+		t.status[id] = &taskRst{}
+	}
+}
+
+func (t *taskRunStatus) Reset(id int) {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
+	t.status[id] = &taskRst{}
+}
+
+func (t *taskRunStatus) SyncStatus() map[int]*taskRst {
+	t.lock.Lock()
+	defer t.lock.Unlock()
+
+	return deepcopy.Copy(t.status).(map[int]*taskRst)
 }
