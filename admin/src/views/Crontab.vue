@@ -154,7 +154,7 @@
             </span> -->
             <template #label>
               <span>时间</span>
-              <el-tooltip content="Prometheus中PromQL查询语言中的offset" placement="top" style="diaplay: inline">
+              <el-tooltip content="查询数据时长" placement="top" style="diaplay: inline">
                 <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
               </el-tooltip>
             </template>
