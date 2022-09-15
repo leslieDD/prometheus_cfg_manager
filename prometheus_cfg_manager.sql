@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS `crontab` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='定时任务';
 
--- 正在导出表  pro_cfg_manager.crontab 的数据：~0 rows (大约)
+-- 正在导出表  pro_cfg_manager.crontab 的数据：~1 rows (大约)
 DELETE FROM `crontab`;
 
 -- 导出  表 pro_cfg_manager.crontab_api 结构
@@ -64,7 +64,7 @@ CREATE TABLE IF NOT EXISTS `crontab_api` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='定义任务调用的API列表';
 
--- 正在导出表  pro_cfg_manager.crontab_api 的数据：~0 rows (大约)
+-- 正在导出表  pro_cfg_manager.crontab_api 的数据：~1 rows (大约)
 DELETE FROM `crontab_api`;
 
 -- 导出  表 pro_cfg_manager.group_labels 结构
@@ -102,156 +102,157 @@ CREATE TABLE IF NOT EXISTS `group_priv` (
   `group_id` int(11) NOT NULL,
   `func_id` int(11) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=146 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=292 DEFAULT CHARSET=utf8mb3;
 
 -- 正在导出表  pro_cfg_manager.group_priv 的数据：~145 rows (大约)
 DELETE FROM `group_priv`;
 INSERT INTO `group_priv` (`id`, `group_id`, `func_id`) VALUES
-	(1, 1, 1),
-	(2, 1, 2),
-	(3, 1, 3),
-	(4, 1, 4),
-	(5, 1, 5),
-	(6, 1, 6),
-	(7, 1, 7),
-	(8, 1, 8),
-	(9, 1, 9),
-	(10, 1, 11),
-	(11, 1, 12),
-	(12, 1, 13),
-	(13, 1, 14),
-	(14, 1, 15),
-	(15, 1, 16),
-	(16, 1, 19),
-	(17, 1, 20),
-	(18, 1, 21),
-	(19, 1, 22),
-	(20, 1, 23),
-	(21, 1, 24),
-	(22, 1, 25),
-	(23, 1, 26),
-	(24, 1, 27),
-	(25, 1, 28),
-	(26, 1, 29),
-	(27, 1, 30),
-	(28, 1, 31),
-	(29, 1, 33),
-	(30, 1, 34),
-	(31, 1, 35),
-	(32, 1, 36),
-	(33, 1, 37),
-	(34, 1, 38),
-	(35, 1, 39),
-	(36, 1, 40),
-	(37, 1, 41),
-	(38, 1, 42),
-	(39, 1, 43),
-	(40, 1, 44),
-	(41, 1, 45),
-	(42, 1, 46),
-	(43, 1, 47),
-	(44, 1, 48),
-	(45, 1, 49),
-	(46, 1, 50),
-	(47, 1, 51),
-	(48, 1, 52),
-	(49, 1, 53),
-	(50, 1, 54),
-	(51, 1, 55),
-	(52, 1, 56),
-	(53, 1, 57),
-	(54, 1, 58),
-	(55, 1, 59),
-	(56, 1, 60),
-	(57, 1, 61),
-	(58, 1, 62),
-	(59, 1, 63),
-	(60, 1, 64),
-	(61, 1, 65),
-	(62, 1, 66),
-	(63, 1, 67),
-	(64, 1, 68),
-	(65, 1, 69),
-	(66, 1, 70),
-	(67, 1, 71),
-	(68, 1, 72),
-	(69, 1, 73),
-	(70, 1, 74),
-	(71, 1, 75),
-	(72, 1, 76),
-	(73, 1, 77),
-	(74, 1, 78),
-	(75, 1, 79),
-	(76, 1, 80),
-	(77, 1, 81),
-	(78, 1, 83),
-	(79, 1, 84),
-	(80, 1, 85),
-	(81, 1, 86),
-	(82, 1, 87),
-	(83, 1, 88),
-	(84, 1, 89),
-	(85, 1, 90),
-	(86, 1, 93),
-	(87, 1, 94),
-	(88, 1, 95),
-	(89, 1, 96),
-	(90, 1, 97),
-	(91, 1, 98),
-	(92, 1, 99),
-	(93, 1, 100),
-	(94, 1, 101),
-	(95, 1, 102),
-	(96, 1, 103),
-	(97, 1, 104),
-	(98, 1, 105),
-	(99, 1, 106),
-	(100, 1, 107),
-	(101, 1, 108),
-	(102, 1, 109),
-	(103, 1, 110),
-	(104, 1, 111),
-	(105, 1, 112),
-	(106, 1, 113),
-	(107, 1, 114),
-	(108, 1, 115),
-	(109, 1, 116),
-	(110, 1, 117),
-	(111, 1, 118),
-	(112, 1, 119),
-	(113, 1, 120),
-	(114, 1, 121),
-	(115, 1, 122),
-	(116, 1, 123),
-	(117, 1, 124),
-	(118, 1, 125),
-	(119, 1, 126),
-	(120, 1, 127),
-	(121, 1, 128),
-	(122, 1, 129),
-	(123, 1, 130),
-	(124, 1, 131),
-	(125, 1, 132),
-	(126, 1, 133),
-	(127, 1, 134),
-	(128, 1, 135),
-	(129, 1, 136),
-	(130, 1, 137),
-	(131, 1, 138),
-	(132, 1, 139),
-	(133, 1, 140),
-	(134, 1, 141),
-	(135, 1, 142),
-	(136, 1, 143),
-	(137, 1, 144),
-	(138, 1, 145),
-	(139, 1, 146),
-	(140, 1, 147),
-	(141, 1, 148),
-	(142, 1, 149),
-	(143, 1, 150),
-	(144, 1, 151),
-	(145, 1, 152);
+	(146, 1, 78),
+	(147, 1, 75),
+	(148, 1, 76),
+	(149, 1, 77),
+	(150, 1, 74),
+	(151, 1, 100),
+	(152, 1, 98),
+	(153, 1, 99),
+	(154, 1, 79),
+	(155, 1, 80),
+	(156, 1, 122),
+	(157, 1, 121),
+	(158, 1, 125),
+	(159, 1, 85),
+	(160, 1, 86),
+	(161, 1, 87),
+	(162, 1, 71),
+	(163, 1, 72),
+	(164, 1, 69),
+	(165, 1, 73),
+	(166, 1, 70),
+	(167, 1, 97),
+	(168, 1, 94),
+	(169, 1, 95),
+	(170, 1, 96),
+	(171, 1, 93),
+	(172, 1, 33),
+	(173, 1, 37),
+	(174, 1, 34),
+	(175, 1, 35),
+	(176, 1, 36),
+	(177, 1, 49),
+	(178, 1, 50),
+	(179, 1, 144),
+	(180, 1, 141),
+	(181, 1, 145),
+	(182, 1, 142),
+	(183, 1, 143),
+	(184, 1, 46),
+	(185, 1, 47),
+	(186, 1, 44),
+	(187, 1, 48),
+	(188, 1, 45),
+	(189, 1, 51),
+	(190, 1, 52),
+	(191, 1, 53),
+	(192, 1, 30),
+	(193, 1, 31),
+	(194, 1, 43),
+	(195, 1, 40),
+	(196, 1, 41),
+	(197, 1, 38),
+	(198, 1, 90),
+	(199, 1, 42),
+	(200, 1, 39),
+	(201, 1, 103),
+	(202, 1, 123),
+	(203, 1, 101),
+	(204, 1, 102),
+	(205, 1, 151),
+	(206, 1, 148),
+	(207, 1, 152),
+	(208, 1, 149),
+	(209, 1, 146),
+	(210, 1, 153),
+	(211, 1, 150),
+	(212, 1, 147),
+	(213, 1, 83),
+	(214, 1, 67),
+	(215, 1, 106),
+	(216, 1, 119),
+	(217, 1, 116),
+	(218, 1, 113),
+	(219, 1, 132),
+	(220, 1, 110),
+	(221, 1, 129),
+	(222, 1, 107),
+	(223, 1, 117),
+	(224, 1, 114),
+	(225, 1, 133),
+	(226, 1, 111),
+	(227, 1, 108),
+	(228, 1, 118),
+	(229, 1, 115),
+	(230, 1, 112),
+	(231, 1, 109),
+	(232, 1, 130),
+	(233, 1, 131),
+	(234, 1, 88),
+	(235, 1, 7),
+	(236, 1, 120),
+	(237, 1, 8),
+	(238, 1, 5),
+	(239, 1, 105),
+	(240, 1, 9),
+	(241, 1, 6),
+	(242, 1, 128),
+	(243, 1, 14),
+	(244, 1, 11),
+	(245, 1, 138),
+	(246, 1, 81),
+	(247, 1, 135),
+	(248, 1, 126),
+	(249, 1, 15),
+	(250, 1, 12),
+	(251, 1, 139),
+	(252, 1, 127),
+	(253, 1, 16),
+	(254, 1, 13),
+	(255, 1, 140),
+	(256, 1, 137),
+	(257, 1, 134),
+	(258, 1, 29),
+	(259, 1, 26),
+	(260, 1, 23),
+	(261, 1, 20),
+	(262, 1, 89),
+	(263, 1, 27),
+	(264, 1, 24),
+	(265, 1, 21),
+	(266, 1, 124),
+	(267, 1, 28),
+	(268, 1, 25),
+	(269, 1, 22),
+	(270, 1, 19),
+	(271, 1, 62),
+	(272, 1, 65),
+	(273, 1, 59),
+	(274, 1, 56),
+	(275, 1, 63),
+	(276, 1, 104),
+	(277, 1, 60),
+	(278, 1, 57),
+	(279, 1, 54),
+	(280, 1, 64),
+	(281, 1, 61),
+	(282, 1, 58),
+	(283, 1, 55),
+	(284, 1, 1),
+	(285, 1, 136),
+	(286, 1, 2),
+	(287, 1, 3),
+	(288, 1, 66),
+	(289, 1, 4),
+	(290, 1, 68),
+	(291, 1, 84);
 
 -- 导出  表 pro_cfg_manager.idc 结构
 DROP TABLE IF EXISTS `idc`;
@@ -417,7 +418,7 @@ CREATE TABLE IF NOT EXISTS `machines` (
   UNIQUE KEY `ipaddr_unique` (`ipaddr`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='机器列表';
 
--- 正在导出表  pro_cfg_manager.machines 的数据：~202 rows (大约)
+-- 正在导出表  pro_cfg_manager.machines 的数据：~0 rows (大约)
 DELETE FROM `machines`;
 
 -- 导出  表 pro_cfg_manager.manager_group 结构
@@ -435,7 +436,7 @@ CREATE TABLE IF NOT EXISTS `manager_group` (
 -- 正在导出表  pro_cfg_manager.manager_group 的数据：~1 rows (大约)
 DELETE FROM `manager_group`;
 INSERT INTO `manager_group` (`id`, `name`, `enabled`, `update_at`, `update_by`) VALUES
-	(1, 'administrator', 1, '2022-09-14 15:49:50', '');
+	(1, 'administrator', 1, '2022-09-15 15:10:29', 'admin');
 
 -- 导出  表 pro_cfg_manager.manager_set 结构
 DROP TABLE IF EXISTS `manager_set`;
@@ -532,7 +533,7 @@ CREATE TABLE IF NOT EXISTS `operation_log` (
   `operate_at` datetime NOT NULL,
   `operate_error` text NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='操作日志';
+) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb3 COMMENT='操作日志';
 
 -- 正在导出表  pro_cfg_manager.operation_log 的数据：~0 rows (大约)
 DELETE FROM `operation_log`;
@@ -573,9 +574,9 @@ CREATE TABLE IF NOT EXISTS `page_function` (
   `func_name` varchar(100) NOT NULL,
   `func_nice_name` varchar(100) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=153 DEFAULT CHARSET=utf8mb3 COMMENT='页面功能';
+) ENGINE=InnoDB AUTO_INCREMENT=154 DEFAULT CHARSET=utf8mb3 COMMENT='页面功能';
 
--- 正在导出表  pro_cfg_manager.page_function 的数据：~129 rows (大约)
+-- 正在导出表  pro_cfg_manager.page_function 的数据：~146 rows (大约)
 DELETE FROM `page_function`;
 INSERT INTO `page_function` (`id`, `page_name`, `page_nice_name`, `sub_page_name`, `sub_page_nice_name`, `func_name`, `func_nice_name`) VALUES
 	(1, 'person', '个人中心', '', '', 'update_password', '更新密码'),
@@ -722,7 +723,8 @@ INSERT INTO `page_function` (`id`, `page_name`, `page_nice_name`, `sub_page_name
 	(149, 'crontab', '定时任务', '', '', 'delete', '删除'),
 	(150, 'crontab', '定时任务', '', '', 'dis.enable', '启用/禁用'),
 	(151, 'crontab', '定时任务', '', '', 'publish', '发布'),
-	(152, 'crontab', '定时任务', '', '', 'image', '生成图');
+	(152, 'crontab', '定时任务', '', '', 'image', '生成图'),
+	(153, 'crontab', '定时任务', '', '', 'mail', '发送测试邮件');
 
 -- 导出  表 pro_cfg_manager.pool 结构
 DROP TABLE IF EXISTS `pool`;
@@ -785,10 +787,12 @@ CREATE TABLE IF NOT EXISTS `session` (
   `login_at` datetime NOT NULL,
   PRIMARY KEY (`id`),
   UNIQUE KEY `unique_user_id` (`user_id`)
-) ENGINE=InnoDB AUTO_INCREMENT=182 DEFAULT CHARSET=utf8mb3 COMMENT='用户登录会话';
+) ENGINE=InnoDB AUTO_INCREMENT=185 DEFAULT CHARSET=utf8mb3 COMMENT='用户登录会话';
 
--- 正在导出表  pro_cfg_manager.session 的数据：~0 rows (大约)
+-- 正在导出表  pro_cfg_manager.session 的数据：~1 rows (大约)
 DELETE FROM `session`;
+INSERT INTO `session` (`id`, `token`, `ipaddr`, `user_id`, `update_at`, `login_at`) VALUES
+	(182, '9e9bce76-08d6-4393-8141-d73ce4fff02d', '127.0.0.1:45412', 1, '2022-09-15 15:50:54', '2022-09-14 16:09:40');
 
 -- 导出  表 pro_cfg_manager.sub_group 结构
 DROP TABLE IF EXISTS `sub_group`;
@@ -817,14 +821,10 @@ CREATE TABLE IF NOT EXISTS `system_log` (
   `operate_at` datetime NOT NULL,
   `operate_error` text NOT NULL,
   PRIMARY KEY (`id`) USING BTREE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb3 COMMENT='系统日志';
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='系统日志';
 
--- 正在导出表  pro_cfg_manager.system_log 的数据：~3 rows (大约)
+-- 正在导出表  pro_cfg_manager.system_log 的数据：~26 rows (大约)
 DELETE FROM `system_log`;
-INSERT INTO `system_log` (`id`, `username`, `operate_type`, `ipaddr`, `operate_content`, `operate_result`, `operate_at`, `operate_error`) VALUES
-	(1, 'admin', '增加', '127.0.0.1:40644', 'create manager reset secret', 1, '2022-09-14 15:49:26', '成功'),
-	(2, 'admin', '重置', '127.0.0.1:46538', 'reset manager data', 1, '2022-09-14 15:49:50', '成功'),
-	(3, 'admin', '登录', '127.0.0.1:46562', 'logout', 1, '2022-09-14 15:49:55', '成功');
 
 -- 导出  表 pro_cfg_manager.tmpl 结构
 DROP TABLE IF EXISTS `tmpl`;
@@ -837,7 +837,7 @@ CREATE TABLE IF NOT EXISTS `tmpl` (
 -- 正在导出表  pro_cfg_manager.tmpl 的数据：~1 rows (大约)
 DELETE FROM `tmpl`;
 INSERT INTO `tmpl` (`tmpl`, `update_at`, `update_by`) VALUES
-	('# my global config\nglobal:\n  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.\n  # scrape_timeout is set to the global default (10s).\n  # scrape_timeout: 60s\n\n# Alertmanager configuration\nalerting:\n  alertmanagers:\n  - static_configs:\n    - targets:\n      - 127.0.0.1:9093\n\n# Load rules once and periodically evaluate them according to the global \'evaluation_interval\'.\nrule_files:\n   - "{{.RelRuleDir}}/*.yml"\n  # - "first_rules.yml"\n  # - "second_rules.yml"\n\n# A scrape configuration containing exactly one endpoint to scrape:\n# Here it\'s Prometheus itself.\nscrape_configs:\n  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.\n  - job_name: \'监控服务本机\'\n\n    # metrics_path defaults to \'/metrics\'\n    # scheme defaults to \'http\'.\n\n    static_configs:\n    - targets: [\'localhost:9090\']\n{{ range .Jobs }}\n  - job_name: \'{{.Name}}\'\n    file_sd_configs:\n      - files:\n        - "{{$.AbsConfDir}}/{{.JsonFileName}}.json"\n        refresh_interval: {{$.Fields.refresh_interval}}\n{{.Code}}\n{{ end }}\n', '2022-09-14 15:48:42', 'administrator');
+	('# my global config\nglobal:\n  scrape_interval:     15s # Set the scrape interval to every 15 seconds. Default is every 1 minute.\n  evaluation_interval: 15s # Evaluate rules every 15 seconds. The default is every 1 minute.\n  # scrape_timeout is set to the global default (10s).\n  # scrape_timeout: 60s\n\n# Alertmanager configuration\nalerting:\n  alertmanagers:\n  - static_configs:\n    - targets:\n      - 127.0.0.1:9093\n\n# Load rules once and periodically evaluate them according to the global \'evaluation_interval\'.\nrule_files:\n   - "{{.RelRuleDir}}/*.yml"\n  # - "first_rules.yml"\n  # - "second_rules.yml"\n\n# A scrape configuration containing exactly one endpoint to scrape:\n# Here it\'s Prometheus itself.\nscrape_configs:\n  # The job name is added as a label `job=<job_name>` to any timeseries scraped from this config.\n  - job_name: \'监控服务本机\'\n\n    # metrics_path defaults to \'/metrics\'\n    # scheme defaults to \'http\'.\n\n    static_configs:\n    - targets: [\'localhost:9090\']\n{{ range .Jobs }}\n  - job_name: \'{{.Name}}\'\n    file_sd_configs:\n      - files:\n        - "{{$.AbsConfDir}}/{{.JsonFileName}}.json"\n        refresh_interval: {{$.Fields.refresh_interval}}\n{{.Code}}\n{{ end }}\n', '2022-09-15 15:50:54', 'administrator');
 
 -- 导出  表 pro_cfg_manager.tmpl_fields 结构
 DROP TABLE IF EXISTS `tmpl_fields`;
@@ -855,8 +855,8 @@ CREATE TABLE IF NOT EXISTS `tmpl_fields` (
 -- 正在导出表  pro_cfg_manager.tmpl_fields 的数据：~2 rows (大约)
 DELETE FROM `tmpl_fields`;
 INSERT INTO `tmpl_fields` (`id`, `key`, `value`, `enabled`, `update_at`, `update_by`) VALUES
-	(1, 'metrics', '/metrics', 1, '2022-09-14 15:48:42', ''),
-	(2, 'refresh_interval', '15s', 1, '2022-09-14 15:48:42', '');
+	(1, 'metrics', '/metrics', 1, '2022-09-15 15:50:54', ''),
+	(2, 'refresh_interval', '15s', 1, '2022-09-15 15:50:54', '');
 
 /*!40103 SET TIME_ZONE=IFNULL(@OLD_TIME_ZONE, 'system') */;
 /*!40101 SET SQL_MODE=IFNULL(@OLD_SQL_MODE, '') */;
