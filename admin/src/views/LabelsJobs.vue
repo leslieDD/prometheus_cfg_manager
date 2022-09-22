@@ -178,7 +178,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[15, 20, 30, 50]"
+        :page-sizes="computerTablePage()"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="pageTotal"
@@ -503,7 +503,7 @@ export default {
       subGroups: [],
       jobInfo: {},
       relabelList: [],
-      pageSize: 20,
+      pageSize: 0,
       pageTotal: 0,
       currentPage: 1,
       searchContent: '',
@@ -552,6 +552,7 @@ export default {
   },
   created () {
     // this.doGetJobs()
+    this.computerTablePage()
   },
   mounted () {
     this.defaultLabelsFromSrv = {}
@@ -561,6 +562,16 @@ export default {
     this.doGetSubGroup()
   },
   methods: {
+    computerTablePage () {
+      let windowHeight = document.documentElement.clientHeight || document.bodyclientHeight
+      let cloumnNum = parseInt((windowHeight - 160) / 30)
+      this.pageSize = cloumnNum
+      let pageSplit = [cloumnNum]
+      for (var i = 2; i <= 5; i++) {
+        pageSplit.push(cloumnNum * i)
+      }
+      return pageSplit
+    },
     pushNewIPList () {
       let newValues = []
       this.editIPValue.forEach(machinedID => {
