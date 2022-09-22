@@ -720,7 +720,7 @@ export default {
   methods: {
     computerTablePage () {
       let windowHeight = document.documentElement.clientHeight || document.bodyclientHeight
-      let cloumnNum = parseInt((windowHeight - 180) / 30)
+      let cloumnNum = parseInt((windowHeight - 160) / 30)
       this.pageSize = cloumnNum
       let pageSplit = [cloumnNum]
       for (var i = 2; i <= 5; i++) {
