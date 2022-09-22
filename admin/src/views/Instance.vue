@@ -282,7 +282,7 @@ export default {
 
 <style scoped>
 .instance_box {
-  height: 770px;
+  height: 90vh;
 }
 
 .instance_content {
@@ -349,11 +349,11 @@ export default {
 
 .json-scrollbar {
   margin-left: 10px;
-  height: 620px;
+  height: calc(100vh - 200px);
 }
 
 .card-scrollbar {
-  height: 600px;
+  height: calc(100vh - 260px);
 }
 
 .change-input-color :deep() input {

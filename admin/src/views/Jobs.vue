@@ -548,6 +548,7 @@ export default {
   },
   created () {
     // this.doGetJobs()
+    this.computerTablePage()
   },
   mounted () {
     let displayJobType = getStorageVal('displayJobType')
@@ -573,7 +574,6 @@ export default {
       for (var i = 2; i <= 5; i++) {
         pageSplit.push(cloumnNum * i)
       }
-      console.log(windowHeight, cloumnNum, pageSplit)
       return pageSplit
     },
     doAdd () {

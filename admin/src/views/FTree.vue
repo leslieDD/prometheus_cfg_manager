@@ -2,15 +2,8 @@
   <div class="ftree-box">
     <div>
       <el-scrollbar class="card-scrollbar">
-        <el-tree
-          :data="data"
-          :props="defaultProps"
-          accordion
-          default-expand-all
-          :indent="0"
-          @node-click="handleNodeClick"
-          class="tree"
-        >
+        <el-tree :data="data" :props="defaultProps" accordion default-expand-all :indent="0"
+          @node-click="handleNodeClick" class="tree">
         </el-tree>
       </el-scrollbar>
     </div>
@@ -176,30 +169,37 @@ export default {
   border: 1px dashed burlywood;
   display: flex;
   flex-direction: row;
-  height: 85vh;
+  height: 90vh;
 }
+
 .card-scrollbar {
-  height: 84vh;
+  height: 89vh;
   width: 250px;
 }
+
 .json-editor {
   position: relative;
   width: 100%;
 }
+
 .json-editor :deep() .CodeMirror {
   height: 100%;
   min-height: 300px;
   width: 100%;
 }
+
 .json-editor :deep() .CodeMirror-scroll {
   min-height: 300px;
 }
+
 .json-editor :deep() .cm-s-rubyblue span.cm-string {
   color: #f08047;
 }
+
 .cm-s-monokai {
   height: 100%;
 }
+
 /* .tree-container {
   overflow: hidden;
 } */
@@ -216,11 +216,11 @@ export default {
   height: 12px;
 }
 
-.treev :deep() .el-tree > .el-tree-node:before {
+.treev :deep() .el-tree>.el-tree-node:before {
   border-left: none;
 }
 
-.tree-container :deep() .el-tree > .el-tree-node:after {
+.tree-container :deep() .el-tree>.el-tree-node:after {
   border-top: none;
 }
 

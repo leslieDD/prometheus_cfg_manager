@@ -982,7 +982,7 @@ export default {
 .monitor-board {
   display: flex;
   flex-direction: column;
-  height: 85vh;
+  height: 90vh;
   width: 100%;
   /* border: 1px dashed burlywood; */
 }
@@ -1012,7 +1012,7 @@ export default {
   align-content: center;
 }
 .rule-edit-box {
-  min-height: 82vh;
+  min-height: 85vh;
 }
 .node-content-top {
   display: flex;

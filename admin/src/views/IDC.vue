@@ -796,7 +796,7 @@
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  height: 770px;
+  height: 90vh;
 }
 .card-header {
   display: flex;
@@ -816,7 +816,7 @@
 .box-card-left-body-content {
   border-left: 5px solid #ccc!important;border-color: #DDDDDD!important;
   width: 85%;
-  height: 670px;;
+  height: 100%;
 }
 .box-card-left-body-action {
   display: flex;
@@ -841,7 +841,9 @@
   margin-top: -15px;
 }
 .card-scrollbar {
-  max-height: 660px;
+  /* min-height: 100%; */
+  /* position: absolute; */
+  height: calc(100vh - 190px);
 }
 
 .box-board :deep() .el-card__body {

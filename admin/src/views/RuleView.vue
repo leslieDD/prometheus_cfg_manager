@@ -2,15 +2,8 @@
   <div class="main-box">
     <div class="main-content">
       <el-scrollbar class="card-scrollbar">
-        <el-tree
-          :data="data"
-          :props="defaultProps"
-          accordion
-          default-expand-all
-          :indent="0"
-          @node-click="handleNodeClick"
-          class="tree"
-        >
+        <el-tree :data="data" :props="defaultProps" accordion default-expand-all :indent="0"
+          @node-click="handleNodeClick" class="tree">
         </el-tree>
       </el-scrollbar>
     </div>
@@ -163,7 +156,7 @@ export default {
     this.yamlViewer.refresh()
     // editor.setSize('width','height');
     // this.yamlViewer.setSize('835px', '83vh');
-    this.yamlViewer.setSize('100%', '83vh');
+    this.yamlViewer.setSize('100%', '90vh');
     this.yamlViewer.setValue(this.value)
     this.yamlViewer.on('change', (cm) => {
       this.$emit('changed', cm.getValue())
@@ -184,12 +177,14 @@ export default {
   display: flex;
   flex-direction: row;
   justify-content: flex-start;
-  height: 85vh;
+  height: 90vh;
 }
+
 .main-content {
   width: 290px;
-  height: 84vh;
+  height: 89vh;
 }
+
 /* .card-scrollbar {
   height: 84vh;
   width: 250px;
@@ -198,6 +193,7 @@ export default {
   position: relative;
   width: 100%;
 }
+
 .tree :deep() .el-tree-node {
   position: relative;
   padding-left: 0;
@@ -211,11 +207,11 @@ export default {
   height: 12px;
 }
 
-.treev :deep() .el-tree > .el-tree-node:before {
+.treev :deep() .el-tree>.el-tree-node:before {
   border-left: none;
 }
 
-.tree-container :deep() .el-tree > .el-tree-node:after {
+.tree-container :deep() .el-tree>.el-tree-node:after {
   border-top: none;
 }
 

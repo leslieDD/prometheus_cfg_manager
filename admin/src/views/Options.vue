@@ -228,5 +228,6 @@ export default {
 <style scoped>
 .option-board {
   width: 95%;
+  height: 90vh;
 }
 </style>

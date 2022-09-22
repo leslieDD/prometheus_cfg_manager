@@ -361,6 +361,7 @@ export default {
   padding: 0;
   max-width: 99%;
   margin: 0 auto;
+  height: 100%;
 }
 
 el-tabs {
@@ -374,6 +375,9 @@ el-tabs {
 /* .slide-fade-leave-active {
   transition: all 0.8s cubic-bezier(1, 0.5, 0.8, 1);
 } */
+.base-config-menu {
+  height: 100%;
+}
 
 .slide-fade-enter-from,
 .slide-fade-leave-to {

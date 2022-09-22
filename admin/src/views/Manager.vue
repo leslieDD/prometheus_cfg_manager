@@ -639,7 +639,7 @@ export default {
       batchTypeSelect: [],
       batchDomainTypeSelect: [],
       search: '',
-      pageSize: 20,
+      pageSize: 0,
       pageTotal: 0,
       currentPage: 1,
       selectOption: 'enable',
@@ -701,6 +701,7 @@ export default {
   },
   created () {
     // this.doGetMechines()
+    this.computerTablePage()
   },
   mounted () {
     let selectOption = getStorageVal('displayIPType')
