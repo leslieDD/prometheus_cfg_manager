@@ -75,7 +75,37 @@ func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, float64) {
 	}
 	var p *PrometheusRangeResult
 	maxLen := 0
-	for index, r := range rst.Data.Result {
+	// 找出最找的一个组
+	for _, r := range rst.Data.Result {
+		if len(r.Values) > maxLen {
+			maxLen = len(r.Values)
+			p = r
+		}
+	}
+	// 填充数据
+	for _, r := range rst.Data.Result {
+		if len(r.Values) == maxLen {
+			continue
+		}
+		kMap := map[interface{}][]interface{}{}
+		for _, v := range r.Values {
+			kMap[v[0]] = v
+		}
+		var vNew [][]interface{}
+		for _, v := range p.Values {
+			if self, ok := kMap[v[0]]; ok {
+				vNew = append(vNew, self)
+			} else {
+				vNew = append(vNew, []interface{}{
+					v[0],
+					// charts.GetNullValue(),
+					0,
+				})
+			}
+		}
+		r.Values = vNew
+	}
+	for _, r := range rst.Data.Result {
 		vs := []float64{}
 		for _, v := range r.Values {
 			vData := utils.StringToFloat64(v[1].(string))
@@ -85,10 +115,6 @@ func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, float64) {
 			}
 		}
 		yvss = append(yvss, vs)
-		if len(rst.Data.Result[index].Values) > maxLen {
-			maxLen = len(rst.Data.Result[index].Values)
-			p = rst.Data.Result[index]
-		}
 	}
 	if p == nil {
 		p = rst.Data.Result[0]

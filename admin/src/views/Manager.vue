@@ -327,7 +327,7 @@
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
         :current-page="currentPage"
-        :page-sizes="[15, 20, 50, 100, 200]"
+        :page-sizes="computerTablePage()"
         :page-size="pageSize"
         layout="total, sizes, prev, pager, next, jumper"
         :total="pageTotal"
@@ -718,6 +718,17 @@ export default {
     this.doGetMechines()
   },
   methods: {
+    computerTablePage () {
+      let windowHeight = document.documentElement.clientHeight || document.bodyclientHeight
+      let cloumnNum = parseInt((windowHeight - 180) / 30)
+      this.pageSize = cloumnNum
+      let pageSplit = [cloumnNum]
+      for (var i = 2; i <= 5; i++) {
+        pageSplit.push(cloumnNum * i)
+      }
+      console.log(windowHeight, cloumnNum, pageSplit)
+      return pageSplit
+    },
     doAdd () {
       this.enterBtnTitle = '创建'
       this.dialogTitle = '新增IP地址'

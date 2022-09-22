@@ -47,7 +47,7 @@
         <template #default="props">
           <el-descriptions title="IP列表" size="mini" :column="4" border>
             <el-descriptions-item v-for="(item, index) in jobAllIPList[props.row.id]" :key="index" :label="index + 1">{{
-                item.ipaddr
+            item.ipaddr
             }}
               <span v-if="item.position.error">
                 <el-tag type="danger" size="mini">{{ item.position.error }}</el-tag>
@@ -87,7 +87,7 @@
       <el-table-column label="IP数" width="45px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
-              scope.row.ip_count
+          scope.row.ip_count
           }}</el-button>
         </template>
       </el-table-column>
@@ -104,7 +104,7 @@
       <el-table-column label="子组数" width="60px">
         <template v-slot="scope">
           <el-button size="mini" type="text" @click="doEditLabelsJob(scope)">{{
-              scope.row.group_count
+          scope.row.group_count
           }}</el-button>
         </template>
       </el-table-column>
@@ -192,7 +192,7 @@
     </el-table>
     <div class="block" v-if="pageshow">
       <el-pagination @size-change="handleSizeChange" @current-change="handleCurrentChange" :current-page="currentPage"
-        :page-sizes="[10, 15, 20, 30, 50]" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
+        :page-sizes="computerTablePage()" :page-size="pageSize" layout="total, sizes, prev, pager, next, jumper"
         :total="pageTotal">
       </el-pagination>
     </div>
@@ -241,7 +241,8 @@
     </el-dialog>
     <el-dialog :title="dialogTitle" v-model="dialogVisible" width="450px" modal :before-close="handleClose">
       <span>
-        <el-form label-position="right" :rules="rules" ref="addJobInfo" :model="addJobInfo" label-width="110px" size="small">
+        <el-form label-position="right" :rules="rules" ref="addJobInfo" :model="addJobInfo" label-width="110px"
+          size="small">
           <el-form-item label="分组名：" prop="name">
             <el-input style="width: 250px" v-model="addJobInfo.name"></el-input>
           </el-form-item>
@@ -468,7 +469,7 @@ export default {
         'relabel_id': 0
       },
       relabelList: [],
-      pageSize: 20,
+      pageSize: 0,
       pageTotal: 0,
       currentPage: 1,
       searchContent: '',
@@ -564,6 +565,17 @@ export default {
     this.doGetJobs()
   },
   methods: {
+    computerTablePage () {
+      let windowHeight = document.documentElement.clientHeight || document.bodyclientHeight
+      let cloumnNum = parseInt((windowHeight - 180) / 30)
+      this.pageSize = cloumnNum
+      let pageSplit = [cloumnNum]
+      for (var i = 2; i <= 5; i++) {
+        pageSplit.push(cloumnNum * i)
+      }
+      console.log(windowHeight, cloumnNum, pageSplit)
+      return pageSplit
+    },
     doAdd () {
       getAllReLabels().then(r => {
         this.relabelList = r.data
