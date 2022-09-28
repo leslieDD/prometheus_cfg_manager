@@ -99,7 +99,7 @@ func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, float64) {
 				vNew = append(vNew, []interface{}{
 					v[0],
 					// charts.GetNullValue(),
-					0,
+					"0",
 				})
 			}
 		}
