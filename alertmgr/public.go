@@ -111,7 +111,7 @@ func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, float64) {
 		for _, v := range r.Values {
 			vData := utils.StringToFloat64(v[1].(string))
 			vs = append(vs, vData)
-			if maxVal < vData {
+			if maxVal < vData && vData != charts.GetNullValue() {
 				maxVal = vData
 			}
 		}
