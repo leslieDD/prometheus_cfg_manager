@@ -39,3 +39,4 @@ __debug_*
 *.exe*
 pro_cfg_manager
 prometheus_config/*
+temp/*
