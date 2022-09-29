@@ -2,6 +2,7 @@ package alertmgr
 
 import (
 	"encoding/json"
+	"fmt"
 	"net/url"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/utils"
@@ -9,6 +10,7 @@ import (
 	"time"
 
 	"github.com/sonh/qs"
+	"github.com/vicanso/go-charts/v2"
 	"gonum.org/v1/plot/plotter"
 )
 
@@ -98,8 +100,7 @@ func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, float64) {
 			} else {
 				vNew = append(vNew, []interface{}{
 					v[0],
-					// charts.GetNullValue(),
-					"0",
+					fmt.Sprint(charts.GetNullValue()),
 				})
 			}
 		}

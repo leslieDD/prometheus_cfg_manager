@@ -42,7 +42,7 @@ User-Agent: Prometheus/2.33.3
 Content-Length: 437
 Content-Type: application/json
 
-[{"annotations":{"description":"检查192.168.1.1是否在线","summary":"检查192.168.1.1是否在线"},"endsAt":"2022-08-09T08:20:43.770Z","startsAt":"2022-08-09T08:20:28.770Z","generatorURL":"http://localhost.localdomain:9090/graph?g0.expr=probe_success+%3D%3D+0\u0026g0.tab=1","labels":{"alertname":"主机宕机测试","idc":"CDN","instance":"192.168.1.1","job":"blackbox","line":"美国云化CDN","severity":"critical"}}]HTTP/1.1 200 OK
+[{"annotations":{"description":"检查192.168.1.1是否在线","summary":"检查192.168.1.1是否在线"},"endsAt":"2022-08-09T08:20:43.770Z","startsAt":"2022-08-09T08:20:28.770Z","generatorURL":"http://localhost.localdomain:9090/graph?g0.expr=probe_success+%3D%3D+0\u0026g0.tab=1","labels":{"alertname":"主机宕机测试","idc":"CDN","instance":"192.168.1.1","job":"blackbox","line":"美国","severity":"critical"}}]HTTP/1.1 200 OK
 Vary: Origin
 Date: Tue, 09 Aug 2022 08:23:13 GMT
 Content-Length: 0
