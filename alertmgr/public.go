@@ -121,7 +121,8 @@ func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, float64) {
 		p = rst.Data.Result[0]
 	}
 	for _, v := range p.Values {
-		xtitles = append(xtitles, time.Unix(int64(v[0].(float64)), 0).Local().Format("2006-01-02 15:04:05"))
+		// xtitles = append(xtitles, time.Unix(int64(v[0].(float64)), 0).Local().Format(config.TimeLayout))
+		xtitles = append(xtitles, time.Unix(int64(v[0].(float64)), 0).Local().Format("15:04"))
 	}
 	return xtitles, yvss, maxVal
 }

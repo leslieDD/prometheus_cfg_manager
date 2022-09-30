@@ -3,6 +3,7 @@ package alertmgr
 import (
 	"encoding/base64"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/utils"
@@ -44,17 +45,18 @@ func ChartLine(cr *CronRule) (string, error) {
 	}
 
 	x, y, max := ConvertValueV4(respData)
+	imgTitle := fmt.Sprintf("%s %s-%s [%d:%s]", cr.Name, cr.Start.Format(config.TimeLayout), cr.End.Format(config.TimeLayout), cr.NearTime, cr.Unit)
 	p, err := charts.LineRender(
 		y,
 		charts.TitleTextOptionFunc("Line"),
 		charts.XAxisDataOptionFunc(x),
 		installFont,
 		func(opt *charts.ChartOption) {
-			opt.Title = charts.TitleOption{Text: cr.Name}
+			opt.Title = charts.TitleOption{Text: imgTitle}
 			opt.Height = 600
 			opt.Width = 1000
 			opt.Legend.Padding = charts.Box{
-				Top:    5,
+				Top:    0,
 				Bottom: 10,
 			}
 			opt.SymbolShow = charts.FalseFlag()

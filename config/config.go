@@ -61,6 +61,8 @@ type Config struct {
 // Cfg 全局的Config配置，解析dns.yaml的结果
 var Cfg *Config
 
+var TimeLayout = "2006-01-02 15:04:05"
+
 // Version 软件版本
 var Version = "1.0.39 bate"
 

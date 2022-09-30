@@ -397,7 +397,7 @@ func PutLineIpAddrs(user *UserSessionInfo, newPool *NewPool) *BriefMessage {
 	}
 	postIpAddr := strings.Join(vaildItems, ";\n")
 	sql := fmt.Sprintf("replace into pool(line_id, ipaddrs, remark, update_at, update_by) values(%d, '%s', '%s', '%s', '%s');",
-		newPool.LineID, postIpAddr, newPool.Remark, time.Now().Format("2006-01-02 15:04:05"), user.Username)
+		newPool.LineID, postIpAddr, newPool.Remark, time.Now().Format(config.TimeLayout), user.Username)
 	tx := db.Table("pool").Exec(sql)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
