@@ -162,6 +162,19 @@ func ConvertTime(t int, unit string) int64 {
 	return int64(seconds * 60)
 }
 
+func ConvertTimeStr(unit string) string {
+	switch unit {
+	case "1": // 分钟
+		return "分钟"
+	case "2": // 小时
+		return "小时"
+	case "3": // 天
+		return "天"
+	default: // 分钟
+		return "分钟"
+	}
+}
+
 func ConvertApi(api string) string {
 	var newApi string
 	api = strings.TrimSpace(api)

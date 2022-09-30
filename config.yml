@@ -41,4 +41,4 @@ mail:
     - "xxx2@qq.cn"
 
 # 使用画图时，可以指定字体，可以避免中文乱码
-font: "NotoSansCJKsc-VF.ttf"
+font: "微软雅黑.ttf"

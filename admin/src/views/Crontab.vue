@@ -240,11 +240,13 @@
     </el-dialog>
     <el-dialog :title="showImageTitle" v-model="showCronImage" modal width="800px"
       :before-close="handleImageDialogClose">
-      <el-image :src="image_src">
-        <template #placeholder>
-          <div class="image-slot">Loading<span class="dot">...</span></div>
-        </template>
-      </el-image>
+      <div class="image-box">
+        <el-image :src="image_src">
+          <template #placeholder>
+            <div class="image-slot">Loading<span class="dot">...</span></div>
+          </template>
+        </el-image>
+      </div>
     </el-dialog>
     <el-dialog title="crontab规则帮助信息" v-model="showHelpDialog" modal width="1000px"
       :before-close="handleHelpDialogClose">
@@ -870,5 +872,9 @@ export default {
 .demo-image__placeholder .dot {
   animation: dot 2s infinite steps(3, start);
   overflow: hidden;
+}
+
+.image-box {
+  margin-top: -40px;
 }
 </style>

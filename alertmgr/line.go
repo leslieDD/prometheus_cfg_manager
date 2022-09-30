@@ -20,12 +20,12 @@ func ChartLine(cr *CronRule) (string, error) {
 			config.Log.Error(err)
 			installFont = charts.FontFamilyOptionFunc("roboto")
 		} else {
-			err = charts.InstallFont("noto", buf)
+			err = charts.InstallFont("DianDianFont", buf)
 			if err != nil {
 				config.Log.Error(err)
 				installFont = charts.FontFamilyOptionFunc("roboto")
 			} else {
-				installFont = charts.FontFamilyOptionFunc("noto")
+				installFont = charts.FontFamilyOptionFunc("DianDianFont")
 			}
 		}
 	}
@@ -45,18 +45,27 @@ func ChartLine(cr *CronRule) (string, error) {
 	}
 
 	x, y, max := ConvertValueV4(respData)
-	imgTitle := fmt.Sprintf("%s %s-%s [%d:%s]", cr.Name, cr.Start.Format(config.TimeLayout), cr.End.Format(config.TimeLayout), cr.NearTime, cr.Unit)
+	imgTitle := fmt.Sprintf("%s\n%s - %s [ %d:%s ]",
+		cr.Name,
+		cr.Start.Format(config.TimeLayout),
+		cr.End.Format(config.TimeLayout),
+		cr.NearTime,
+		ConvertTimeStr(cr.Unit),
+	)
 	p, err := charts.LineRender(
 		y,
 		charts.TitleTextOptionFunc("Line"),
 		charts.XAxisDataOptionFunc(x),
 		installFont,
 		func(opt *charts.ChartOption) {
-			opt.Title = charts.TitleOption{Text: imgTitle}
+			opt.Title = charts.TitleOption{
+				Text: imgTitle,
+				Left: "center",
+			}
 			opt.Height = 600
 			opt.Width = 1000
 			opt.Legend.Padding = charts.Box{
-				Top:    0,
+				Top:    5,
 				Bottom: 10,
 			}
 			opt.SymbolShow = charts.FalseFlag()
@@ -88,12 +97,12 @@ func ChartLineTest() (string, error) {
 			config.Log.Error(err)
 			installFont = charts.FontFamilyOptionFunc("roboto")
 		} else {
-			err = charts.InstallFont("noto", buf)
+			err = charts.InstallFont("DianDianFont", buf)
 			if err != nil {
 				config.Log.Error(err)
 				installFont = charts.FontFamilyOptionFunc("roboto")
 			} else {
-				installFont = charts.FontFamilyOptionFunc("noto")
+				installFont = charts.FontFamilyOptionFunc("DianDianFont")
 			}
 		}
 	}
