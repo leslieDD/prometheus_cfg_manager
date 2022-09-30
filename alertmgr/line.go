@@ -45,7 +45,7 @@ func ChartLine(cr *CronRule) (string, error) {
 	}
 
 	x, y, max := ConvertValueV4(respData)
-	imgTitle := fmt.Sprintf("%s\n%s - %s [ %d:%s ]",
+	imgTitle := fmt.Sprintf("%s\n%s - %s [ %d%s ]",
 		cr.Name,
 		cr.Start.Format(config.TimeLayout),
 		cr.End.Format(config.TimeLayout),
