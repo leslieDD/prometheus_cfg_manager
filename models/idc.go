@@ -464,6 +464,7 @@ func GetIDCTree(search *SearchContent2) (*idcTreeWithID, *BriefMessage) {
 		})
 	}
 
+	searchIPParsed := net.ParseIP(search.Content) // 查询的内容是否是完整的IP地址
 	idcTreeResp := []*idcTree{}
 	for _, idc := range idcs {
 		node := &idcTree{
@@ -493,8 +494,18 @@ func GetIDCTree(search *SearchContent2) (*idcTreeWithID, *BriefMessage) {
 				for _, eachLine := range obj {
 					if strings.Contains(eachLine.Label, search.Content) {
 						matchLine = append(matchLine, eachLine)
-					} else if search.SearchIP && strings.Contains(linesMap[eachLine.ID].Ipaddrs, search.Content) {
-						matchLine = append(matchLine, eachLine)
+						// } else if search.SearchIP && strings.Contains(linesMap[eachLine.ID].Ipaddrs, search.Content) {
+					} else if search.SearchIP {
+						if searchIPParsed == nil {
+							if strings.Contains(linesMap[eachLine.ID].Ipaddrs, search.Content) {
+								matchLine = append(matchLine, eachLine)
+							}
+						} else {
+							iPNetParsed := ParseRangeIP(linesMap[eachLine.ID].Ipaddrs)
+							if iPNetParsed.ContainsV2(searchIPParsed) {
+								matchLine = append(matchLine, eachLine)
+							}
+						}
 					}
 				}
 				if len(matchLine) != 0 {
@@ -763,13 +774,16 @@ type TypeGroupIP struct {
 }
 
 func (t *TypeGroupIP) Contains(ip string) bool {
-	ip = strings.TrimSpace(ip)
-	iPParsed := net.ParseIP(ip)
+	iPParsed := net.ParseIP(strings.TrimSpace(ip))
+	return t.ContainsV2(iPParsed)
+}
+
+func (t *TypeGroupIP) ContainsV2(iPParsed net.IP) bool {
 	if iPParsed == nil {
-		config.Log.Error("not a vaild ip address: ", ip)
+		config.Log.Error("not a vaild ip address: ", iPParsed.String())
 		return false
 	}
-	_, ok := t.IP[ip]
+	_, ok := t.IP[iPParsed.String()]
 	if ok {
 		return true
 	}

@@ -11,7 +11,7 @@
           >点击导出</el-button
         ></span></span>
           <span>
-            <span style="margin-right: 10px"><el-checkbox v-model="search_ip" label="搜索线路地址" size="small" /></span>
+            <span style="margin-right: 10px"><el-checkbox v-model="search_ip" label="搜索线路" size="small" /></span>
             <span>
             <el-input
               size="small"
@@ -282,7 +282,7 @@
         pushing_create_ips: false,
         should_disabled: false,
         searchContent: '',
-        search_ip: false,
+        search_ip: true,
         onobject_disabled: false,
         defaultExpandedKeysStore: new Set(),
         defaultExpandedKeys: [],
