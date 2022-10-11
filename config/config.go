@@ -64,7 +64,7 @@ var Cfg *Config
 var TimeLayout = "2006-01-02 15:04:05"
 
 // Version 软件版本
-var Version = "1.0.40 bate"
+var Version = "1.0.41 bate"
 
 // SubDir for config
 var SubDir = "conf.d"

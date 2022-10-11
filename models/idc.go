@@ -464,7 +464,7 @@ func GetIDCTree(search *SearchContent2) (*idcTreeWithID, *BriefMessage) {
 		})
 	}
 
-	searchIPParsed := net.ParseIP(search.Content) // 查询的内容是否是完整的IP地址
+	searchIPParsed := net.ParseIP(strings.TrimSpace(search.Content)) // 查询的内容是否是完整的IP地址
 	idcTreeResp := []*idcTree{}
 	for _, idc := range idcs {
 		node := &idcTree{
@@ -494,7 +494,6 @@ func GetIDCTree(search *SearchContent2) (*idcTreeWithID, *BriefMessage) {
 				for _, eachLine := range obj {
 					if strings.Contains(eachLine.Label, search.Content) {
 						matchLine = append(matchLine, eachLine)
-						// } else if search.SearchIP && strings.Contains(linesMap[eachLine.ID].Ipaddrs, search.Content) {
 					} else if search.SearchIP {
 						if searchIPParsed == nil {
 							if strings.Contains(linesMap[eachLine.ID].Ipaddrs, search.Content) {
@@ -516,8 +515,17 @@ func GetIDCTree(search *SearchContent2) (*idcTreeWithID, *BriefMessage) {
 				for _, eachLine := range obj {
 					if strings.Contains(eachLine.Label, search.Content) {
 						matchLine = append(matchLine, eachLine)
-					} else if search.SearchIP && strings.Contains(linesMap[eachLine.ID].Ipaddrs, search.Content) {
-						matchLine = append(matchLine, eachLine)
+					} else if search.SearchIP {
+						if searchIPParsed == nil {
+							if strings.Contains(linesMap[eachLine.ID].Ipaddrs, search.Content) {
+								matchLine = append(matchLine, eachLine)
+							}
+						} else {
+							iPNetParsed := ParseRangeIP(linesMap[eachLine.ID].Ipaddrs)
+							if iPNetParsed.ContainsV2(searchIPParsed) {
+								matchLine = append(matchLine, eachLine)
+							}
+						}
 					}
 				}
 				if len(matchLine) != 0 {
