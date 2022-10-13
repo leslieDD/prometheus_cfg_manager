@@ -142,7 +142,7 @@
         :total="pageTotal">
       </el-pagination>
     </div>
-    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="700px" modal :before-close="handleClose()">
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="700px" modal :before-close="handleClose">
       <span>
         <el-form label-position="right" :rules="addCronRuleInfoRule" ref="addCronRuleInfo" :model="addCronRuleInfo"
           label-width="90px" size="small">

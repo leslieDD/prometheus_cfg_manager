@@ -727,7 +727,7 @@ export default {
       for (var i = 2; i <= 5; i++) {
         pageSplit.push(cloumnNum * i)
       }
-      console.log(windowHeight, cloumnNum, pageSplit)
+      // console.log(windowHeight, cloumnNum, pageSplit)
       return pageSplit
     },
     doAdd () {
