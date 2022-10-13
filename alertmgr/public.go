@@ -68,12 +68,14 @@ func ConvertValueV3(rst *PrometheusRangeResult) plotter.XYs {
 }
 
 // 最后一个返回值是最大值
-func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, float64) {
+func ConvertValueV4(rst *PrometheusRangeResp) ([]string, []string, [][]float64, float64) {
+	ipAddrs := []string{}
 	yvss := [][]float64{}
 	xtitles := []string{}
+
 	maxVal := float64(0)
 	if len(rst.Data.Result) == 0 {
-		return xtitles, yvss, maxVal
+		return ipAddrs, xtitles, yvss, maxVal
 	}
 	var p *PrometheusRangeResult
 	maxLen := 0
@@ -121,10 +123,9 @@ func ConvertValueV4(rst *PrometheusRangeResp) ([]string, [][]float64, float64) {
 		p = rst.Data.Result[0]
 	}
 	for _, v := range p.Values {
-		// xtitles = append(xtitles, time.Unix(int64(v[0].(float64)), 0).Local().Format(config.TimeLayout))
 		xtitles = append(xtitles, time.Unix(int64(v[0].(float64)), 0).Local().Format("15:04"))
 	}
-	return xtitles, yvss, maxVal
+	return ipAddrs, xtitles, yvss, maxVal
 }
 
 func CreatePostDataWithTime(sql string, start time.Time, end time.Time, Step string) url.Values {

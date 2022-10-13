@@ -134,10 +134,60 @@
             <template #label>
               <div class="display-title">
                 <span>IP列表：（以英文分号(;)隔开；如:192.168.1.0/24;10.10.10.1;172.16.1.1~172.16.2.1）</span>
-                <el-button size="mini" plain type="danger" @click="expandIPAddr">扩展当前组选择项IP</el-button>
+                <!-- <el-button size="mini" plain type="danger" @click="expandIPAddr">扩展当前组选择项IP</el-button> -->
               </div>
             </template>
-            <el-input :disabled="should_disabled || onobject_disabled" resize="none" :rows="16" type="textarea" placeholder="" v-model="linedetailinfo.ipaddrs_net_line"></el-input>
+            <div class="content-box">
+              <div style="width: 80%">
+                <el-input :disabled="should_disabled || onobject_disabled" 
+                  resize="none" 
+                  :rows="16"
+                  type="textarea" 
+                  placeholder="" 
+                  v-model="linedetailinfo.ipaddrs_net_line">
+                </el-input>
+              </div>
+              <div style="width: 150px">
+                <el-descriptions class="margin-top" title="" :column="1" size="small" border>
+                  <template #extra>
+                    <el-button size="mini" plain type="danger" @click="expandIPAddr">扩展当前组或者线路</el-button>
+                  </template>
+                  <el-descriptions-item>
+                    <template #label>
+                      <div class="cell-item">
+                        <!-- <el-icon :style="iconStyle">
+                          <user />
+                        </el-icon> -->
+                        IPv4
+                      </div>
+                    </template>
+                    {{linedetailinfo.ipv4}}
+                  </el-descriptions-item>
+                  <el-descriptions-item>
+                    <template #label>
+                      <div class="cell-item">
+                        <!-- <el-icon :style="iconStyle">
+                          <iphone />
+                        </el-icon> -->
+                        IPv6
+                      </div>
+                    </template>
+                    {{linedetailinfo.ipv6}}
+                  </el-descriptions-item>
+                  <el-descriptions-item>
+                    <template #label>
+                      <div class="cell-item">
+                        <el-icon :style="iconStyle">
+                          <location />
+                        </el-icon>
+                        Total
+                      </div>
+                    </template>
+                    {{linedetailinfo.ipv4 + linedetailinfo.ipv6}}
+                  </el-descriptions-item>
+                </el-descriptions>
+              </div>
+            </div>
           </el-form-item>
           <el-form-item label="备注信息：">
             <el-input :disabled="onobject_disabled" resize="none" :rows="15" type="textarea" placeholder="" v-model="linedetailinfo.remark_info"></el-input>
@@ -235,7 +285,9 @@
         data: JSON.parse(JSON.stringify(data)),
         linedetailinfo: {
           'ipaddrs_net_line': '',  // IP地址列表
-          'remark_info': ''  // 备注信息
+          'remark_info': '',  // 备注信息
+          'ipv4': 0,
+          'ipv6': 0,
         },
         dialogLineVisible: false,
         dialogIDCVisible: false,
@@ -611,7 +663,9 @@
           getIDC({id: node.id}).then(r=>{
             this.linedetailinfo = {
               'ipaddrs_net_line': '请把此机房的IP信息填写入相应的线路中',  // IP地址列表
-              'remark_info': r.data.remark        // 备注信息
+              'remark_info': r.data.remark,        // 备注信息
+              'ipv4': 0,
+              'ipv6': 0,
             }
           }).catch(e=>console.log(e))
         } else if (node.tree_type === 'line') {
@@ -621,7 +675,9 @@
           getLineIpAddrs({id: node.id}).then(r=>{
             this.linedetailinfo = {
               'ipaddrs_net_line': r.data.ipaddrs,  // IP地址列表
-              'remark_info': r.data.remark        // 备注信息
+              'remark_info': r.data.remark,        // 备注信息
+              'ipv4': r.data.ipv4,
+              'ipv6': r.data.ipv6,
             }
           }).catch(e=>{
             console.log(e)
@@ -864,5 +920,12 @@
 }
 .download-btn {
   margin-left: 10px;
+}
+.content-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: nowrap;
+  align-items: flex-start;
 }
 </style>

@@ -44,30 +44,30 @@ func RangeBeginToEnd(begin, end string) ([]string, error) {
 	return pools, nil
 }
 
-func BigIntBeginAndEnd(begin, end string) (*big.Int, *big.Int, error) {
+func BigIntBeginAndEnd(begin, end string) (*big.Int, *big.Int, int, error) {
 	b := net.ParseIP(begin)
 	if b == nil {
-		return nil, nil, errors.New("need valid ip")
+		return nil, nil, 0, errors.New("need valid ip")
 	}
 	e := net.ParseIP(end)
 	if e == nil {
-		return nil, nil, errors.New("need valid ip")
+		return nil, nil, 0, errors.New("need valid ip")
 	}
 	bType := V4OrV6(begin)
 	eType := V4OrV6(end)
 	if bType != eType || bType == 0 {
-		return nil, nil, errors.New("need valid ip")
+		return nil, nil, 0, errors.New("need valid ip")
 	}
 	if bType == 4 {
 		bInt64 := big.NewInt(0)
 		bInt64.SetBytes(b.To4())
 		eInt64 := big.NewInt(0)
 		eInt64.SetBytes(e.To4())
-		return bInt64, eInt64, nil
+		return bInt64, eInt64, 4, nil
 	} else {
 		bBigInt := IP6toInt(b)
 		eBigInt := IP6toInt(e)
-		return bBigInt, eBigInt, nil
+		return bBigInt, eBigInt, 6, nil
 	}
 }
 

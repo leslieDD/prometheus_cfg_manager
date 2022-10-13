@@ -54,6 +54,17 @@ type IPAddrsPool struct {
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
 }
 
+type IPAddrsPoolGetResp struct {
+	ID       int       `json:"id" gorm:"column:id"`
+	LineID   int       `json:"line_id" gorm:"column:line_id"`
+	Ipaddrs  string    `json:"ipaddrs" gorm:"column:ipaddrs"`
+	Remark   string    `json:"remark" gorm:"column:remark"`
+	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
+	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
+	IPv4     int64     `json:"ipv4" gorm:"column:-"`
+	IPv6     int64     `json:"ipv6" gorm:"column:-"`
+}
+
 type NewIDC struct {
 	ID     int    `json:"id" gorm:"column:id"`
 	Label  string `json:"label" gorm:"column:label"`
@@ -317,18 +328,46 @@ func DelLine(delReqParams *IdAndRm) *BriefMessage {
 	return Success
 }
 
-func GetLineIpAddrs(id *OnlyID) (*IPAddrsPool, *BriefMessage) {
+func GetLineIpAddrs(id *OnlyID) (*IPAddrsPoolGetResp, *BriefMessage) {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
 		config.Log.Error(InternalGetBDInstanceErr)
 		return nil, ErrDataBase
 	}
-	pool := IPAddrsPool{}
+	pool := IPAddrsPoolGetResp{}
 	tx := db.Table("pool").Where("line_id", id.ID).Find(&pool)
 	if tx.Error != nil {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
+	ipAddrParsed := ParseRangeIP(pool.Ipaddrs)
+	var v4, v6 int64
+	for _, single := range ipAddrParsed.IPs {
+		if single.Type == 4 {
+			v4 += 1
+		} else {
+			v6 += 1
+		}
+	}
+	for _, netp := range ipAddrParsed.Nets {
+		l, max := netp.Net.Mask.Size()
+		num := int64(1 << (max - l))
+		if netp.Type == 4 {
+			v4 += num
+		} else {
+			v6 += num
+		}
+	}
+	for _, rangep := range ipAddrParsed.Range {
+		num := rangep.End.Sub(rangep.End, rangep.Begin).Int64() + 1
+		if rangep.Type == 4 {
+			v4 += num
+		} else {
+			v6 += num
+		}
+	}
+	pool.IPv4 = v4
+	pool.IPv6 = v6
 	return &pool, Success
 }
 
@@ -773,11 +812,22 @@ type NetInfo struct {
 type NetRange struct {
 	Begin *big.Int // 起始IP
 	End   *big.Int // 结束IP
+	Type  int      // 4 or 6
+}
+
+type ipStrcut struct {
+	IP   *net.IP // 只是单个IP
+	Type int     // 4 or 6
+}
+
+type netStrcut struct {
+	Net  *net.IPNet // IPV4的地址段 x.x.x.x/24
+	Type int        // 4 or 6
 }
 
 type TypeGroupIP struct {
-	IP    map[string]*net.IP    // 只是单个IP
-	Net   map[string]*net.IPNet // IPV4的地址段 x.x.x.x/24
+	IPs   map[string]*ipStrcut  // 只是单个IP
+	Nets  map[string]*netStrcut // IPV4的地址段 x.x.x.x/24
 	Range []*NetRange           // 指定范围，如：192.168.1.0~192.168.2.0
 }
 
@@ -791,12 +841,12 @@ func (t *TypeGroupIP) ContainsV2(iPParsed net.IP) bool {
 		config.Log.Error("not a vaild ip address: ", iPParsed.String())
 		return false
 	}
-	_, ok := t.IP[iPParsed.String()]
+	_, ok := t.IPs[iPParsed.String()]
 	if ok {
 		return true
 	}
-	for _, n := range t.Net {
-		if n.Contains(iPParsed) {
+	for _, n := range t.Nets {
+		if n.Net.Contains(iPParsed) {
 			return true
 		}
 	}
@@ -851,8 +901,8 @@ func GetNetParams() ([]*IDC, map[int][]*Line, map[int]*TypeGroupIP, *BriefMessag
 	tgis := map[int]*TypeGroupIP{} // map中的int是指线路的ID
 	for _, p := range pools {
 		tgi := TypeGroupIP{
-			IP:    map[string]*net.IP{},
-			Net:   map[string]*net.IPNet{},
+			IPs:   map[string]*ipStrcut{},
+			Nets:  map[string]*netStrcut{},
 			Range: []*NetRange{},
 		}
 		// 分割IP地址
@@ -865,14 +915,14 @@ func GetNetParams() ([]*IDC, map[int][]*Line, map[int]*TypeGroupIP, *BriefMessag
 					config.Log.Error(err)
 					continue
 				}
-				tgi.Net[each] = nObj
+				tgi.Nets[each] = &netStrcut{Net: nObj}
 			} else if strings.Contains(each, "~") {
 				fields := strings.Split(currIP, "~")
 				if len(fields) != 2 {
 					config.Log.Errorf("ip pool err: %s", currIP)
 					continue
 				}
-				beginBig, endBig, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+				beginBig, endBig, _, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
 				if err != nil {
 					config.Log.Error(err)
 					continue
@@ -885,7 +935,7 @@ func GetNetParams() ([]*IDC, map[int][]*Line, map[int]*TypeGroupIP, *BriefMessag
 					config.Log.Error("no a vaild ip address: ", each)
 					continue
 				}
-				tgi.IP[each] = &ipp
+				tgi.IPs[each] = &ipStrcut{IP: &ipp}
 			}
 		}
 		tgis[p.LineID] = &tgi

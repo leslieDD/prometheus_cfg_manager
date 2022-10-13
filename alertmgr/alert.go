@@ -64,6 +64,7 @@ type CronRule struct {
 	Name      string    `json:"name" gorm:"column:name"`
 	Rule      string    `json:"rule" gorm:"column:rule"`
 	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
+	ShowTitle bool      `json:"show_title" gorm:"column:show_title"`
 	ApiID     int       `json:"api_id" gorm:"column:api_id"`
 	APIName   string    `json:"api_name" gorm:"column:api_name"`
 	API       string    `json:"api" gorm:"column:api"`

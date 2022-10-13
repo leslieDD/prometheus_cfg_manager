@@ -155,6 +155,7 @@ type Crontab struct {
 	Name      string    `json:"name" gorm:"column:name"`
 	Rule      string    `json:"rule" gorm:"column:rule"`
 	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
+	ShowTitle bool      `json:"show_title" gorm:"column:show_title"`
 	ApiID     int       `json:"api_id" gorm:"column:api_id"`
 	ExecCycle string    `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
 	NearTime  int       `json:"near_time" gorm:"column:near_time"`
@@ -179,6 +180,7 @@ type CrontabPost struct {
 	NearTime  int    `json:"near_time" gorm:"column:near_time"`
 	Unit      string `json:"unit" gorm:"column:unit"`
 	Enabled   bool   `json:"enabled" gorm:"column:enabled"`
+	ShowTitle bool   `json:"show_title" gorm:"column:show_title"`
 }
 
 func GetCronRules(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
@@ -259,6 +261,7 @@ func PutCronRule(user *UserSessionInfo, api *CrontabPost) *BriefMessage {
 		Update("rule", api.Rule).
 		Update("api_id", api.ApiID).
 		Update("enabled", api.Enabled).
+		Update("show_title", api.ShowTitle).
 		Update("exec_cycle", api.ExecCycle).
 		Update("near_time", api.NearTime).
 		Update("unit", api.Unit).

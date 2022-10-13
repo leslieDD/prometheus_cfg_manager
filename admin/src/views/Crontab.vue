@@ -231,6 +231,15 @@
           <el-form-item label="状态：" prop="enabled">
             <el-switch v-model="addCronRuleInfo.enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
           </el-form-item>
+          <el-form-item label="线标题：" prop="show_title">
+            <template #label>
+              <span>线标题</span>
+              <el-tooltip content="在画出的线性图中，为每一线显示对应的标题内容" placement="top" style="diaplay: inline">
+                <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
+              </el-tooltip>
+            </template>
+            <el-switch v-model="addCronRuleInfo.show_title" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          </el-form-item>
           <el-form-item size="small">
             <el-button size="small" type="primary" @click="onSubmit('addCronRuleInfo')">{{ buttonTitle }}</el-button>
             <el-button size="small" type="info" @click="onCancel('addCronRuleInfo')">取消</el-button>
@@ -304,6 +313,7 @@ export default {
         'rule': '',
         'api_id': null,
         'enabled': true,
+        'show_title': false,
         'exec_cycle': '',
         'near_time': 1,
         'unit': '1',
@@ -321,6 +331,9 @@ export default {
         enabled: [
           { required: true, message: '请设置状态', trigger: ['blur'] }
         ],
+        // show_title: [
+        //   { required: true, message: '请设置是否显示线条标题', trigger: ['blur'] }
+        // ],
         exec_cycle: [
           { required: true, message: '请输入执行周期', trigger: ['blur'] }
         ],
@@ -575,6 +588,7 @@ export default {
           'rule': '',
           'api_id': null,
           'enabled': true,
+          'show_title': false,
           'exec_cycle': '',
           'near_time': 1,
           'unit': '1',
@@ -594,13 +608,14 @@ export default {
         this.cronApiList = r.data
         this.convertcronApiToMap(r.data)
         this.buttonTitle = '更新'
-        this.dialogTitle = '编辑IP分组'
+        this.dialogTitle = '编辑定时规则内容'
         this.addCronRuleInfo = {
           'id': data.row.id,
           'name': data.row.name,
           'rule': data.row.rule,
           'api_id': data.row.api_id,
           'enabled': data.row.enabled,
+          'show_title': data.row.show_title,
           'exec_cycle': data.row.exec_cycle,
           'near_time': data.row.near_time,
           'unit': data.row.unit,
@@ -671,6 +686,7 @@ export default {
           postData['rule'] = this.addCronRuleInfo.rule
           postData['api_id'] = this.addCronRuleInfo.api_id
           postData['enabled'] = this.addCronRuleInfo.enabled
+          postData['show_title'] = this.addCronRuleInfo.show_title
           postData['exec_cycle'] = this.addCronRuleInfo.exec_cycle
           postData['near_time'] = parseInt(this.addCronRuleInfo.near_time)
           postData['unit'] = this.addCronRuleInfo.unit

@@ -44,7 +44,7 @@ func ChartLine(cr *CronRule) (string, error) {
 		return "", errors.New("no data found")
 	}
 
-	x, y, max := ConvertValueV4(respData)
+	ipAddrs, x, y, max := ConvertValueV4(respData)
 	imgTitle := fmt.Sprintf("%s\n%s - %s [ %d%s ]",
 		cr.Name,
 		cr.Start.Format(config.TimeLayout),
@@ -52,8 +52,7 @@ func ChartLine(cr *CronRule) (string, error) {
 		cr.NearTime,
 		ConvertTimeStr(cr.Unit),
 	)
-	p, err := charts.LineRender(
-		y,
+	opts := []charts.OptionFunc{
 		charts.TitleTextOptionFunc("Line"),
 		charts.XAxisDataOptionFunc(x),
 		installFont,
@@ -76,6 +75,13 @@ func ChartLine(cr *CronRule) (string, error) {
 				},
 			}
 		},
+	}
+	if cr.ShowTitle {
+		opts = append(opts, charts.LegendLabelsOptionFunc(ipAddrs, charts.PositionCenter))
+	}
+	p, err := charts.LineRender(
+		y,
+		opts...,
 	)
 	if err != nil {
 		config.Log.Error(err)

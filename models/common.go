@@ -377,8 +377,8 @@ func QuickSplitSlice(s string) []string {
 
 func ParseRangeIP(ipAddrs string) *TypeGroupIP {
 	tgi := TypeGroupIP{
-		IP:    map[string]*net.IP{},
-		Net:   map[string]*net.IPNet{},
+		IPs:   map[string]*ipStrcut{},
+		Nets:  map[string]*netStrcut{},
 		Range: []*NetRange{},
 	}
 	// 分割IP地址
@@ -393,24 +393,28 @@ func ParseRangeIP(ipAddrs string) *TypeGroupIP {
 	for _, each := range iplist {
 		currIP := strings.TrimSpace(each)
 		if strings.Contains(each, "/") {
-			_, nObj, err := net.ParseCIDR(currIP)
+			tip, nObj, err := net.ParseCIDR(currIP)
 			if err != nil {
 				config.Log.Error(err)
 				continue
 			}
-			tgi.Net[each] = nObj
+			if tip.To4() != nil {
+				tgi.Nets[each] = &netStrcut{Net: nObj, Type: 4}
+			} else {
+				tgi.Nets[each] = &netStrcut{Net: nObj, Type: 6}
+			}
 		} else if strings.Contains(each, "~") {
 			fields := strings.Split(currIP, "~")
 			if len(fields) != 2 {
 				config.Log.Errorf("ip pool err: %s", currIP)
 				continue
 			}
-			beginBig, endBig, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+			beginBig, endBig, t, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
 			if err != nil {
 				config.Log.Error(err)
 				continue
 			}
-			nr := NetRange{Begin: beginBig, End: endBig}
+			nr := NetRange{Begin: beginBig, End: endBig, Type: t}
 			tgi.Range = append(tgi.Range, &nr)
 		} else if strings.Contains(each, "-") {
 			fields := strings.Split(currIP, "-")
@@ -418,12 +422,12 @@ func ParseRangeIP(ipAddrs string) *TypeGroupIP {
 				config.Log.Errorf("ip pool err: %s", currIP)
 				continue
 			}
-			beginBig, endBig, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
+			beginBig, endBig, t, err := utils.BigIntBeginAndEnd(strings.TrimSpace(fields[0]), strings.TrimSpace(fields[1]))
 			if err != nil {
 				config.Log.Error(err)
 				continue
 			}
-			nr := NetRange{Begin: beginBig, End: endBig}
+			nr := NetRange{Begin: beginBig, End: endBig, Type: t}
 			tgi.Range = append(tgi.Range, &nr)
 		} else {
 			ipp := net.ParseIP(currIP)
@@ -431,7 +435,11 @@ func ParseRangeIP(ipAddrs string) *TypeGroupIP {
 				config.Log.Error("no a vaild ip address: ", each)
 				continue
 			}
-			tgi.IP[each] = &ipp
+			if ipp.To4() != nil {
+				tgi.IPs[each] = &ipStrcut{IP: &ipp, Type: 4}
+			} else {
+				tgi.IPs[each] = &ipStrcut{IP: &ipp, Type: 6}
+			}
 		}
 	}
 	return &tgi
