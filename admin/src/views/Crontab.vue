@@ -228,18 +228,24 @@
               </el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="状态：" prop="enabled">
-            <el-switch v-model="addCronRuleInfo.enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
-          </el-form-item>
-          <el-form-item label="线标题：" prop="show_title">
-            <template #label>
-              <span>线标题</span>
-              <el-tooltip content="在画出的线性图中，为每一线显示对应的标题内容" placement="top" style="diaplay: inline">
-                <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
-              </el-tooltip>
-            </template>
-            <el-switch v-model="addCronRuleInfo.show_title" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
-          </el-form-item>
+          <el-row>
+            <el-col :span="12">
+              <el-form-item label="状态：" prop="enabled">
+                <el-switch v-model="addCronRuleInfo.enabled" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+              </el-form-item>
+            </el-col>
+            <el-col :span="12">
+              <el-form-item label="线标题：" prop="show_title">
+                <template #label>
+                  <span>线标题</span>
+                  <el-tooltip content="在画出的线性图中，为每一线显示对应的标题内容" placement="top" style="diaplay: inline">
+                    <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
+                  </el-tooltip>
+                </template>
+                <el-switch v-model="addCronRuleInfo.show_title" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+              </el-form-item>
+            </el-col>
+          </el-row>
           <el-form-item size="small">
             <el-button size="small" type="primary" @click="onSubmit('addCronRuleInfo')">{{ buttonTitle }}</el-button>
             <el-button size="small" type="info" @click="onCancel('addCronRuleInfo')">取消</el-button>
