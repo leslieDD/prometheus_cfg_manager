@@ -147,7 +147,7 @@
                   v-model="linedetailinfo.ipaddrs_net_line">
                 </el-input>
               </div>
-              <div style="width: 150px">
+              <div style="width: 450px; margin-left: 15px;">
                 <el-descriptions class="margin-top" title="" :column="1" size="small" border>
                   <template #extra>
                     <el-button size="mini" plain type="danger" @click="expandIPAddr">扩展当前组或者线路</el-button>
@@ -183,7 +183,7 @@
                         Total
                       </div>
                     </template>
-                    {{linedetailinfo.ipv4 + linedetailinfo.ipv6}}
+                    {{BigInt(linedetailinfo.ipv4) + BigInt(linedetailinfo.ipv6)}}
                   </el-descriptions-item>
                 </el-descriptions>
               </div>
@@ -927,5 +927,9 @@
   align-items: center;
   flex-wrap: nowrap;
   align-items: flex-start;
+}
+
+.content-box :deep() .el-descriptions__label {
+  width: 60px;
 }
 </style>

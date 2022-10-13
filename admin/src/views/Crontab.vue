@@ -142,7 +142,7 @@
         :total="pageTotal">
       </el-pagination>
     </div>
-    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="700px" modal :before-close="handleClose">
+    <el-dialog :title="dialogTitle" v-model="dialogVisible" width="700px" modal :before-close="handleClose('addCronRuleInfo')">
       <span>
         <el-form label-position="right" :rules="addCronRuleInfoRule" ref="addCronRuleInfo" :model="addCronRuleInfo"
           label-width="90px" size="small">
@@ -780,7 +780,7 @@ export default {
       var time = new Date(Date.parse(t))
       return time.toLocaleDateString() + ' ' + time.toTimeString().split(' ')[0]
     },
-    handleClose () {
+    handleClose (formName) {
       this.dialogVisible = false
       this.cronPopover = false
       this.$refs[formName].resetFields()

@@ -61,8 +61,8 @@ type IPAddrsPoolGetResp struct {
 	Remark   string    `json:"remark" gorm:"column:remark"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
-	IPv4     int64     `json:"ipv4" gorm:"column:-"`
-	IPv6     int64     `json:"ipv6" gorm:"column:-"`
+	IPv4     string    `json:"ipv4" gorm:"column:-"`
+	IPv6     string    `json:"ipv6" gorm:"column:-"`
 }
 
 type NewIDC struct {
@@ -341,33 +341,36 @@ func GetLineIpAddrs(id *OnlyID) (*IPAddrsPoolGetResp, *BriefMessage) {
 		return nil, ErrSearchDBData
 	}
 	ipAddrParsed := ParseRangeIP(pool.Ipaddrs)
-	var v4, v6 int64
+	v4 := int64(0)
+	v6 := big.NewInt(0)
 	for _, single := range ipAddrParsed.IPs {
 		if single.Type == 4 {
 			v4 += 1
 		} else {
-			v6 += 1
+			v6.Add(v6, big.NewInt(1))
 		}
 	}
 	for _, netp := range ipAddrParsed.Nets {
 		l, max := netp.Net.Mask.Size()
-		num := int64(1 << (max - l))
 		if netp.Type == 4 {
+			num := int64(1 << (max - l))
 			v4 += num
 		} else {
-			v6 += num
+			bigOne := big.NewInt(1)
+			v6.Add(v6, bigOne.Lsh(bigOne, uint(max-l)))
 		}
 	}
 	for _, rangep := range ipAddrParsed.Range {
-		num := rangep.End.Sub(rangep.End, rangep.Begin).Int64() + 1
 		if rangep.Type == 4 {
+			num := rangep.End.Sub(rangep.End, rangep.Begin).Int64() + 1
 			v4 += num
 		} else {
-			v6 += num
+			v6.Add(v6, rangep.End.Sub(rangep.End, rangep.Begin))
+			v6.Add(v6, big.NewInt(1))
 		}
 	}
-	pool.IPv4 = v4
-	pool.IPv6 = v6
+	pool.IPv4 = fmt.Sprint(v4)
+	pool.IPv6 = v6.String()
 	return &pool, Success
 }
 
