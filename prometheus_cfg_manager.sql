@@ -43,6 +43,7 @@ CREATE TABLE IF NOT EXISTS `crontab` (
   `api_id` int(11) NOT NULL,
   `exec_cycle` varchar(100) NOT NULL DEFAULT '0 0/5 * * * ? *',
   `enabled` tinyint(4) NOT NULL DEFAULT 1,
+  `show_title` TINYINT(4) NOT NULL DEFAULT '1',
   `near_time` int(11) NOT NULL,
   `unit` varchar(50) NOT NULL,
   `update_at` datetime NOT NULL,
