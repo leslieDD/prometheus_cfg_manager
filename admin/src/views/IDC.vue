@@ -177,9 +177,9 @@
                   <el-descriptions-item>
                     <template #label>
                       <div class="cell-item">
-                        <el-icon :style="iconStyle">
+                       <!-- <el-icon :style="iconStyle">
                           <location />
-                        </el-icon>
+                        </el-icon> -->
                         Total
                       </div>
                     </template>
