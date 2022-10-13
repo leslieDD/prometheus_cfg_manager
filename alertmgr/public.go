@@ -85,6 +85,7 @@ func ConvertValueV4(rst *PrometheusRangeResp) ([]string, []string, [][]float64, 
 			maxLen = len(r.Values)
 			p = r
 		}
+		ipAddrs = append(ipAddrs, r.Metric["instance"])
 	}
 	// 填充数据
 	for _, r := range rst.Data.Result {
