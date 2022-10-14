@@ -39,7 +39,7 @@
               :data="data"
               node-key="tree_id"
               :highlight-current="true"
-              :expand-on-click-node="true"
+              :expand-on-click-node="false"
               :default-expanded-keys="defaultExpandedKeys"
               @node-click="nodeClick"
               @node-expand="nodeExpand"
