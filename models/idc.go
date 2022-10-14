@@ -61,8 +61,11 @@ type IPAddrsPoolGetResp struct {
 	Remark   string    `json:"remark" gorm:"column:remark"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
-	IPv4     string    `json:"ipv4" gorm:"column:-"`
-	IPv6     string    `json:"ipv6" gorm:"column:-"`
+	IPv4     string    `json:"ipv4" gorm:"-"`
+	IPv6     string    `json:"ipv6" gorm:"-"`
+	IPNum    int       `json:"ip_num" gorm:"-"`    // 独立IP的个数
+	NetNum   int       `json:"net_num" gorm:"-"`   // 网段的个数
+	RangeNum int       `json:"range_num" gorm:"-"` // IP范围的个数
 }
 
 type NewIDC struct {
@@ -349,6 +352,7 @@ func GetLineIpAddrs(id *OnlyID) (*IPAddrsPoolGetResp, *BriefMessage) {
 		} else {
 			v6.Add(v6, big.NewInt(1))
 		}
+		pool.IPNum += 1
 	}
 	for _, netp := range ipAddrParsed.Nets {
 		l, max := netp.Net.Mask.Size()
@@ -359,6 +363,7 @@ func GetLineIpAddrs(id *OnlyID) (*IPAddrsPoolGetResp, *BriefMessage) {
 			bigOne := big.NewInt(1)
 			v6.Add(v6, bigOne.Lsh(bigOne, uint(max-l)))
 		}
+		pool.NetNum += 1
 	}
 	for _, rangep := range ipAddrParsed.Range {
 		if rangep.Type == 4 {
@@ -368,6 +373,7 @@ func GetLineIpAddrs(id *OnlyID) (*IPAddrsPoolGetResp, *BriefMessage) {
 			v6.Add(v6, rangep.End.Sub(rangep.End, rangep.Begin))
 			v6.Add(v6, big.NewInt(1))
 		}
+		pool.RangeNum += 1
 	}
 	pool.IPv4 = fmt.Sprint(v4)
 	pool.IPv6 = v6.String()

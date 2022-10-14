@@ -2478,7 +2478,7 @@ func getStruct(c *gin.Context) {
 
 func ws(c *gin.Context) {
 	user := c.Keys["userInfo"].(*models.UserSessionInfo)
-	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create websokcet", models.IsAdd, models.Success)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "create websocket", models.IsAdd, models.Success)
 	bf := models.WS(c)
 	resComm(c, bf, nil)
 }

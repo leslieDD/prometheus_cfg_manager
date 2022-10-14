@@ -138,7 +138,7 @@
               </div>
             </template>
             <div class="content-box">
-              <div style="width: 80%">
+              <div style="width: 80%;">
                 <el-input :disabled="should_disabled || onobject_disabled" 
                   resize="none" 
                   :rows="16"
@@ -147,45 +147,95 @@
                   v-model="linedetailinfo.ipaddrs_net_line">
                 </el-input>
               </div>
-              <div style="width: 450px; margin-left: 15px;">
-                <el-descriptions class="margin-top" title="" :column="1" size="small" border>
-                  <template #extra>
-                    <el-button size="mini" plain type="danger" @click="expandIPAddr">扩展当前组或者线路</el-button>
-                  </template>
-                  <el-descriptions-item>
-                    <template #label>
-                      <div class="cell-item">
+              <div style="width: 450px; margin-left: 15px; margin-top: -35px;">
+                <div>
+                  <el-descriptions class="margin-top" title="" :column="1" size="small" border>
+                    <template #extra>
+                      <el-button size="mini" plain type="danger" @click="expandIPAddr">扩展当前组或者线路</el-button>
+                    </template>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <!-- <el-icon :style="iconStyle">
+                            <user />
+                          </el-icon> -->
+                          IP
+                        </div>
+                      </template>
+                      {{linedetailinfo.ip_num}}
+                    </el-descriptions-item>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <!-- <el-icon :style="iconStyle">
+                            <iphone />
+                          </el-icon> -->
+                          网段
+                        </div>
+                      </template>
+                      {{linedetailinfo.net_num}}
+                    </el-descriptions-item>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <!-- <el-icon :style="iconStyle">
+                            <iphone />
+                          </el-icon> -->
+                          范围
+                        </div>
+                      </template>
+                      {{linedetailinfo.range_num}}
+                    </el-descriptions-item>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
                         <!-- <el-icon :style="iconStyle">
-                          <user />
-                        </el-icon> -->
-                        IPv4
-                      </div>
-                    </template>
-                    {{linedetailinfo.ipv4}}
-                  </el-descriptions-item>
-                  <el-descriptions-item>
-                    <template #label>
-                      <div class="cell-item">
+                            <location />
+                          </el-icon> -->
+                          Total
+                        </div>
+                      </template>
+                      {{linedetailinfo.ip_num + linedetailinfo.net_num + linedetailinfo.range_num}}
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </div>
+                <div class="tongji-area-down">
+                  <el-descriptions class="margin-top" title="" :column="1" size="small" border>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <!-- <el-icon :style="iconStyle">
+                            <user />
+                          </el-icon> -->
+                          IPv4
+                        </div>
+                      </template>
+                      {{linedetailinfo.ipv4}}
+                    </el-descriptions-item>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <!-- <el-icon :style="iconStyle">
+                            <iphone />
+                          </el-icon> -->
+                          IPv6
+                        </div>
+                      </template>
+                      {{linedetailinfo.ipv6}}
+                    </el-descriptions-item>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
                         <!-- <el-icon :style="iconStyle">
-                          <iphone />
-                        </el-icon> -->
-                        IPv6
-                      </div>
-                    </template>
-                    {{linedetailinfo.ipv6}}
-                  </el-descriptions-item>
-                  <el-descriptions-item>
-                    <template #label>
-                      <div class="cell-item">
-                       <!-- <el-icon :style="iconStyle">
-                          <location />
-                        </el-icon> -->
-                        Total
-                      </div>
-                    </template>
-                    {{BigInt(linedetailinfo.ipv4) + BigInt(linedetailinfo.ipv6)}}
-                  </el-descriptions-item>
-                </el-descriptions>
+                            <location />
+                          </el-icon> -->
+                          Total
+                        </div>
+                      </template>
+                      {{BigInt(linedetailinfo.ipv4) + BigInt(linedetailinfo.ipv6)}}
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </div>
               </div>
             </div>
           </el-form-item>
@@ -288,6 +338,9 @@
           'remark_info': '',  // 备注信息
           'ipv4': 0,
           'ipv6': 0,
+          'ip_num': 0,
+          'net_num': 0,
+          'range_num': 0,
         },
         dialogLineVisible: false,
         dialogIDCVisible: false,
@@ -666,6 +719,9 @@
               'remark_info': r.data.remark,        // 备注信息
               'ipv4': 0,
               'ipv6': 0,
+              'ip_num': 0,
+              'net_num': 0,
+              'range_num': 0,
             }
           }).catch(e=>console.log(e))
         } else if (node.tree_type === 'line') {
@@ -678,6 +734,9 @@
               'remark_info': r.data.remark,        // 备注信息
               'ipv4': r.data.ipv4,
               'ipv6': r.data.ipv6,
+              'ip_num': r.data.ip_num,
+              'net_num': r.data.net_num,
+              'range_num': r.data.range_num,
             }
           }).catch(e=>{
             console.log(e)
@@ -931,5 +990,9 @@
 
 .content-box :deep() .el-descriptions__label {
   width: 60px;
+}
+
+.tongji-area-down {
+  margin-top: 10px;
 }
 </style>
