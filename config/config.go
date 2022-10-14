@@ -54,7 +54,7 @@ type Config struct {
 	Position      string        `json:"position" yaml:"position"`
 	GPS           gps           `json:"gps" yaml:"gps"`
 	Mail          mail          `json:"mail" yaml:"mail"`
-	Font          string        `json:"font" ymal:"font"`
+	Font          string        `json:"font" yaml:"font"`
 	RuntimeParam  runtimeParam  `json:"-" yaml:"-"`
 }
 
