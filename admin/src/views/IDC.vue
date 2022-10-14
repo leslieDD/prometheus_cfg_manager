@@ -159,7 +159,22 @@
                           <!-- <el-icon :style="iconStyle">
                             <user />
                           </el-icon> -->
-                          IP
+                          线路
+                        </div>
+                      </template>
+                      {{linedetailinfo.line_num}}
+                    </el-descriptions-item>
+                  </el-descriptions>
+                </div>
+                <div class="tongji-area-down">
+                  <el-descriptions class="margin-top" title="" :column="1" size="small" border>
+                    <el-descriptions-item>
+                      <template #label>
+                        <div class="cell-item">
+                          <!-- <el-icon :style="iconStyle">
+                            <user />
+                          </el-icon> -->
+                          单IP
                         </div>
                       </template>
                       {{linedetailinfo.ip_num}}
@@ -341,6 +356,7 @@
           'ip_num': 0,
           'net_num': 0,
           'range_num': 0,
+          'line_num': 0,
         },
         dialogLineVisible: false,
         dialogIDCVisible: false,
@@ -717,11 +733,12 @@
             this.linedetailinfo = {
               'ipaddrs_net_line': '请把此机房的IP信息填写入相应的线路中',  // IP地址列表
               'remark_info': r.data.remark,        // 备注信息
-              'ipv4': 0,
-              'ipv6': 0,
-              'ip_num': 0,
-              'net_num': 0,
-              'range_num': 0,
+              'ipv4': r.data.ipv4,
+              'ipv6': r.data.ipv6,
+              'ip_num': r.data.ip_num,
+              'net_num': r.data.net_num,
+              'range_num': r.data.range_num,
+              'line_num': r.data.line_num,
             }
           }).catch(e=>console.log(e))
         } else if (node.tree_type === 'line') {
@@ -737,6 +754,7 @@
               'ip_num': r.data.ip_num,
               'net_num': r.data.net_num,
               'range_num': r.data.range_num,
+              'line_num': r.data.line_num,
             }
           }).catch(e=>{
             console.log(e)
@@ -992,7 +1010,11 @@
   width: 60px;
 }
 
+.content-box :deep() .el-descriptions__header {
+  margin-bottom: 6px!important;
+}
+
 .tongji-area-down {
-  margin-top: 10px;
+  margin-top: 8px;
 }
 </style>

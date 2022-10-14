@@ -3,6 +3,7 @@ package models
 import (
 	"encoding/json"
 	"fmt"
+	"math/big"
 	"net"
 	"pro_cfg_manager/config"
 	"pro_cfg_manager/utils"
@@ -443,4 +444,38 @@ func ParseRangeIP(ipAddrs string) *TypeGroupIP {
 		}
 	}
 	return &tgi
+}
+
+// 统计信息
+func Statistics(s *statistics, ipAddrs string) {
+	ipAddrParsed := ParseRangeIP(ipAddrs)
+	for _, single := range ipAddrParsed.IPs {
+		if single.Type == 4 {
+			s.IPv4 += 1
+		} else {
+			s.IPv6.Add(&s.IPv6, big.NewInt(1))
+		}
+		s.IPNum += 1
+	}
+	for _, netp := range ipAddrParsed.Nets {
+		l, max := netp.Net.Mask.Size()
+		if netp.Type == 4 {
+			num := int64(1 << (max - l))
+			s.IPv4 += num
+		} else {
+			bigOne := big.NewInt(1)
+			s.IPv6.Add(&s.IPv6, bigOne.Lsh(bigOne, uint(max-l)))
+		}
+		s.NetNum += 1
+	}
+	for _, rangep := range ipAddrParsed.Range {
+		if rangep.Type == 4 {
+			num := rangep.End.Sub(rangep.End, rangep.Begin).Int64() + 1
+			s.IPv4 += num
+		} else {
+			s.IPv6.Add(&s.IPv6, rangep.End.Sub(rangep.End, rangep.Begin))
+			s.IPv6.Add(&s.IPv6, big.NewInt(1))
+		}
+		s.RangeNum += 1
+	}
 }

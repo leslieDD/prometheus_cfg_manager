@@ -18,6 +18,14 @@ import (
 	"gorm.io/gorm"
 )
 
+type statistics struct {
+	IPv4     int64   `json:"ipv4" gorm:"-"`
+	IPv6     big.Int `json:"ipv6" gorm:"-"`
+	IPNum    int     `json:"ip_num" gorm:"-"`    // 独立IP的个数
+	NetNum   int     `json:"net_num" gorm:"-"`   // 网段的个数
+	RangeNum int     `json:"range_num" gorm:"-"` // IP范围的个数
+}
+
 type IDC struct {
 	ID       int       `json:"id" gorm:"column:id"`
 	Label    string    `json:"label" gorm:"column:label"`
@@ -27,6 +35,12 @@ type IDC struct {
 	View     bool      `json:"view" gorm:"column:view"`
 	UpdateAt time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy string    `json:"update_by" gorm:"column:update_by"`
+	IPv4     string    `json:"ipv4" gorm:"-"`
+	IPv6     string    `json:"ipv6" gorm:"-"`
+	IPNum    int       `json:"ip_num" gorm:"-"`    // 独立IP的个数
+	NetNum   int       `json:"net_num" gorm:"-"`   // 网段的个数
+	RangeNum int       `json:"range_num" gorm:"-"` // IP范围的个数
+	LineNum  int       `json:"line_num" gorm:"-"`  // 线路个数
 }
 
 type Line struct {
@@ -66,6 +80,7 @@ type IPAddrsPoolGetResp struct {
 	IPNum    int       `json:"ip_num" gorm:"-"`    // 独立IP的个数
 	NetNum   int       `json:"net_num" gorm:"-"`   // 网段的个数
 	RangeNum int       `json:"range_num" gorm:"-"` // IP范围的个数
+	LineNum  int       `json:"line_num" gorm:"-"`  // 线路个数
 }
 
 type NewIDC struct {
@@ -131,6 +146,34 @@ func GetIDC(id *OnlyID) (*IDC, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
+	lines := []OnlyID{}
+	tx = db.Table("line").Select("id").Where("idc_id", idc.ID).Find(&lines)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	idc.LineNum = len(lines)
+	linesIDs := []int{}
+	for _, l := range lines {
+		linesIDs = append(linesIDs, l.ID)
+	}
+	pools := []*IPAddrsPool{}
+	tx = db.Table("pool").Where("line_id in ?", linesIDs).Find(&pools)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return nil, ErrSearchDBData
+	}
+	s := statistics{
+		IPv6: *big.NewInt(0),
+	}
+	for _, p := range pools {
+		Statistics(&s, p.Ipaddrs)
+	}
+	idc.IPv4 = fmt.Sprint(s.IPv4)
+	idc.IPv6 = s.IPv6.String()
+	idc.IPNum = s.IPNum
+	idc.NetNum = s.NetNum
+	idc.RangeNum = s.RangeNum
 	return &idc, Success
 }
 
@@ -343,40 +386,16 @@ func GetLineIpAddrs(id *OnlyID) (*IPAddrsPoolGetResp, *BriefMessage) {
 		config.Log.Error(tx.Error)
 		return nil, ErrSearchDBData
 	}
-	ipAddrParsed := ParseRangeIP(pool.Ipaddrs)
-	v4 := int64(0)
-	v6 := big.NewInt(0)
-	for _, single := range ipAddrParsed.IPs {
-		if single.Type == 4 {
-			v4 += 1
-		} else {
-			v6.Add(v6, big.NewInt(1))
-		}
-		pool.IPNum += 1
+	s := statistics{
+		IPv6: *big.NewInt(0),
 	}
-	for _, netp := range ipAddrParsed.Nets {
-		l, max := netp.Net.Mask.Size()
-		if netp.Type == 4 {
-			num := int64(1 << (max - l))
-			v4 += num
-		} else {
-			bigOne := big.NewInt(1)
-			v6.Add(v6, bigOne.Lsh(bigOne, uint(max-l)))
-		}
-		pool.NetNum += 1
-	}
-	for _, rangep := range ipAddrParsed.Range {
-		if rangep.Type == 4 {
-			num := rangep.End.Sub(rangep.End, rangep.Begin).Int64() + 1
-			v4 += num
-		} else {
-			v6.Add(v6, rangep.End.Sub(rangep.End, rangep.Begin))
-			v6.Add(v6, big.NewInt(1))
-		}
-		pool.RangeNum += 1
-	}
-	pool.IPv4 = fmt.Sprint(v4)
-	pool.IPv6 = v6.String()
+	Statistics(&s, pool.Ipaddrs)
+	pool.IPv4 = fmt.Sprint(s.IPv4)
+	pool.IPv6 = s.IPv6.String()
+	pool.IPNum = s.IPNum
+	pool.NetNum = s.NetNum
+	pool.RangeNum = s.RangeNum
+	pool.LineNum = 1
 	return &pool, Success
 }
 

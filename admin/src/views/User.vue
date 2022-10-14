@@ -85,13 +85,13 @@
       <span>
         <el-form label-position="right" :rules="rules" ref="ManagerUserRef" :model="ManagerUserRef" label-width="auto"
           size="small">
-          <el-form-item label="用户登录名：" prop="username">
+          <el-form-item label="登录名：" prop="username">
             <el-input style="width: 340px" v-model="ManagerUserRef.username"></el-input>
           </el-form-item>
           <el-form-item label="登录密码：" prop="password">
             <el-input type="password" style="width: 340px" v-model="ManagerUserRef.password"></el-input>
           </el-form-item>
-          <el-form-item label="用户姓名：" prop="nice_name">
+          <el-form-item label="姓名：" prop="nice_name">
             <el-input style="width: 340px" v-model="ManagerUserRef.nice_name"></el-input>
           </el-form-item>
           <el-form-item label="手机：" prop="phone">
