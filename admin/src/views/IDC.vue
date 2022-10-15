@@ -104,9 +104,9 @@
           <el-button v-if="pushing_part===true" icon="el-icon-loading"  type="warning" plain size="small" class="button" 
             @click="updatePartIPAddrs">只更新未设置IP</el-button>
           <el-button v-if="pushing_create_label===false" icon="el-icon-upload" type="info" plain size="small" class="button" 
-            @click="doCreateLabelForAllIPs">JOB组中生成标签</el-button>
+            @click="doCreateLabelForAllIPs">生成JOB组子组标签</el-button>
           <el-button v-if="pushing_create_label===true" icon="el-icon-loading" type="info" plain size="small" class="button" 
-            @click="doCreateLabelForAllIPs">JOB组中生成标签</el-button>
+            @click="doCreateLabelForAllIPs">生成JOB组子组标签</el-button>
           <el-button v-if="pushing_create_ips===false" icon="el-icon-upload" type="danger" plain size="small" class="button" 
             @click="doCreateIPForAllJob">扩展所有组地址</el-button>
           <el-button v-if="pushing_create_ips===true" icon="el-icon-loading" type="danger" plain size="small" class="button" 
