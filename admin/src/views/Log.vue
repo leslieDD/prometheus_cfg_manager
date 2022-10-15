@@ -45,7 +45,7 @@
       </el-table-column>
       <el-table-column label="结果" width="50px" prop="operate_result">
       </el-table-column>
-      <el-table-column label="操作时间" width="130px" prop="operate_at">
+      <el-table-column label="操作时间" width="150px" prop="operate_at">
         <template v-slot="{ row }">
           <span>{{ parseTimeSelf(row.operate_at) }}</span>
         </template>
