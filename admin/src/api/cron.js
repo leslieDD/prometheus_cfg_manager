@@ -133,3 +133,11 @@ export function sendTestMail () {
     method: 'post',
   })
 }
+
+export function loadtitle(rule) {
+  return request({
+    url: '/v1/cron/load/title',
+    method: 'post',
+    data: rule
+  })
+}

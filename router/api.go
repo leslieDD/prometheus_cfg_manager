@@ -138,6 +138,7 @@ func initApiRouter() {
 	v1.PUT("/cron/rules/publish", putRulesPublish)
 	v1.GET("/cron/rule/image", getRuleImage)
 	v1.POST("/cron/send/testmail", postSendTestMail)
+	v1.POST("/cron/load/title", loadTitle)
 
 	v1.GET("/base/cron", getCron)
 	v1.GET("/base/cron/all", getAllCron)
@@ -2328,6 +2329,24 @@ func postSendTestMail(c *gin.Context) {
 	}
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "send test mail", models.IsPublish, models.Success)
 	resComm(c, bf, nil)
+}
+
+func loadTitle(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "load_title")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	r := models.LoadTitleRule{}
+	if err := c.BindJSON(&r); err != nil {
+		models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "load line title", models.IsSearch, models.ErrPostData)
+		resComm(c, models.ErrPostData, nil)
+		return
+	}
+	content, bf := models.LoadTitle(&r)
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "load line title", models.IsSearch, bf)
+	resComm(c, bf, content)
 }
 
 func getCron(c *gin.Context) {

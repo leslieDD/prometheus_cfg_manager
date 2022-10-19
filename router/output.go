@@ -24,6 +24,10 @@ func outputIPlist(c *gin.Context) {
 	resComm(c, bf, data)
 }
 
+func cronImport(c *gin.Context) {
+	
+}
+
 func Version(c *gin.Context) {
 	resComm(c, models.Success, map[string]string{"version": config.Version})
 }

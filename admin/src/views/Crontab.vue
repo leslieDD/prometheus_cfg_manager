@@ -40,6 +40,18 @@
       </el-table-column>
       <el-table-column label="名称" width="200px" prop="name" align="center" header-align="center" show-overflow-tooltip>
       </el-table-column>
+      <el-table-column label="CID" prop="cid" width="150px" align="center" header-align="center"
+                       show-overflow-tooltip>
+        <template #header>
+          <el-tooltip content="客户ID" placement="top">
+            <span type="warning">CID
+              <i style="font-size: 13px; color: #0081ff" class="el-icon-warning"></i></span>
+          </el-tooltip>
+        </template>
+        <template v-slot="{ row }">
+          <span>{{ row.cid }}</span>
+        </template>
+      </el-table-column>
       <el-table-column label="规则" prop="rule" align="center" header-align="center">
         <template #header>
           <el-tooltip content="Prometheus中PromQL查询语言" placement="top">
@@ -72,13 +84,13 @@
       <el-table-column label="执行周期" prop="exec_cycle" align="center" header-align="center" width="150px"
         show-overflow-tooltip>
         <template #header>
-          <el-tooltip content="只支持前5个字段，会去掉最后的‘周’和‘年’" placement="top">
+          <el-tooltip content="只支持5个字段，分钟 小时 天 月 周" placement="top">
             <span type="warning">执行周期
               <i style="font-size: 13px; color: #0081ff" class="el-icon-warning"></i></span>
           </el-tooltip>
         </template>
       </el-table-column>
-      <el-table-column label="执行状态" align="center" header-align="center" width="120px">
+      <el-table-column label="执行状态" align="center" header-align="center" width="100px">
         <template #header>
           <el-tooltip content="执行总数/成功数/失败数" placement="top">
             <span type="warning">执行状态
@@ -89,7 +101,7 @@
           <span>{{ row.run_times }}/{{ row.success_times }}/{{ row.fail_times }}</span>
         </template>
       </el-table-column>
-      <el-table-column label="时间" align="center" header-align="center" width="120px">
+      <el-table-column label="时间 (近)" align="center" header-align="center" width="100px">
         <template v-slot="{ row }">
           <span>{{ row.near_time }}{{ changetoUnit(row.unit) }}</span>
         </template>
@@ -148,6 +160,9 @@
           label-width="90px" size="small">
           <el-form-item label="名称：" prop="name">
             <el-input style="width: 550px" v-model="addCronRuleInfo.name"></el-input>
+          </el-form-item>
+          <el-form-item label="CID：" prop="cid">
+            <el-input style="width: 550px" v-model="addCronRuleInfo.cid"></el-input>
           </el-form-item>
           <el-form-item label="时间" prop="near_time">
             <!-- <vdateRange @dateRange="getDateRange" placeholder="请选择时间范围"></vdateRange> -->
@@ -242,9 +257,39 @@
                     <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
                   </el-tooltip>
                 </template>
-                <el-switch v-model="addCronRuleInfo.show_title" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+                <el-switch v-model="addCronRuleInfo.show_title" @click="selectClick(addCronRuleInfo)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
               </el-form-item>
             </el-col>
+          </el-row>
+          <el-row v-if="selectTitleShow">
+            <el-form-item>
+              <el-col>
+                <el-select v-model="addCronRuleInfo.line_title" placeholder="Select" style="width: 230px">
+                  <el-option
+                      v-for="item in loadLineValues"
+                      :key="item.value"
+                      :label="item.label"
+                      :value="item.label"
+                      style="min-width: 230px"
+                  >
+                    <span style="float: left">{{ item.label }}</span>
+                    <span
+                        style="
+                        float: right;
+                        color: var(--el-text-color-secondary);
+                        font-size: 13px;
+                      "
+                    >{{ item.value }}</span
+                    >
+                  </el-option>
+                </el-select>
+              </el-col>
+              <el-col>
+                <el-form-item label="标题：" prop="line_title">
+                  <el-tag class="mx-1" size="small">{{addCronRuleInfo.line_title || '无'}}</el-tag>
+                </el-form-item>
+              </el-col>
+            </el-form-item>
           </el-row>
           <el-form-item size="small">
             <el-button size="small" type="primary" @click="onSubmit('addCronRuleInfo')">{{ buttonTitle }}</el-button>
@@ -292,6 +337,7 @@ import {
   cronRulesPublish,
   getRuleChat,
   sendTestMail,
+  loadtitle,
 } from '@/api/cron.js'
 
 export default {
@@ -316,10 +362,12 @@ export default {
       addCronRuleInfo: {
         'id': 0,
         'name': '',
+        'cid': '',
         'rule': '',
         'api_id': null,
         'enabled': true,
         'show_title': false,
+        'line_title': '',
         'exec_cycle': '',
         'near_time': 1,
         'unit': '1',
@@ -358,6 +406,8 @@ export default {
       showCronImage: false,
       showImageTitle: '',
       showHelpDialog: false,
+      loadLineValues: {},
+      selectTitleShow: false,
     }
   },
   created () {
@@ -591,10 +641,12 @@ export default {
         this.addCronRuleInfo = {
           'id': 0,
           'name': '',
+          'cid': '',
           'rule': '',
           'api_id': null,
           'enabled': true,
           'show_title': false,
+          'line_title': '',
           'exec_cycle': '',
           'near_time': 1,
           'unit': '1',
@@ -618,13 +670,18 @@ export default {
         this.addCronRuleInfo = {
           'id': data.row.id,
           'name': data.row.name,
+          'cid': data.row.cid,
           'rule': data.row.rule,
           'api_id': data.row.api_id,
           'enabled': data.row.enabled,
           'show_title': data.row.show_title,
+          'line_title': data.row.line_title,
           'exec_cycle': data.row.exec_cycle,
           'near_time': data.row.near_time,
           'unit': data.row.unit,
+        }
+        if (data.row.show_title) {
+          this.selectClick(data.row)
         }
         this.dialogVisible = true
       }).catch(e => {
@@ -689,10 +746,12 @@ export default {
         if (valid) {
           let postData = {}
           postData['name'] = this.addCronRuleInfo.name
+          postData['cid'] = this.addCronRuleInfo.cid
           postData['rule'] = this.addCronRuleInfo.rule
           postData['api_id'] = this.addCronRuleInfo.api_id
           postData['enabled'] = this.addCronRuleInfo.enabled
           postData['show_title'] = this.addCronRuleInfo.show_title
+          postData['line_title'] = this.addCronRuleInfo.line_title
           postData['exec_cycle'] = this.addCronRuleInfo.exec_cycle
           postData['near_time'] = parseInt(this.addCronRuleInfo.near_time)
           postData['unit'] = this.addCronRuleInfo.unit
@@ -798,7 +857,19 @@ export default {
     },
     handleHelpDialogClose () {
       this.showHelpDialog = false
-    }
+    },
+    selectClick(data){
+      if( !data.show_title ){
+        return
+      }
+      loadtitle({
+        rule: data.rule,
+        api_id: data.api_id,
+      }).then(r=>{
+        this.loadLineValues = r.data
+        this.selectTitleShow = true
+      }).catch(e=>console.log(e))
+    },
   }
 }
 </script>
