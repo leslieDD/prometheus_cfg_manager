@@ -68,7 +68,7 @@ func ConvertValueV3(rst *PrometheusRangeResult) plotter.XYs {
 }
 
 // 最后一个返回值是最大值
-func ConvertValueV4(rst *PrometheusRangeResp) ([]string, []string, [][]float64, float64) {
+func ConvertValueV4(cr *CronRule, rst *PrometheusRangeResp) ([]string, []string, [][]float64, float64) {
 	ipAddrs := []string{}
 	yvss := [][]float64{}
 	xtitles := []string{}
@@ -85,7 +85,7 @@ func ConvertValueV4(rst *PrometheusRangeResp) ([]string, []string, [][]float64, 
 			maxLen = len(r.Values)
 			p = r
 		}
-		ipAddrs = append(ipAddrs, r.Metric["instance"])
+		ipAddrs = append(ipAddrs, r.Metric[cr.LineTitle])
 	}
 	// 填充数据
 	for _, r := range rst.Data.Result {

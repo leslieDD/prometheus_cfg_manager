@@ -257,11 +257,11 @@
                     <span><i style="font-size: 13px" class="el-icon-warning">：</i></span>
                   </el-tooltip>
                 </template>
-                <el-switch v-model="addCronRuleInfo.show_title" @click="selectClick(addCronRuleInfo)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+                <el-switch v-model="addCronRuleInfo.show_title" @change="selectClick(addCronRuleInfo)" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
               </el-form-item>
             </el-col>
           </el-row>
-          <el-row v-if="selectTitleShow">
+          <el-row v-if="selectTitleShow === true">
             <el-form-item>
               <el-col>
                 <el-select v-model="addCronRuleInfo.line_title" placeholder="Select" style="width: 230px">
@@ -410,6 +410,9 @@ export default {
       selectTitleShow: false,
     }
   },
+  // watch: {
+  //   selectTitleShow
+  // },
   created () {
   },
   mounted () {
@@ -680,6 +683,7 @@ export default {
           'near_time': data.row.near_time,
           'unit': data.row.unit,
         }
+        this.selectTitleShow = false
         if (data.row.show_title) {
           this.selectClick(data.row)
         }
@@ -860,6 +864,7 @@ export default {
     },
     selectClick(data){
       if( !data.show_title ){
+        this.selectTitleShow = false
         return
       }
       loadtitle({

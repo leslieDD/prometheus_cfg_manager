@@ -44,7 +44,7 @@ func ChartLine(cr *CronRule) (string, error) {
 		return "", errors.New("no data found")
 	}
 
-	ipAddrs, x, y, max := ConvertValueV4(respData)
+	lineTitle, x, y, max := ConvertValueV4(cr, respData)
 	imgTitle := fmt.Sprintf("%s\n%s - %s [ %d%s ]",
 		cr.Name,
 		cr.Start.Format(config.TimeLayout),
@@ -77,7 +77,7 @@ func ChartLine(cr *CronRule) (string, error) {
 		},
 	}
 	if cr.ShowTitle {
-		opts = append(opts, charts.LegendLabelsOptionFunc(ipAddrs, charts.PositionCenter))
+		opts = append(opts, charts.LegendLabelsOptionFunc(lineTitle, charts.PositionCenter))
 	}
 	p, err := charts.LineRender(
 		y,

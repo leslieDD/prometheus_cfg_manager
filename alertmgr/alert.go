@@ -62,9 +62,11 @@ type RuleInfo struct {
 type CronRule struct {
 	ID        int       `json:"id" gorm:"column:id"`
 	Name      string    `json:"name" gorm:"column:name"`
+	CID       string    `json:"cid" gorm:"column:cid"` // 有可能是多个
 	Rule      string    `json:"rule" gorm:"column:rule"`
 	Enabled   bool      `json:"enabled" gorm:"column:enabled"`
 	ShowTitle bool      `json:"show_title" gorm:"column:show_title"`
+	LineTitle string    `json:"line_title" gorm:"column:line_title"` // 生成线的标题
 	ApiID     int       `json:"api_id" gorm:"column:api_id"`
 	APIName   string    `json:"api_name" gorm:"column:api_name"`
 	API       string    `json:"api" gorm:"column:api"`
