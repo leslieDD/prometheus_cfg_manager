@@ -275,6 +275,40 @@ func PostCronRule(user *UserSessionInfo, newCron *CrontabPost) *BriefMessage {
 	return Success
 }
 
+func CronImport(crs []*CrontabPost) *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	currCronApi := []*Crontab{}
+	tx := db.Table("crontab").Find(&currCronApi)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrSearchDBData
+	}
+	currCIDs := map[string]*Crontab{}
+	for _, curr := range currCronApi {
+		currCIDs[curr.CID] = curr
+	}
+	user := &UserSessionInfo{
+		Username: "openapi",
+	}
+	for _, cr := range crs {
+		if currCron, ok := currCIDs[cr.CID]; ok {
+			cr.ID = currCron.ID
+			if bf := PutCronRule(user, cr); bf != Success {
+				return bf
+			}
+		} else {
+			if bf := PostCronRule(user, cr); bf != Success {
+				return bf
+			}
+		}
+	}
+	return Success
+}
+
 func PutCronRule(user *UserSessionInfo, api *CrontabPost) *BriefMessage {
 	db := dbs.DBObj.GetGoRM()
 	if db == nil {
