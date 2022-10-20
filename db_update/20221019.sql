@@ -1,5 +1,5 @@
 ALTER TABLE `crontab`
-    ADD COLUMN `cid` INT(11) DEFAULT NULL AFTER `name`;
+    ADD COLUMN `cid` VARCHAR(200) DEFAULT NULL AFTER `name`;
 
 ALTER TABLE `crontab`
     ADD COLUMN `line_title` VARCHAR(200) DEFAULT NULL AFTER `show_title`;

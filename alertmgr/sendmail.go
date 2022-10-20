@@ -23,8 +23,8 @@ type ImageContent struct {
 }
 
 func sendEmail(ic *ImageContent) bool {
-	uuid := uuid.New()
-	key := uuid.String()
+	uuidObj := uuid.New()
+	key := uuidObj.String()
 	t, err := template.New(key).Parse(ImgTmpl)
 	if err != nil {
 		config.Log.Error(err)

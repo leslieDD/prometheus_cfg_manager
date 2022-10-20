@@ -36,20 +36,22 @@ DELETE FROM `annotations`;
 
 -- 导出  表 pro_cfg_manager.crontab 结构
 DROP TABLE IF EXISTS `crontab`;
-CREATE TABLE IF NOT EXISTS `crontab` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `name` varchar(300) NOT NULL DEFAULT '',
-  `rule` text NOT NULL,
-  `api_id` int(11) NOT NULL,
-  `exec_cycle` varchar(100) NOT NULL DEFAULT '0 0/5 * * * ? *',
-  `enabled` tinyint(4) NOT NULL DEFAULT 1,
-  `show_title` TINYINT(4) NOT NULL DEFAULT '1',
-  `near_time` int(11) NOT NULL,
-  `unit` varchar(50) NOT NULL,
-  `update_at` datetime NOT NULL,
-  `update_by` varchar(300) NOT NULL DEFAULT '',
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COMMENT='定时任务';
+CREATE TABLE `crontab` (
+`id` int(11) NOT NULL AUTO_INCREMENT,
+`name` varchar(300) NOT NULL DEFAULT '',
+`cid` varchar(200) DEFAULT NULL,
+`rule` text NOT NULL,
+`api_id` int(11) NOT NULL,
+`exec_cycle` varchar(100) NOT NULL DEFAULT '0 0/5 * * * ? *',
+`enabled` tinyint(4) NOT NULL DEFAULT 1,
+`show_title` tinyint(4) NOT NULL DEFAULT 1,
+`line_title` varchar(200) DEFAULT NULL,
+`near_time` int(11) NOT NULL,
+`unit` varchar(50) NOT NULL,
+`update_at` datetime NOT NULL,
+`update_by` varchar(300) NOT NULL DEFAULT '',
+PRIMARY KEY (`id`)
+) ENGINE=InnoDB AUTO_INCREMENT=529 DEFAULT CHARSET=utf8mb3 COMMENT='定时任务'
 
 -- 正在导出表  pro_cfg_manager.crontab 的数据：~1 rows (大约)
 DELETE FROM `crontab`;
@@ -725,7 +727,8 @@ INSERT INTO `page_function` (`id`, `page_name`, `page_nice_name`, `sub_page_name
 	(150, 'crontab', '定时任务', '', '', 'dis.enable', '启用/禁用'),
 	(151, 'crontab', '定时任务', '', '', 'publish', '发布'),
 	(152, 'crontab', '定时任务', '', '', 'image', '生成图'),
-	(153, 'crontab', '定时任务', '', '', 'mail', '发送测试邮件');
+	(153, 'crontab', '定时任务', '', '', 'mail', '发送测试邮件')
+    (154, 'crontab', '定时任务', '', '', 'load_title', '加载线标题');
 
 -- 导出  表 pro_cfg_manager.pool 结构
 DROP TABLE IF EXISTS `pool`;
