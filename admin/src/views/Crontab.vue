@@ -38,7 +38,7 @@
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
-      <el-table-column label="名称" width="200px" prop="name" align="center" header-align="center" show-overflow-tooltip>
+      <el-table-column label="名称" width="150px" prop="name" align="center" header-align="center" show-overflow-tooltip>
       </el-table-column>
       <el-table-column label="CID" prop="cid" width="80px" align="center" header-align="center"
                        show-overflow-tooltip>
