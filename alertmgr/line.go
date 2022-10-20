@@ -77,7 +77,7 @@ func ChartLine(cr *CronRule) (string, error) {
 		},
 	}
 	if cr.ShowTitle {
-		opts = append(opts, charts.LegendLabelsOptionFunc(lineTitle, charts.PositionCenter))
+		opts = append(opts, charts.LegendLabelsOptionFunc(lineTitle, charts.PositionBottom))
 	}
 	p, err := charts.LineRender(
 		y,
