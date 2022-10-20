@@ -40,7 +40,7 @@
       </el-table-column>
       <el-table-column label="名称" width="200px" prop="name" align="center" header-align="center" show-overflow-tooltip>
       </el-table-column>
-      <el-table-column label="CID" prop="cid" width="150px" align="center" header-align="center"
+      <el-table-column label="CID" prop="cid" width="80px" align="center" header-align="center"
                        show-overflow-tooltip>
         <template #header>
           <el-tooltip content="客户ID" placement="top">
