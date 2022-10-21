@@ -24,6 +24,7 @@ const (
 	ReloadAllPrometheusConfig
 	ReCreateAndReloadPrometheusConfig
 	ReSetAllPrivilegesData
+	UpdateCronStatus
 )
 
 type SyncStatus int

@@ -181,6 +181,7 @@ type Crontab struct {
 	ExecCycle string    `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
 	NearTime  int       `json:"near_time" gorm:"column:near_time"`
 	Unit      string    `json:"unit" gorm:"column:unit"`
+	Status    bool      `json:"status" gorm:"column:status"`
 	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
 	UpdateBy  string    `json:"update_by" gorm:"column:update_by"`
 }
@@ -201,6 +202,7 @@ type CrontabPost struct {
 	ExecCycle string `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
 	NearTime  int    `json:"near_time" gorm:"column:near_time"`
 	Unit      string `json:"unit" gorm:"column:unit"`
+	Status    bool   `json:"status" gorm:"column:status"`
 	Enabled   bool   `json:"enabled" gorm:"column:enabled"`
 	ShowTitle bool   `json:"show_title" gorm:"column:show_title"`
 	LineTitle string `json:"line_title" gorm:"column:line_title"` // 生成线的标题
@@ -236,7 +238,8 @@ func GetCronRules(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	if sp.Search != "" {
 		tx = tx.Where("name like ? or rule like ?", likeContent, likeContent)
 	}
-	tx = tx.Offset((sp.PageNo - 1) * sp.PageSize).
+	tx = tx.Order("update_at asc").
+		Offset((sp.PageNo - 1) * sp.PageSize).
 		Limit(sp.PageSize).
 		Find(&lists)
 	if tx.Error != nil {
@@ -453,6 +456,9 @@ func LoadTitle(ltr *LoadTitleRule) ([]map[string]string, *BriefMessage) {
 	if bf != Success {
 		return nil, bf
 	}
+	if apiInfo.API == "" {
+		return nil, ErrApiInterfaceNoFound
+	}
 	queryUri := ""
 	if strings.HasSuffix(apiInfo.API, "/") {
 		queryUri = apiInfo.API + "api/v1/query"
@@ -528,4 +534,36 @@ func LoadTitle(ltr *LoadTitleRule) ([]map[string]string, *BriefMessage) {
 		respSlice = append(respSlice, item)
 	}
 	return respSlice, Success
+}
+
+func CheckStatus() *BriefMessage {
+	db := dbs.DBObj.GetGoRM()
+	if db == nil {
+		config.Log.Error(InternalGetBDInstanceErr)
+		return ErrDataBase
+	}
+	crons := []*Crontab{}
+	tx := db.Table("crontab").Find(&crons)
+	if tx.Error != nil {
+		config.Log.Error(tx.Error)
+		return ErrUpdateData
+	}
+	for _, cron := range crons {
+		ltr := LoadTitleRule{
+			ApiID: cron.ApiID,
+			Rule:  cron.Rule,
+		}
+		if _, bf := LoadTitle(&ltr); bf != Success {
+			tx = db.Table("crontab").Where("id", cron.ID).Update("status", false)
+			if tx.Error != nil {
+				return ErrUpdateData
+			}
+		} else {
+			tx = db.Table("crontab").Where("id", cron.ID).Update("status", true)
+			if tx.Error != nil {
+				return ErrUpdateData
+			}
+		}
+	}
+	return Success
 }

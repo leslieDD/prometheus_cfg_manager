@@ -139,6 +139,7 @@ func initApiRouter() {
 	v1.GET("/cron/rule/image", getRuleImage)
 	v1.POST("/cron/send/testmail", postSendTestMail)
 	v1.POST("/cron/load/title", loadTitle)
+	v1.PUT("/cron/check/status", checkStatus)
 
 	v1.GET("/base/cron", getCron)
 	v1.GET("/base/cron/all", getAllCron)
@@ -2347,6 +2348,23 @@ func loadTitle(c *gin.Context) {
 	content, bf := models.LoadTitle(&r)
 	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "load line title", models.IsSearch, bf)
 	resComm(c, bf, content)
+}
+
+func checkStatus(c *gin.Context) {
+	user := c.Keys["userInfo"].(*models.UserSessionInfo)
+	pass := models.CheckPriv(user, "crontab", "", "check_status")
+	if pass != models.Success {
+		resComm(c, pass, nil)
+		return
+	}
+	if sync.AS.CanNoDo(sync.UpdateCronStatus) {
+		resComm(c, models.ErrAlreadyRunning, nil)
+		return
+	}
+	bf := models.CheckStatus()
+	models.OO.RecodeLog(user.Username, c.Request.RemoteAddr, "cron check status", models.IsUpdate, bf)
+	sync.AS.Done(sync.UpdateCronStatus)
+	resComm(c, bf, nil)
 }
 
 func getCron(c *gin.Context) {

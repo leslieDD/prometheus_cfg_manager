@@ -141,3 +141,10 @@ export function loadtitle(rule) {
     data: rule
   })
 }
+
+export function checkStatus(){
+  return request({
+    url: '/v1/cron/check/status',
+    method: 'put'
+  })
+}

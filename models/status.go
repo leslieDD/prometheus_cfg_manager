@@ -54,6 +54,7 @@ var ErrGenUUID = &BriefMessage{500000, "uuid生成失败"}
 var ErrMonitorApi = &BriefMessage{500000, "调用监控服务的API出现错误"}
 var ErrApiReturnErr = &BriefMessage{500000, "调用API接口返回错误内容"}
 var ErrApiReturnEmpty = &BriefMessage{500000, "调用API接口返回空内容"}
+var ErrApiInterfaceNoFound = &BriefMessage{500000, "调用API接口没有找到"}
 var ErrProNoReady = &BriefMessage{500000, "Prometheus还没有准备好"}
 var ErrFileList = &BriefMessage{500000, "读取文件列表失败"}
 var ErrRFileContent = &BriefMessage{500000, "读取文件内容失败"}

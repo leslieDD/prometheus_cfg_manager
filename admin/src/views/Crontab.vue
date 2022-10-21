@@ -8,7 +8,10 @@
         <el-button icon="el-icon-warning-outline" size="small" type="success" plain @click="doBatchEnable()">启用选中
         </el-button>
         <el-divider direction="vertical" />
-        <el-button icon="el-icon-s-promotion" size="small" type="info" plain @click="doSendTestMail()">发送测试邮件
+          <el-button v-if="checkstatusRunning===true" icon="el-icon-loading" size="small" type="warning" plain>检测状态</el-button>
+          <el-button v-else icon="el-icon-s-promotion" size="small" type="warning" plain @click="doCheckStatus()">检测状态</el-button>
+        <el-divider direction="vertical" />
+          <el-button icon="el-icon-s-promotion" size="small" type="info" plain @click="doSendTestMail()">发送测试邮件
         </el-button>
       </div>
       <div class="do-action-search">
@@ -39,6 +42,10 @@
         </template>
       </el-table-column>
       <el-table-column label="名称" width="150px" prop="name" align="center" header-align="center" show-overflow-tooltip>
+        <template v-slot="{ row }">
+          <el-tag v-if="row.status === true" size="small"  class="ml-2" type="success">{{row.name}}</el-tag>
+          <el-tag v-else class="ml-2" size="small" type="warning">{{row.name}}</el-tag>
+        </template>
       </el-table-column>
       <el-table-column label="CID" prop="cid" width="80px" align="center" header-align="center"
                        show-overflow-tooltip>
@@ -338,6 +345,7 @@ import {
   getRuleChat,
   sendTestMail,
   loadtitle,
+  checkStatus,
 } from '@/api/cron.js'
 
 export default {
@@ -408,6 +416,7 @@ export default {
       showHelpDialog: false,
       loadLineValues: {},
       selectTitleShow: false,
+      checkstatusRunning: false,
     }
   },
   // watch: {
@@ -609,6 +618,21 @@ export default {
           this.doGetCronRules()
         }).catch(e => console.log(e))
       }).catch(e => console.log(e))
+    },
+    doCheckStatus(){
+      this.checkstatusRunning = true
+      checkStatus().then(_ => {
+        this.$notify({
+          title: '成功',
+          message: '检索完成',
+          type: 'success',
+          duration: 1000,
+        });
+        this.checkstatusRunning = false
+      }).catch(e=>{
+        console.log(e)
+        this.checkstatusRunning = false
+      })
     },
     doSendTestMail () {
       sendTestMail().then(r => {

@@ -75,6 +75,7 @@ type CronRule struct {
 	NearTime  int       `json:"near_time" gorm:"column:near_time"`
 	Unit      string    `json:"unit" gorm:"column:unit"`
 	ExecCycle string    `json:"exec_cycle" gorm:"column:exec_cycle"` // 执行周期
+	Status    bool      `json:"status" gorm:"column:status"`
 	UpdateAt  time.Time `json:"update_at" gorm:"column:update_at"`
 	LoginAt   time.Time `json:"login_at" gorm:"column:login_at"`
 }
