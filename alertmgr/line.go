@@ -68,10 +68,6 @@ func ChartLine(cr *CronRule) (string, error) {
 			}
 			opt.Height = 600
 			opt.Width = 1000
-			opt.Legend.Padding = charts.Box{
-				Top:    5,
-				Bottom: 10,
-			}
 			opt.SymbolShow = charts.FalseFlag()
 			opt.LineStrokeWidth = 1
 			opt.YAxisOptions = []charts.YAxisOption{
