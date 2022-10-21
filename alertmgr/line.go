@@ -61,6 +61,11 @@ func ChartLine(cr *CronRule) (string, error) {
 				Text: imgTitle,
 				Left: "center",
 			}
+			opt.Title.Left = charts.PositionCenter
+			opt.Legend.Padding = charts.Box{
+				Top:    50,
+				Bottom: 10,
+			}
 			opt.Height = 600
 			opt.Width = 1000
 			opt.Legend.Padding = charts.Box{
