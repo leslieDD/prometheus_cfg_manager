@@ -238,7 +238,7 @@ func GetCronRules(sp *SplitPage) (*ResSplitPage, *BriefMessage) {
 	if sp.Search != "" {
 		tx = tx.Where("name like ? or rule like ?", likeContent, likeContent)
 	}
-	tx = tx.Order("update_at asc").
+	tx = tx.Order("status asc").
 		Offset((sp.PageNo - 1) * sp.PageSize).
 		Limit(sp.PageSize).
 		Find(&lists)
