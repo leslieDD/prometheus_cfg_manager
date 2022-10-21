@@ -48,6 +48,7 @@ CREATE TABLE `crontab` (
 `line_title` varchar(200) DEFAULT NULL,
 `near_time` int(11) NOT NULL,
 `unit` varchar(50) NOT NULL,
+`status` tinyint(4) NOT NULL DEFAULT 0,
 `update_at` datetime NOT NULL,
 `update_by` varchar(300) NOT NULL DEFAULT '',
 PRIMARY KEY (`id`)
@@ -727,8 +728,9 @@ INSERT INTO `page_function` (`id`, `page_name`, `page_nice_name`, `sub_page_name
 	(150, 'crontab', '定时任务', '', '', 'dis.enable', '启用/禁用'),
 	(151, 'crontab', '定时任务', '', '', 'publish', '发布'),
 	(152, 'crontab', '定时任务', '', '', 'image', '生成图'),
-	(153, 'crontab', '定时任务', '', '', 'mail', '发送测试邮件')
-    (154, 'crontab', '定时任务', '', '', 'load_title', '加载线标题');
+	(153, 'crontab', '定时任务', '', '', 'mail', '发送测试邮件'),
+    (154, 'crontab', '定时任务', '', '', 'load_title', '加载线标题'),
+    (155, 'crontab', '定时任务', '', '', 'check_status', '检索状态');
 
 -- 导出  表 pro_cfg_manager.pool 结构
 DROP TABLE IF EXISTS `pool`;
