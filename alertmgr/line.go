@@ -45,29 +45,31 @@ func ChartLine(cr *CronRule) (string, error) {
 	}
 
 	lineTitle, x, y, max := ConvertValueV4(cr, respData)
-	imgTitle := fmt.Sprintf("%s\n%s - %s [ %d%s ]",
+	imgTitle := fmt.Sprintf("%s\n%s - %s [ 近 %d%s ]",
 		cr.Name,
 		cr.Start.Format(config.TimeLayout),
 		cr.End.Format(config.TimeLayout),
 		cr.NearTime,
 		ConvertTimeStr(cr.Unit),
 	)
-	opts := []charts.OptionFunc{
-		charts.TitleTextOptionFunc("Line"),
+	var opts []charts.OptionFunc
+	if cr.ShowTitle {
+		opts = append(opts, charts.LegendLabelsOptionFunc(lineTitle, charts.PositionLeft))
+	}
+	opts = append(opts, charts.TitleTextOptionFunc("Line"),
 		charts.XAxisDataOptionFunc(x),
 		installFont,
 		func(opt *charts.ChartOption) {
 			opt.Title = charts.TitleOption{
 				Text: imgTitle,
-				Left: "center",
 			}
 			opt.Title.Left = charts.PositionCenter
 			opt.Legend.Padding = charts.Box{
-				Top:    80,
-				Bottom: 100,
+				Top:    50,
+				Bottom: 20,
 			}
-			opt.Height = 600
-			opt.Width = 1000
+			opt.Height = 700
+			opt.Width = 1200
 			opt.SymbolShow = charts.FalseFlag()
 			opt.LineStrokeWidth = 1
 			opt.YAxisOptions = []charts.YAxisOption{
@@ -76,10 +78,7 @@ func ChartLine(cr *CronRule) (string, error) {
 				},
 			}
 		},
-	}
-	if cr.ShowTitle {
-		opts = append(opts, charts.LegendLabelsOptionFunc(lineTitle, charts.PositionBottom))
-	}
+	)
 	p, err := charts.LineRender(
 		y,
 		opts...,
