@@ -26,6 +26,7 @@
           {{ scope.$index + 1 }}
         </template>
       </el-table-column>
+      <el-table-column label="接口编号" prop="id" show-overflow-tooltip> </el-table-column>
       <el-table-column label="接口名称" prop="name" show-overflow-tooltip> </el-table-column>
       <el-table-column label="接口URL" prop="api" show-overflow-tooltip> </el-table-column>
       <el-table-column label="更新账号" prop="update_by" show-overflow-tooltip> </el-table-column>
