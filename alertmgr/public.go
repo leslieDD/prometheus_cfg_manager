@@ -85,7 +85,7 @@ func ConvertValueV4(cr *CronRule, rst *PrometheusRangeResp) ([]string, []string,
 			maxLen = len(r.Values)
 			p = r
 		}
-		ipAddrs = append(ipAddrs, r.Metric[cr.LineTitle])
+		ipAddrs = append(ipAddrs, strings.TrimLeft(strings.ToLower(r.Metric[cr.LineTitle]), "config_"))
 	}
 	// 填充数据
 	for _, r := range rst.Data.Result {
